@@ -550,12 +550,14 @@ namespace Moria.Core.Methods
                     }
 
                     int damage = diceRoll(dice);
-                    notice = executeAttackOnPlayer(creature.level, monster.hp, monster_id, attack_type, damage, death_description, notice);
+                    var monsterhp = monster.hp;
+                    notice = executeAttackOnPlayer(creature.level, ref monsterhp, monster_id, (int)attack_type, damage, death_description, notice);
+                    monster.hp = monsterhp;
 
                     // Moved here from monsterMove, so that monster only confused if it
                     // actually hits. A monster that has been repelled has not hit
                     // the player, so it should not be confused.
-                    monsterConfuseOnAttack(creature, monster, attack_desc, name, visible);
+                    monsterConfuseOnAttack(creature, monster, (int)attack_desc, name, visible);
 
                     // increase number of attacks if notice true, or if visible and
                     // had previously noticed the attack (in which case all this does
@@ -1083,6 +1085,7 @@ namespace Moria.Core.Methods
                     monster_name += "cast unknown spell.";
                     //(void)strcat(monster_name, "cast unknown spell.");
                     printMessage(monster_name);
+                    break;
             }
         }
 

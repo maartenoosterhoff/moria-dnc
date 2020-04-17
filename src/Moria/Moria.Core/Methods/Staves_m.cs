@@ -9,6 +9,7 @@ using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_manager_m;
+using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods

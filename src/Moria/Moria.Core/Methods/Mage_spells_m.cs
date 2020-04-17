@@ -6,6 +6,7 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Game_m;
+using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
