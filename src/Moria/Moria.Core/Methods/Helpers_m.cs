@@ -1,4 +1,6 @@
-﻿namespace Moria.Core.Methods
+﻿using System;
+
+namespace Moria.Core.Methods
 {
     public static class Helpers_m
     {
@@ -14,11 +16,24 @@
                     flag &= ~mask;
                     return i;
                 }
+
                 mask <<= 1;
             }
 
             // no one bits found
             return -1;
+        }
+
+        // Insert a long number into a string (was `insert_lnum()` function)
+        public static void insertNumberIntoString(ref string to_string, string from_string, int number, bool show_sign)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Inserts a string into a string
+        public static void insertStringIntoString(ref string to_string, string from_string, string str_to_insert)
+        {
+            throw new NotImplementedException();
         }
 
         public static bool isVowel(char ch)
@@ -39,6 +54,17 @@
                 default:
                     return false;
             }
+        }
+
+        // http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
+        public static bool stringToNumber(string str, ref int number)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void humanDateString(string day)
+        {
+            throw new NotImplementedException();
         }
     }
 }

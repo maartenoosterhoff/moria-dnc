@@ -14,7 +14,7 @@ using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
-
+using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {

@@ -11,6 +11,7 @@ using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;

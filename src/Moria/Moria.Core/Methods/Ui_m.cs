@@ -2,32 +2,15 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
-using System;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Helpers_m;
-using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Player_magic_m;
-using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -550,475 +533,504 @@ namespace Moria.Core.Methods
             }
         }
 
-        void printCharacterStudyInstruction()
+        public static void printCharacterStudyInstruction()
         {
+            var py = State.Instance.py;
+
             py.flags.status &= ~Config.player_status.PY_STUDY;
 
             if (py.flags.new_spells_to_learn == 0)
             {
-                putString(&blank_string[BLANK_LENGTH - 5], new Coord_t(23, 59});
+                putString(blank_string.Substring(BLANK_LENGTH - 5), new Coord_t(23, 59));
+                //putString(&blank_string[BLANK_LENGTH - 5], new Coord_t(23, 59));
+            }
+            else
+            {
+                putString("Study", new Coord_t(23, 59));
+            }
         }
-    else
-    {
-        putString("Study", new Coord_t(23, 59});
-    }
-}
 
-// Prints winner status on display -RAK-
-void printCharacterWinner()
-{
-    if ((game.noscore & 0x2) != 0)
-    {
-        if (game.wizard_mode)
+        // Prints winner status on display -RAK-
+        public static void printCharacterWinner()
         {
-            putString("Is wizard  ", new Coord_t(22, 0});
-    }
-    else
-    {
-        putString("Was wizard ", new Coord_t(22, 0});
-}
-    }
-    else if ((game.noscore & 0x1) != 0)
-    {
-        putString("Resurrected", new Coord_t(22, 0});
-    }
-    else if ((game.noscore & 0x4) != 0)
-    {
-        putString("Duplicate", new Coord_t(22, 0});
-    }
-    else if (game.total_winner)
-    {
-        putString("*Winner*   ", new Coord_t(22, 0});
-    }
-}
-
-// Prints character-screen info -RAK-
-void printCharacterStatsBlock()
-{
-    printCharacterInfoInField(character_races[py.misc.race_id].name, new Coord_t(2, STAT_COLUMN});
-    printCharacterInfoInField(classes[py.misc.class_id].title, new Coord_t(3, STAT_COLUMN});
-    printCharacterInfoInField(playerRankTitle(), new Coord_t(4, STAT_COLUMN});
-
-    for (int i = 0; i< 6; i++)
-    {
-        displayCharacterStats(i);
-    }
-
-    printHeaderNumber("LEV ", (int) py.misc.level, new Coord_t(13, STAT_COLUMN});
-    printHeaderLongNumber("EXP ", py.misc.exp, new Coord_t(14, STAT_COLUMN});
-    printHeaderNumber("MANA", py.misc.current_mana, new Coord_t(15, STAT_COLUMN});
-    printHeaderNumber("MHP ", py.misc.max_hp, new Coord_t(16, STAT_COLUMN});
-    printHeaderNumber("CHP ", py.misc.current_hp, new Coord_t(17, STAT_COLUMN});
-    printHeaderNumber("AC  ", py.misc.display_ac, new Coord_t(19, STAT_COLUMN});
-    printHeaderLongNumber("GOLD", py.misc.au, new Coord_t(20, STAT_COLUMN});
-    printCharacterWinner();
-
-uint32_t status = py.flags.status;
-
-    if (((Config.player_status.PY_HUNGRY | Config.player_status.PY_WEAK) & status) != 0u)
-    {
-        printCharacterHungerStatus();
-    }
-
-    if ((status & Config.player_status.PY_BLIND) != 0u)
-    {
-        printCharacterBlindStatus();
-    }
-
-    if ((status & Config.player_status.PY_CONFUSED) != 0u)
-    {
-        printCharacterConfusedState();
-    }
-
-    if ((status & Config.player_status.PY_FEAR) != 0u)
-    {
-        printCharacterFearState();
-    }
-
-    if ((status & Config.player_status.PY_POISONED) != 0u)
-    {
-        printCharacterPoisonedState();
-    }
-
-    if (((Config.player_status.PY_SEARCH | Config.player_status.PY_REST) & status) != 0u)
-    {
-        printCharacterMovementState();
-    }
-
-    // if speed non zero, print it, modify speed if Searching
-    int16_t speed = py.flags.speed - (int16_t)((status & Config.player_status.PY_SEARCH) >> 8);
-    if (speed != 0)
-    {
-        printCharacterSpeed();
-    }
-
-    // display the study field
-    printCharacterStudyInstruction();
-}
-
-// Prints the following information on the screen. -JWT-
-void printCharacterInformation()
-{
-    clearScreen();
-
-    putString("Name        :", new Coord_t(2, 1});
-    putString("Race        :", new Coord_t(3, 1});
-    putString("Sex         :", new Coord_t(4, 1});
-    putString("Class       :", new Coord_t(5, 1});
-
-    if (!game.character_generated)
-    {
-        return;
-    }
-
-    putString(py.misc.name, new Coord_t(2, 15});
-    putString(character_races[py.misc.race_id].name, new Coord_t(3, 15});
-    putString((playerGetGenderLabel()), new Coord_t(4, 15});
-    putString(classes[py.misc.class_id].title, new Coord_t(5, 15});
-}
-
-// Prints the following information on the screen. -JWT-
-void printCharacterStats()
-{
-    for (int i = 0; i < 6; i++)
-    {
-        vtype_t buf = { '\0' };
-
-        statsAsString(py.stats.used[i], buf);
-        putString(stat_names[i], new Coord_t(2 + i, 61});
-    putString(buf, new Coord_t(2 + i, 66});
-
-    if (py.stats.max[i] > py.stats.current[i])
-    {
-        statsAsString(py.stats.max[i], buf);
-putString(buf, new Coord_t(2 + i, 73});
-    }
-}
-
-printHeaderNumber("+ To Hit    ", py.misc.display_to_hit, new Coord_t(9, 1});
-    printHeaderNumber("+ To Damage ", py.misc.display_to_damage, new Coord_t(10, 1});
-    printHeaderNumber("+ To AC     ", py.misc.display_to_ac, new Coord_t(11, 1});
-    printHeaderNumber("  Total AC  ", py.misc.display_ac, new Coord_t(12, 1});
-}
-
-// Returns a rating of x depending on y -JWT-
-const char* statRating(Coord_t coord) {
-    switch (coord.x / coord.y) {
-        case -3:
-        case -2:
-        case -1:
-            return "Very Bad";
-        case 0:
-        case 1:
-            return "Bad";
-        case 2:
-            return "Poor";
-        case 3:
-        case 4:
-            return "Fair";
-        case 5:
-            return "Good";
-        case 6:
-            return "Very Good";
-        case 7:
-        case 8:
-            return "Excellent";
-        default:
-            return "Superb";
-    }
-}
-
-// Prints age, height, weight, and SC -JWT-
-void printCharacterVitalStatistics()
-{
-    printHeaderNumber("Age          ", (int)py.misc.age, new Coord_t(2, 38});
-    printHeaderNumber("Height       ", (int) py.misc.height, new Coord_t(3, 38});
-    printHeaderNumber("Weight       ", (int) py.misc.weight, new Coord_t(4, 38});
-    printHeaderNumber("Social Class ", (int) py.misc.social_class, new Coord_t(5, 38});
-}
-
-// Prints the following information on the screen. -JWT-
-void printCharacterLevelExperience()
-{
-    printHeaderLongNumber7Spaces("Level      ", (int32_t)py.misc.level, new Coord_t(9, 28});
-    printHeaderLongNumber7Spaces("Experience ", py.misc.exp, new Coord_t(10, 28});
-    printHeaderLongNumber7Spaces("Max Exp    ", py.misc.max_exp, new Coord_t(11, 28});
-
-    if (py.misc.level >= PLAYER_MAX_LEVEL)
-    {
-        putStringClearToEOL("Exp to Adv.: *******", new Coord_t(12, 28});
-    }
-    else
-    {
-        printHeaderLongNumber7Spaces("Exp to Adv.", (int32_t)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100), new Coord_t(12, 28});
-    }
-
-    printHeaderLongNumber7Spaces("Gold       ", py.misc.au, new Coord_t(13, 28});
-    printHeaderNumber("Max Hit Points ", py.misc.max_hp, new Coord_t(9, 52});
-    printHeaderNumber("Cur Hit Points ", py.misc.current_hp, new Coord_t(10, 52});
-    printHeaderNumber("Max Mana       ", py.misc.mana, new Coord_t(11, 52});
-    printHeaderNumber("Cur Mana       ", py.misc.current_mana, new Coord_t(12, 52});
-}
-
-// Prints ratings on certain abilities -RAK-
-void printCharacterAbilities()
-{
-    clearToBottom(14);
-
-    int xbth = py.misc.bth + py.misc.plusses_to_hit * BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[py.misc.class_id][PlayerClassLevelAdj::BTH] * py.misc.level);
-    int xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[py.misc.class_id][PlayerClassLevelAdj::BTHB] * py.misc.level);
-
-    // this results in a range from 0 to 29
-    int xfos = 40 - py.misc.fos;
-    if (xfos < 0)
-    {
-        xfos = 0;
-    }
-
-    int xsrh = py.misc.chance_in_search;
-
-    // this results in a range from 0 to 9
-    int xstl = py.misc.stealth_factor + 1;
-    int xdis = py.misc.disarm + 2 * playerDisarmAdjustment() + playerStatAdjustmentWisdomIntelligence(PlayerAttr::INT) +
-               (class_level_adj[py.misc.class_id][PlayerClassLevelAdj::DISARM] * py.misc.level / 3);
-    int xsave =
-        py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence(PlayerAttr::WIS) + (class_level_adj[py.misc.class_id][PlayerClassLevelAdj::SAVE] * py.misc.level / 3);
-    int xdev =
-        py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence(PlayerAttr::INT) + (class_level_adj[py.misc.class_id][PlayerClassLevelAdj::DEVICE] * py.misc.level / 3);
-
-    vtype_t xinfra = { '\0' };
-    (void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
-
-    putString("(Miscellaneous Abilities)", new Coord_t(15, 25});
-    putString("Fighting    :", new Coord_t(16, 1});
-    putString(statRating(new Coord_t(12, xbth}), new Coord_t(16, 15});
-    putString("Bows/Throw  :", new Coord_t(17, 1});
-    putString(statRating(new Coord_t(12, xbthb}), new Coord_t(17, 15});
-    putString("Saving Throw:", new Coord_t(18, 1});
-    putString(statRating(new Coord_t(6, xsave}), new Coord_t(18, 15});
-
-    putString("Stealth     :", new Coord_t(16, 28});
-    putString(statRating(new Coord_t(1, xstl}), new Coord_t(16, 42});
-    putString("Disarming   :", new Coord_t(17, 28});
-    putString(statRating(new Coord_t(8, xdis}), new Coord_t(17, 42});
-    putString("Magic Device:", new Coord_t(18, 28});
-    putString(statRating(new Coord_t(6, xdev}), new Coord_t(18, 42});
-
-    putString("Perception  :", new Coord_t(16, 55});
-    putString(statRating(new Coord_t(3, xfos}), new Coord_t(16, 69});
-    putString("Searching   :", new Coord_t(17, 55});
-    putString(statRating(new Coord_t(6, xsrh}), new Coord_t(17, 69});
-    putString("Infra-Vision:", new Coord_t(18, 55});
-    putString(xinfra, new Coord_t(18, 69});
-}
-
-// Used to display the character on the screen. -RAK-
-void printCharacter()
-{
-    printCharacterInformation();
-    printCharacterVitalStatistics();
-    printCharacterStats();
-    printCharacterLevelExperience();
-    printCharacterAbilities();
-}
-
-// Gets a name for the character -JWT-
-void getCharacterName()
-{
-    putStringClearToEOL("Enter your player's name  [press <RETURN> when finished]", new Coord_t(21, 2});
-
-    putString(&blank_string[BLANK_LENGTH - 23], new Coord_t(2, 15});
-
-    if (!getStringInput(py.misc.name, new Coord_t(2, 15}, 23) || py.misc.name[0] == 0) {
-        getDefaultPlayerName(py.misc.name);
-putString(py.misc.name, new Coord_t(2, 15});
-    }
-
-    clearToBottom(20);
-}
-
-// Changes the name of the character -JWT-
-void changeCharacterName()
-{
-    vtype_t temp = { '\0' };
-    bool flag = false;
-
-    printCharacter();
-
-    while (!flag)
-    {
-        putStringClearToEOL("<f>ile character description. <c>hange character name.", new Coord_t(21, 2});
-
-    switch (getKeyInput())
-    {
-        case 'c':
-            getCharacterName();
-            flag = true;
-            break;
-        case 'f':
-            putStringClearToEOL("File name:", new Coord_t(0, 0});
-
-    if (getStringInput(temp, new Coord_t(0, 10}, 60) && (temp[0] != 0)) {
-                    if (outputPlayerCharacterToFile(temp))
-                    {
-                        flag = true;
-                    }
+            var game = State.Instance.game;
+            if ((game.noscore & 0x2) != 0)
+            {
+                if (game.wizard_mode)
+                {
+                    putString("Is wizard  ", new Coord_t(22, 0));
                 }
-                break;
-            case ESCAPE:
-            case ' ':
-            case '\n':
-            case '\r':
-                flag = true;
-                break;
-            default:
-                terminalBellSound();
-                break;
+                else
+                {
+                    putString("Was wizard ", new Coord_t(22, 0));
+                }
+            }
+            else if ((game.noscore & 0x1) != 0)
+            {
+                putString("Resurrected", new Coord_t(22, 0));
+            }
+            else if ((game.noscore & 0x4) != 0)
+            {
+                putString("Duplicate", new Coord_t(22, 0));
+            }
+            else if (game.total_winner)
+            {
+                putString("*Winner*   ", new Coord_t(22, 0));
+            }
         }
-    }
-}
 
-// Print list of spells -RAK-
-// if non_consecutive is  -1: spells numbered consecutively from 'a' to 'a'+num
-//                       >=0: spells numbered by offset from non_consecutive
-void displaySpellsList(const int* spell_ids, int number_of_choices, bool comment, int non_consecutive)
-{
-    int col;
-    if (comment)
-    {
-        col = 22;
-    }
-    else
-    {
-        col = 31;
-    }
-
-    int consecutive_offset;
-    if (classes[py.misc.class_id].class_to_use_mage_spells == config::spells::SPELL_TYPE_MAGE)
-    {
-        consecutive_offset = config::spells::NAME_OFFSET_SPELLS;
-    }
-    else
-    {
-        consecutive_offset = config::spells::NAME_OFFSET_PRAYERS;
-    }
-
-    eraseLine(new Coord_t(1, col});
-    putString("Name", new Coord_t(1, col + 5});
-    putString("Lv Mana Fail", new Coord_t(1, col + 35});
-
-    // only show the first 22 choices
-    if (number_of_choices > 22)
-    {
-        number_of_choices = 22;
-    }
-
-    for (int i = 0; i<number_of_choices; i++)
-    {
-        int spell_id = spell_ids[i];
-Spell_t const &spell = magic_spells[py.misc.class_id - 1][spell_id];
-
-        const char* p = nullptr;
-        if (!comment)
+        // Prints character-screen info -RAK-
+        public static void printCharacterStatsBlock()
         {
-            p = "";
+            var py = State.Instance.py;
+
+            printCharacterInfoInField(State.Instance.character_races[py.misc.race_id].name, new Coord_t(2, (int)STAT_COLUMN));
+            printCharacterInfoInField(State.Instance.classes[py.misc.class_id].title, new Coord_t(3, (int)STAT_COLUMN));
+            printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
+
+            for (int i = 0; i < 6; i++)
+            {
+                displayCharacterStats(i);
+            }
+
+            printHeaderNumber("LEV ", (int)py.misc.level, new Coord_t(13, (int)STAT_COLUMN));
+            printHeaderLongNumber("EXP ", py.misc.exp, new Coord_t(14, (int)STAT_COLUMN));
+            printHeaderNumber("MANA", py.misc.current_mana, new Coord_t(15, (int)STAT_COLUMN));
+            printHeaderNumber("MHP ", py.misc.max_hp, new Coord_t(16, (int)STAT_COLUMN));
+            printHeaderNumber("CHP ", py.misc.current_hp, new Coord_t(17, (int)STAT_COLUMN));
+            printHeaderNumber("AC  ", py.misc.display_ac, new Coord_t(19, (int)STAT_COLUMN));
+            printHeaderLongNumber("GOLD", py.misc.au, new Coord_t(20, (int)STAT_COLUMN));
+            printCharacterWinner();
+
+            uint status = py.flags.status;
+
+            if (((Config.player_status.PY_HUNGRY | Config.player_status.PY_WEAK) & status) != 0u)
+            {
+                printCharacterHungerStatus();
+            }
+
+            if ((status & Config.player_status.PY_BLIND) != 0u)
+            {
+                printCharacterBlindStatus();
+            }
+
+            if ((status & Config.player_status.PY_CONFUSED) != 0u)
+            {
+                printCharacterConfusedState();
+            }
+
+            if ((status & Config.player_status.PY_FEAR) != 0u)
+            {
+                printCharacterFearState();
+            }
+
+            if ((status & Config.player_status.PY_POISONED) != 0u)
+            {
+                printCharacterPoisonedState();
+            }
+
+            if (((Config.player_status.PY_SEARCH | Config.player_status.PY_REST) & status) != 0u)
+            {
+                printCharacterMovementState();
+            }
+
+            // if speed non zero, print it, modify speed if Searching
+            int speed = py.flags.speed - (int)((status & Config.player_status.PY_SEARCH) >> 8);
+            if (speed != 0)
+            {
+                printCharacterSpeed();
+            }
+
+            // display the study field
+            printCharacterStudyInstruction();
         }
-        else if ((py.flags.spells_forgotten & (1L << spell_id)) != 0)
+
+        // Prints the following information on the screen. -JWT-
+        public static void printCharacterInformation()
         {
-            p = " forgotten";
+            var game = State.Instance.game;
+            var py = State.Instance.py;
+
+            clearScreen();
+
+            putString("Name        :", new Coord_t(2, 1));
+            putString("Race        :", new Coord_t(3, 1));
+            putString("Sex         :", new Coord_t(4, 1));
+            putString("Class       :", new Coord_t(5, 1));
+
+            if (!game.character_generated)
+            {
+                return;
+            }
+
+            putString(py.misc.name, new Coord_t(2, 15));
+            putString(State.Instance.character_races[py.misc.race_id].name, new Coord_t(3, 15));
+            putString((playerGetGenderLabel()), new Coord_t(4, 15));
+            putString(State.Instance.classes[py.misc.class_id].title, new Coord_t(5, 15));
         }
-        else if ((py.flags.spells_learnt & (1L << spell_id)) == 0)
+
+        // Prints the following information on the screen. -JWT-
+        public static void printCharacterStats()
         {
-            p = " unknown";
+            var py = State.Instance.py;
+            for (int i = 0; i < 6; i++)
+            {
+                var buf = string.Empty;
+
+                statsAsString(py.stats.used[i], ref buf);
+                putString(stat_names[i], new Coord_t(2 + i, 61));
+                putString(buf, new Coord_t(2 + i, 66));
+
+                if (py.stats.max[i] > py.stats.current[i])
+                {
+                    statsAsString(py.stats.max[i], ref buf);
+                    putString(buf, new Coord_t(2 + i, 73));
+                }
+            }
+
+            printHeaderNumber("+ To Hit    ", py.misc.display_to_hit, new Coord_t(9, 1));
+            printHeaderNumber("+ To Damage ", py.misc.display_to_damage, new Coord_t(10, 1));
+            printHeaderNumber("+ To AC     ", py.misc.display_to_ac, new Coord_t(11, 1));
+            printHeaderNumber("  Total AC  ", py.misc.display_ac, new Coord_t(12, 1));
         }
-        else if ((py.flags.spells_worked & (1L << spell_id)) == 0)
+
+        // Returns a rating of x depending on y -JWT-
+        public static string statRating(Coord_t coord)
         {
-            p = " untried";
+            switch (coord.x / coord.y)
+            {
+                case -3:
+                case -2:
+                case -1:
+                    return "Very Bad";
+                case 0:
+                case 1:
+                    return "Bad";
+                case 2:
+                    return "Poor";
+                case 3:
+                case 4:
+                    return "Fair";
+                case 5:
+                    return "Good";
+                case 6:
+                    return "Very Good";
+                case 7:
+                case 8:
+                    return "Excellent";
+                default:
+                    return "Superb";
+            }
         }
-        else
+
+        // Prints age, height, weight, and SC -JWT-
+        public static void printCharacterVitalStatistics()
         {
-            p = "";
+            var py = State.Instance.py;
+            printHeaderNumber("Age          ", (int)py.misc.age, new Coord_t(2, 38));
+            printHeaderNumber("Height       ", (int)py.misc.height, new Coord_t(3, 38));
+            printHeaderNumber("Weight       ", (int)py.misc.weight, new Coord_t(4, 38));
+            printHeaderNumber("Social Class ", (int)py.misc.social_class, new Coord_t(5, 38));
         }
 
-        // determine whether or not to leave holes in character choices, non_consecutive -1
-        // when learning spells, consecutive_offset>=0 when asking which spell to cast.
-        char spell_char;
-        if (non_consecutive == -1)
+        // Prints the following information on the screen. -JWT-
+        public static void printCharacterLevelExperience()
         {
-            spell_char = (char) ('a' + i);
+            var py = State.Instance.py;
+            printHeaderLongNumber7Spaces("Level      ", (int)py.misc.level, new Coord_t(9, 28));
+            printHeaderLongNumber7Spaces("Experience ", py.misc.exp, new Coord_t(10, 28));
+            printHeaderLongNumber7Spaces("Max Exp    ", py.misc.max_exp, new Coord_t(11, 28));
+
+            if (py.misc.level >= PLAYER_MAX_LEVEL)
+            {
+                putStringClearToEOL("Exp to Adv.: *******", new Coord_t(12, 28));
+            }
+            else
+            {
+                printHeaderLongNumber7Spaces("Exp to Adv.", (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100), new Coord_t(12, 28));
+            }
+
+            printHeaderLongNumber7Spaces("Gold       ", py.misc.au, new Coord_t(13, 28));
+            printHeaderNumber("Max Hit Points ", py.misc.max_hp, new Coord_t(9, 52));
+            printHeaderNumber("Cur Hit Points ", py.misc.current_hp, new Coord_t(10, 52));
+            printHeaderNumber("Max Mana       ", py.misc.mana, new Coord_t(11, 52));
+            printHeaderNumber("Cur Mana       ", py.misc.current_mana, new Coord_t(12, 52));
         }
-        else
+
+        // Prints ratings on certain abilities -RAK-
+        public static void printCharacterAbilities()
         {
-            spell_char = (char) ('a' + spell_id - non_consecutive);
+            var py = State.Instance.py;
+            var class_level_adj = State.Instance.class_level_adj;
+            clearToBottom(14);
+
+            int xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level);
+            int xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level);
+
+            // this results in a range from 0 to 29
+            int xfos = 40 - py.misc.fos;
+            if (xfos < 0)
+            {
+                xfos = 0;
+            }
+
+            int xsrh = py.misc.chance_in_search;
+
+            // this results in a range from 0 to 9
+            int xstl = py.misc.stealth_factor + 1;
+            int xdis = py.misc.disarm + 2 * playerDisarmAdjustment() + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) +
+                       (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3);
+            int xsave =
+                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3);
+            int xdev =
+                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3);
+
+            var xinfra = $"{py.flags.see_infra * 10} feed";
+            //vtype_t xinfra = { '\0' };
+            //(void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
+
+            putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
+            putString("Fighting    :", new Coord_t(16, 1));
+            putString(statRating(new Coord_t(12, xbth)), new Coord_t(16, 15));
+            putString("Bows/Throw  :", new Coord_t(17, 1));
+            putString(statRating(new Coord_t(12, xbthb)), new Coord_t(17, 15));
+            putString("Saving Throw:", new Coord_t(18, 1));
+            putString(statRating(new Coord_t(6, xsave)), new Coord_t(18, 15));
+
+            putString("Stealth     :", new Coord_t(16, 28));
+            putString(statRating(new Coord_t(1, xstl)), new Coord_t(16, 42));
+            putString("Disarming   :", new Coord_t(17, 28));
+            putString(statRating(new Coord_t(8, xdis)), new Coord_t(17, 42));
+            putString("Magic Device:", new Coord_t(18, 28));
+            putString(statRating(new Coord_t(6, xdev)), new Coord_t(18, 42));
+
+            putString("Perception  :", new Coord_t(16, 55));
+            putString(statRating(new Coord_t(3, xfos)), new Coord_t(16, 69));
+            putString("Searching   :", new Coord_t(17, 55));
+            putString(statRating(new Coord_t(6, xsrh)), new Coord_t(17, 69));
+            putString("Infra-Vision:", new Coord_t(18, 55));
+            putString(xinfra, new Coord_t(18, 69));
         }
 
-        vtype_t out_val = { '\0' };
-(void) sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s", spell_char, spell_names[spell_id + consecutive_offset], spell.level_required, spell.mana_required,
-               spellChanceOfSuccess(spell_id), p);
-putStringClearToEOL(out_val, new Coord_t(2 + i, col});
-}
-}
+        // Used to display the character on the screen. -RAK-
+        public static void printCharacter()
+        {
+            printCharacterInformation();
+            printCharacterVitalStatistics();
+            printCharacterStats();
+            printCharacterLevelExperience();
+            printCharacterAbilities();
+        }
 
-// Increases hit points and level -RAK-
-static void playerGainLevel()
-{
-    py.misc.level++;
+        // Gets a name for the character -JWT-
+        public static void getCharacterName()
+        {
+            var py = State.Instance.py;
+            putStringClearToEOL("Enter your player's name  [press <RETURN> when finished]", new Coord_t(21, 2));
 
-    vtype_t msg = { '\0' };
-    (void)sprintf(msg, "Welcome to level %d.", (int)py.misc.level);
-    printMessage(msg);
+            putString(blank_string.Substring(0, BLANK_LENGTH - 23), new Coord_t(2, 15));
+            //putString(&blank_string[BLANK_LENGTH - 23], new Coord_t(2, 15));
 
-    playerCalculateHitPoints();
+            if (!getStringInput(py.misc.name, new Coord_t(2, 15), 23) || py.misc.name[0] == 0)
+            {
+                getDefaultPlayerName(py.misc.name);
+                putString(py.misc.name, new Coord_t(2, 15));
+            }
 
-    int32_t new_exp = py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100;
+            clearToBottom(20);
+        }
 
-    if (py.misc.exp > new_exp)
-    {
-        // lose some of the 'extra' exp when gaining several levels at once
-        int32_t dif_exp = py.misc.exp - new_exp;
-        py.misc.exp = new_exp + (dif_exp / 2);
-    }
+        // Changes the name of the character -JWT-
+        public static void changeCharacterName()
+        {
+            var temp = string.Empty;
+            //vtype_t temp = { '\0' };
+            bool flag = false;
 
-    printCharacterLevel();
-    printCharacterTitle();
+            printCharacter();
 
-    Class_t const &player_class = classes[py.misc.class_id];
+            while (!flag)
+            {
+                putStringClearToEOL("<f>ile character description. <c>hange character name.", new Coord_t(21, 2));
 
-    if (player_class.class_to_use_mage_spells == config::spells::SPELL_TYPE_MAGE)
-    {
-        playerCalculateAllowedSpellsCount(PlayerAttr::INT);
-        playerGainMana(PlayerAttr::INT);
-    }
-    else if (player_class.class_to_use_mage_spells == config::spells::SPELL_TYPE_PRIEST)
-    {
-        playerCalculateAllowedSpellsCount(PlayerAttr::WIS);
-        playerGainMana(PlayerAttr::WIS);
-    }
-}
+                switch (getKeyInput())
+                {
+                    case 'c':
+                        getCharacterName();
+                        flag = true;
+                        break;
+                    case 'f':
+                        putStringClearToEOL("File name:", new Coord_t(0, 0));
 
-// Prints experience -RAK-
-void displayCharacterExperience()
-{
-    if (py.misc.exp > config::player::PLAYER_MAX_EXP)
-    {
-        py.misc.exp = config::player::PLAYER_MAX_EXP;
-    }
+                        if (getStringInput(temp, new Coord_t(0, 10), 60) && (temp[0] != 0))
+                        {
+                            if (outputPlayerCharacterToFile(temp))
+                            {
+                                flag = true;
+                            }
+                        }
+                        break;
+                    case ESCAPE:
+                    case ' ':
+                    case '\n':
+                    case '\r':
+                        flag = true;
+                        break;
+                    default:
+                        terminalBellSound();
+                        break;
+                }
+            }
+        }
 
-    while ((py.misc.level < PLAYER_MAX_LEVEL) && (signed)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100) <= py.misc.exp)
-    {
-        playerGainLevel();
-    }
+        // Print list of spells -RAK-
+        // if non_consecutive is  -1: spells numbered consecutively from 'a' to 'a'+num
+        //                       >=0: spells numbered by offset from non_consecutive
+        public static void displaySpellsList(int[] spell_ids, int number_of_choices, bool comment, int non_consecutive)
+        {
+            var py = State.Instance.py;
+            int col;
+            if (comment)
+            {
+                col = 22;
+            }
+            else
+            {
+                col = 31;
+            }
 
-    if (py.misc.exp > py.misc.max_exp)
-    {
-        py.misc.max_exp = py.misc.exp;
-    }
+            int consecutive_offset;
+            if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            {
+                consecutive_offset = (int)Config.spells.NAME_OFFSET_SPELLS;
+            }
+            else
+            {
+                consecutive_offset = (int)Config.spells.NAME_OFFSET_PRAYERS;
+            }
 
-    printLongNumber(py.misc.exp, new Coord_t(14, STAT_COLUMN + 6});
-}
+            eraseLine(new Coord_t(1, col));
+            putString("Name", new Coord_t(1, col + 5));
+            putString("Lv Mana Fail", new Coord_t(1, col + 35));
 
+            // only show the first 22 choices
+            if (number_of_choices > 22)
+            {
+                number_of_choices = 22;
+            }
 
+            for (int i = 0; i < number_of_choices; i++)
+            {
+                int spell_id = spell_ids[i];
+                var spell = State.Instance.magic_spells[py.misc.class_id - 1][spell_id];
 
+                string p = string.Empty;
+                if (!comment)
+                {
+                    p = "";
+                }
+                else if ((py.flags.spells_forgotten & (1L << spell_id)) != 0)
+                {
+                    p = " forgotten";
+                }
+                else if ((py.flags.spells_learnt & (1L << spell_id)) == 0)
+                {
+                    p = " unknown";
+                }
+                else if ((py.flags.spells_worked & (1L << spell_id)) == 0)
+                {
+                    p = " untried";
+                }
+                else
+                {
+                    p = "";
+                }
 
+                // determine whether or not to leave holes in character choices, non_consecutive -1
+                // when learning spells, consecutive_offset>=0 when asking which spell to cast.
+                char spell_char;
+                if (non_consecutive == -1)
+                {
+                    spell_char = (char)('a' + i);
+                }
+                else
+                {
+                    spell_char = (char)('a' + spell_id - non_consecutive);
+                }
+
+                var out_val = $"  {spell_char}) {State.Instance.spell_names[spell_id + consecutive_offset]}{spell.level_required:d2} {spell.mana_required:d4} {spellChanceOfSuccess(spell_id):d3}%{p}";
+                //vtype_t out_val = { '\0' };
+                //(void)sprintf(out_val,
+                //    "  %c) %-30s%2d %4d %3d%%%s",
+                //    spell_char,
+                //    State.Instance.spell_names[spell_id + consecutive_offset],
+                //    spell.level_required,
+                //    spell.mana_required,
+                //    spellChanceOfSuccess(spell_id),
+                //    p);
+                putStringClearToEOL(out_val, new Coord_t(2 + i, col));
+            }
+        }
+
+        // Increases hit points and level -RAK-
+        public static void playerGainLevel()
+        {
+            var py = State.Instance.py;
+            py.misc.level++;
+
+            var msg = $"Welcome to level {(int)py.misc.level}";
+            //vtype_t msg = { '\0' };
+            //(void)sprintf(msg, "Welcome to level %d.", (int)py.misc.level);
+            printMessage(msg);
+
+            playerCalculateHitPoints();
+
+            int new_exp = (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100);
+
+            if (py.misc.exp > new_exp)
+            {
+                // lose some of the 'extra' exp when gaining several levels at once
+                int dif_exp = py.misc.exp - new_exp;
+                py.misc.exp = new_exp + (dif_exp / 2);
+            }
+
+            printCharacterLevel();
+            printCharacterTitle();
+
+            var player_class = State.Instance.classes[py.misc.class_id];
+
+            if (player_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            {
+                playerCalculateAllowedSpellsCount((int)PlayerAttr.INT);
+                playerGainMana((int)PlayerAttr.INT);
+            }
+            else if (player_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
+            {
+                playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
+                playerGainMana((int)PlayerAttr.WIS);
+            }
+        }
+
+        // Prints experience -RAK-
+        public static void displayCharacterExperience()
+        {
+            var py = State.Instance.py;
+            if (py.misc.exp > Config.player.PLAYER_MAX_EXP)
+            {
+                py.misc.exp = Config.player.PLAYER_MAX_EXP;
+            }
+
+            while ((py.misc.level < PLAYER_MAX_LEVEL) && (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100) <= py.misc.exp)
+            {
+                playerGainLevel();
+            }
+
+            if (py.misc.exp > py.misc.max_exp)
+            {
+                py.misc.max_exp = py.misc.exp;
+            }
+
+            printLongNumber(py.misc.exp, new Coord_t(14, (int)STAT_COLUMN + 6));
+        }
     }
 }

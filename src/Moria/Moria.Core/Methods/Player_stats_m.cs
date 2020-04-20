@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Methods.Game_m;
+using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods

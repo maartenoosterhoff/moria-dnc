@@ -1076,13 +1076,13 @@ namespace Moria.Core.Methods
                     monster_name += "breathes frost.";
                     //(void)strcat(monster_name, "breathes frost.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, (monster.hp / 3), MagicSpellFlags.Frost, death_description);
+                    spellBreath(py.pos, monster_id, (monster.hp / 3), (int)MagicSpellFlags.Frost, death_description);
                     break;
                 case 24: // Breath Fire
                     monster_name += "breathes fire.";
                     //(void)strcat(monster_name, "breathes fire.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, (monster.hp / 3), MagicSpellFlags.Fire, death_description);
+                    spellBreath(py.pos, monster_id, (monster.hp / 3), (int)MagicSpellFlags.Fire, death_description);
                     break;
                 default:
                     monster_name += "cast unknown spell.";

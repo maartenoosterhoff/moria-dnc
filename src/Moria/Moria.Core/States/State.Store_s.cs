@@ -29,5 +29,7 @@ namespace Moria.Core.States
         public string[] speech_get_out_of_my_store { get; set; } = new string[5];
         public string[] speech_haggling_try_again { get; set; } = new string[10];
         public string[] speech_sorry { get; set; } = new string[5];
+
+        public int store_last_increment;
     }
 }
