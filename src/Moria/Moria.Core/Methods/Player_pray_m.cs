@@ -1,0 +1,282 @@
+﻿using Moria.Core.Configs;
+using Moria.Core.States;
+using Moria.Core.Structures;
+using Moria.Core.Structures.Enumerations;
+using static Moria.Core.Constants.Treasure_c;
+using static Moria.Core.Methods.Dice_m;
+using static Moria.Core.Methods.Game_m;
+using static Moria.Core.Methods.Inventory_m;
+using static Moria.Core.Methods.Monster_m;
+using static Moria.Core.Methods.Player_magic_m;
+using static Moria.Core.Methods.Spells_m;
+using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Player_m;
+
+namespace Moria.Core.Methods
+{
+    public static class Player_pray_m
+    {
+        static bool playerCanPray(ref int item_pos_begin, ref int item_pos_end)
+        {
+            var py = State.Instance.py;
+            if (py.flags.blind > 0)
+            {
+                printMessage("You can't see to read your prayer!");
+                return false;
+            }
+
+            if (playerNoLight())
+            {
+                printMessage("You have no light to read by.");
+                return false;
+            }
+
+            if (py.flags.confused > 0)
+            {
+                printMessage("You are too confused.");
+                return false;
+            }
+
+            if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells != Config.spells.SPELL_TYPE_PRIEST)
+            {
+                printMessage("Pray hard enough and your prayers may be answered.");
+                return false;
+            }
+
+            if (py.pack.unique_items == 0)
+            {
+                printMessage("But you are not carrying anything!");
+                return false;
+            }
+
+            if (!inventoryFindRange((int)TV_PRAYER_BOOK, TV_NEVER, ref item_pos_begin, ref item_pos_end))
+            {
+                printMessage("You are not carrying any Holy Books!");
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+        // Recite a prayers.
+        static void playerRecitePrayer(int prayer_type)
+        {
+            var py = State.Instance.py;
+            int dir = 0;
+
+            switch ((PriestSpellTypes)(prayer_type + 1))
+            {
+                case PriestSpellTypes.DetectEvil:
+                    spellDetectEvil();
+                    break;
+                case PriestSpellTypes.CureLightWounds:
+                    spellChangePlayerHitPoints(diceRoll(new Dice_t(3, 3)));
+                    break;
+                case PriestSpellTypes.Bless:
+                    playerBless(randomNumber(12) + 12);
+                    break;
+                case PriestSpellTypes.RemoveFear:
+                    playerRemoveFear();
+                    break;
+                case PriestSpellTypes.CallLight:
+                    spellLightArea(py.pos);
+                    break;
+                case PriestSpellTypes.FindTraps:
+                    spellDetectTrapsWithinVicinity();
+                    break;
+                case PriestSpellTypes.DetectDoorsStairs:
+                    spellDetectSecretDoorssWithinVicinity();
+                    break;
+                case PriestSpellTypes.SlowPoison:
+                    spellSlowPoison();
+                    break;
+                case PriestSpellTypes.BlindCreature:
+                    if (getDirectionWithMemory(CNIL, dir))
+                    {
+                        spellConfuseMonster(py.pos, dir);
+                    }
+                    break;
+                case PriestSpellTypes.Portal:
+                    playerTeleport(((int)py.misc.level * 3));
+                    break;
+                case PriestSpellTypes.CureMediumWounds:
+                    spellChangePlayerHitPoints(diceRoll(new Dice_t(4, 4)));
+                    break;
+                case PriestSpellTypes.Chant:
+                    playerBless(randomNumber(24) + 24);
+                    break;
+                case PriestSpellTypes.Sanctuary:
+                    monsterSleep(py.pos);
+                    break;
+                case PriestSpellTypes.CreateFood:
+                    spellCreateFood();
+                    break;
+                case PriestSpellTypes.RemoveCurse:
+                    foreach (var entry in py.inventory)
+                    {
+                        // only clear flag for items that are wielded or worn
+                        if (entry.category_id >= TV_MIN_WEAR && entry.category_id <= TV_MAX_WEAR)
+                        {
+                            entry.flags &= ~Config.treasure_flags.TR_CURSED;
+                        }
+                    }
+                    break;
+                case PriestSpellTypes.ResistHeadCold:
+                    py.flags.heat_resistance += randomNumber(10) + 10;
+                    py.flags.cold_resistance += randomNumber(10) + 10;
+                    break;
+                case PriestSpellTypes.NeutralizePoison:
+                    playerCurePoison();
+                    break;
+                case PriestSpellTypes.OrbOfDraining:
+                    if (getDirectionWithMemory(CNIL, dir))
+                    {
+                        spellFireBall(py.pos, dir, (int)(diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere");
+                    }
+                    break;
+                case PriestSpellTypes.CureSeriousWounds:
+                    spellChangePlayerHitPoints(diceRoll(new Dice_t(8, 4)));
+                    break;
+                case PriestSpellTypes.SenseInvisible:
+                    playerDetectInvisible(randomNumber(24) + 24);
+                    break;
+                case PriestSpellTypes.ProtectFromEvil:
+                    playerProtectEvil();
+                    break;
+                case PriestSpellTypes.Earthquake:
+                    spellEarthquake();
+                    break;
+                case PriestSpellTypes.SenseSurroundings:
+                    spellMapCurrentArea();
+                    break;
+                case PriestSpellTypes.CureCriticalWounds:
+                    spellChangePlayerHitPoints(diceRoll(new Dice_t(16, 4)));
+                    break;
+                case PriestSpellTypes.TurnUndead:
+                    spellTurnUndead();
+                    break;
+                case PriestSpellTypes.Prayer:
+                    playerBless(randomNumber(48) + 48);
+                    break;
+                case PriestSpellTypes.DispelUndead:
+                    spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level));
+                    break;
+                case PriestSpellTypes.Heal:
+                    spellChangePlayerHitPoints(200);
+                    break;
+                case PriestSpellTypes.DispelEvil:
+                    spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(3 * py.misc.level));
+                    break;
+                case PriestSpellTypes.GlyphOfWarding:
+                    spellWardingGlyph();
+                    break;
+                case PriestSpellTypes.HolyWord:
+                    playerRemoveFear();
+                    playerCurePoison();
+                    spellChangePlayerHitPoints(1000);
+
+                    for (int i = (int)PlayerAttr.STR; i <= (int)PlayerAttr.CHR; i++)
+                    {
+                        playerStatRestore(i);
+                    }
+
+                    spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(4 * py.misc.level));
+                    spellTurnUndead();
+
+                    if (py.flags.invulnerability < 3)
+                    {
+                        py.flags.invulnerability = 3;
+                    }
+                    else
+                    {
+                        py.flags.invulnerability++;
+                    }
+                    break;
+                default:
+                    // All cases are handled, so this should never be reached!
+                    break;
+            }
+        }
+
+        // Pray like HELL. -RAK-
+        public static void pray()
+        {
+            var game = State.Instance.game;
+            var py = State.Instance.py;
+            game.player_free_turn = true;
+
+            int item_pos_begin = 0, item_pos_end = 0;
+            if (!playerCanPray(ref item_pos_begin, ref item_pos_end))
+            {
+                return;
+            }
+
+            int item_id = 0;
+            if (!inventoryGetInputForItemId(item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, CNIL, CNIL))
+            {
+                return;
+            }
+
+            int choice = 0, chance = 0;
+            int result = castSpellGetId("Recite which prayer?", item_id, ref choice, ref chance);
+            if (result < 0)
+            {
+                printMessage("You don't know any prayers in that book.");
+                return;
+            }
+            if (result == 0)
+            {
+                return;
+            }
+
+            if (randomNumber(100) < chance)
+            {
+                printMessage("You lost your concentration!");
+                return;
+            }
+
+
+            var spell = State.Instance.magic_spells[py.misc.class_id - 1][choice];
+
+            // NOTE: at least one function called by `playerRecitePrayer()` sets `player_free_turn = true`,
+            // e.g. `spellCreateFood()`, so this check is required. -MRC-
+            game.player_free_turn = false;
+            playerRecitePrayer(choice);
+            if (!game.player_free_turn)
+            {
+                if ((py.flags.spells_worked & (1L << choice)) == 0)
+                {
+                    py.misc.exp += (int)(spell.exp_gain_for_learning << 2);
+                    displayCharacterExperience();
+                    py.flags.spells_worked |= (1u << choice);
+                }
+            }
+
+            if (!game.player_free_turn)
+            {
+                if (spell.mana_required > py.misc.current_mana)
+                {
+                    printMessage("You faint from fatigue!");
+                    py.flags.paralysis = (int)randomNumber((5 * (int)(spell.mana_required - py.misc.current_mana)));
+                    py.misc.current_mana = 0;
+                    py.misc.current_mana_fraction = 0;
+                    if (randomNumber(3) == 1)
+                    {
+                        printMessage("You have damaged your health!");
+                        playerStatRandomDecrease((int)PlayerAttr.CON);
+                    }
+                }
+                else
+                {
+                    py.misc.current_mana -= (int)spell.mana_required;
+                }
+
+                printCharacterCurrentMana();
+            }
+        }
+
+    }
+}

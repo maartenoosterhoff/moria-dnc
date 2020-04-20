@@ -10,6 +10,7 @@ using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Dungeon_m;
+using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Store_inventory_m;
 

@@ -16,6 +16,8 @@ using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
+using static Moria.Core.Methods.Player_m;
+using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Monster_manager_m;
@@ -2669,7 +2671,7 @@ namespace Moria.Core.Methods
 
             if (!py.flags.sustain_str)
             {
-                playerStatRandomDecrease(PlayerAttr.STR);
+                playerStatRandomDecrease((int)PlayerAttr.STR);
                 printMessage("You feel very sick.");
             }
             else
@@ -2685,7 +2687,7 @@ namespace Moria.Core.Methods
 
             if (!py.flags.sustain_int)
             {
-                playerStatRandomDecrease(PlayerAttr.INT);
+                playerStatRandomDecrease((int)PlayerAttr.INT);
                 printMessage("You become very dizzy.");
             }
             else
@@ -2701,7 +2703,7 @@ namespace Moria.Core.Methods
 
             if (!py.flags.sustain_wis)
             {
-                playerStatRandomDecrease(PlayerAttr.WIS);
+                playerStatRandomDecrease((int)PlayerAttr.WIS);
                 printMessage("You feel very naive.");
             }
             else
@@ -2717,7 +2719,7 @@ namespace Moria.Core.Methods
 
             if (!py.flags.sustain_dex)
             {
-                playerStatRandomDecrease(PlayerAttr.DEX);
+                playerStatRandomDecrease((int)PlayerAttr.DEX);
                 printMessage("You feel very sore.");
             }
             else
@@ -2732,7 +2734,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (!py.flags.sustain_con)
             {
-                playerStatRandomDecrease(PlayerAttr.CON);
+                playerStatRandomDecrease((int)PlayerAttr.CON);
                 printMessage("You feel very sick.");
             }
             else
@@ -2747,7 +2749,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (!py.flags.sustain_chr)
             {
-                playerStatRandomDecrease(PlayerAttr.CHR);
+                playerStatRandomDecrease((int)PlayerAttr.CHR);
                 printMessage("Your skin starts to itch.");
             }
             else
@@ -2789,13 +2791,13 @@ namespace Moria.Core.Methods
 
                 if (character_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
-                    playerCalculateAllowedSpellsCount(PlayerAttr.INT);
-                    playerGainMana(PlayerAttr.INT);
+                    playerCalculateAllowedSpellsCount((int)PlayerAttr.INT);
+                    playerGainMana((int)PlayerAttr.INT);
                 }
                 else if (character_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
                 {
-                    playerCalculateAllowedSpellsCount(PlayerAttr.WIS);
-                    playerGainMana(PlayerAttr.WIS);
+                    playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
+                    playerGainMana((int)PlayerAttr.WIS);
                 }
                 printCharacterLevel();
                 printCharacterTitle();

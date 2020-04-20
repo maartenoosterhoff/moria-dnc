@@ -8,6 +8,7 @@ using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {

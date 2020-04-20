@@ -5,6 +5,8 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
@@ -478,7 +480,7 @@ namespace Moria.Core.Methods
 
             // now set misc stats, do this after setting stats because of playerStatAdjustmentConstitution() for hit-points
             py.misc.hit_die += klass.hit_points;
-            py.misc.max_hp = (playerStatAdjustmentConstitution() + py.misc.hit_die);
+            py.misc.max_hp = (playerStatAdjustmentConstitution() + (int)py.misc.hit_die);
             py.misc.current_hp = py.misc.max_hp;
             py.misc.current_hp_fraction = 0;
 

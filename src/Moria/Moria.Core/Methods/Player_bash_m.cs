@@ -9,6 +9,8 @@ using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Inventory_m;
+using static Moria.Core.Methods.Player_m;
+using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -136,7 +138,7 @@ namespace Moria.Core.Methods
                 base_to_hit -= (int)py.misc.level * State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTH] / 2;
             }
 
-            if (playerTestBeingHit(base_to_hit, (int)py.misc.level, (int)py.stats.used[(int)PlayerAttr.DEX], (int)creature.ac, PlayerClassLevelAdj.BTH))
+            if (playerTestBeingHit(base_to_hit, (int)py.misc.level, (int)py.stats.used[(int)PlayerAttr.DEX], (int)creature.ac, (int)PlayerClassLevelAdj.BTH))
             {
                 var msg = $"You hit {name}.";
                 //vtype_t msg = { '\0' };
@@ -144,7 +146,7 @@ namespace Moria.Core.Methods
                 printMessage(msg);
 
                 int damage = diceRoll(py.inventory[(int)PlayerEquipment.Arm].damage);
-                damage = playerWeaponCriticalBlow(py.inventory[(int)PlayerEquipment.Arm].weight / 4 + py.stats.used[(int)PlayerAttr.STR], 0, damage, (int)PlayerClassLevelAdj.BTH);
+                damage = playerWeaponCriticalBlow((int)(py.inventory[(int)PlayerEquipment.Arm].weight / 4 + py.stats.used[(int)PlayerAttr.STR]), 0, damage, (int)PlayerClassLevelAdj.BTH);
                 damage += (int)py.misc.weight / 60;
                 damage += 3;
 

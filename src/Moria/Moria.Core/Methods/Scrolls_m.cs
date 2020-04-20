@@ -8,9 +8,12 @@ using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
+using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Player_m;
+using static Moria.Core.Methods.Player_magic_m;
 
 namespace Moria.Core.Methods
 {
@@ -148,7 +151,10 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
             printMessage(msg);
 
-            if (spellEnchantItem(item.to_hit, 10))
+            var toHit = item.to_hit;
+            var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
+            item.to_hit = toHit;
+            if (spellEnchantItemResult)
             {
                 item.flags &= ~Config.treasure_flags.TR_CURSED;
                 playerRecalculateBonuses();
@@ -194,7 +200,10 @@ namespace Moria.Core.Methods
                 scroll_type = 10;
             }
 
-            if (spellEnchantItem(item.to_damage, scroll_type))
+            var toDamage = item.to_damage;
+            var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
+            item.to_damage = toDamage;
+            if (spellEnchantItemResult)
             {
                 item.flags &= ~Config.treasure_flags.TR_CURSED;
                 playerRecalculateBonuses();
@@ -228,7 +237,10 @@ namespace Moria.Core.Methods
             msg = $"Your {desc} glows faintly!";
             printMessage(msg);
 
-            if (spellEnchantItem(item.to_ac, 10))
+            var toAc = item.to_ac;
+            var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
+            item.to_ac = toAc;
+            if (spellEnchantItemResult)
             {
                 item.flags &= ~Config.treasure_flags.TR_CURSED;
                 playerRecalculateBonuses();
@@ -338,7 +350,10 @@ namespace Moria.Core.Methods
 
             for (int i = 0; i < randomNumber(2); i++)
             {
-                if (spellEnchantItem(item.to_hit, 10))
+                var toHit = item.to_hit;
+                var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
+                item.to_hit = toHit;
+                if (spellEnchantItemResult)
                 {
                     enchanted = true;
                 }
@@ -359,7 +374,10 @@ namespace Moria.Core.Methods
 
             for (int i = 0; i < randomNumber(2); i++)
             {
-                if (spellEnchantItem(item.to_damage, scroll_type))
+                var toDamage = item.to_damage;
+                var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
+                item.to_damage = toDamage;
+                if (spellEnchantItemResult)
                 {
                     enchanted = true;
                 }
@@ -441,7 +459,10 @@ namespace Moria.Core.Methods
 
             for (int i = 0; i < randomNumber(2) + 1; i++)
             {
-                if (spellEnchantItem(item.to_ac, 10))
+                var toAc = item.to_ac;
+                var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
+                item.to_ac = toAc;
+                if (spellEnchantItemResult)
                 {
                     enchanted = true;
                 }
@@ -716,7 +737,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 30:
-                        identified = spellDispelCreature(Config.monsters_defense.CD_UNDEAD, 60);
+                        identified = spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, 60);
                         break;
                     case 33:
                         identified = scrollEnchantWeapon();

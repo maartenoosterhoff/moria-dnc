@@ -11,6 +11,9 @@ using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Player_magic_m;
+using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
@@ -183,7 +186,7 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case StaffSpellTypes.DispelEvil:
-                        identified = spellDispelCreature(Config.monsters_defense.CD_EVIL, 60);
+                        identified = spellDispelCreature((int)Config.monsters_defense.CD_EVIL, 60);
                         break;
                     case StaffSpellTypes.Darkness:
                         identified = spellDarkenArea(py.pos);
@@ -280,15 +283,15 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.LightningBolt:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(4, 8)), MagicSpellFlags.Lightning, spell_names[8]);
+                        spellFireBolt(coord, direction, diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, spell_names[8]);
                         identified = true;
                         break;
                     case WandSpellTypes.FrostBolt:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(6, 8)), MagicSpellFlags.Frost, spell_names[14]);
+                        spellFireBolt(coord, direction, diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, spell_names[14]);
                         identified = true;
                         break;
                     case WandSpellTypes.FireBolt:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(9, 8)), MagicSpellFlags.Fire, spell_names[22]);
+                        spellFireBolt(coord, direction, diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, spell_names[22]);
                         identified = true;
                         break;
                     case WandSpellTypes.StoneToMud:
@@ -319,7 +322,7 @@ namespace Moria.Core.Methods
                         identified = spellDestroyDoorsTrapsInDirection(coord, direction);
                         break;
                     case WandSpellTypes.WandMagicMissile:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(2, 6)), MagicSpellFlags.MagicMissile, spell_names[0]);
+                        spellFireBolt(coord, direction, diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, spell_names[0]);
                         identified = true;
                         break;
                     case WandSpellTypes.WallBuilding:
@@ -335,23 +338,23 @@ namespace Moria.Core.Methods
                         identified = spellDisarmAllInDirection(coord, direction);
                         break;
                     case WandSpellTypes.LightningBall:
-                        spellFireBall(coord, direction, 32, MagicSpellFlags.Lightning, "Lightning Ball");
+                        spellFireBall(coord, direction, 32, (int)MagicSpellFlags.Lightning, "Lightning Ball");
                         identified = true;
                         break;
                     case WandSpellTypes.ColdBall:
-                        spellFireBall(coord, direction, 48, MagicSpellFlags.Frost, "Cold Ball");
+                        spellFireBall(coord, direction, 48, (int)MagicSpellFlags.Frost, "Cold Ball");
                         identified = true;
                         break;
                     case WandSpellTypes.FireBall:
-                        spellFireBall(coord, direction, 72, MagicSpellFlags.Fire, spell_names[28]);
+                        spellFireBall(coord, direction, 72, (int)MagicSpellFlags.Fire, spell_names[28]);
                         identified = true;
                         break;
                     case WandSpellTypes.StinkingCloud:
-                        spellFireBall(coord, direction, 12, MagicSpellFlags.PoisonGas, spell_names[6]);
+                        spellFireBall(coord, direction, 12, (int)MagicSpellFlags.PoisonGas, spell_names[6]);
                         identified = true;
                         break;
                     case WandSpellTypes.AcidBall:
-                        spellFireBall(coord, direction, 60, MagicSpellFlags.Acid, "Acid Ball");
+                        spellFireBall(coord, direction, 60, (int)MagicSpellFlags.Acid, "Acid Ball");
                         identified = true;
                         break;
                     case WandSpellTypes.Wonder:
@@ -411,7 +414,7 @@ namespace Moria.Core.Methods
             var  item = py.inventory[item_id];
 
             int player_class_lev_adj = State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
-            int chance = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence(PlayerAttr.INT) - (int)item.depth_first_found + player_class_lev_adj;
+            int chance = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) - (int)item.depth_first_found + player_class_lev_adj;
 
             if (py.flags.confused > 0)
             {

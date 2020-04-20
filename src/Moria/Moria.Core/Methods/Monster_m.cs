@@ -11,6 +11,9 @@ using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
+using static Moria.Core.Methods.Player_m;
+using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Std_m;
@@ -529,7 +532,7 @@ namespace Moria.Core.Methods
                     attack_desc = 99;
                 }
 
-                if (playerTestAttackHits(attack_type, creature.level))
+                if (playerTestAttackHits((int)attack_type, creature.level))
                 {
                     playerDisturb(1, 0);
 
@@ -890,7 +893,7 @@ namespace Moria.Core.Methods
                     spellTeleportAwayMonster(monster_id, 5);
                     break;
                 case 6: // Teleport Long
-                    spellTeleportAwayMonster(monster_id, Config.monsters.MON_MAX_SIGHT);
+                    spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     break;
                 case 7: // Teleport To
                     spellTeleportPlayerTo(new Coord_t(monster.pos.y, monster.pos.x));
@@ -1055,19 +1058,19 @@ namespace Moria.Core.Methods
                     monster_name += "breathes lightning.";
                     //(void)strcat(monster_name, "breathes lightning.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, (monster.hp / 4), MagicSpellFlags.Lightning, death_description);
+                    spellBreath(py.pos, monster_id, (monster.hp / 4), (int)MagicSpellFlags.Lightning, death_description);
                     break;
                 case 21: // Breath Gas
                     monster_name += "breathes gas.";
                     //(void)strcat(monster_name, "breathes gas.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, (monster.hp / 3), MagicSpellFlags.PoisonGas, death_description);
+                    spellBreath(py.pos, monster_id, (monster.hp / 3), (int)MagicSpellFlags.PoisonGas, death_description);
                     break;
                 case 22: // Breath Acid
                     monster_name += "breathes acid.";
                     //(void)strcat(monster_name, "breathes acid.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, (monster.hp / 3), MagicSpellFlags.Acid, death_description);
+                    spellBreath(py.pos, monster_id, (monster.hp / 3), (int)MagicSpellFlags.Acid, death_description);
                     break;
                 case 23: // Breath Frost
                     monster_name += "breathes frost.";
@@ -1997,7 +2000,7 @@ namespace Moria.Core.Methods
                     else if (randomNumber(2) == 1)
                     {
                         printMessage("You feel weaker.");
-                        playerStatRandomDecrease(PlayerAttr.STR);
+                        playerStatRandomDecrease((int)PlayerAttr.STR);
                     }
                     else
                     {
@@ -2120,7 +2123,7 @@ namespace Moria.Core.Methods
                     if (randomNumber(2) == 1)
                     {
                         printMessage("There is a puff of smoke!");
-                        spellTeleportAwayMonster(monster_id, Config.monsters.MON_MAX_SIGHT);
+                        spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 13: // Steal Object
@@ -2136,7 +2139,7 @@ namespace Moria.Core.Methods
                     if (randomNumber(2) == 1)
                     {
                         printMessage("There is a puff of smoke!");
-                        spellTeleportAwayMonster(monster_id, Config.monsters.MON_MAX_SIGHT);
+                        spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 14: // Poison
@@ -2194,7 +2197,7 @@ namespace Moria.Core.Methods
                     break;
                 case 19: // Lose experience
                     printMessage("You feel your life draining away!");
-                    spellLoseEXP(damage + (py.misc.exp / 100) * Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT);
+                    spellLoseEXP(damage + (py.misc.exp / 100) * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT);
                     break;
                 case 20: // Aggravate monster
                     spellAggravateMonsters(20);

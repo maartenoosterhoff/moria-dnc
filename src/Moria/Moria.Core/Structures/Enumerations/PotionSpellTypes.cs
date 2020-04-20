@@ -1,0 +1,53 @@
+﻿namespace Moria.Core.Structures.Enumerations
+{
+    public enum PotionSpellTypes
+    {
+        Strength = 1,
+        Weakness,
+        RestoreStrength,
+        Intelligence,
+        LoseIntelligence,
+        RestoreIntelligence,
+        Wisdom,
+        LoseWisdom,
+        RestoreWisdom,
+        Charisma,
+        Ugliness,
+        RestoreCharisma,
+        CureLightWounds,
+        CureSeriousWounds,
+        CureCriticalWounds,
+        Healing,
+        Constitution,
+        GainExperience,
+        Sleep,
+        Blindness,
+        Confusion,
+        Poison,
+        HasteSelf,
+        Slowness,
+        // 25 not used
+        Dexterity = 26,
+        RestoreDexterity,
+        RestoreConstitution,
+        CureBlindness,
+        CureConfusion,
+        CurePoison,
+        // 32 not used
+        // 33 not used
+        LoseExperience = 34,
+        SaltWater,
+        Invulnerability,
+        Heroism,
+        SuperHeroism,
+        Boldness,
+        RestoreLifeLevels,
+        ResistHeat,
+        ResistCold,
+        DetectInvisible,
+        SlowPoison,
+        NeutralizePoison,
+        RestoreMana,
+        InfraVision,
+    };
+}
