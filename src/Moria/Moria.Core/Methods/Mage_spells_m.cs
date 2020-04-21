@@ -14,6 +14,7 @@ using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -58,7 +59,7 @@ namespace Moria.Core.Methods
             switch ((MageSpellId)spell_id)
             {
                 case MageSpellId.MagicMissile:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBolt(py.pos, dir, diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, State.Instance.spell_names[0]);
                     }
@@ -80,19 +81,19 @@ namespace Moria.Core.Methods
                     spellDetectTrapsWithinVicinity();
                     break;
                 case MageSpellId.StinkingCloud:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBall(py.pos, dir, 12, (int)MagicSpellFlags.PoisonGas, State.Instance.spell_names[6]);
                     }
                     break;
                 case MageSpellId.Confusion:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellConfuseMonster(py.pos, dir);
                     }
                     break;
                 case MageSpellId.LightningBolt:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBolt(py.pos, dir, diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, State.Instance.spell_names[8]);
                     }
@@ -101,7 +102,7 @@ namespace Moria.Core.Methods
                     spellDestroyAdjacentDoorsTraps();
                     break;
                 case MageSpellId.Sleep1:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellSleepMonster(py.pos, dir);
                     }
@@ -119,13 +120,13 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.FrostBolt:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBolt(py.pos, dir, diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, State.Instance.spell_names[14]);
                     }
                     break;
                 case MageSpellId.WallToMud:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellWallToMud(py.pos, dir);
                     }
@@ -140,7 +141,7 @@ namespace Moria.Core.Methods
                     monsterSleep(py.pos);
                     break;
                 case MageSpellId.PolymorphOther:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellPolymorphMonster(py.pos, dir);
                     }
@@ -152,19 +153,19 @@ namespace Moria.Core.Methods
                     spellSleepAllMonsters();
                     break;
                 case MageSpellId.FireBolt:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBolt(py.pos, dir, diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, State.Instance.spell_names[22]);
                     }
                     break;
                 case MageSpellId.SpeedMonster:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/ null, ref dir))
                     {
                         spellSpeedMonster(py.pos, dir, -1);
                     }
                     break;
                 case MageSpellId.FrostBall:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBall(py.pos, dir, 48, (int)MagicSpellFlags.Frost, State.Instance.spell_names[24]);
                     }
@@ -173,7 +174,7 @@ namespace Moria.Core.Methods
                     spellRechargeItem(60);
                     break;
                 case MageSpellId.TeleportOther:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellTeleportAwayMonsterInDirection(py.pos, dir);
                     }
@@ -182,7 +183,7 @@ namespace Moria.Core.Methods
                     py.flags.fast += randomNumber(20) + (int)py.misc.level;
                     break;
                 case MageSpellId.FireBall:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBall(py.pos, dir, 72, (int)MagicSpellFlags.Fire, State.Instance.spell_names[28]);
                     }
@@ -220,7 +221,7 @@ namespace Moria.Core.Methods
             }
 
             int item_val = 0;
-            if (!inventoryGetInputForItemId(item_val, "Use which spell-book?", i, j, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
             {
                 return;
             }
@@ -238,7 +239,7 @@ namespace Moria.Core.Methods
             }
 
             game.player_free_turn = false;
-            
+
             Spell_t magic_spell = State.Instance.magic_spells[py.misc.class_id - 1][choice];
 
             if (randomNumber(100) < chance)

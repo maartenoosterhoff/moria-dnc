@@ -260,7 +260,7 @@ namespace Moria.Core.Methods
 
                 putStringClearToEOL("Rest for how long? ", new Coord_t(0, 0));
 
-                if (getStringInput(rest_str, new Coord_t(0, 19), 5))
+                if (getStringInput(ref rest_str, new Coord_t(0, 19), 5))
                 {
                     if (rest_str[0] == '*')
                     {
@@ -314,7 +314,7 @@ namespace Moria.Core.Methods
             printCharacterMovementState();
 
             // flush last message, or delete "press any key" message
-            printMessage(CNIL);
+            printMessage(/*CNIL*/null);
 
             py.flags.food_digested++;
         }
@@ -1144,7 +1144,7 @@ namespace Moria.Core.Methods
                 displaySpellsList(spell_bank, spell_id, false, -1);
 
                 char query = '\0';
-                while ((new_spells != 0) && getCommand("Learn which spell?", query))
+                while ((new_spells != 0) && getCommand("Learn which spell?", ref query))
                 {
                     int c = query - 'a';
 
@@ -1667,7 +1667,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
 
             int dir = 0;
-            if (!getDirectionWithMemory(CNIL, dir))
+            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
@@ -1720,7 +1720,7 @@ namespace Moria.Core.Methods
 
             int dir = 0;
 
-            if (!getDirectionWithMemory(CNIL, dir))
+            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }

@@ -1,6 +1,8 @@
 ﻿using System;
+using Moria.Core.Configs;
 using Moria.Core.States;
 using static Moria.Core.Methods.Rng_m;
+using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Data.Tables_d;
 
@@ -52,7 +54,7 @@ namespace Moria.Core.Methods
             setRandomSeed(State.Instance.old_seed);
         }
 
-        public static int randomNumber(uint max) => randomNumber((int) max);
+        public static int randomNumber(uint max) => randomNumber((int)max);
 
         // Generates a random integer x where 1<=X<=MAXVAL -RAK-
         public static int randomNumber(int max)
@@ -63,7 +65,7 @@ namespace Moria.Core.Methods
         public const int SHRT_MAX = 32767;
 
         public static int randomNumberNormalDistribution(uint mean, int standard) =>
-            randomNumberNormalDistribution((int) mean, standard);
+            randomNumberNormalDistribution((int)mean, standard);
 
         // Generates a random integer number of NORMAL distribution -RAK-
         public static int randomNumberNormalDistribution(int mean, int standard)
@@ -148,11 +150,131 @@ namespace Moria.Core.Methods
             return dir;
         }
 
+        // map roguelike direction commands into numbers
+        static char mapRoguelikeKeysToKeypad(char command)
+        {
+            switch (command)
+            {
+                case 'h':
+                    return '4';
+                case 'y':
+                    return '7';
+                case 'k':
+                    return '8';
+                case 'u':
+                    return '9';
+                case 'l':
+                    return '6';
+                case 'n':
+                    return '3';
+                case 'j':
+                    return '2';
+                case 'b':
+                    return '1';
+                case '.':
+                    return '5';
+                default:
+                    return command;
+            }
+        }
+
+        // Prompts for a direction -RAK-
+        // Direction memory added, for repeated commands.  -CJS
+        public static bool getDirectionWithMemory(string prompt, ref int direction)
+        {
+            var game = State.Instance.game;
+            var py = State.Instance.py;
+
+            // used in counted commands. -CJS-
+            if (game.use_last_direction)
+            {
+                direction = py.prev_dir;
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(prompt))
+            {
+                prompt = "Which direction?";
+            }
+
+            char command = '\0';
+
+            while (true)
+            {
+                // Don't end a counted command. -CJS-
+                int save = game.command_count;
+
+                if (!getCommand(prompt, ref command))
+                {
+                    game.player_free_turn = true;
+                    return false;
+                }
+
+                game.command_count = save;
+
+                if (Config.options.use_roguelike_keys)
+                {
+                    command = mapRoguelikeKeysToKeypad(command);
+                }
+
+                if (command >= '1' && command <= '9' && command != '5')
+                {
+                    py.prev_dir = (char)(command - '0');
+                    direction = py.prev_dir;
+                    return true;
+                }
+
+                terminalBellSound();
+            }
+        }
+
+        // Similar to getDirectionWithMemory(), except that no memory exists,
+        // and it is allowed to enter the null direction. -CJS-
+        public static bool getAllDirections(string prompt, ref int direction)
+        {
+            var game = State.Instance.game;
+            char command = '\0';
+
+            while (true)
+            {
+                if (!getCommand(prompt, ref command))
+                {
+                    game.player_free_turn = true;
+                    return false;
+                }
+
+                if (Config.options.use_roguelike_keys)
+                {
+                    command = mapRoguelikeKeysToKeypad(command);
+                }
+
+                if (command >= '1' && command <= '9')
+                {
+                    direction = command - '0';
+                    return true;
+                }
+
+                terminalBellSound();
+            }
+        }
+
         // Restore the terminal and exit
         public static void exitProgram()
         {
             flushInputBuffer();
             terminalRestore();
+            exit(0);
+        }
+
+        // Abort the program with a message displayed on the terminal.
+        public static void abortProgram(string msg)
+        {
+            flushInputBuffer();
+            terminalRestore();
+
+            printf("Program was manually aborted with the message:\n");
+            printf("%s\n", msg);
+
             exit(0);
         }
     }

@@ -14,6 +14,7 @@ using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -356,7 +357,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Quaff which potion?", item_pos_begin, item_pos_end, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }

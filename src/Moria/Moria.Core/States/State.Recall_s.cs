@@ -16,5 +16,9 @@ namespace Moria.Core.States
         public string[] recall_description_spell { get; set; } = new string[15];
         public string[] recall_description_breath { get; set; } = new string[5];
         public string[] recall_description_weakness { get; set; } = new string[6];
+
+        public string roff_buffer { get; set; }= string.Empty;
+        public int roff_print_line { get; set; } = 0;                 // Place to print line now being loaded.
+
     }
 }

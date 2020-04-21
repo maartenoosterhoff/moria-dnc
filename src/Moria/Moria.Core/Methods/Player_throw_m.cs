@@ -17,18 +17,20 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Player_throw_m
     {
-        public static void inventoryThrow(int item_id, Inventory_t treasure)
+        public static void inventoryThrow(int item_id, out Inventory_t treasure)
         {
             var py = State.Instance.py;
 
             var item = py.inventory[item_id];
 
-            *treasure = *item; // TOFIX: ref copy but also copy contents (i think)
+            //*treasure = *item; // TOFIX: ref copy but also copy contents (i think)
+            treasure = item;
 
             if (item.items_count > 1)
             {
@@ -214,13 +216,13 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
 
             int dir = 0;
-            if (!getDirectionWithMemory(CNIL, dir))
+            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
@@ -233,8 +235,8 @@ namespace Moria.Core.Methods
                 dir = getRandomDirection();
             }
 
-            var thrown_item = new Inventory_t();
-            inventoryThrow(item_id, thrown_item);
+            Inventory_t thrown_item;
+            inventoryThrow(item_id, out thrown_item);
 
             int tbth = 0, tpth = 0, tdam = 0, tdis = 0;
             weaponMissileFacts(thrown_item, ref tbth, ref tpth, ref tdam, ref tdis);

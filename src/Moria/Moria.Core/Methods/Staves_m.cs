@@ -15,6 +15,7 @@ using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -220,7 +221,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Use which staff?", item_pos_start, item_pos_end, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }
@@ -393,7 +394,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Aim which wand?", item_pos_start, item_pos_end, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
             {
                 return;
             }
@@ -401,7 +402,7 @@ namespace Moria.Core.Methods
             game.player_free_turn = false;
 
             int direction = 0;
-            if (!getDirectionWithMemory(CNIL, direction))
+            if (!getDirectionWithMemory(/*CNIL*/null, ref direction))
             {
                 return;
             }
@@ -412,7 +413,7 @@ namespace Moria.Core.Methods
                 direction = getRandomDirection();
             }
 
-            var  item = py.inventory[item_id];
+            var item = py.inventory[item_id];
 
             int player_class_lev_adj = State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
             int chance = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) - (int)item.depth_first_found + player_class_lev_adj;

@@ -232,6 +232,5 @@ namespace Moria.Core.Methods
 
             printMessage("You dig with your hands, making no progress.");
         }
-
     }
 }

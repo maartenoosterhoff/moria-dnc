@@ -144,7 +144,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
 
             int dir = 0;
-            if (!getDirectionWithMemory(CNIL, dir))
+            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }

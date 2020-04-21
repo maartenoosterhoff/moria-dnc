@@ -15,6 +15,7 @@ using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Store_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -100,7 +101,7 @@ namespace Moria.Core.Methods
             }
 
             // Force the messages to display before starting to generate the next level.
-            printMessage(CNIL);
+            printMessage(/*CNIL*/null);
         }
 
         public static void trapSleepingGas()

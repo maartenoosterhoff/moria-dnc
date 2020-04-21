@@ -11,6 +11,7 @@ using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
@@ -610,7 +611,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Read which scroll?", item_pos_start, item_pos_end, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Read which scroll?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }

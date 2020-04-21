@@ -3,6 +3,8 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using System.Diagnostics.Tracing;
+using System.Linq;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
@@ -32,6 +34,7 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -287,7 +290,7 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
             char key_char = '\0';
-            while (getCommand(msg, key_char))
+            while (getCommand(msg, ref key_char))
             {
                 key_char -= 'a';
                 if (key_char >= item_pos_start && key_char <= item_pos_end)
@@ -345,7 +348,7 @@ namespace Moria.Core.Methods
             printSpeechTryAgain();
 
             // keep insult separate from rest of haggle
-            printMessage(CNIL);
+            printMessage(/*CNIL*/ null);
 
             return false;
         }
@@ -390,7 +393,7 @@ namespace Moria.Core.Methods
                     //prompt_len = start_len + (int)strlen(last_offer_str);
                 }
 
-                if (!getStringInput(msg, new Coord_t(0, prompt_len), 40))
+                if (!getStringInput(ref msg, new Coord_t(0, prompt_len), 40))
                 {
                     // customer aborted, i.e. pressed escape
                     valid_offer = false;
@@ -1024,7 +1027,7 @@ namespace Moria.Core.Methods
             item_id = item_id + current_top_item_id; // true item_id
 
             Inventory_t sell_item = new Inventory_t();
-            inventoryTakeOneItem(sell_item, store.inventory[item_id].item);
+            inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
 
             if (!inventoryCanCarryItemCount(sell_item))
             {
@@ -1266,6 +1269,7 @@ namespace Moria.Core.Methods
                 }
             }
 
+
             if (last_item == -1)
             {
                 printMessage("You have nothing to sell to this store!");
@@ -1273,13 +1277,13 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
+            if (!inventoryGetInputForItemId(ref item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
             {
                 return false;
             }
 
             Inventory_t sold_item = new Inventory_t();
-            inventoryTakeOneItem(sold_item, py.inventory[item_id]);
+            inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
             var description = string.Empty;
             itemDescription(ref description, sold_item, true);
@@ -1321,7 +1325,7 @@ namespace Moria.Core.Methods
                 itemIdentify(py.inventory[item_id], ref item_id);
 
                 // retake sold_item so that it will be identified
-                inventoryTakeOneItem(sold_item, py.inventory[item_id]);
+                inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
                 // call spellItemIdentifyAndRemoveRandomInscription for store item, so charges/pluses are known
                 spellItemIdentifyAndRemoveRandomInscription(sold_item);
@@ -1398,7 +1402,7 @@ namespace Moria.Core.Methods
                 State.Instance.message_ready_to_print = false;
 
                 char command = '\0';
-                if (getCommand("", command))
+                if (getCommand("", ref command))
                 {
                     int saved_chr;
 

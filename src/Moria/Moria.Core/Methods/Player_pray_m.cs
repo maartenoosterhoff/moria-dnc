@@ -13,6 +13,7 @@ using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -95,7 +96,7 @@ namespace Moria.Core.Methods
                     spellSlowPoison();
                     break;
                 case PriestSpellTypes.BlindCreature:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellConfuseMonster(py.pos, dir);
                     }
@@ -133,7 +134,7 @@ namespace Moria.Core.Methods
                     playerCurePoison();
                     break;
                 case PriestSpellTypes.OrbOfDraining:
-                    if (getDirectionWithMemory(CNIL, dir))
+                    if (getDirectionWithMemory(/*CNIL*/ null, ref dir))
                     {
                         spellFireBall(py.pos, dir, (int)(diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere");
                     }
@@ -216,7 +217,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }

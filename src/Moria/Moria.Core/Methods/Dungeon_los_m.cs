@@ -7,6 +7,8 @@ using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Recall_m;
+using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -310,7 +312,7 @@ namespace Moria.Core.Methods
             }
 
             int dir = 0;
-            if (!getAllDirections("Look which direction?", dir))
+            if (!getAllDirections("Look which direction?", ref dir))
             {
                 return;
             }
@@ -659,7 +661,7 @@ namespace Moria.Core.Methods
                             }
                             else
                             {
-                                wall_description = CNIL; // In case we jump here
+                                wall_description = null; // In case we jump here
                             }
                             break;
                         case TILE_MAGMA_WALL:
@@ -669,11 +671,11 @@ namespace Moria.Core.Methods
                             wall_description = "a quartz vein";
                             break;
                         default:
-                            wall_description = CNIL;
+                            wall_description = null;
                             break;
                     }
 
-                    if (wall_description != nullptr)
+                    if (wall_description != null)
                     {
                         msg = $"{description} {wall_description} ---pause---";
                         //(void)sprintf(msg, "%s %s ---pause---", description, wall_description);

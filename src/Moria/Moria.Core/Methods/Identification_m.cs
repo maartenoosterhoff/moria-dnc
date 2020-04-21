@@ -6,10 +6,12 @@ using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Game_m;
+using static Moria.Core.Methods.Recall_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -223,7 +225,7 @@ namespace Moria.Core.Methods
         public static void identifyGameObject()
         {
             char command = '\0';
-            if (!getCommand("Enter character to be identified :", command))
+            if (!getCommand("Enter character to be identified :", ref command))
             {
                 return;
             }
@@ -1143,7 +1145,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Which one? ", 0, PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
+            if (!inventoryGetInputForItemId(ref item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
             {
                 return;
             }
@@ -1179,7 +1181,7 @@ namespace Moria.Core.Methods
 
             putStringClearToEOL(inscription, new Coord_t(0, 0));
 
-            if (getStringInput(inscription, new Coord_t(0, inscription.Length), msg_len))
+            if (getStringInput(ref inscription, new Coord_t(0, inscription.Length), msg_len))
             {
                 itemReplaceInscription(py.inventory[item_id], inscription);
             }

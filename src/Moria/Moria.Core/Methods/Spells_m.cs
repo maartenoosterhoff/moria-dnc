@@ -22,6 +22,7 @@ using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Ui_inventory_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -51,7 +52,7 @@ namespace Moria.Core.Methods
 
             char choice = '\0';
 
-            while (!spell_found && getCommand(str, choice))
+            while (!spell_found && getCommand(str, ref choice))
             {
                 if (char.IsUpper(choice))
                 //if (isupper((int)choice) != 0)
@@ -203,11 +204,11 @@ namespace Moria.Core.Methods
             {
                 if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
-                    result = (int)getInputConfirmation("You summon your limited strength to cast this one! Confirm?");
+                    result = (int)(getInputConfirmation("You summon your limited strength to cast this one! Confirm?") ? 1 : 0);
                 }
                 else
                 {
-                    result = (int)getInputConfirmation("The gods may think you presumptuous for this! Confirm?");
+                    result = (int)(getInputConfirmation("The gods may think you presumptuous for this! Confirm?") ? 1 : 0);
                 }
             }
 
@@ -378,7 +379,7 @@ namespace Moria.Core.Methods
             if (detected)
             {
                 printMessage("You sense the presence of invisible creatures!");
-                printMessage(CNIL);
+                printMessage(/*CNIL*/null);
 
                 // must unlight every monster just lighted
                 updateMonsters(false);
@@ -545,7 +546,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             int item_id = 0;
-            if (!inventoryGetInputForItemId(item_id, "Item you wish identified?", 0, PLAYER_INVENTORY_SIZE, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Item you wish identified?", 0, (int)PLAYER_INVENTORY_SIZE, /*CNIL*/null, /*CNIL*/null))
             {
                 return false;
             }
@@ -763,7 +764,7 @@ namespace Moria.Core.Methods
             if (detected)
             {
                 printMessage("You sense the presence of monsters!");
-                printMessage(CNIL);
+                printMessage(/*CNIL*/null);
 
                 // must unlight every monster just lighted
                 updateMonsters(false);
@@ -1423,7 +1424,7 @@ namespace Moria.Core.Methods
             }
 
             int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Recharge which item?", item_pos_start, item_pos_end, CNIL, CNIL))
+            if (!inventoryGetInputForItemId(ref item_id, "Recharge which item?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return false;
             }
@@ -2211,7 +2212,7 @@ namespace Moria.Core.Methods
         public static bool spellGenocide()
         {
             char creature_char = '\0';
-            if (!getCommand("Which type of creature do you wish exterminated?", creature_char))
+            if (!getCommand("Which type of creature do you wish exterminated?", ref creature_char))
             {
                 return false;
             }
@@ -2392,7 +2393,7 @@ namespace Moria.Core.Methods
             if (detected)
             {
                 printMessage("You sense the presence of evil!");
-                printMessage(CNIL);
+                printMessage(/*CNIL*/null);
 
                 // must unlight every monster just lighted
                 updateMonsters(false);

@@ -46,7 +46,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
 
             int dir = 0;
-            if (!getDirectionWithMemory(CNIL, dir))
+            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
