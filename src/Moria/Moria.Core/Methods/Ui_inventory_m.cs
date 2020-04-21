@@ -1303,7 +1303,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void uiCommandDisplayEquipment()
+        public static void uiCommandDisplayEquipment()
         {
             var py = State.Instance.py;
             if (py.equipment_count == 0)

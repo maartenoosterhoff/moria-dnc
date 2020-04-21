@@ -205,7 +205,7 @@ namespace Moria.Core.Methods
             (void)fclose(highscore_fp);
         }
 
-        void showScoresScreen()
+        public static void showScoresScreen()
         {
             if ((highscore_fp = fopen(config::files::scores.c_str(), "rb")) == nullptr)
             {

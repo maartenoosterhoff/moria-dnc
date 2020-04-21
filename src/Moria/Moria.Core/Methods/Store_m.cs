@@ -1244,7 +1244,7 @@ namespace Moria.Core.Methods
             int first_item = py.pack.unique_items;
             int last_item = -1;
 
-            char[] mask = new char[(int)PlayerEquipment.Wield];
+            int[] mask = new int[(int)PlayerEquipment.Wield];
 
             for (int counter = 0; counter < py.pack.unique_items; counter++)
             {

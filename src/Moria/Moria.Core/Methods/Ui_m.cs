@@ -8,6 +8,7 @@ using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Mage_spells_m;
+using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;

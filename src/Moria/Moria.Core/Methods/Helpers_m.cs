@@ -62,7 +62,7 @@ namespace Moria.Core.Methods
             throw new NotImplementedException();
         }
 
-        public static void humanDateString(string day)
+        public static void humanDateString(ref string day)
         {
             throw new NotImplementedException();
         }
