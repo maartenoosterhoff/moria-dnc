@@ -1,9 +1,11 @@
-﻿namespace Moria.Core.Structures
+﻿using System;
+
+namespace Moria.Core.Structures
 {
     public class HighScore_t
     {
         public int points { get; set; }
-        public int birth_date { get; set; }
+        public DateTime birth_date { get; set; }
         public int uid { get; set; }
         public int mhp { get; set; }
         public int chp { get; set; }

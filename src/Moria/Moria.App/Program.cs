@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Moria.Core.Methods;
 
 namespace Moria.App
 {
@@ -6,7 +6,7 @@ namespace Moria.App
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Main_m.main(args);
         }
     }
 }

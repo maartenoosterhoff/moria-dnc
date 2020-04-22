@@ -211,7 +211,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void playerFindInitialize(int direction)
+        public static void playerFindInitialize(int direction)
         {
             var py = State.Instance.py;
 
@@ -256,7 +256,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void playerRunAndFind()
+        public static void playerRunAndFind()
         {
             var py = State.Instance.py;
 

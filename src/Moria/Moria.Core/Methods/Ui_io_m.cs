@@ -217,7 +217,7 @@ namespace Moria.Core.Methods
         {
             int y, x;
             getyx(stdscr, y, x);
-            return Coord_t{ y, x};
+            return new Coord_t(y, x);
         }
 
         // messageLinePrintMessage will print a line of text to the message line (0,0).
@@ -288,7 +288,7 @@ namespace Moria.Core.Methods
                         old_len = 73;
                     }
 
-                    putString(" -more-", Coord_t{ MSG_LINE, old_len});
+                    putString(" -more-", new Coord_t(MSG_LINE, old_len));
 
                     char in_char;
                     do
@@ -324,7 +324,7 @@ namespace Moria.Core.Methods
 
             if (combine_messages)
             {
-                putString(msg, Coord_t{ MSG_LINE, old_len + 2});
+                putString(msg, new Coord_t(MSG_LINE, old_len + 2));
                 strcat(messages[last_message_id], "  ");
                 strcat(messages[last_message_id], msg);
             }
@@ -416,9 +416,9 @@ namespace Moria.Core.Methods
         // Function returns false if <ESCAPE> is input
         public static bool getCommand(string prompt, ref char command)
         {
-            if (!prompt.empty())
+            if (!string.IsNullOrEmpty(prompt))
             {
-                putStringClearToEOL(prompt, Coord_t{ 0, 0});
+                putStringClearToEOL(prompt, new Coord_t(0, 0));
             }
             command = getKeyInput();
 
@@ -508,7 +508,7 @@ namespace Moria.Core.Methods
         // Used to verify a choice - user gets the chance to abort choice. -CJS-
         public static bool getInputConfirmation(string prompt)
         {
-            putStringClearToEOL(prompt, Coord_t{ 0, 0});
+            putStringClearToEOL(prompt, new Coord_t(0, 0));
 
             int y, x;
             getyx(stdscr, y, x);
@@ -538,9 +538,9 @@ namespace Moria.Core.Methods
         // Pauses for user response before returning -RAK-
         public static void waitForContinueKey(int line_number)
         {
-            putStringClearToEOL("[ press any key to continue ]", Coord_t{ line_number, 23});
+            putStringClearToEOL("[ press any key to continue ]", new Coord_t(line_number, 23));
             (void)getKeyInput();
-            eraseLine(Coord_t{ line_number, 0});
+            eraseLine(new Coord_t(line_number, 0));
         }
 
         // Provides for a timeout on input. Does a non-blocking read, consuming the data if
@@ -700,26 +700,6 @@ int i = 0;
 }
 
 #endif
-
-// Check user permissions on Unix based systems,
-// or if on Windows just return. -MRC-
-        public static bool checkFilePermissions()
-{
-#ifndef _WIN32
-    if (0 != setuid(getuid()))
-    {
-        perror("Can't set permissions correctly!  Setuid call failed.\n");
-        return false;
-    }
-    if (0 != setgid(getgid()))
-    {
-        perror("Can't set permissions correctly!  Setgid call failed.\n");
-        return false;
-    }
-#endif
-
-    return true;
-}
 
     }
 }

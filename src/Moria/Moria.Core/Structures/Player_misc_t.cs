@@ -1,10 +1,12 @@
-﻿namespace Moria.Core.Structures
+﻿using System;
+
+namespace Moria.Core.Structures
 {
     public class Player_misc_t
     {
         public string name { get; set; }
         public bool gender { get; set; }
-        public int date_of_birth { get; set; }
+        public DateTime date_of_birth { get; set; }
         public int au { get; set; }
         public int max_exp { get; set; }
         public int exp { get; set; }
