@@ -218,12 +218,12 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            abort();
+                            abort();    // TOFIX:
                         }
                     }
                     else
                     {
-                        abort();
+                        abort();    // TOFIX
                     }
                 }
 

@@ -399,7 +399,7 @@ namespace Moria.Core.Methods
                     valid_offer = false;
                 }
 
-                for (p = msg; *p == ' '; p++)
+                for (p = msg; *p == ' '; p++)   // TOFIX
                 {
                     // fast forward to next space character
                 }

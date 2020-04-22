@@ -1,41 +1,18 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.States;
 using Moria.Core.Structures;
-using Moria.Core.Structures.Enumerations;
-using System;
-using System.Resources;
-using static Moria.Core.Constants.Dungeon_c;
-using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Constants.Inventory_c;
-using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Constants.Store_c;
-using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Game_objects_m;
+using static Moria.Core.Methods.Game_m;
+using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Player_magic_m;
-using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Store_inventory_m;
-using static Moria.Core.Methods.Scores_m;
-using static Moria.Core.Methods.Std_m;
-using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Scores_m;
+using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_inventory_m;
+using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {

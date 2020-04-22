@@ -24,6 +24,7 @@ using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Helpers_m;
+using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Character_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
