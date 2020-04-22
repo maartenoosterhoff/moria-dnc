@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -829,7 +830,7 @@ namespace Moria.Core.Methods
             if (item.special_name_id != (int)SpecialNameIds.SN_NULL && spellItemIdentified(item))
             {
                 tmp_val += " ";
-                tmp_val += State.Instance.special_item_names[item.special_name_id];
+                tmp_val += Treasure_d.special_item_names[(int)item.special_name_id];
                 //(void)strcat(tmp_val, " ");
                 //(void)strcat(tmp_val, special_item_names[item.special_name_id]);
             }
