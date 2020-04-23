@@ -543,7 +543,7 @@ namespace Moria.Core.Methods
         }
 
         // Certain checks are omitted for the wizard. -CJS-
-        bool loadGame(bool &generate)
+        public static bool loadGame(ref bool generate)
         {
             Tile_t* tile = nullptr;
             int c;

@@ -4,6 +4,7 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using System.Resources;
+using Moria.Core.Resources;
 using Moria.Core.Utils;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
@@ -51,6 +52,7 @@ using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Staves_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Ui_inventory_m;
+using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Wizard_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_quaff_m;
@@ -98,7 +100,7 @@ namespace Moria.Core.Methods
             bool result = false;
             bool generate = false;
 
-            if (!start_new_game && (access(Config.files.save_game, 0) == 0) && loadGame(generate))
+            if (!start_new_game && (access(Config.files.save_game, 0) == 0) && loadGame(ref generate))
             {
                 result = true;
             }
@@ -2005,11 +2007,13 @@ namespace Moria.Core.Methods
                     // Display wizard help
                     if (Config.options.use_roguelike_keys)
                     {
-                        displayTextHelpFile(Config.files.help_roguelike_wizard);
+                        displayTextHelpFile(DataFilesResource.rl_help_wizard);
+                        //displayTextHelpFile(Config.files.help_roguelike_wizard);
                     }
                     else
                     {
-                        displayTextHelpFile(Config.files.help_wizard);
+                        displayTextHelpFile(DataFilesResource.help_wizard);
+                        //displayTextHelpFile(Config.files.help_wizard);
                     }
                     break;
                 case CTRL_KEY_I:
@@ -2080,7 +2084,8 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case CTRL_KEY_V: // (^V)iew license
-                    displayTextHelpFile(Config.files.license);
+                    displayTextHelpFile(DataFilesResource.LICENSE);
+                    //displayTextHelpFile(Config.files.license);
                     game.player_free_turn = true;
                     break;
                 case CTRL_KEY_W: // (^W)izard mode
@@ -2177,11 +2182,13 @@ namespace Moria.Core.Methods
                 case '?': // (?) help with commands
                     if (Config.options.use_roguelike_keys)
                     {
-                        displayTextHelpFile(Config.files.help_roguelike);
+                        displayTextHelpFile(DataFilesResource.rl_help);
+                        //displayTextHelpFile(Config.files.help_roguelike);
                     }
                     else
                     {
-                        displayTextHelpFile(Config.files.help);
+                        displayTextHelpFile(DataFilesResource.help);
+                        //displayTextHelpFile(Config.files.help);
                     }
                     game.player_free_turn = true;
                     break;
@@ -2306,7 +2313,8 @@ namespace Moria.Core.Methods
                     staffUse();
                     break;
                 case 'v': // (v)ersion of game
-                    displayTextHelpFile(Config.files.versions_history);
+                    displayTextHelpFile(DataFilesResource.versions);
+                    //displayTextHelpFile(Config.files.versions_history);
                     game.player_free_turn = true;
                     break;
                 case 'w': // (w)ear or wield

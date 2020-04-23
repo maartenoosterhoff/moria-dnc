@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -187,7 +188,7 @@ namespace Moria.Core.Methods
 
                 if (input == '?')
                 {
-                    displayTextHelpFile(Config.files.welcome_screen);
+                    displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
                 }
                 else
                 {
@@ -370,7 +371,7 @@ namespace Moria.Core.Methods
                 }
                 else if (input == '?')
                 {
-                    displayTextHelpFile(Config.files.welcome_screen);
+                    displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
                 }
                 else
                 {
@@ -539,7 +540,7 @@ namespace Moria.Core.Methods
                 }
                 else if (input == '?')
                 {
-                    displayTextHelpFile(Config.files.welcome_screen);
+                    displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
                 }
                 else
                 {

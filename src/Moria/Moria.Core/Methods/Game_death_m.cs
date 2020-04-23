@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Player_c;
@@ -25,7 +26,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var game = State.Instance.game;
 
-            displayDeathFile(Config.files.death_tomb);
+            displayDeathFile(nameof(DataFilesResource.death_tomb));
 
             string text;
 
@@ -124,7 +125,7 @@ namespace Moria.Core.Methods
         // Let the player know they did good.
         public static void printCrown()
         {
-            displayDeathFile(Config.files.death_royal);
+            displayDeathFile(nameof(DataFilesResource.death_royal));
             if (playerIsMale())
             {
                 putString("King!", new Coord_t(17, 45));

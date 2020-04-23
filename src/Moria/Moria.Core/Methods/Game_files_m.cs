@@ -3,7 +3,9 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using System.Linq;
 using System.Resources;
+using Moria.Core.Resources;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
@@ -72,17 +74,39 @@ namespace Moria.Core.Methods
 
         // Open and display a text help file
         // File perusal, primitive, but portable -CJS-
-        public static void displayTextHelpFile(string filename)
+        public static void displayTextHelpFile(string helpText)
         {
-            FILE* file = fopen(filename.c_str(), "r");
-            if (file == nullptr)
-            {
-                putStringClearToEOL("Can not find help file '" + filename + "'.", new Coord_t(0, 0));
-                return;
-            }
+            //FILE* file = fopen(filename.c_str(), "r");
+            //if (file == nullptr)
+            //{
+            //    putStringClearToEOL("Can not find help file '" + filename + "'.", new Coord_t(0, 0));
+            //    return;
+            //}
 
             terminalSaveScreen();
 
+            var lines = helpText.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                .ToList();
+
+            while (lines.Any())
+            {
+                for (var i = 0; i < 23; i++)
+                {
+                    var line = lines[0];
+                    lines.RemoveAt(0);
+                    putString(line, new Coord_t(i, 0));
+                }
+
+
+                putStringClearToEOL("[ press any key to continue ]", new Coord_t(23, 23));
+                var input = getKeyInput();
+                if (input == ESCAPE)
+                {
+                    break;
+                }
+            }
+
+/*
             constexpr uint8_t max_line_length = 80;
             char line_buffer[max_line_length];
             char input;
@@ -109,12 +133,37 @@ namespace Moria.Core.Methods
 
             (void)fclose(file);
 
+            */
+
             terminalRestoreScreen();
         }
 
         // Open and display a "death" text file
-        public static void displayDeathFile(string filename)
+        public static void displayDeathFile(string resourceName)
         {
+            var dataFile = string.Empty;
+            if (resourceName == nameof(DataFilesResource.death_tomb))
+            {
+                dataFile = DataFilesResource.death_tomb;
+            }
+            else if (resourceName == nameof(DataFilesResource.death_royal))
+            {
+                dataFile = DataFilesResource.death_royal;
+            }
+
+            var lines = dataFile
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                .ToArray();
+
+            for (int i = 0; i < 23 && i < lines.Length; i++)
+            {
+                putString(lines[i], new Coord_t(i, 0));
+            }
+
+
+
+            /*
+
             FILE* file = fopen(filename.c_str(), "r");
             if (file == nullptr)
             {
@@ -135,6 +184,8 @@ namespace Moria.Core.Methods
                 }
             }
             (void)fclose(file);
+
+            */
         }
 
         // Prints a list of random objects to a file. -RAK-

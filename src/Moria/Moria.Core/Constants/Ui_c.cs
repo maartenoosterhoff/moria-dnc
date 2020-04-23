@@ -12,6 +12,7 @@
         public const uint STAT_COLUMN = 0;
 
         public const char ESCAPE = '\u001B';
+        public const char DELETE = (char)0x7f;
 
         public const char CTRL_KEY_A = (char)('A' & 0x1F);
         public const char CTRL_KEY_B = (char)('B' & 0x1F);
