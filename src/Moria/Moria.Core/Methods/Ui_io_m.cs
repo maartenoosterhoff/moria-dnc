@@ -414,7 +414,7 @@ namespace Moria.Core.Methods
 
         // Prompts (optional) and returns ord value of input char
         // Function returns false if <ESCAPE> is input
-        public static bool getCommand(string prompt, ref char command)
+        public static bool getCommand(string prompt, out char command)
         {
             if (!string.IsNullOrEmpty(prompt))
             {
@@ -429,7 +429,7 @@ namespace Moria.Core.Methods
 
         // Gets a string terminated by <RETURN>
         // Function returns false if <ESCAPE> is input
-        public static bool getStringInput(ref string in_str, Coord_t coord, int slen)
+        public static bool getStringInput(out string in_str, Coord_t coord, int slen)
         {
             (void)move(coord.y, coord.x);
 

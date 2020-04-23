@@ -51,6 +51,7 @@ using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Staves_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Ui_inventory_m;
+using static Moria.Core.Methods.Wizard_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_quaff_m;
 
@@ -1297,7 +1298,7 @@ namespace Moria.Core.Methods
             return repeat_count;
         }
 
-        public static char parseAlternateCtrlInput(char last_input_command)
+        public static char parseAlternateCtrlInput(out char last_input_command)
         {
             var game = State.Instance.game;
             if (game.command_count > 0)
@@ -1305,7 +1306,7 @@ namespace Moria.Core.Methods
                 printCharacterMovementState();
             }
 
-            if (getCommand("Control-", ref last_input_command))
+            if (getCommand("Control-", out last_input_command))
             {
                 if (last_input_command >= 'A' && last_input_command <= 'Z')
                 {
@@ -1391,7 +1392,7 @@ namespace Moria.Core.Methods
                     // Another way of typing control codes -CJS-
                     if (last_input_command == '^')
                     {
-                        last_input_command = parseAlternateCtrlInput(last_input_command);
+                        last_input_command = parseAlternateCtrlInput(out last_input_command);
                     }
 
                     // move cursor to player char again, in case it moved

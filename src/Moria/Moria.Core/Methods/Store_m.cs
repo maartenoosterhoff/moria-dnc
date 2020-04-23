@@ -290,7 +290,7 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
             char key_char = '\0';
-            while (getCommand(msg, ref key_char))
+            while (getCommand(msg, out key_char))
             {
                 key_char -= 'a';
                 if (key_char >= item_pos_start && key_char <= item_pos_end)
@@ -393,7 +393,7 @@ namespace Moria.Core.Methods
                     //prompt_len = start_len + (int)strlen(last_offer_str);
                 }
 
-                if (!getStringInput(ref msg, new Coord_t(0, prompt_len), 40))
+                if (!getStringInput(out msg, new Coord_t(0, prompt_len), 40))
                 {
                     // customer aborted, i.e. pressed escape
                     valid_offer = false;
@@ -410,7 +410,7 @@ namespace Moria.Core.Methods
 
                 if ((offer_count != 0) && increment)
                 {
-                    stringToNumber(msg, ref adjustment);
+                    stringToNumber(msg, out adjustment);
 
                     // Don't accept a zero here.  Turn off increment if it was zero
                     // because a zero will not exit.  This can be zero if the user
@@ -431,7 +431,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    stringToNumber(msg, ref adjustment);
+                    stringToNumber(msg, out adjustment);
                 }
 
                 // don't allow incremental haggling, if player has not made an offer yet
@@ -1402,7 +1402,7 @@ namespace Moria.Core.Methods
                 State.Instance.message_ready_to_print = false;
 
                 char command = '\0';
-                if (getCommand("", ref command))
+                if (getCommand("", out command))
                 {
                     int saved_chr;
 

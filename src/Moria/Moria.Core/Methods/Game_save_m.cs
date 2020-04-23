@@ -84,7 +84,7 @@ namespace Moria.Core.Methods
                         printMessage(output);
                     }
                     putStringClearToEOL("New Save file [ESC to give up]:", new Coord_t(0, 0));
-                    if (!getStringInput(ref input, new Coord_t(0, 31), 45))
+                    if (!getStringInput(out input, new Coord_t(0, 31), 45))
                     {
                         return false;
                     }

@@ -776,7 +776,7 @@ namespace Moria.Core.Methods
                         do
                         {
                             char query = '\0';
-                            if (!getCommand("Put ring on which hand (l/r/L/R)?", ref query))
+                            if (!getCommand("Put ring on which hand (l/r/L/R)?", out query))
                             {
                                 slot = -1;
                             }
@@ -916,7 +916,7 @@ namespace Moria.Core.Methods
                 buildCommandHeading(ref heading_text, from, to, swap, command, prompt);
 
                 // Abort everything.
-                if (!getCommand(heading_text, ref which))
+                if (!getCommand(heading_text, out which))
                 {
                     which = ESCAPE;
                     selecting = false;

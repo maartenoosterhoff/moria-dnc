@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
         public static string blank_string = "                        ";
         public const char ESCAPE = '\u001B';
 
+        public static char CTRL_KEY(char x) => (char) (x & 0x1F);
 
         // Calculates current boundaries -RAK-
         public static void panelBounds()
@@ -834,7 +835,7 @@ namespace Moria.Core.Methods
             //putString(&blank_string[BLANK_LENGTH - 23], new Coord_t(2, 15));
 
             string name = string.Empty;
-            var getStringInputResult = getStringInput(ref name, new Coord_t(2, 15), 23);
+            var getStringInputResult = getStringInput(out name, new Coord_t(2, 15), 23);
             py.misc.name = name;
             if (!getStringInputResult || py.misc.name[0] == 0)
             {
@@ -869,7 +870,7 @@ namespace Moria.Core.Methods
                     case 'f':
                         putStringClearToEOL("File name:", new Coord_t(0, 0));
 
-                        if (getStringInput(ref temp, new Coord_t(0, 10), 60) && (temp[0] != 0))
+                        if (getStringInput(out temp, new Coord_t(0, 10), 60) && (temp[0] != 0))
                         {
                             if (outputPlayerCharacterToFile(temp))
                             {

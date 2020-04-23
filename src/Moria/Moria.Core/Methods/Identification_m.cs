@@ -226,7 +226,7 @@ namespace Moria.Core.Methods
         public static void identifyGameObject()
         {
             char command = '\0';
-            if (!getCommand("Enter character to be identified :", ref command))
+            if (!getCommand("Enter character to be identified :", out command))
             {
                 return;
             }
@@ -1182,7 +1182,7 @@ namespace Moria.Core.Methods
 
             putStringClearToEOL(inscription, new Coord_t(0, 0));
 
-            if (getStringInput(ref inscription, new Coord_t(0, inscription.Length), msg_len))
+            if (getStringInput(out inscription, new Coord_t(0, inscription.Length), msg_len))
             {
                 itemReplaceInscription(py.inventory[item_id], inscription);
             }

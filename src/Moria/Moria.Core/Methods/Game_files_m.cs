@@ -146,25 +146,25 @@ namespace Moria.Core.Methods
             //obj_desc_t input = { 0 };
 
             putStringClearToEOL("Produce objects on what level?: ", new Coord_t(0, 0));
-            if (!getStringInput(input, new Coord_t(0, 32), 10))
+            if (!getStringInput(out input, new Coord_t(0, 32), 10))
             {
                 return;
             }
 
             int level;
-            if (!stringToNumber(input, level))
+            if (!stringToNumber(input, out level))
             {
                 return;
             }
 
             putStringClearToEOL("Produce how many objects?: ", new Coord_t(0, 0));
-            if (!getStringInput(input, new Coord_t(0, 27), 10))
+            if (!getStringInput(out input, new Coord_t(0, 27), 10))
             {
                 return;
             }
 
             int count;
-            if (!stringToNumber(input, count))
+            if (!stringToNumber(input, out count))
             {
                 return;
             }
@@ -187,7 +187,7 @@ namespace Moria.Core.Methods
             var filename = string.Empty;
             //vtype_t filename = { 0 };
 
-            if (!getStringInput(filename, new Coord_t(0, 11), 64))
+            if (!getStringInput(out filename, new Coord_t(0, 11), 64))
             {
                 return;
             }

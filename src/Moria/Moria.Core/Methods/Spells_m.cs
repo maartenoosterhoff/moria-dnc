@@ -52,7 +52,7 @@ namespace Moria.Core.Methods
 
             char choice = '\0';
 
-            while (!spell_found && getCommand(str, ref choice))
+            while (!spell_found && getCommand(str, out choice))
             {
                 if (char.IsUpper(choice))
                 //if (isupper((int)choice) != 0)
@@ -2212,7 +2212,7 @@ namespace Moria.Core.Methods
         public static bool spellGenocide()
         {
             char creature_char = '\0';
-            if (!getCommand("Which type of creature do you wish exterminated?", ref creature_char))
+            if (!getCommand("Which type of creature do you wish exterminated?", out creature_char))
             {
                 return false;
             }

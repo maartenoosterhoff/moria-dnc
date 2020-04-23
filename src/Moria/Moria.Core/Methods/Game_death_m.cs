@@ -71,7 +71,7 @@ namespace Moria.Core.Methods
             putString(text, new Coord_t(16, (int)(26 - text.Length / 2)));
 
             string day = string.Empty;
-            humanDateString(ref day);
+            humanDateString(out day);
             text = day;
             putString(text, new Coord_t(17, (int)(26 - text.Length / 2)));
 
@@ -83,7 +83,7 @@ namespace Moria.Core.Methods
 
             var str = string.Empty;
             //vtype_t str = { '\0' };
-            if (getStringInput(ref str, new Coord_t(22, 18), 60))
+            if (getStringInput(out str, new Coord_t(22, 18), 60))
             {
                 foreach (var item in State.Instance.py.inventory)
                 {

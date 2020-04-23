@@ -57,14 +57,29 @@ namespace Moria.Core.Methods
         }
 
         // http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
-        public static bool stringToNumber(string str, ref int number)
+        public static bool stringToNumber(string str, out int number)
         {
-            throw new NotImplementedException();
+            return int.TryParse(str, out number);
         }
 
-        public static void humanDateString(ref string day)
+        public static void humanDateString(out string day)
         {
-            throw new NotImplementedException();
+            /*
+    time_t now = time(nullptr);
+    struct tm *datetime = localtime(&now);
+
+#ifdef _WIN32
+    strftime(day, 11, "%a %b %d", datetime);
+#else
+    strftime(day, 11, "%a %b %e", datetime);
+#endif
+*/
+            var now = DateTime.Now;
+            // a = writes abbreviated weekday name, e.g. Fri (locale dependent)
+            // b = writes abbreviated month name, e.g. Oct (locale dependent)
+            // d = writes day of the month as a decimal number (range [01,31])
+
+            day = now.ToString("ddd MMM d");
         }
     }
 }

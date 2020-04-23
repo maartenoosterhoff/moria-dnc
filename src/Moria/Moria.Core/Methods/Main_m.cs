@@ -14,7 +14,7 @@ namespace Moria.Core.Methods
 {
     public static class Main_m
     {
-        public static string usage_instructions = @"
+        public const string usage_instructions = @"
 Usage:
     umoria[OPTIONS] SAVEGAME
 
@@ -60,7 +60,7 @@ Options:
                 {
                     case 'v':
                         terminalRestore();
-                        Console.WriteLine("{0}.{1}.{2}", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
+                        Console.WriteLine("{0:d}.{1:d}.{2:d}", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
                         //printf("%d.%d.%d\n", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
                         return 0;
                     case 'n':
@@ -99,7 +99,7 @@ Options:
                         terminalRestore();
 
                         Console.WriteLine("Robert A. Koeneke's classic dungeon crawler.");
-                        Console.WriteLine("Moria-DNC {0}.{1}.{2} is released under a GPL v2 license.", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
+                        Console.WriteLine("Moria-DNC {0:d}.{1:d}.{2:d} is released under a GPL v2 license.", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
                         Console.WriteLine(usage_instructions);
                         return 0;
                 }
@@ -126,7 +126,7 @@ Options:
         {
             int value = 0;
 
-            if (!stringToNumber(argv, ref value))
+            if (!stringToNumber(argv, out value))
             {
                 return false;
             }

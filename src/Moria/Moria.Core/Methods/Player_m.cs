@@ -260,7 +260,7 @@ namespace Moria.Core.Methods
 
                 putStringClearToEOL("Rest for how long? ", new Coord_t(0, 0));
 
-                if (getStringInput(ref rest_str, new Coord_t(0, 19), 5))
+                if (getStringInput(out rest_str, new Coord_t(0, 19), 5))
                 {
                     if (rest_str[0] == '*')
                     {
@@ -268,8 +268,8 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
+                        stringToNumber(rest_str, out rest_num);
                         //(void)stringToNumber(rest_str, rest_num);
-                        rest_num = int.Parse(rest_str); // TOFIX: check for correct parsing
                     }
                 }
             }
@@ -1144,7 +1144,7 @@ namespace Moria.Core.Methods
                 displaySpellsList(spell_bank, spell_id, false, -1);
 
                 char query = '\0';
-                while ((new_spells != 0) && getCommand("Learn which spell?", ref query))
+                while ((new_spells != 0) && getCommand("Learn which spell?", out query))
                 {
                     int c = query - 'a';
 

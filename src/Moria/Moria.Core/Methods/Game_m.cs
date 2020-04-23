@@ -204,7 +204,7 @@ namespace Moria.Core.Methods
                 // Don't end a counted command. -CJS-
                 int save = game.command_count;
 
-                if (!getCommand(prompt, ref command))
+                if (!getCommand(prompt, out command))
                 {
                     game.player_free_turn = true;
                     return false;
@@ -237,7 +237,7 @@ namespace Moria.Core.Methods
 
             while (true)
             {
-                if (!getCommand(prompt, ref command))
+                if (!getCommand(prompt, out command))
                 {
                     game.player_free_turn = true;
                     return false;
