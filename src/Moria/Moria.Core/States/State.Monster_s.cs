@@ -8,14 +8,8 @@ namespace Moria.Core.States
     {
         public int hack_monptr;
 
-        public Creature_t[] creatures_list =
-            ArrayInitializer.Initialize<Creature_t>(MON_MAX_CREATURES);
-
         public Monster_t[] monsters = ArrayInitializer.Initialize<Monster_t>(MON_TOTAL_ALLOCATIONS);
         public int[] monster_levels = new int[MON_MAX_LEVELS + 1];
-
-        public MonsterAttack_t[] monster_attacks { get; set; } =
-            ArrayInitializer.Initialize<MonsterAttack_t>(MON_ATTACK_TYPES);
 
         public Monster_t blank_monster { get; set; }
         public int next_free_monster_id { get; set; }

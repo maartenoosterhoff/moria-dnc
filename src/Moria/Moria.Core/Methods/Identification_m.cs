@@ -564,7 +564,7 @@ namespace Moria.Core.Methods
             int indexx = (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             // base name, modifier string
-            string basenm = State.Instance.game_objects[item.id].name;
+            string basenm = Library.Instance.Treasure.game_objects[(int)item.id].name;
             string modstr = null;
 
             string damstr = string.Empty;
@@ -745,13 +745,13 @@ namespace Moria.Core.Methods
                 case TV_VIS_TRAP:
                 case TV_UP_STAIR:
                 case TV_DOWN_STAIR:
-                    description = State.Instance.game_objects[item.id].name;
+                    description = Library.Instance.Treasure.game_objects[(int)item.id].name;
                     description += ".";
                     // (void)strcpy(description, game_objects[item.id].name);
                     // (void)strcat(description, ".");
                     return;
                 case TV_STORE_DOOR:
-                    description = $"the entrance to the {State.Instance.game_objects[item.id].name}.";
+                    description = $"the entrance to the {Library.Instance.Treasure.game_objects[(int)item.id].name}.";
                     //(void)sprintf(description, "the entrance to the %s.", game_objects[item.id].name);
                     return;
                 default:
@@ -782,7 +782,7 @@ namespace Moria.Core.Methods
             if (append_name)
             {
                 tmp_val += " of ";
-                tmp_val += State.Instance.game_objects[item.id].name;
+                tmp_val += Library.Instance.Treasure.game_objects[(int)item.id].name;
                 //(void)strcat(tmp_val, " of ");
                 //(void)strcat(tmp_val, game_objects[item.id].name);
             }
@@ -830,7 +830,7 @@ namespace Moria.Core.Methods
             if (item.special_name_id != (int)SpecialNameIds.SN_NULL && spellItemIdentified(item))
             {
                 tmp_val += " ";
-                tmp_val += Treasure_d.special_item_names[(int)item.special_name_id];
+                tmp_val += Library.Instance.Treasure.special_item_names[(int)item.special_name_id];
                 //(void)strcat(tmp_val, " ");
                 //(void)strcat(tmp_val, special_item_names[item.special_name_id]);
             }
@@ -1207,7 +1207,7 @@ namespace Moria.Core.Methods
             string msg = string.Empty;
 
             Monster_t monster = State.Instance.monsters[monster_id];
-            string name = State.Instance.creatures_list[monster.creature_id].name;
+            string name = Library.Instance.Creatures.creatures_list[(int)monster.creature_id].name;
 
             if (monster.lit)
             {

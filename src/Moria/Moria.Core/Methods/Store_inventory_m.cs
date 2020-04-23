@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Identification_c;
@@ -117,7 +118,7 @@ namespace Moria.Core.Methods
         {
             if (!spellItemIdentified(item))
             {
-                return State.Instance.game_objects[item.id].cost;
+                return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
 
             if (item.category_id >= TV_BOW && item.category_id <= TV_SWORD)
@@ -142,7 +143,7 @@ namespace Moria.Core.Methods
         {
             if (!spellItemIdentified(item))
             {
-                return State.Instance.game_objects[item.id].cost;
+                return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
 
             if (item.to_hit < 0 || item.to_damage < 0 || item.to_ac < 0)
@@ -189,7 +190,7 @@ namespace Moria.Core.Methods
             // player can use this to 'identify' cursed objects
             if (!spellItemIdentified(item))
             {
-                return State.Instance.game_objects[item.id].cost;
+                return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
 
             return item.cost;
@@ -219,7 +220,7 @@ namespace Moria.Core.Methods
         {
             if (!spellItemIdentified(item))
             {
-                return State.Instance.game_objects[item.id].cost;
+                return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
 
             if (item.misc_use < 0)
@@ -229,7 +230,7 @@ namespace Moria.Core.Methods
 
             // some digging tools start with non-zero `misc_use` values, so only
             // multiply the plusses by 100, make sure result is positive
-            var value = item.cost + (item.misc_use - State.Instance.game_objects[item.id].misc_use) * 100;
+            var value = item.cost + (item.misc_use - Library.Instance.Treasure.game_objects[(int)item.id].misc_use) * 100;
 
             if (value < 0)
             {

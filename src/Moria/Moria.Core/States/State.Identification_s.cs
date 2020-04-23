@@ -7,7 +7,6 @@ namespace Moria.Core.States
     public partial class State
     {
         public uint[] objects_identified { get; set; } = new uint[OBJECT_IDENT_SIZE];
-        public string[] special_item_names { get; set; } = new string[(int)SpecialNameIds.SN_ARRAY_SIZE]; // TOFIX
 
         // Following are arrays for descriptive pieces
         public string[] colors = new string[MAX_COLORS];

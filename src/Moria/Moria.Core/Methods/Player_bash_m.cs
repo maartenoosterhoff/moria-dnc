@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -109,7 +110,7 @@ namespace Moria.Core.Methods
             int monster_id = (int)dg.floor[coord.y][coord.x].creature_id;
 
             var monster = State.Instance.monsters[monster_id];
-            var creature = State.Instance.creatures_list[monster.creature_id];
+            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
             monster.sleep_count = 0;
 

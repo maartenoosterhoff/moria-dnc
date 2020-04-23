@@ -4,6 +4,7 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using System.Resources;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
@@ -781,9 +782,9 @@ namespace Moria.Core.Methods
                     continue;
                 }
 
-                uint attack_type = State.Instance.monster_attacks[attack_id].type_id;
-                uint attack_description_id = State.Instance.monster_attacks[attack_id].description_id;
-                Dice_t dice = State.Instance.monster_attacks[attack_id].dice;
+                uint attack_type = Library.Instance.Creatures.monster_attacks[attack_id].type_id;
+                uint attack_description_id = Library.Instance.Creatures.monster_attacks[attack_id].description_id;
+                Dice_t dice = Library.Instance.Creatures.monster_attacks[attack_id].dice;
 
                 attack_count++;
 
@@ -861,7 +862,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
 
             var memory = State.Instance.creature_recall[monster_id];
-            Creature_t creature = State.Instance.creatures_list[monster_id];
+            Creature_t creature = Library.Instance.Creatures.creatures_list[monster_id];
 
             Recall_t saved_memory = new Recall_t();
 
@@ -967,7 +968,7 @@ namespace Moria.Core.Methods
 
             for (int i = (int) MON_MAX_CREATURES - 1; i >= 0; i--)
             {
-                if (State.Instance.creatures_list[i].sprite == command &&
+                if (Library.Instance.Creatures.creatures_list[i].sprite == command &&
                     memoryMonsterKnown(State.Instance.creature_recall[i]))
                 {
                     if (n == 0)

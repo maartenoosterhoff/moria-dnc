@@ -1,22 +1,96 @@
-﻿namespace Moria.Core.Structures
+﻿using System.Runtime.CompilerServices;
+
+namespace Moria.Core.Structures
 {
     public class DungeonObject_t
     {
-        public string name { get; set; }
-        public uint flags { get; set; }
-        public uint category_id { get; set; }
-        public uint sprite { get; set; }
-        public int misc_use { get; set; }
-        public int cost { get; set; }
-        public uint sub_category_id { get; set; }
-        public uint items_count { get; set; }
-        public uint weight { get; set; }
-        public int to_hit { get; set; }
-        public int to_damage { get; set; }
-        public int ac { get; set; }
-        public int to_ac { get; set; }
-        public Dice_t damage { get; set; } = new Dice_t();
-        public uint depth_first_found { get; set; }
+        public DungeonObject_t(
+            string name,
+            long flags,
+            uint category_id,
+            uint sprite,
+            int misc_use,
+            int cost,
+            uint sub_category_id,
+            uint items_count,
+            uint weight,
+            int to_hit,
+            int to_damage,
+            int ac,
+            int to_ac,
+            uint damage_dice,
+            uint damage_sides,
+            uint depth_first_found
+        ) : this(
+            name,
+            (uint)flags,
+            category_id,
+            sprite,
+            misc_use,
+            cost,
+            sub_category_id,
+            items_count,
+            weight,
+            to_hit,
+            to_damage,
+            ac,
+            to_ac,
+            new Dice_t(damage_dice, damage_sides),
+            depth_first_found
+        )
+        {
+        }
+
+        public DungeonObject_t(
+            string name,
+            uint flags,
+            uint category_id,
+            uint sprite,
+            int misc_use,
+            int cost,
+            uint sub_category_id,
+            uint items_count,
+            uint weight,
+            int to_hit,
+            int to_damage,
+            int ac,
+            int to_ac,
+            Dice_t damage,
+            uint depth_first_found
+        )
+        {
+            this.name = name;
+            this.flags = flags;
+            this.category_id = category_id;
+            this.sprite = sprite;
+            this.misc_use = misc_use;
+            this.cost = cost;
+            this.sub_category_id = sub_category_id;
+            this.items_count = items_count;
+            this.weight = weight;
+            this.to_hit = to_hit;
+            this.to_damage = to_damage;
+            this.ac = ac;
+            this.to_ac = to_ac;
+            this.damage = damage;
+            this.depth_first_found = depth_first_found;
+
+        }
+        public string name { get; }
+        public uint flags { get; }
+        public uint category_id { get; }
+        public uint sprite { get; }
+        public int misc_use { get; }
+        public int cost { get; }
+        public uint sub_category_id { get; }
+        public uint items_count { get; }
+        public uint weight { get; }
+        public int to_hit { get; }
+        public int to_damage { get; }
+        public int ac { get; }
+        public int to_ac { get; }
+        public Dice_t damage { get; }
+        public uint depth_first_found { get; }
     }
 
     /*

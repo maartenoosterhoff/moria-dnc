@@ -1,11 +1,20 @@
-﻿namespace Moria.Core.Structures
+﻿using System.Collections.Generic;
+
+namespace Moria.Core.Structures
 {
     public class MonsterAttack_t
     {
-        public uint type_id { get; set; }
-        public uint description_id { get; set; }
+        public MonsterAttack_t(uint type_id, uint description_id, Dice_t dice)
+        {
+            this.type_id = type_id;
+            this.description_id = description_id;
+            this.dice = dice;
+        }
 
-        public Dice_t dice { get; set; } = new Dice_t(0, 0);
+        public uint type_id { get; }
+        public uint description_id { get; }
+
+        public Dice_t dice { get; }
     }
 
     /*

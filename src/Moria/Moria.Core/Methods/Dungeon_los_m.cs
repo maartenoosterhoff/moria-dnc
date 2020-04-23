@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
@@ -603,8 +604,8 @@ namespace Moria.Core.Methods
             if (los_rocks_and_objects == 0 && tile.creature_id > 1 && monsters[tile.creature_id].lit)
             {
                 j = (int)monsters[tile.creature_id].creature_id;
-                var prefix = isVowel(State.Instance.creatures_list[j].name[0]) ? "an" : "a";
-                var creatureName = State.Instance.creatures_list[j].name;
+                var prefix = isVowel(Library.Instance.Creatures.creatures_list[j].name[0]) ? "an" : "a";
+                var creatureName = Library.Instance.Creatures.creatures_list[j].name;
                 msg = $"{description} {prefix} {creatureName}. [(r)ecall]";
                 //(void)sprintf(msg, "%s %s %s. [(r)ecall]", description, isVowel(creatures_list[j].name[0]) ? "an" : "a", creatures_list[j].name);
                 description = "It is on";

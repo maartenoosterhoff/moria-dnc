@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
@@ -365,12 +366,12 @@ namespace Moria.Core.Methods
                 var monster = State.Instance.monsters[id];
 
                 if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) &&
-                    ((State.Instance.creatures_list[monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) != 0u))
+                    ((Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) != 0u))
                 {
                     monster.lit = true;
 
                     // works correctly even if hallucinating
-                    panelPutTile((char)State.Instance.creatures_list[monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
+                    panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
 
                     detected = true;
                 }
@@ -751,13 +752,13 @@ namespace Moria.Core.Methods
             {
                 var monster = State.Instance.monsters[id];
 
-                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (State.Instance.creatures_list[monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) == 0)
+                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) == 0)
                 {
                     monster.lit = true;
                     detected = true;
 
                     // works correctly even if hallucinating
-                    panelPutTile((char)State.Instance.creatures_list[monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
+                    panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
                 }
             }
 
@@ -777,7 +778,7 @@ namespace Moria.Core.Methods
         public static void spellLightLineTouchesMonster(int monster_id)
         {
             var monster = State.Instance.monsters[monster_id];
-            var creature = State.Instance.creatures_list[monster.creature_id];
+            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
             // light up and draw monster
             monsterUpdateVisibility(monster_id);
@@ -1002,7 +1003,7 @@ namespace Moria.Core.Methods
         public static void spellFireBoltTouchesMonster(Tile_t tile, int damage, int harm_type, uint weapon_id, string bolt_name)
         {
             var monster = State.Instance.monsters[tile.creature_id];
-            var creature = State.Instance.creatures_list[monster.creature_id];
+            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
             // light up monster and draw monster, temporarily set
             // permanent_light so that `monsterUpdateVisibility()` will work
@@ -1170,7 +1171,7 @@ namespace Moria.Core.Methods
                                     if (tile.creature_id > 1)
                                     {
                                         var monster = State.Instance.monsters[tile.creature_id];
-                                        var creature = State.Instance.creatures_list[monster.creature_id];
+                                        var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                                         // lite up creature if visible, temp set permanent_light so that monsterUpdateVisibility works
                                         bool saved_lit_status = tile.permanent_light;
@@ -1310,7 +1311,7 @@ namespace Moria.Core.Methods
                             if (tile.creature_id > 1)
                             {
                                 var monster = State.Instance.monsters[tile.creature_id];
-                                var creature = State.Instance.creatures_list[monster.creature_id];
+                                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                                 int damage = damage_hp;
 
@@ -1497,7 +1498,7 @@ namespace Moria.Core.Methods
                     finished = true;
 
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
@@ -1545,7 +1546,7 @@ namespace Moria.Core.Methods
                     finished = true;
 
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     if ((creature.defenses & Config.monsters_defense.CD_UNDEAD) == 0)
                     {
@@ -1600,7 +1601,7 @@ namespace Moria.Core.Methods
                     finished = true;
 
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
@@ -1660,7 +1661,7 @@ namespace Moria.Core.Methods
                     finished = true;
 
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
@@ -1728,7 +1729,7 @@ namespace Moria.Core.Methods
                     finished = true;
 
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
@@ -1828,7 +1829,7 @@ namespace Moria.Core.Methods
                 if (tile.creature_id > 1)
                 {
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     if ((creature.defenses & Config.monsters_defense.CD_STONE) != 0)
                     {
@@ -1928,7 +1929,7 @@ namespace Moria.Core.Methods
                 if (tile.creature_id > 1)
                 {
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     if (randomNumber(MON_MAX_LEVELS) > creature.level)
                     {
@@ -1987,7 +1988,7 @@ namespace Moria.Core.Methods
                     finished = true;
 
                     var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     if ((creature.movement & Config.monsters_move.CM_PHASE) == 0u)
                     {
@@ -2194,7 +2195,7 @@ namespace Moria.Core.Methods
             for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
             {
                 var monster = State.Instance.monsters[id];
-                var creature = State.Instance.creatures_list[monster.creature_id];
+                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                 if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.movement & Config.monsters_move.CM_WIN) == 0)
                 {
@@ -2222,9 +2223,9 @@ namespace Moria.Core.Methods
             for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
             {
                 var monster = State.Instance.monsters[id];
-                var creature = State.Instance.creatures_list[monster.creature_id];
+                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                if (creature_char == State.Instance.creatures_list[monster.creature_id].sprite)
+                if (creature_char == Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite)
                 {
                     if ((creature.movement & Config.monsters_move.CM_WIN) == 0)
                     {
@@ -2255,7 +2256,7 @@ namespace Moria.Core.Methods
             for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
             {
                 var monster = State.Instance.monsters[id];
-                var creature = State.Instance.creatures_list[monster.creature_id];
+                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                 var name = monsterNameDescription(creature.name, monster.lit);
 
@@ -2306,7 +2307,7 @@ namespace Moria.Core.Methods
             for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
             {
                 var monster = State.Instance.monsters[id];
-                var creature = State.Instance.creatures_list[monster.creature_id];
+                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                 var name = monsterNameDescription(creature.name, monster.lit);
 
@@ -2353,7 +2354,7 @@ namespace Moria.Core.Methods
 
                 if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT)
                 {
-                    var creature = State.Instance.creatures_list[monster.creature_id];
+                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                     if ((creature.movement & Config.monsters_move.CM_WIN) == 0)
                     {
@@ -2379,14 +2380,14 @@ namespace Moria.Core.Methods
             {
                 var monster = State.Instance.monsters[id];
 
-                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && ((State.Instance.creatures_list[monster.creature_id].defenses & Config.monsters_defense.CD_EVIL) != 0))
+                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && ((Library.Instance.Creatures.creatures_list[(int)monster.creature_id].defenses & Config.monsters_defense.CD_EVIL) != 0))
                 {
                     monster.lit = true;
 
                     detected = true;
 
                     // works correctly even if hallucinating
-                    panelPutTile((char)State.Instance.creatures_list[monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
+                    panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
                 }
             }
 
@@ -2450,7 +2451,7 @@ namespace Moria.Core.Methods
         public static void earthquakeHitsMonster(int monster_id)
         {
             var monster = State.Instance.monsters[monster_id];
-            var creature = State.Instance.creatures_list[monster.creature_id];
+            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
             if ((creature.movement & Config.monsters_move.CM_PHASE) == 0u)
             {
@@ -2572,17 +2573,17 @@ namespace Moria.Core.Methods
         public static bool spellDispelCreature(int creature_defense, int damage)
         {
             var py = State.Instance.py;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
             bool dispelled = false;
 
             for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
             {
                 var monster = State.Instance.monsters[id];
 
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature_defense & creatures_list[monster.creature_id].defenses) != 0) &&
+                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature_defense & creatures_list[(int)monster.creature_id].defenses) != 0) &&
                     los(py.pos, monster.pos))
                 {
-                    var creature = creatures_list[monster.creature_id];
+                    var creature = creatures_list[(int)monster.creature_id];
 
                     State.Instance.creature_recall[monster.creature_id].defenses |= (uint)creature_defense;
 
@@ -2621,7 +2622,7 @@ namespace Moria.Core.Methods
             for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
             {
                 var monster = State.Instance.monsters[id];
-                var creature = State.Instance.creatures_list[monster.creature_id];
+                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
                 if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0) && los(py.pos, monster.pos))
                 {

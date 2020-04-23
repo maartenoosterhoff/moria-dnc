@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Treasure_c;
@@ -91,7 +92,7 @@ namespace Moria.Core.Methods
 
             if (is_ego_weapon && (is_projectile || is_hafted_sword || is_flask))
             {
-                var creature = State.Instance.creatures_list[monster_id];
+                var creature = Library.Instance.Creatures.creatures_list[monster_id];
                 var memory = State.Instance.creature_recall[monster_id];
 
                 // Slay Dragon

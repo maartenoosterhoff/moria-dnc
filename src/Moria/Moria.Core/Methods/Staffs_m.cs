@@ -19,7 +19,7 @@ using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Staves_m
+    public static class Staffs_m
     {
         public static bool staffPlayerIsCarrying(ref int item_pos_start, ref int item_pos_end)
         {

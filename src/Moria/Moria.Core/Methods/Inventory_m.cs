@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_m;
@@ -428,7 +429,7 @@ namespace Moria.Core.Methods
 
         public static void inventoryItemCopyTo(int from_item_id, Inventory_t to_item)
         {
-            DungeonObject_t from = State.Instance.game_objects[from_item_id];
+            DungeonObject_t from = Library.Instance.Treasure.game_objects[from_item_id];
 
             to_item.id = (uint)from_item_id;
             to_item.special_name_id = (int)SpecialNameIds.SN_NULL;

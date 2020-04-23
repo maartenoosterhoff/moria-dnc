@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -283,7 +284,7 @@ namespace Moria.Core.Methods
                             tbth -= tpth * ((int)BTH_PER_PLUS_TO_HIT_ADJUST - 1);
                         }
 
-                        if (playerTestBeingHit(tbth, (int)py.misc.level, tpth, (int)State.Instance.creatures_list[m_ptr.creature_id].ac, (int)PlayerClassLevelAdj.BTHB))
+                        if (playerTestBeingHit(tbth, (int)py.misc.level, tpth, (int)Library.Instance.Creatures.creatures_list[(int)m_ptr.creature_id].ac, (int)PlayerClassLevelAdj.BTHB))
                         {
                             int damage = (int)m_ptr.creature_id;
 
@@ -302,7 +303,7 @@ namespace Moria.Core.Methods
                             }
                             else
                             {
-                                msg = $"The {description} hits the {State.Instance.creatures_list[damage].name}.";
+                                msg = $"The {description} hits the {Library.Instance.Creatures.creatures_list[damage].name}.";
                                 //(void)sprintf(msg, "The %s hits the %s.", description, creatures_list[damage].name);
                                 visible = true;
                             }
@@ -326,7 +327,7 @@ namespace Moria.Core.Methods
                                 }
                                 else
                                 {
-                                    msg = $"You have killed the {State.Instance.creatures_list[damage].name}.";
+                                    msg = $"You have killed the {Library.Instance.Creatures.creatures_list[damage].name}.";
                                     //(void)sprintf(msg, "You have killed the %s.", creatures_list[damage].name);
                                     printMessage(msg);
                                 }

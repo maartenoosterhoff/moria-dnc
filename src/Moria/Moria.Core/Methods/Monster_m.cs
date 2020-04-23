@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -28,12 +29,12 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             bool visible = false;
 
             Tile_t tile = dg.floor[monster.pos.y][monster.pos.x];
-            Creature_t creature = creatures_list[monster.creature_id];
+            Creature_t creature = creatures_list[(int)monster.creature_id];
 
             if (tile.permanent_light || tile.temporary_light || ((py.running_tracker != 0) && monster.distance_from_player < 2 && py.carrying_light))
             {
@@ -487,7 +488,7 @@ namespace Moria.Core.Methods
             }
 
             var monster = State.Instance.monsters[monster_id];
-            var creature = State.Instance.creatures_list[monster.creature_id];
+            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
             var name = string.Empty;
             if (!monster.lit)
@@ -508,7 +509,7 @@ namespace Moria.Core.Methods
             int attack_counter = 0;
 
             var py = State.Instance.py;
-            var monster_attacks = State.Instance.monster_attacks;
+            var monster_attacks = Library.Instance.Creatures.monster_attacks;
 
             foreach (var damage_type_id in creature.damage)
             {
@@ -517,9 +518,9 @@ namespace Moria.Core.Methods
                     break;
                 }
 
-                uint attack_type = monster_attacks[damage_type_id].type_id;
-                uint attack_desc = monster_attacks[damage_type_id].description_id;
-                Dice_t dice = monster_attacks[damage_type_id].dice;
+                uint attack_type = monster_attacks[(int)damage_type_id].type_id;
+                uint attack_desc = monster_attacks[(int)damage_type_id].description_id;
+                Dice_t dice = monster_attacks[(int)damage_type_id].dice;
 
                 if (py.flags.protect_evil > 0 &&
                     ((creature.defenses & Config.monsters_defense.CD_EVIL) != 0) && py.misc.level + 1 > creature.level)
@@ -688,7 +689,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            if (randomNumber(Config.treasure.OBJECTS_RUNE_PROTECTION) < State.Instance.creatures_list[creature_id].level)
+            if (randomNumber(Config.treasure.OBJECTS_RUNE_PROTECTION) < Library.Instance.Creatures.creatures_list[(int)creature_id].level)
             {
                 if (coord.y == py.pos.y && coord.x == py.pos.x)
                 {
@@ -710,7 +711,7 @@ namespace Moria.Core.Methods
 
         public static void monsterMovesOnPlayer(Monster_t monster, uint creature_id, int monster_id, uint move_bits, ref bool do_move, ref bool do_turn, ref uint rcmove, Coord_t coord)
         {
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
             var monsters = State.Instance.monsters;
 
             if (creature_id == 1)
@@ -732,7 +733,7 @@ namespace Moria.Core.Methods
 
                 // Creature eats other creatures?
                 if (((move_bits & Config.monsters_move.CM_EATS_OTHER) != 0u) &&
-                    creatures_list[monster.creature_id].kill_exp_value >= creatures_list[monsters[creature_id].creature_id].kill_exp_value)
+                    creatures_list[(int)monster.creature_id].kill_exp_value >= creatures_list[(int)monsters[creature_id].creature_id].kill_exp_value)
                 {
                     if (monsters[creature_id].lit)
                     {
@@ -799,13 +800,13 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
             var monsters = State.Instance.monsters;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             bool do_turn = false;
             bool do_move = false;
 
             var monster = monsters[monster_id];
-            uint move_bits = creatures_list[monster.creature_id].movement;
+            uint move_bits = creatures_list[(int)monster.creature_id].movement;
 
             // Up to 5 attempts at moving, give up.
             Coord_t coord = new Coord_t(0, 0);
@@ -1099,7 +1100,7 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
             var monsters = State.Instance.monsters;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
             var creature_recall = State.Instance.creature_recall;
 
             if (game.character_is_dead)
@@ -1108,7 +1109,7 @@ namespace Moria.Core.Methods
             }
 
             var monster = monsters[monster_id];
-            var creature = creatures_list[monster.creature_id];
+            var creature = creatures_list[(int)monster.creature_id];
 
             if (!monsterCanCastSpells(monster, creature.spells))
             {
@@ -1190,7 +1191,7 @@ namespace Moria.Core.Methods
         public static bool monsterMultiply(Coord_t coord, int creature_id, int monster_id)
         {
             var dg = State.Instance.dg;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
             var monsters = State.Instance.monsters;
 
             Coord_t position = new Coord_t(0, 0);
@@ -1215,7 +1216,7 @@ namespace Moria.Core.Methods
                             bool cannibalistic = (creatures_list[creature_id].movement & Config.monsters_move.CM_EATS_OTHER) != 0;
 
                             // Check the experience level -CJS-
-                            bool experienced = creatures_list[creature_id].kill_exp_value >= creatures_list[monsters[tile.creature_id].creature_id].kill_exp_value;
+                            bool experienced = creatures_list[creature_id].kill_exp_value >= creatures_list[(int)monsters[tile.creature_id].creature_id].kill_exp_value;
 
                             if (cannibalistic && experienced)
                             {
@@ -1494,13 +1495,13 @@ namespace Moria.Core.Methods
         public static void monsterMove(int monster_id, ref uint rcmove)
         {
             var monsters = State.Instance.monsters;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
             var py = State.Instance.py;
             var dg = State.Instance.dg;
             var creature_recall = State.Instance.creature_recall;
 
             var monster = monsters[monster_id];
-            var creature = creatures_list[monster.creature_id];
+            var creature = creatures_list[(int)monster.creature_id];
 
             // Does the critter multiply?
             // rest could be negative, to be safe, only use mod with positive values.
@@ -1608,7 +1609,7 @@ namespace Moria.Core.Methods
 
         public static void monsterAttackingUpdate(Monster_t monster, int monster_id, int moves)
         {
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
@@ -1621,8 +1622,8 @@ namespace Moria.Core.Methods
 
                 // Monsters trapped in rock must be given a turn also,
                 // so that they will die/dig out immediately.
-                if (monster.lit || monster.distance_from_player <= creatures_list[monster.creature_id].area_affect_radius ||
-                    (((creatures_list[monster.creature_id].movement & Config.monsters_move.CM_PHASE) == 0u) && dg.floor[monster.pos.y][monster.pos.x].feature_id >= MIN_CAVE_WALL))
+                if (monster.lit || monster.distance_from_player <= creatures_list[(int)monster.creature_id].area_affect_radius ||
+                    (((creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_PHASE) == 0u) && dg.floor[monster.pos.y][monster.pos.x].feature_id >= MIN_CAVE_WALL))
                 {
                     if (monster.sleep_count > 0)
                     {
@@ -1655,7 +1656,7 @@ namespace Moria.Core.Methods
                     if (monster.stunned_amount != 0)
                     {
                         // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
-                        if (randomNumber(5000) < creatures_list[monster.creature_id].level * creatures_list[monster.creature_id].level)
+                        if (randomNumber(5000) < creatures_list[(int)monster.creature_id].level * creatures_list[(int)monster.creature_id].level)
                         {
                             monster.stunned_amount = 0;
                         }
@@ -1668,7 +1669,7 @@ namespace Moria.Core.Methods
                         {
                             if (monster.lit)
                             {
-                                var msg = $"The {creatures_list[monster.creature_id].name} ";
+                                var msg = $"The {creatures_list[(int)monster.creature_id].name} ";
                                 //vtype_t msg = { '\0' };
                                 //(void)sprintf(msg, "The %s ", creatures_list[monster.creature_id].name);
                                 printMessage(msg + "recovers and glares at you.");
@@ -1745,10 +1746,10 @@ namespace Moria.Core.Methods
         {
             var monsters = State.Instance.monsters;
             var py = State.Instance.py;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             var monster = monsters[monster_id];
-            var creature = creatures_list[monster.creature_id];
+            var creature = creatures_list[(int)monster.creature_id];
 
             monster.sleep_count = 0;
             monster.hp -= damage;
@@ -1935,7 +1936,7 @@ namespace Moria.Core.Methods
         { 
             var dg = State.Instance.dg;
             var monsters = State.Instance.monsters;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             bool asleep = false;
 
@@ -1951,7 +1952,7 @@ namespace Moria.Core.Methods
                     }
 
                     var monster = monsters[monster_id];
-                    var creature = creatures_list[monster.creature_id];
+                    var creature = creatures_list[(int)monster.creature_id];
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 

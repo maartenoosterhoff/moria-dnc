@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Game_c;
@@ -201,7 +202,7 @@ namespace Moria.Core.Methods
                         object_id = j;
                     }
 
-                    var found_level = (int)State.Instance.game_objects[State.Instance.sorted_objects[object_id]].depth_first_found;
+                    var found_level = (int)Library.Instance.Treasure.game_objects[State.Instance.sorted_objects[object_id]].depth_first_found;
 
                     if (found_level == 0)
                     {
@@ -212,7 +213,7 @@ namespace Moria.Core.Methods
                         object_id = randomNumber(treasure_levels[found_level] - treasure_levels[found_level - 1]) - 1 + treasure_levels[found_level - 1];
                     }
                 }
-            } while (must_be_small && itemBiggerThanChest(State.Instance.game_objects[State.Instance.sorted_objects[object_id]]));
+            } while (must_be_small && itemBiggerThanChest(Library.Instance.Treasure.game_objects[State.Instance.sorted_objects[object_id]]));
 
             return object_id;
         }

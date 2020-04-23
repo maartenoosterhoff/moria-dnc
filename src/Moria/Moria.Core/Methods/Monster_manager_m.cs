@@ -2,6 +2,7 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 using System;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Methods.Dice_m;
@@ -45,7 +46,7 @@ namespace Moria.Core.Methods
             }
 
             var monster = State.Instance.monsters[monster_id];
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             monster.pos.y = coord.y;
             monster.pos.x = coord.x;
@@ -134,7 +135,7 @@ namespace Moria.Core.Methods
             monster.pos.x = coord.x;
             monster.creature_id = (uint)creature_id;
 
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             if ((creatures_list[creature_id].defenses & Config.monsters_defense.CD_MAX_HP) != 0)
             {
@@ -195,7 +196,7 @@ namespace Moria.Core.Methods
                     i = j;
                 }
 
-                level = (int)State.Instance.creatures_list[i + monster_levels[0]].level;
+                level = (int)Library.Instance.Creatures.creatures_list[i + monster_levels[0]].level;
             }
 
             return randomNumber(monster_levels[level] - monster_levels[level - 1]) - 1 + monster_levels[level - 1];
@@ -206,7 +207,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
-            var creatures_list = State.Instance.creatures_list;
+            var creatures_list = Library.Instance.Creatures.creatures_list;
 
             Coord_t position = new Coord_t(0, 0);
 
@@ -291,7 +292,7 @@ namespace Moria.Core.Methods
                 monster_id = randomNumber(max_levels) - 1;
                 for (int i = 0; i <= 19;)
                 {
-                    if ((State.Instance.creatures_list[monster_id].defenses & Config.monsters_defense.CD_UNDEAD) != 0)
+                    if ((Library.Instance.Creatures.creatures_list[monster_id].defenses & Config.monsters_defense.CD_UNDEAD) != 0)
                     {
                         i = 20;
                         max_levels = 0;
@@ -329,7 +330,7 @@ namespace Moria.Core.Methods
                 {
                     if (cur_dis < State.Instance.monsters[i].distance_from_player && randomNumber(3) == 1)
                     {
-                        if ((State.Instance.creatures_list[State.Instance.monsters[i].creature_id].movement & Config.monsters_move.CM_WIN) != 0u)
+                        if ((Library.Instance.Creatures.creatures_list[(int)State.Instance.monsters[i].creature_id].movement & Config.monsters_move.CM_WIN) != 0u)
                         {
                             // Never compact away the Balrog!!
                         }

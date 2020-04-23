@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Utils;
 using System;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
@@ -235,7 +236,7 @@ namespace Moria.Core.Methods
 
             if (tile.creature_id > 1 && State.Instance.monsters[tile.creature_id].lit)
             {
-                return (char)State.Instance.creatures_list[State.Instance.monsters[tile.creature_id].creature_id].sprite;
+                return (char)Library.Instance.Creatures.creatures_list[(int)State.Instance.monsters[tile.creature_id].creature_id].sprite;
             }
 
             if (!tile.permanent_light && !tile.temporary_light && !tile.field_mark)
@@ -305,8 +306,8 @@ namespace Moria.Core.Methods
             if (item.category_id == TV_SECRET_DOOR)
             {
                 item.id = Config.dungeon_objects.OBJ_CLOSED_DOOR;
-                item.category_id = State.Instance.game_objects[Config.dungeon_objects.OBJ_CLOSED_DOOR].category_id;
-                item.sprite = State.Instance.game_objects[Config.dungeon_objects.OBJ_CLOSED_DOOR].sprite;
+                item.category_id = Library.Instance.Treasure.game_objects[(int)Config.dungeon_objects.OBJ_CLOSED_DOOR].category_id;
+                item.sprite = Library.Instance.Treasure.game_objects[(int)Config.dungeon_objects.OBJ_CLOSED_DOOR].sprite;
                 dungeonLiteSpot(coord);
             }
         }

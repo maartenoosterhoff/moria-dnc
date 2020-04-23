@@ -1,61 +1,53 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
-using System;
-using System.Resources;
-using Moria.Core.Resources;
 using Moria.Core.Utils;
+using System;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
-using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Constants.Inventory_c;
-using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Game_c;
-using static Moria.Core.Constants.Store_c;
+using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
+using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
+using static Moria.Core.Constants.Ui_c;
+using static Moria.Core.Methods.Character_m;
+using static Moria.Core.Methods.Dungeon_generate_m;
 using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Dungeon_generate_m;
-using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Game_run_m;
+using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Monster_manager_m;
-using static Moria.Core.Methods.Helpers_m;
+using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_save_m;
-using static Moria.Core.Methods.Character_m;
+using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Player_magic_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Store_inventory_m;
-using static Moria.Core.Methods.Game_death_m;
-using static Moria.Core.Methods.Scores_m;
+using static Moria.Core.Methods.Monster_manager_m;
+using static Moria.Core.Methods.Player_bash_m;
+using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
-using static Moria.Core.Methods.Store_m;
-using static Moria.Core.Methods.Scrolls_m;
-using static Moria.Core.Methods.Std_m;
-using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Player_pray_m;
-using static Moria.Core.Methods.Player_tunnel_m;
-using static Moria.Core.Methods.Player_throw_m;
-using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Player_traps_m;
-using static Moria.Core.Methods.Player_bash_m;
-using static Moria.Core.Methods.Ui_io_m;
-using static Moria.Core.Methods.Staves_m;
-using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Ui_inventory_m;
-using static Moria.Core.Methods.Game_save_m;
-using static Moria.Core.Methods.Wizard_m;
-using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_quaff_m;
+using static Moria.Core.Methods.Player_run_m;
+using static Moria.Core.Methods.Player_stats_m;
+using static Moria.Core.Methods.Player_throw_m;
+using static Moria.Core.Methods.Player_traps_m;
+using static Moria.Core.Methods.Player_tunnel_m;
+using static Moria.Core.Methods.Scores_m;
+using static Moria.Core.Methods.Scrolls_m;
+using static Moria.Core.Methods.Spells_m;
+using static Moria.Core.Methods.Staffs_m;
+using static Moria.Core.Methods.Store_inventory_m;
+using static Moria.Core.Methods.Store_m;
+using static Moria.Core.Methods.Ui_inventory_m;
+using static Moria.Core.Methods.Ui_io_m;
+using static Moria.Core.Methods.Ui_m;
+using static Moria.Core.Methods.Wizard_m;
 
 namespace Moria.Core.Methods
 {
@@ -100,7 +92,9 @@ namespace Moria.Core.Methods
             bool result = false;
             bool generate = false;
 
-            if (!start_new_game && (access(Config.files.save_game, 0) == 0) && loadGame(ref generate))
+            if (!start_new_game && 
+                //(access(Config.files.save_game, 0) == 0) && 
+                loadGame(ref generate))
             {
                 result = true;
             }
@@ -189,7 +183,7 @@ namespace Moria.Core.Methods
 
                 // check for eof here, see getKeyInput() in io.c
                 // eof can occur if the process gets a HANGUP signal
-                if (eof_flag != 0)
+                if (State.Instance.eof_flag != 0)
                 {
                     game.character_died_from = "(end of input: saved)";
                     //(void)strcpy(game.character_died_from, "(end of input: saved)");
@@ -266,7 +260,7 @@ namespace Moria.Core.Methods
 
             for (int i = 0; i < MON_MAX_CREATURES - Config.monsters.MON_ENDGAME_MONSTERS; i++)
             {
-                monster_levels[State.Instance.creatures_list[i].level]++;
+                monster_levels[Library.Instance.Creatures.creatures_list[i].level]++;
             }
 
             for (int i = 1; i <= MON_MAX_LEVELS; i++)
@@ -290,7 +284,7 @@ namespace Moria.Core.Methods
 
             for (int i = 0; i < MAX_DUNGEON_OBJECTS; i++)
             {
-                treasure_levels[State.Instance.game_objects[i].depth_first_found]++;
+                treasure_levels[Library.Instance.Treasure.game_objects[i].depth_first_found]++;
             }
 
             for (int i = 1; i <= TREASURE_MAX_LEVELS; i++)
@@ -310,7 +304,7 @@ namespace Moria.Core.Methods
 
             for (int i = 0; i < MAX_DUNGEON_OBJECTS; i++)
             {
-                int level = (int)State.Instance.game_objects[i].depth_first_found;
+                int level = (int)Library.Instance.Treasure.game_objects[i].depth_first_found;
                 int object_id = treasure_levels[level] - indexes[level];
 
                 State.Instance.sorted_objects[object_id] = (int)i;
@@ -325,7 +319,7 @@ namespace Moria.Core.Methods
             if (COST_ADJUSTMENT != 100)
             {
                 // round half-way cases up
-                foreach (var item in State.Instance.game_objects)
+                foreach (var item in Library.Instance.Treasure.game_objects)
                 {
                     item.cost = ((item.cost * (int)COST_ADJUSTMENT) + 50) / 100;
                 }
@@ -1443,7 +1437,7 @@ namespace Moria.Core.Methods
                 {
                     game.command_count--;
                 }
-            } while (game.player_free_turn && !State.Instance.dg.generate_new_level && (eof_flag == 0));
+            } while (game.player_free_turn && !State.Instance.dg.generate_new_level && (State.Instance.eof_flag == 0));
 
             command = last_input_command;
         }
@@ -2766,7 +2760,7 @@ namespace Moria.Core.Methods
             {
                 game.player_free_turn = false;
 
-                var msg = $"The {State.Instance.creatures_list[State.Instance.monsters[tile.creature_id].creature_id].name} is in your way!";
+                var msg = $"The {Library.Instance.Creatures.creatures_list[(int)State.Instance.monsters[tile.creature_id].creature_id].name} is in your way!";
                 //vtype_t msg = { '\0' };
                 //(void)sprintf(msg, "The %s is in your way!", State.Instance.creatures_list[State.Instance.monsters[tile.creature_id].creature_id].name);
                 printMessage(msg);
@@ -2981,7 +2975,7 @@ namespace Moria.Core.Methods
                 {
                     updateMonsters(true);
                 }
-            } while (!dg.generate_new_level && (eof_flag == 0));
+            } while (!dg.generate_new_level && (State.Instance.eof_flag == 0));
         }
 
     }

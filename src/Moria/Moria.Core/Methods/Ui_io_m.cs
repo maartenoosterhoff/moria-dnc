@@ -212,7 +212,7 @@ namespace Moria.Core.Methods
         // Flush the buffer -RAK-
         public static void flushInputBuffer()
         {
-            if (eof_flag != 0)
+            if (State.Instance.eof_flag != 0)
             {
                 return;
             }
@@ -521,7 +521,7 @@ namespace Moria.Core.Methods
                     // avoid infinite loops while trying to call getKeyInput() for a -more- prompt.
                     State.Instance.message_ready_to_print = false;
 
-                    eof_flag++;
+                    State.Instance.eof_flag++;
 
                     refresh();
 
@@ -532,7 +532,7 @@ namespace Moria.Core.Methods
 
                     playerDisturb(1, 0);
 
-                    if (eof_flag > 100)
+                    if (State.Instance.eof_flag > 100)
                     {
                         // just in case, to make sure that the process eventually dies
                         State.Instance.panic_save = true;
