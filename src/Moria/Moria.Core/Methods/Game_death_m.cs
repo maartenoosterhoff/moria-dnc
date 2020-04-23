@@ -2,6 +2,7 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Player_c;
+using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_save_m;

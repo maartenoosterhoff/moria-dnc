@@ -218,12 +218,14 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            abort();    // TOFIX:
+                            exitProgram();
+                            //abort();    // TOFIX:
                         }
                     }
                     else
                     {
-                        abort();    // TOFIX
+                        exitProgram();
+                        //abort();    // TOFIX
                     }
                 }
 

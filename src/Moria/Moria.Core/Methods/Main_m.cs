@@ -2,6 +2,7 @@
 using Moria.Core.States;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using static Moria.Core.Constants.Version_c;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_m;
@@ -115,7 +116,15 @@ Options:
                 Config.files.save_game = args[0];
             }
 
-            startMoria((int)seed, new_game, roguelike_keys);
+            try
+            {
+                startMoria((int) seed, new_game, roguelike_keys);
+            }
+            catch (MoriaExitRequestedException)
+            {
+                // Do nothing.
+            }
+
 
             return 0;
         }

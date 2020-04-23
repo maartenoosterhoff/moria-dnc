@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mime;
 using Moria.Core.Configs;
 using Moria.Core.States;
 using static Moria.Core.Methods.Rng_m;
@@ -263,19 +264,20 @@ namespace Moria.Core.Methods
         {
             flushInputBuffer();
             terminalRestore();
-            exit(0);
+
+            throw new MoriaExitRequestedException();
         }
 
-        // Abort the program with a message displayed on the terminal.
-        public static void abortProgram(string msg)
-        {
-            flushInputBuffer();
-            terminalRestore();
-
-            printf("Program was manually aborted with the message:\n");
-            printf("%s\n", msg);
-
-            exit(0);
-        }
+        //// Abort the program with a message displayed on the terminal.
+        //public static void abortProgram(string msg)
+        //{
+        //    flushInputBuffer();
+        //    terminalRestore();
+        //
+        //    printf("Program was manually aborted with the message:\n");
+        //    printf("%s\n", msg);
+        //
+        //    exit(0);
+        //}
     }
 }

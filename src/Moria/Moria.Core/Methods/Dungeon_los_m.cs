@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
+using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Std_m;
