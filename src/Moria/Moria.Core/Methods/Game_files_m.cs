@@ -253,7 +253,7 @@ namespace Moria.Core.Methods
 
             vtype_t stat_description = { '\0' };
 
-            (void)fprintf(char_file, "%c\n\n", CTRL_KEY('L'));
+            (void)fprintf(char_file, "%c\n\n", CTRL_KEY_L);
 
             (void)fprintf(char_file, " Name%9s %-23s", colon, py.misc.name);
             (void)fprintf(char_file, " Age%11s %6d", colon, (int)py.misc.age);
@@ -347,31 +347,31 @@ namespace Moria.Core.Methods
 
         public static string equipmentPlacementDescription(int item_id)
         {
-            switch (item_id)
+            switch ((PlayerEquipment)item_id)
             {
-                case PlayerEquipment::Wield:
+                case PlayerEquipment.Wield:
                     return "You are wielding";
-                case PlayerEquipment::Head:
+                case PlayerEquipment.Head:
                     return "Worn on head";
-                case PlayerEquipment::Neck:
+                case PlayerEquipment.Neck:
                     return "Worn around neck";
-                case PlayerEquipment::Body:
+                case PlayerEquipment.Body:
                     return "Worn on body";
-                case PlayerEquipment::Arm:
+                case PlayerEquipment.Arm:
                     return "Worn on shield arm";
-                case PlayerEquipment::Hands:
+                case PlayerEquipment.Hands:
                     return "Worn on hands";
-                case PlayerEquipment::Right:
+                case PlayerEquipment.Right:
                     return "Right ring finger";
-                case PlayerEquipment::Left:
+                case PlayerEquipment.Left:
                     return "Left  ring finger";
-                case PlayerEquipment::Feet:
+                case PlayerEquipment.Feet:
                     return "Worn on feet";
-                case PlayerEquipment::Outer:
+                case PlayerEquipment.Outer:
                     return "Worn about body";
-                case PlayerEquipment::Light:
+                case PlayerEquipment.Light:
                     return "Light source is";
-                case PlayerEquipment::Auxiliary:
+                case PlayerEquipment.Auxiliary:
                     return "Secondary weapon";
                 default:
                     return "*Unknown value*";
@@ -392,7 +392,7 @@ namespace Moria.Core.Methods
             obj_desc_t description = { '\0' };
             int item_slot_id = 0;
 
-            for (int i = PlayerEquipment::Wield; i < PLAYER_INVENTORY_SIZE; i++)
+            for (int i = PlayerEquipment.Wield; i < PLAYER_INVENTORY_SIZE; i++)
             {
                 if (py.inventory[i].category_id == TV_NOTHING)
                 {
@@ -405,7 +405,7 @@ namespace Moria.Core.Methods
                 item_slot_id++;
             }
 
-            (void)fprintf(equip_file, "%c\n\n", CTRL_KEY('L'));
+            (void)fprintf(equip_file, "%c\n\n", CTRL_KEY_L);
         }
 
         // Write out the character's inventory.
@@ -427,7 +427,7 @@ namespace Moria.Core.Methods
                 (void)fprintf(inv_file, "%c) %s\n", i + 'a', description);
             }
 
-            (void)fprintf(inv_file, "%c", CTRL_KEY('L'));
+            (void)fprintf(inv_file, "%c", CTRL_KEY_L);
         }
 
         // Print the character to a file or device -RAK-

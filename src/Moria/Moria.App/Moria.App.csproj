@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Moria.Core\Moria.Core.csproj" />
+    <!--<ProjectReference Include="..\Moria.Core\Moria.Core.csproj" />-->
   </ItemGroup>
 
 </Project>

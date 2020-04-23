@@ -26,7 +26,6 @@ namespace Moria.Core.Methods
         //#define BLANK_LENGTH 24
 
         public static string blank_string = "                        ";
-        public const char ESCAPE = '\u001B';
 
         public static char CTRL_KEY(char x) => (char) (x & 0x1F);
 
@@ -834,14 +833,12 @@ namespace Moria.Core.Methods
             putString(blank_string.Substring(0, BLANK_LENGTH - 23), new Coord_t(2, 15));
             //putString(&blank_string[BLANK_LENGTH - 23], new Coord_t(2, 15));
 
-            string name = string.Empty;
-            var getStringInputResult = getStringInput(out name, new Coord_t(2, 15), 23);
+            var getStringInputResult = getStringInput(out var name, new Coord_t(2, 15), 23);
             py.misc.name = name;
-            if (!getStringInputResult || py.misc.name[0] == 0)
+            if (!getStringInputResult || string.IsNullOrEmpty(py.misc.name))
             {
-                var name2 = py.misc.name;
-                getDefaultPlayerName(ref name2);
-                py.misc.name = name2;
+                getDefaultPlayerName(out var defaultName);
+                py.misc.name = defaultName;
                 putString(py.misc.name, new Coord_t(2, 15));
             }
 

@@ -1252,7 +1252,7 @@ namespace Moria.Core.Methods
 
             while (true)
             {
-                if (last_input_command == DELETE || last_input_command == CTRL_KEY('H'))
+                if (last_input_command == DELETE || last_input_command == CTRL_KEY_H)
                 {
                     repeat_count /= 10;
                     text_buffer = $"{repeat_count:d}";
@@ -1452,17 +1452,17 @@ namespace Moria.Core.Methods
 
             switch (command)
             {
-                case CTRL_KEY('K'): // ^K = exit
+                case CTRL_KEY_K: // ^K = exit
                     command = 'Q';
                     break;
-                case CTRL_KEY('J'):
-                case CTRL_KEY('M'):
+                case CTRL_KEY_J:
+                case CTRL_KEY_M:
                     command = '+';
                     break;
-                case CTRL_KEY('P'): // ^P = repeat
-                case CTRL_KEY('W'): // ^W = password
-                case CTRL_KEY('X'): // ^X = save
-                case CTRL_KEY('V'): // ^V = view license
+                case CTRL_KEY_P: // ^P = repeat
+                case CTRL_KEY_W: // ^W = password
+                case CTRL_KEY_X: // ^X = save
+                case CTRL_KEY_V: // ^V = view license
                 case ' ':
                 case '!':
                 case '$':
@@ -1566,28 +1566,28 @@ namespace Moria.Core.Methods
                         switch (direction)
                         {
                             case 1:
-                                command = CTRL_KEY('B');
+                                command = CTRL_KEY_B;
                                 break;
                             case 2:
-                                command = CTRL_KEY('J');
+                                command = CTRL_KEY_J;
                                 break;
                             case 3:
-                                command = CTRL_KEY('N');
+                                command = CTRL_KEY_N;
                                 break;
                             case 4:
-                                command = CTRL_KEY('H');
+                                command = CTRL_KEY_H;
                                 break;
                             case 6:
-                                command = CTRL_KEY('L');
+                                command = CTRL_KEY_L;
                                 break;
                             case 7:
-                                command = CTRL_KEY('Y');
+                                command = CTRL_KEY_Y;
                                 break;
                             case 8:
-                                command = CTRL_KEY('K');
+                                command = CTRL_KEY_K;
                                 break;
                             case 9:
-                                command = CTRL_KEY('U');
+                                command = CTRL_KEY_U;
                                 break;
                             default:
                                 command = ' ';
@@ -1646,30 +1646,30 @@ namespace Moria.Core.Methods
                     break;
 
                 // wizard mode commands follow
-                case CTRL_KEY('A'): // ^A = cure all
+                case CTRL_KEY_A: // ^A = cure all
                     break;
-                case CTRL_KEY('B'): // ^B = objects
-                    command = CTRL_KEY('O');
+                case CTRL_KEY_B: // ^B = objects
+                    command = CTRL_KEY_O;
                     break;
-                case CTRL_KEY('D'): // ^D = up/down
+                case CTRL_KEY_D: // ^D = up/down
                     break;
-                case CTRL_KEY('H'): // ^H = wizhelp
+                case CTRL_KEY_H: // ^H = wizhelp
                     command = '\\';
                     break;
-                case CTRL_KEY('I'): // ^I = identify
+                case CTRL_KEY_I: // ^I = identify
                     break;
-                case CTRL_KEY('L'): // ^L = wizlight
+                case CTRL_KEY_L: // ^L = wizlight
                     command = '*';
                     break;
                 case ':':
-                case CTRL_KEY('T'): // ^T = teleport
-                case CTRL_KEY('E'): // ^E = wizchar
-                case CTRL_KEY('F'): // ^F = genocide
-                case CTRL_KEY('G'): // ^G = treasure
+                case CTRL_KEY_T: // ^T = teleport
+                case CTRL_KEY_E: // ^E = wizchar
+                case CTRL_KEY_F: // ^F = genocide
+                case CTRL_KEY_G: // ^G = treasure
                 case '@':
                 case '+':
                     break;
-                case CTRL_KEY('U'): // ^U = summon
+                case CTRL_KEY_U: // ^U = summon
                     command = '&';
                     break;
                 default:
@@ -1774,7 +1774,7 @@ namespace Moria.Core.Methods
                 }
                 game.command_count = 0;
             }
-            else if (game.last_command != CTRL_KEY('P'))
+            else if (game.last_command != CTRL_KEY_P)
             {
                 max_messages = 1;
             }
@@ -1976,28 +1976,28 @@ namespace Moria.Core.Methods
         {
             switch (command)
             {
-                case CTRL_KEY('A'):
+                case CTRL_KEY_A:
                     // Cure all!
                     wizardCureAll();
                     break;
-                case CTRL_KEY('E'):
+                case CTRL_KEY_E:
                     // Edit Character
                     wizardCharacterAdjustment();
                     messageLineClear();
                     break;
-                case CTRL_KEY('F'):
+                case CTRL_KEY_F:
                     // Mass Genocide, vanquish all monsters
                     spellMassGenocide();
                     break;
-                case CTRL_KEY('G'):
+                case CTRL_KEY_G:
                     // Generate random items
                     wizardDropRandomItems();
                     break;
-                case CTRL_KEY('D'):
+                case CTRL_KEY_D:
                     // Go up/down to specified depth
                     wizardJumpLevel();
                     break;
-                case CTRL_KEY('O'):
+                case CTRL_KEY_O:
                     // Print random level object to a file
                     outputRandomLevelObjectsToFile();
                     break;
@@ -2012,7 +2012,7 @@ namespace Moria.Core.Methods
                         displayTextHelpFile(Config.files.help_wizard);
                     }
                     break;
-                case CTRL_KEY('I'):
+                case CTRL_KEY_I:
                     // Identify an item
                     spellIdentifyItem();
                     break;
@@ -2024,7 +2024,7 @@ namespace Moria.Core.Methods
                     // Light up current panel
                     spellMapCurrentArea();
                     break;
-                case CTRL_KEY('T'):
+                case CTRL_KEY_T:
                     // Random player teleportation
                     playerTeleport(100);
                     break;
@@ -2075,19 +2075,19 @@ namespace Moria.Core.Methods
                     commandQuit();
                     game.player_free_turn = true;
                     break;
-                case CTRL_KEY('P'): // (^P)revious message.
+                case CTRL_KEY_P: // (^P)revious message.
                     commandPreviousMessage();
                     game.player_free_turn = true;
                     break;
-                case CTRL_KEY('V'): // (^V)iew license
+                case CTRL_KEY_V: // (^V)iew license
                     displayTextHelpFile(Config.files.license);
                     game.player_free_turn = true;
                     break;
-                case CTRL_KEY('W'): // (^W)izard mode
+                case CTRL_KEY_W: // (^W)izard mode
                     commandFlipWizardMode();
                     game.player_free_turn = true;
                     break;
-                case CTRL_KEY('X'): // e(^X)it and save
+                case CTRL_KEY_X: // e(^X)it and save
                     commandSaveAndExit();
                     game.player_free_turn = true;
                     break;
@@ -2223,29 +2223,29 @@ namespace Moria.Core.Methods
                     commandToggleSearch();
                     game.player_free_turn = true;
                     break;
-                case CTRL_KEY('B'): // (^B) tunnel down left  (T 1)
+                case CTRL_KEY_B: // (^B) tunnel down left  (T 1)
                     playerTunnel(1);
                     break;
-                case CTRL_KEY('M'): // cr must be treated same as lf.
-                case CTRL_KEY('J'): // (^J) tunnel down    (T 2)
+                case CTRL_KEY_M: // cr must be treated same as lf.
+                case CTRL_KEY_J: // (^J) tunnel down    (T 2)
                     playerTunnel(2);
                     break;
-                case CTRL_KEY('N'): // (^N) tunnel down right  (T 3)
+                case CTRL_KEY_N: // (^N) tunnel down right  (T 3)
                     playerTunnel(3);
                     break;
-                case CTRL_KEY('H'): // (^H) tunnel left    (T 4)
+                case CTRL_KEY_H: // (^H) tunnel left    (T 4)
                     playerTunnel(4);
                     break;
-                case CTRL_KEY('L'): // (^L) tunnel right    (T 6)
+                case CTRL_KEY_L: // (^L) tunnel right    (T 6)
                     playerTunnel(6);
                     break;
-                case CTRL_KEY('Y'): // (^Y) tunnel up left    (T 7)
+                case CTRL_KEY_Y: // (^Y) tunnel up left    (T 7)
                     playerTunnel(7);
                     break;
-                case CTRL_KEY('K'): // (^K) tunnel up    (T 8)
+                case CTRL_KEY_K: // (^K) tunnel up    (T 8)
                     playerTunnel(8);
                     break;
-                case CTRL_KEY('U'): // (^U) tunnel up right    (T 9)
+                case CTRL_KEY_U: // (^U) tunnel up right    (T 9)
                     playerTunnel(9);
                     break;
                 case 'z': // (z)ap a wand    (a)im a wand
@@ -2338,8 +2338,8 @@ namespace Moria.Core.Methods
             switch (command)
             {
                 case 'Q':
-                case CTRL_KEY('W'):
-                case CTRL_KEY('X'):
+                case CTRL_KEY_W:
+                case CTRL_KEY_X:
                 case '=':
                 case '{':
                 case '/':
@@ -2370,18 +2370,18 @@ namespace Moria.Core.Methods
                 case 'w':
                 case 'W':
                 case 'X':
-                case CTRL_KEY('A'):
+                case CTRL_KEY_A:
                 case '\\':
-                case CTRL_KEY('I'):
+                case CTRL_KEY_I:
                 case '*':
                 case ':':
-                case CTRL_KEY('T'):
-                case CTRL_KEY('E'):
-                case CTRL_KEY('F'):
-                case CTRL_KEY('S'):
-                case CTRL_KEY('Q'):
+                case CTRL_KEY_T:
+                case CTRL_KEY_E:
+                case CTRL_KEY_F:
+                case CTRL_KEY_S:
+                case CTRL_KEY_Q:
                     return false;
-                case CTRL_KEY('P'):
+                case CTRL_KEY_P:
                 case ESCAPE:
                 case ' ':
                 case '-':
@@ -2405,19 +2405,19 @@ namespace Moria.Core.Methods
                 case 'U':
                 case 'D':
                 case 'R':
-                case CTRL_KEY('Y'):
-                case CTRL_KEY('K'):
-                case CTRL_KEY('U'):
-                case CTRL_KEY('L'):
-                case CTRL_KEY('N'):
-                case CTRL_KEY('J'):
-                case CTRL_KEY('B'):
-                case CTRL_KEY('H'):
+                case CTRL_KEY_Y:
+                case CTRL_KEY_K:
+                case CTRL_KEY_U:
+                case CTRL_KEY_L:
+                case CTRL_KEY_N:
+                case CTRL_KEY_J:
+                case CTRL_KEY_B:
+                case CTRL_KEY_H:
                 case 'S':
                 case 'o':
                 case 's':
-                case CTRL_KEY('D'):
-                case CTRL_KEY('G'):
+                case CTRL_KEY_D:
+                case CTRL_KEY_G:
                 case '+':
                     return true;
                 default:
