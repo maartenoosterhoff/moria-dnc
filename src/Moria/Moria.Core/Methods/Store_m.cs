@@ -5,6 +5,7 @@ using Moria.Core.Structures.Enumerations;
 using System;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
@@ -68,7 +69,7 @@ namespace Moria.Core.Methods
         // Comment one : Finished haggling
         public static void printSpeechFinishedHaggling()
         {
-            printMessage(State.Instance.speech_sale_accepted[randomNumber(14) - 1]);
+            printMessage(Library.Instance.StoreOwners.speech_sale_accepted[(int)randomNumber(14) - 1]);
         }
 
         // %A1 is offer, %A2 is asking.
@@ -79,12 +80,12 @@ namespace Moria.Core.Methods
 
             if (final > 0)
             {
-                comment = State.Instance.speech_selling_haggle_final[randomNumber(3) - 1];
+                comment = Library.Instance.StoreOwners.speech_selling_haggle_final[randomNumber(3) - 1];
                 //(void)strcpy(comment, speech_selling_haggle_final[randomNumber(3) - 1]);
             }
             else
             {
-                comment = State.Instance.speech_selling_haggle[randomNumber(16) - 1];
+                comment = Library.Instance.StoreOwners.speech_selling_haggle[randomNumber(16) - 1];
                 //(void)strcpy(comment, speech_selling_haggle[randomNumber(16) - 1]);
             }
 
@@ -100,12 +101,12 @@ namespace Moria.Core.Methods
 
             if (final > 0)
             {
-                comment = State.Instance.speech_buying_haggle_final[randomNumber(3) - 1];
+                comment = Library.Instance.StoreOwners.speech_buying_haggle_final[randomNumber(3) - 1];
                 //(void)strcpy(comment, speech_buying_haggle_final[randomNumber(3) - 1]);
             }
             else
             {
-                comment = State.Instance.speech_buying_haggle[randomNumber(15) - 1];
+                comment = Library.Instance.StoreOwners.speech_buying_haggle[randomNumber(15) - 1];
                 //(void)strcpy(comment, speech_buying_haggle[randomNumber(15) - 1]);
             }
 
@@ -118,18 +119,18 @@ namespace Moria.Core.Methods
         public static void printSpeechGetOutOfMyStore()
         {
             int comment = randomNumber(5) - 1;
-            printMessage(State.Instance.speech_insulted_haggling_done[comment]);
-            printMessage(State.Instance.speech_get_out_of_my_store[comment]);
+            printMessage(Library.Instance.StoreOwners.speech_insulted_haggling_done[comment]);
+            printMessage(Library.Instance.StoreOwners.speech_get_out_of_my_store[comment]);
         }
 
         public static void printSpeechTryAgain()
         {
-            printMessage(State.Instance.speech_haggling_try_again[randomNumber(10) - 1]);
+            printMessage(Library.Instance.StoreOwners.speech_haggling_try_again[randomNumber(10) - 1]);
         }
 
         public static void printSpeechSorry()
         {
-            printMessage(State.Instance.speech_sorry[randomNumber(5) - 1]);
+            printMessage(Library.Instance.StoreOwners.speech_sorry[randomNumber(5) - 1]);
         }
 
         // Displays the set of commands -RAK-
@@ -313,7 +314,7 @@ namespace Moria.Core.Methods
 
             store.insults_counter++;
 
-            if (store.insults_counter <= State.Instance.store_owners[store.owner_id].max_insults)
+            if (store.insults_counter <= Library.Instance.StoreOwners.store_owners[(int)store.owner_id].max_insults)
             {
                 return false;
             }
@@ -525,7 +526,7 @@ namespace Moria.Core.Methods
             int new_price = 0;
 
             Store_t store = State.Instance.stores[store_id];
-            Owner_t owner = State.Instance.store_owners[store.owner_id];
+            Owner_t owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
             int max_sell = 0, min_sell = 0;
             int cost = storeItemSellPrice(store, ref min_sell, ref max_sell, item);
@@ -718,7 +719,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             cost = cost * (200 - playerStatAdjustmentCharisma()) / 100;
-            cost = cost * (200 - (int)State.Instance.race_gold_adjustments[owner.race][py.misc.race_id]) / 100;
+            cost = cost * (200 - (int)Library.Instance.Stores.race_gold_adjustments[(int)owner.race][(int)py.misc.race_id]) / 100;
             if (cost < 1)
             {
                 cost = 1;
@@ -769,7 +770,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                Owner_t owner = State.Instance.store_owners[store.owner_id];
+                Owner_t owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
                 storeSellCustomerAdjustment(owner, ref cost, ref min_buy, ref max_buy, ref max_sell);
 
@@ -1391,7 +1392,7 @@ namespace Moria.Core.Methods
             }
 
             int current_top_item_id = 0;
-            displayStore(stores[store_id], State.Instance.store_owners[store.owner_id].name, current_top_item_id);
+            displayStore(stores[store_id], Library.Instance.StoreOwners.store_owners[(int)store.owner_id].name, current_top_item_id);
 
             bool exit_store = false;
             while (!exit_store)

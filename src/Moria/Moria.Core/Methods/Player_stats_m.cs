@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
@@ -151,7 +152,7 @@ namespace Moria.Core.Methods
             int dexterity = playerAttackBlowsDexterity((int)py.stats.used[(int)PlayerAttr.DEX]);
             int strength = playerAttackBlowsStrength(player_strength, weight);
 
-            return (int)State.Instance.blows_table[strength][dexterity];
+            return (int)Library.Instance.Tables.blows_table[strength][dexterity];
         }
 
         // Adjustment for wisdom/intelligence -JWT-

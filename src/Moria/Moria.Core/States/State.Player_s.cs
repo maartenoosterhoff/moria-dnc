@@ -27,8 +27,5 @@ namespace Moria.Core.States
 
         public uint[][] class_base_provisions { get; set; } =
             ArrayInitializer.InitializeWithDefault<uint>(PLAYER_MAX_CLASSES, 5);
-
-        public uint[][] blows_table { get; set; } =
-            ArrayInitializer.InitializeWithDefault<uint>(7, 6);
     }
 }

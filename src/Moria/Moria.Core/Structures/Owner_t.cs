@@ -2,13 +2,32 @@
 {
     public class Owner_t
     {
-        public string name { get; set; }
-        public int max_cost { get; set; }
-        public uint max_inflate { get; set; }
-        public uint min_inflate { get; set; }
-        public uint haggles_per { get; set; }
-        public uint race { get; set; }
-        public uint max_insults { get; set; }
+        public Owner_t(
+            string name,
+            int max_cost,
+            uint max_inflate,
+            uint min_inflate,
+            uint haggles_per,
+            uint race,
+            uint max_insults
+        )
+        {
+            this.name = name;
+            this.max_cost = max_cost;
+            this.max_inflate = max_inflate;
+            this.min_inflate = min_inflate;
+            this.haggles_per = haggles_per;
+            this.race = race;
+            this.max_insults = max_insults;
+        }
+
+        public string name { get; }
+        public int max_cost { get; }
+        public uint max_inflate { get; }
+        public uint min_inflate { get; }
+        public uint haggles_per { get; }
+        public uint race { get; }
+        public uint max_insults { get; }
     }
 
     /*

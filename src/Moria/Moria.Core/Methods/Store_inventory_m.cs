@@ -49,7 +49,7 @@ namespace Moria.Core.Methods
                         turnaround += (int)Config.stores.STORE_MIN_AUTO_SELL_ITEMS - (int)store.unique_items_counter;
                     }
 
-                    int max_cost = State.Instance.store_owners[store.owner_id].max_cost;
+                    int max_cost = Library.Instance.StoreOwners.store_owners[(int)store.owner_id].max_cost;
 
                     turnaround--;
                     while (turnaround >= 0)
@@ -254,9 +254,9 @@ namespace Moria.Core.Methods
                 return 0;
             }
 
-            var owner = State.Instance.store_owners[store.owner_id];
+            var owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
-            price = price * (int)race_gold_adjustments[owner.race][py.misc.race_id] / 100;
+            price = price * (int)Library.Instance.Stores.race_gold_adjustments[(int)owner.race][(int)py.misc.race_id] / 100;
             if (price < 1)
             {
                 price = 1;
@@ -439,7 +439,7 @@ namespace Moria.Core.Methods
 
             for (var tries = 0; tries <= 3; tries++)
             {
-                var id = (int)store_choices[store_id][randomNumber(STORE_MAX_ITEM_TYPES) - 1];
+                var id = (int)Library.Instance.Stores.store_choices[store_id][randomNumber(STORE_MAX_ITEM_TYPES) - 1];
                 inventoryItemCopyTo(id, game.treasure.list[free_id]);
                 magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Mime;
 using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using static Moria.Core.Methods.Rng_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -100,6 +101,7 @@ namespace Moria.Core.Methods
             var low = 0;
             var iindex = (int)NORMAL_TABLE_SIZE >> 1;
             var high = (int)NORMAL_TABLE_SIZE;
+            var normal_table = Library.Instance.Tables.normal_table;
 
             while (true)
             {

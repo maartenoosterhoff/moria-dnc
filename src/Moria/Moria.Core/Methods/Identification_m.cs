@@ -241,79 +241,9 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
 
-            int id;
-
             seedSet(game.magic_seed);
 
-            // The first 3 entries for colors are fixed, (slime & apple juice, water)
-            for (int i = 3; i < MAX_COLORS; i++)
-            {
-                id = randomNumber(MAX_COLORS - 3) + 2;
-                string color = State.Instance.colors[i];
-                State.Instance.colors[i] = State.Instance.colors[id];
-                State.Instance.colors[id] = color;
-            }
-
-            for (int i = 0; i < State.Instance.woods.Length; i++)
-            {
-                id = randomNumber(MAX_WOODS) - 1;
-                var wood = State.Instance.woods[i];
-                State.Instance.woods[i] = State.Instance.woods[id];
-                State.Instance.woods[id] = wood;
-            }
-
-            for (int i = 0; i < State.Instance.metals.Length; i++)
-            {
-                id = randomNumber(MAX_METALS) - 1;
-                var metal = State.Instance.metals[i];
-                State.Instance.metals[i] = State.Instance.metals[id];
-                State.Instance.metals[id] = metal;
-            }
-
-            for (int i = 0; i < State.Instance.rocks.Length; i++)
-            {
-                id = randomNumber(MAX_ROCKS) - 1;
-                var rock = State.Instance.rocks[i];
-                State.Instance.rocks[i] = State.Instance.rocks[id];
-                State.Instance.rocks[id] = rock;
-            }
-
-            for (int i = 0; i < State.Instance.amulets.Length; i++)
-            {
-                id = randomNumber(MAX_AMULETS) - 1;
-                var amulet = State.Instance.amulets[i];
-                State.Instance.amulets[i] = State.Instance.amulets[id];
-                State.Instance.amulets[id] = amulet;
-            }
-
-            for (int i = 0; i < State.Instance.mushrooms.Length; i++)
-            {
-                id = randomNumber(MAX_MUSHROOMS) - 1;
-                var mushroom = State.Instance.mushrooms[i];
-                State.Instance.mushrooms[i] = State.Instance.mushrooms[id];
-                State.Instance.mushrooms[id] = mushroom;
-            }
-
-            for (int mit = 0; mit < State.Instance.magic_item_titles.Length; mit++)
-            {
-                var title = string.Empty;
-                var k = randomNumber(2) + 1;
-
-
-                for (int i = 0; i < k; i++)
-                {
-                    for (int s = randomNumber(2); s > 0; s--)
-                    {
-                        title += State.Instance.syllables[randomNumber(MAX_SYLLABLES) - 1];
-                    }
-                    if (i < k - 1)
-                    {
-                        title += " ";
-                    }
-                }
-
-                State.Instance.magic_item_titles[mit] = title;
-            }
+            Library.Instance.Tables.initializeItemNames();
 
             seedResetToOldSeed();
         }
@@ -617,7 +547,7 @@ namespace Moria.Core.Methods
                     if (modify)
                     {
                         basenm = "& {0} Amulet";
-                        modstr = State.Instance.amulets[indexx];
+                        modstr = Library.Instance.Tables.amulets[indexx];
                     }
                     else
                     {
@@ -630,7 +560,7 @@ namespace Moria.Core.Methods
                     if (modify)
                     {
                         basenm = "& {0} Ring";
-                        modstr = State.Instance.rocks[indexx];
+                        modstr = Library.Instance.Tables.rocks[indexx];
                     }
                     else
                     {
@@ -643,7 +573,7 @@ namespace Moria.Core.Methods
                     if (modify)
                     {
                         basenm = "& {0} Staff";
-                        modstr = State.Instance.woods[indexx];
+                        modstr = Library.Instance.Tables.woods[indexx];
                     }
                     else
                     {
@@ -656,7 +586,7 @@ namespace Moria.Core.Methods
                     if (modify)
                     {
                         basenm = "& {0} Wand";
-                        modstr = State.Instance.metals[indexx];
+                        modstr = Library.Instance.Tables.metals[indexx];
                     }
                     else
                     {
@@ -670,7 +600,7 @@ namespace Moria.Core.Methods
                     if (modify)
                     {
                         basenm = "& Scroll~ titled \"{0}\"";
-                        modstr = State.Instance.magic_item_titles[indexx];
+                        modstr = Library.Instance.Tables.magic_item_titles[indexx];
                     }
                     else
                     {
@@ -683,7 +613,7 @@ namespace Moria.Core.Methods
                     if (modify)
                     {
                         basenm = "& {0} Potion~";
-                        modstr = State.Instance.colors[indexx];
+                        modstr = Library.Instance.Tables.colors[indexx];
                     }
                     else
                     {
@@ -706,7 +636,7 @@ namespace Moria.Core.Methods
                         }
                         if (indexx <= 20)
                         {
-                            modstr = State.Instance.mushrooms[indexx];
+                            modstr = Library.Instance.Tables.mushrooms[indexx];
                         }
                     }
                     else
