@@ -246,8 +246,8 @@ namespace Moria.Core.Methods
                 if ((rc_move & Config.monsters_move.CM_RANDOM_MOVE) != 0u)
                 {
                     memoryPrint(
-                        State.Instance.recall_description_how_much
-                            [(rc_move & Config.monsters_move.CM_RANDOM_MOVE) >> 3]);
+                        Library.Instance.Recall.recall_description_how_much
+                            [(int)((rc_move & Config.monsters_move.CM_RANDOM_MOVE) >> 3)]);
                     memoryPrint(" erratically");
                 }
 
@@ -450,7 +450,7 @@ namespace Moria.Core.Methods
                         memoryPrint(" and ");
                     }
 
-                    memoryPrint(State.Instance.recall_description_breath[i]);
+                    memoryPrint(Library.Instance.Recall.recall_description_breath[i]);
                 }
             }
 
@@ -485,7 +485,7 @@ namespace Moria.Core.Methods
                         memoryPrint(" or ");
                     }
 
-                    memoryPrint(State.Instance.recall_description_spell[i]);
+                    memoryPrint(Library.Instance.Recall.recall_description_spell[i]);
                 }
             }
 
@@ -557,7 +557,7 @@ namespace Moria.Core.Methods
                         memoryPrint(" and ");
                     }
 
-                    memoryPrint(State.Instance.recall_description_move[i]);
+                    memoryPrint(Library.Instance.Recall.recall_description_move[i]);
                 }
             }
 
@@ -591,7 +591,7 @@ namespace Moria.Core.Methods
                         memoryPrint(" and ");
                     }
 
-                    memoryPrint(State.Instance.recall_description_weakness[i]);
+                    memoryPrint(Library.Instance.Recall.recall_description_weakness[i]);
                 }
             }
 
@@ -806,7 +806,7 @@ namespace Moria.Core.Methods
                     attack_description_id = 0;
                 }
 
-                memoryPrint(State.Instance.recall_description_attack_method[attack_description_id]);
+                memoryPrint(Library.Instance.Recall.recall_description_attack_method[(int)attack_description_id]);
 
                 if (attack_type != 1 || (dice.dice > 0 && dice.sides > 0))
                 {
@@ -817,7 +817,7 @@ namespace Moria.Core.Methods
                         attack_type = 0;
                     }
 
-                    memoryPrint(State.Instance.recall_description_attack_type[attack_type]);
+                    memoryPrint(Library.Instance.Recall.recall_description_attack_type[(int)attack_type]);
 
                     if ((dice.dice != 0) && (dice.sides != 0))
                     {

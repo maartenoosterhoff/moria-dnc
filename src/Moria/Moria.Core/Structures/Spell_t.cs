@@ -2,10 +2,23 @@
 {
     public class Spell_t
     {
-        public uint level_required { get; set; }
-        public uint mana_required { get; set; }
-        public uint failure_chance { get; set; }
-        public uint exp_gain_for_learning { get; set; }
+        public Spell_t(
+            uint level_required,
+            uint mana_required,
+            uint failure_chance,
+            uint exp_gain_for_learning
+        )
+        {
+            this.level_required = level_required;
+            this.mana_required = mana_required;
+            this.failure_chance = failure_chance;
+            this.exp_gain_for_learning = exp_gain_for_learning;
+        }
+
+        public uint level_required { get; }
+        public uint mana_required { get; }
+        public uint failure_chance { get; }
+        public uint exp_gain_for_learning { get; }
     }
 
     /*

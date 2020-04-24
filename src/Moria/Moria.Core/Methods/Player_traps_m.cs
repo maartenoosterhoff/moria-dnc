@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -26,7 +27,7 @@ namespace Moria.Core.Methods
             ability += 2;
             ability *= playerDisarmAdjustment();
             ability += playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT);
-            ability += State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
+            ability += Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
 
             if (py.flags.blind > 0 || playerNoLight())
             {

@@ -1,4 +1,5 @@
-﻿using Moria.Core.Configs;
+﻿using System.Collections.Generic;
+using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -799,7 +800,7 @@ namespace Moria.Core.Methods
             playerDisturb(1, 0);
 
             // `plus_to_hit` could be less than 0 if player wielding weapon too heavy for them
-            int hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (level * State.Instance.class_level_adj[py.misc.class_id][attack_type_id]);
+            int hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id]);
 
             // always miss 1 out of 20, always hit 1 out of 20
             int die = randomNumber(20);
@@ -1060,11 +1061,11 @@ namespace Moria.Core.Methods
             int diff_spells = 0;
 
             // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
-            var spells = State.Instance.magic_spells[py.misc.class_id - 1];
+            var spells = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1];
 
             int stat, offset;
 
-            if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
             {
                 // People with Config.spells.SPELL_TYPE_MAGE spells can't learn spell_bank if they can't read their books.
                 if (!playerCanRead())
@@ -1187,9 +1188,9 @@ namespace Moria.Core.Methods
                     py.flags.spells_learned_order[last_known] = (uint)spell_bank[id];
                     last_known++;
 
-                    var tmp_str = $"You have learned the prayer of {State.Instance.spell_names[spell_bank[id] + offset]}.";
+                    var tmp_str = $"You have learned the prayer of {Library.Instance.Player.spell_names[spell_bank[id] + offset]}.";
                     //vtype_t tmp_str = { '\0' };
-                    //(void)sprintf(tmp_str, "You have learned the prayer of %s.", State.Instance.spell_names[spell_bank[id] + offset]);
+                    //(void)sprintf(tmp_str, "You have learned the prayer of %s.", Library.Instance.Player.spell_names[spell_bank[id] + offset]);
                     printMessage(tmp_str);
 
                     for (; id <= spell_id - 1; id++)
@@ -1219,7 +1220,7 @@ namespace Moria.Core.Methods
         public static int newMana(int stat)
         {
             var py = State.Instance.py;
-            int levels = (int)(py.misc.level - State.Instance.classes[py.misc.class_id].min_level_for_spell_casting + 1);
+            int levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
 
             switch (playerStatAdjustmentWisdomIntelligence(stat))
             {
@@ -1296,7 +1297,7 @@ namespace Moria.Core.Methods
 
             // Weight of weapon, plusses to hit, and character level all
             // contribute to the chance of a critical
-            if (randomNumber(5000) <= weapon_weight + 5 * plus_to_hit + (State.Instance.class_level_adj[py.misc.class_id][attack_type_id] * py.misc.level))
+            if (randomNumber(5000) <= weapon_weight + 5 * plus_to_hit + (Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id] * py.misc.level))
             {
                 weapon_weight += randomNumber(650);
 
@@ -1329,7 +1330,7 @@ namespace Moria.Core.Methods
         public static bool playerSavingThrow()
         {
             var py = State.Instance.py;
-            int class_level_adjustment = State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3;
+            int class_level_adjustment = Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3;
 
             int saving = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + class_level_adjustment;
 
@@ -1398,7 +1399,7 @@ namespace Moria.Core.Methods
 
             bth = py.misc.bth / 2;
             bth -= tot_tohit * ((int)BTH_PER_PLUS_TO_HIT_ADJUST - 1);
-            bth -= (int)py.misc.level * State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTH] / 2;
+            bth -= (int)py.misc.level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] / 2;
 
             return bth;
         }
@@ -1544,7 +1545,7 @@ namespace Moria.Core.Methods
             skill += 2;
             skill *= playerDisarmAdjustment();
             skill += playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT);
-            skill += State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
+            skill += Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
 
             return skill;
         }
@@ -1847,7 +1848,7 @@ namespace Moria.Core.Methods
         }
 
         // check to see if know any spells greater than level, eliminate them
-        public static void eliminateKnownSpellsGreaterThanLevel(Spell_t[] msp_ptr, string p, int offset)
+        public static void eliminateKnownSpellsGreaterThanLevel(IReadOnlyList<Spell_t> msp_ptr, string p, int offset)
         {
             var py = State.Instance.py;
             uint mask = 0x80000000;
@@ -1861,7 +1862,7 @@ namespace Moria.Core.Methods
                         py.flags.spells_learnt &= ~mask;
                         py.flags.spells_forgotten |= mask;
 
-                        var msg = $"You have forgotten the {p} of {State.Instance.spell_names[i + offset]}.";
+                        var msg = $"You have forgotten the {p} of {Library.Instance.Player.spell_names[i + offset]}.";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "You have forgotten the %s of %s.", p, spell_names[i + offset]);
                         printMessage(msg);
@@ -1877,7 +1878,7 @@ namespace Moria.Core.Methods
         public static int numberOfSpellsAllowed(int stat)
         {
             var py = State.Instance.py;
-            int levels = (int)(py.misc.level - State.Instance.classes[py.misc.class_id].min_level_for_spell_casting + 1);
+            int levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
 
             int allowed;
 
@@ -1924,7 +1925,7 @@ namespace Moria.Core.Methods
 
         // remember forgotten spells while forgotten spells exist of new_spells_to_learn positive,
         // remember the spells in the order that they were learned
-        public static int rememberForgottenSpells(Spell_t[] msp_ptr, int allowed_spells, int new_spells, string p, int offset)
+        public static int rememberForgottenSpells(IReadOnlyList<Spell_t> msp_ptr, int allowed_spells, int new_spells, string p, int offset)
         {
             var py = State.Instance.py;
             uint mask;
@@ -1953,7 +1954,7 @@ namespace Moria.Core.Methods
                         py.flags.spells_forgotten &= ~mask;
                         py.flags.spells_learnt |= mask;
 
-                        var msg = $"You have remembered the {p} of {State.Instance.spell_names[order_id + offset]}.";
+                        var msg = $"You have remembered the {p} of {Library.Instance.Player.spell_names[order_id + offset]}.";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "You have remembered the %s of %s.", p, spell_names[order_id + offset]);
                         printMessage(msg);
@@ -1970,7 +1971,7 @@ namespace Moria.Core.Methods
 
         // determine which spells player can learn must check all spells here,
         // in gain_spell() we actually check if the books are present
-        public static int learnableSpells(Spell_t[] msp_ptr, int new_spells)
+        public static int learnableSpells(IReadOnlyList<Spell_t> msp_ptr, int new_spells)
         {
             var py = State.Instance.py;
             var spell_flag = (uint)(0x7FFFFFFFL & ~py.flags.spells_learnt);
@@ -2028,7 +2029,7 @@ namespace Moria.Core.Methods
                     py.flags.spells_forgotten |= mask;
                     new_spells++;
 
-                    var msg = $"You have forgotten the {p} of {State.Instance.spell_names[order_id + offset]}.";
+                    var msg = $"You have forgotten the {p} of {Library.Instance.Player.spell_names[order_id + offset]}.";
                     //vtype_t msg = { '\0' };
                     //(void)sprintf(msg, "You have forgotten the %s of %s.", p, spell_names[order_id + offset]);
                     printMessage(msg);
@@ -2041,7 +2042,7 @@ namespace Moria.Core.Methods
         public static void playerCalculateAllowedSpellsCount(int stat)
         {
             var py = State.Instance.py;
-            var spell = State.Instance.magic_spells[py.misc.class_id - 1];
+            var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1];
 
             //const char* magic_type_str = nullptr;
             var magic_type_str = string.Empty;
@@ -2109,7 +2110,7 @@ namespace Moria.Core.Methods
             }
             else if (py.misc.level <= PLAYER_MAX_LEVEL)
             {
-                p = State.Instance.class_rank_titles[py.misc.class_id][py.misc.level - 1];
+                p = Library.Instance.Player.class_rank_titles[(int)py.misc.class_id][(int)py.misc.level - 1];
             }
             else if (playerIsMale())
             {

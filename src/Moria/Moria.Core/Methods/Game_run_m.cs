@@ -137,13 +137,13 @@ namespace Moria.Core.Methods
                 py.flags.food_digested = 2;
 
                 // Spell and Mana based on class: Mage or Clerical realm.
-                if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+                if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
                     clearScreen(); // makes spell list easier to read
                     playerCalculateAllowedSpellsCount((int)PlayerAttr.INT);
                     playerGainMana((int)PlayerAttr.INT);
                 }
-                else if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
+                else if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
                 {
                     playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
                     clearScreen(); // force out the 'learn prayer' message
@@ -221,7 +221,7 @@ namespace Moria.Core.Methods
                 inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, entry);
             }
 
-            foreach (var item_id in State.Instance.class_base_provisions[py.misc.class_id])
+            foreach (var item_id in Library.Instance.Player.class_base_provisions[(int)py.misc.class_id])
             {
                 inventoryItemCopyTo((int)item_id, item);
 
@@ -2583,14 +2583,14 @@ namespace Moria.Core.Methods
 
                 uint treasure_type = py.inventory[item_id].category_id;
 
-                if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+                if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
                     if (treasure_type != TV_MAGIC_BOOK)
                     {
                         can_read = false;
                     }
                 }
-                else if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
+                else if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
                 {
                     if (treasure_type != TV_PRAYER_BOOK)
                     {
@@ -2615,7 +2615,7 @@ namespace Moria.Core.Methods
                 {
                     item_pos_end = getAndClearFirstBit(ref item_flags);
 
-                    if (State.Instance.magic_spells[py.misc.class_id - 1][item_pos_end].level_required < 99)
+                    if (Library.Instance.Player.magic_spells[(int)(py.misc.class_id - 1)][item_pos_end].level_required < 99)
                     {
                         spell_index[spell_id] = item_pos_end;
                         spell_id++;

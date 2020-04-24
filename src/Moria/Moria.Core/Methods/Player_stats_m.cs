@@ -350,7 +350,7 @@ namespace Moria.Core.Methods
         public static void playerSetAndUseStat(int stat)
         {
             var py = State.Instance.py;
-            var classes = State.Instance.classes;
+            var classes = Library.Instance.Player.classes;
 
             py.stats.used[stat] = playerModifyStat(stat, py.stats.modified[stat]);
 
@@ -363,12 +363,12 @@ namespace Moria.Core.Methods
             {
                 playerRecalculateBonuses();
             }
-            else if (stat == (int)PlayerAttr.INT && classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            else if (stat == (int)PlayerAttr.INT && classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
             {
                 playerCalculateAllowedSpellsCount((int)PlayerAttr.INT);
                 playerGainMana((int)PlayerAttr.INT);
             }
-            else if (stat == (int)PlayerAttr.WIS && classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
+            else if (stat == (int)PlayerAttr.WIS && classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
             {
                 playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
                 playerGainMana((int)PlayerAttr.WIS);

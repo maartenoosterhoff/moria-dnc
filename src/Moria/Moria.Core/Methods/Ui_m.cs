@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -586,8 +587,8 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            printCharacterInfoInField(State.Instance.character_races[py.misc.race_id].name, new Coord_t(2, (int)STAT_COLUMN));
-            printCharacterInfoInField(State.Instance.classes[py.misc.class_id].title, new Coord_t(3, (int)STAT_COLUMN));
+            printCharacterInfoInField(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(2, (int)STAT_COLUMN));
+            printCharacterInfoInField(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(3, (int)STAT_COLUMN));
             printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
 
             for (int i = 0; i < 6; i++)
@@ -666,9 +667,9 @@ namespace Moria.Core.Methods
             }
 
             putString(py.misc.name, new Coord_t(2, 15));
-            putString(State.Instance.character_races[py.misc.race_id].name, new Coord_t(3, 15));
+            putString(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(3, 15));
             putString((playerGetGenderLabel()), new Coord_t(4, 15));
-            putString(State.Instance.classes[py.misc.class_id].title, new Coord_t(5, 15));
+            putString(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(5, 15));
         }
 
         // Prints the following information on the screen. -JWT-
@@ -763,11 +764,11 @@ namespace Moria.Core.Methods
         public static void printCharacterAbilities()
         {
             var py = State.Instance.py;
-            var class_level_adj = State.Instance.class_level_adj;
+            var class_level_adj = Library.Instance.Player.class_level_adj;
             clearToBottom(14);
 
-            int xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level);
-            int xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level);
+            int xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level);
+            int xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level);
 
             // this results in a range from 0 to 29
             int xfos = 40 - py.misc.fos;
@@ -781,11 +782,11 @@ namespace Moria.Core.Methods
             // this results in a range from 0 to 9
             int xstl = py.misc.stealth_factor + 1;
             int xdis = py.misc.disarm + 2 * playerDisarmAdjustment() + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) +
-                       (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3);
+                       (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3);
             int xsave =
-                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3);
+                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3);
             int xdev =
-                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + (class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3);
+                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3);
 
             var xinfra = $"{py.flags.see_infra * 10} feed";
             //vtype_t xinfra = { '\0' };
@@ -905,7 +906,7 @@ namespace Moria.Core.Methods
             }
 
             int consecutive_offset;
-            if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
             {
                 consecutive_offset = (int)Config.spells.NAME_OFFSET_SPELLS;
             }
@@ -927,7 +928,7 @@ namespace Moria.Core.Methods
             for (int i = 0; i < number_of_choices; i++)
             {
                 int spell_id = spell_ids[i];
-                var spell = State.Instance.magic_spells[py.misc.class_id - 1][spell_id];
+                var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
 
                 string p = string.Empty;
                 if (!comment)
@@ -963,12 +964,12 @@ namespace Moria.Core.Methods
                     spell_char = (char)('a' + spell_id - non_consecutive);
                 }
 
-                var out_val = $"  {spell_char}) {State.Instance.spell_names[spell_id + consecutive_offset]}{spell.level_required:d2} {spell.mana_required:d4} {spellChanceOfSuccess(spell_id):d3}%{p}";
+                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset]}{spell.level_required:d2} {spell.mana_required:d4} {spellChanceOfSuccess(spell_id):d3}%{p}";
                 //vtype_t out_val = { '\0' };
                 //(void)sprintf(out_val,
                 //    "  %c) %-30s%2d %4d %3d%%%s",
                 //    spell_char,
-                //    State.Instance.spell_names[spell_id + consecutive_offset],
+                //    Library.Instance.Player.spell_names[spell_id + consecutive_offset],
                 //    spell.level_required,
                 //    spell.mana_required,
                 //    spellChanceOfSuccess(spell_id),
@@ -1002,7 +1003,7 @@ namespace Moria.Core.Methods
             printCharacterLevel();
             printCharacterTitle();
 
-            var player_class = State.Instance.classes[py.misc.class_id];
+            var player_class = Library.Instance.Player.classes[(int)py.misc.class_id];
 
             if (player_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
             {

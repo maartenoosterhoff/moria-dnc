@@ -136,7 +136,7 @@ namespace Moria.Core.Methods
             {
                 base_to_hit /= 2;
                 base_to_hit -= (int)py.stats.used[(int)PlayerAttr.DEX] * ((int)BTH_PER_PLUS_TO_HIT_ADJUST - 1);
-                base_to_hit -= (int)py.misc.level * State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTH] / 2;
+                base_to_hit -= (int)py.misc.level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] / 2;
             }
 
             if (playerTestBeingHit(base_to_hit, (int)py.misc.level, (int)py.stats.used[(int)PlayerAttr.DEX], (int)creature.ac, (int)PlayerClassLevelAdj.BTH))

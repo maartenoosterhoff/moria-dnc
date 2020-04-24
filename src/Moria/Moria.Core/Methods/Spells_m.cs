@@ -34,8 +34,8 @@ namespace Moria.Core.Methods
         public static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
         {
             var py = State.Instance.py;
-            var magic_spells = State.Instance.magic_spells;
-            var spell_names = State.Instance.spell_names;
+            var magic_spells = Library.Instance.Player.magic_spells;
+            var spell_names = Library.Instance.Player.spell_names;
             spell_id = -1;
 
             string str = string.Empty;
@@ -49,7 +49,7 @@ namespace Moria.Core.Methods
             bool spell_found = false;
             bool redraw = false;
 
-            int offset = (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == (int)Config.spells.SPELL_TYPE_MAGE ? (int)Config.spells.NAME_OFFSET_SPELLS : (int)Config.spells.NAME_OFFSET_PRAYERS);
+            int offset = (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == (int)Config.spells.SPELL_TYPE_MAGE ? (int)Config.spells.NAME_OFFSET_SPELLS : (int)Config.spells.NAME_OFFSET_PRAYERS);
 
             char choice = '\0';
 
@@ -76,7 +76,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        var spell = magic_spells[py.misc.class_id - 1][spell_id];
+                        var spell = magic_spells[(int)py.misc.class_id - 1][spell_id];
 
                         var tmp_str = $"Cast {spell_names[spell_id + offset]} ({spell.mana_required} mana, {spellChanceOfSuccess(spell_id)}% fail)?";
                         //vtype_t tmp_str = { '\0' };
@@ -174,7 +174,7 @@ namespace Moria.Core.Methods
             flags = py.inventory[item_id].flags & py.flags.spells_learnt;
 
             // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
-            var spells = State.Instance.magic_spells[py.misc.class_id - 1];
+            var spells = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1];
 
             int spell_count = 0;
             var spell_list = new int[31];
@@ -201,9 +201,9 @@ namespace Moria.Core.Methods
                 result = 1;
             }
 
-            if ((result != 0) && State.Instance.magic_spells[py.misc.class_id - 1][spell_id].mana_required > py.misc.current_mana)
+            if ((result != 0) && Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id].mana_required > py.misc.current_mana)
             {
-                if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+                if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
                     result = (int)(getInputConfirmation("You summon your limited strength to cast this one! Confirm?") ? 1 : 0);
                 }
@@ -2789,7 +2789,7 @@ namespace Moria.Core.Methods
 
                 playerCalculateHitPoints();
 
-                var character_class = State.Instance.classes[py.misc.class_id];
+                var character_class = Library.Instance.Player.classes[(int)py.misc.class_id];
 
                 if (character_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {

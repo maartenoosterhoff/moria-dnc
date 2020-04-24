@@ -2,11 +2,26 @@
 {
     public class Background_t
     {
-        public string info { get; set; }
-        public uint roll { get; set; }
-        public uint chart { get; set; }
-        public uint next { get; set; }
-        public uint bonus { get; set; }
+        public Background_t(
+            string info,
+            uint roll,
+            uint chart,
+            uint next,
+            uint bonus
+        )
+        {
+            this.info = info;
+            this.roll = roll;
+            this.chart = chart;
+            this.next = next;
+            this.bonus = bonus;
+        }
+
+        public string info { get; }
+        public uint roll { get; }
+        public uint chart { get; }
+        public uint next { get; }
+        public uint bonus { get; }
     }
 
     /*

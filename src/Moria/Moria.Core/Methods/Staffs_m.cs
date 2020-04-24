@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -46,7 +47,7 @@ namespace Moria.Core.Methods
             int chance = py.misc.saving_throw;
             chance += playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT);
             chance -= (int)item.depth_first_found - 5;
-            chance += State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
+            chance += Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
 
             if (py.flags.confused > 0)
             {
@@ -261,7 +262,7 @@ namespace Moria.Core.Methods
         public static bool wandDischarge(Inventory_t item, int direction)
         {
             var py = State.Instance.py;
-            var spell_names = State.Instance.spell_names;
+            var spell_names = Library.Instance.Player.spell_names;
 
             // decrement "use" variable
             item.misc_use--;
@@ -415,7 +416,7 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            int player_class_lev_adj = State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
+            int player_class_lev_adj = Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
             int chance = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) - (int)item.depth_first_found + player_class_lev_adj;
 
             if (py.flags.confused > 0)

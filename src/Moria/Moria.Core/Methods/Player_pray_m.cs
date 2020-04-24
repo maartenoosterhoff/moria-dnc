@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -40,7 +41,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (State.Instance.classes[py.misc.class_id].class_to_use_mage_spells != Config.spells.SPELL_TYPE_PRIEST)
+            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells != Config.spells.SPELL_TYPE_PRIEST)
             {
                 printMessage("Pray hard enough and your prayers may be answered.");
                 return false;
@@ -241,7 +242,7 @@ namespace Moria.Core.Methods
             }
 
 
-            var spell = State.Instance.magic_spells[py.misc.class_id - 1][choice];
+            var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][choice];
 
             // NOTE: at least one function called by `playerRecitePrayer()` sets `player_free_turn = true`,
             // e.g. `spellCreateFood()`, so this check is required. -MRC-

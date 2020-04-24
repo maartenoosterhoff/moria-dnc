@@ -280,7 +280,7 @@ namespace Moria.Core.Methods
                         if (!m_ptr.lit)
                         {
                             tbth /= current_distance + 2;
-                            tbth -= (int)py.misc.level * State.Instance.class_level_adj[py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] / 2;
+                            tbth -= (int)py.misc.level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] / 2;
                             tbth -= tpth * ((int)BTH_PER_PLUS_TO_HIT_ADJUST - 1);
                         }
 

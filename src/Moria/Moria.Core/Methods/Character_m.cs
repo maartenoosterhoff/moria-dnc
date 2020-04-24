@@ -1,4 +1,4 @@
-﻿using Moria.Core.Configs;
+﻿using Moria.Core.Data;
 using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -111,7 +111,7 @@ namespace Moria.Core.Methods
         static void characterGenerateStatsAndRace()
         {
             var py = State.Instance.py;
-            var race = State.Instance.character_races[py.misc.race_id];
+            var race = Library.Instance.Player.character_races[(int)py.misc.race_id];
 
             characterGenerateStats();
             py.stats.max[(int)PlayerAttr.STR] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.STR], race.str_adjustment);
@@ -155,7 +155,7 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i < PLAYER_MAX_RACES; i++)
             {
-                var description = $"{i + 'a'}) {State.Instance.character_races[i].name}";
+                var description = $"{i + 'a'}) {Library.Instance.Player.character_races[i].name}";
                 putString(description, coord);
 
                 coord.x += 15;
@@ -198,7 +198,7 @@ namespace Moria.Core.Methods
 
             State.Instance.py.misc.race_id = (uint)race_id;
 
-            putString(State.Instance.character_races[race_id].name, new Coord_t(3, 15));
+            putString(Library.Instance.Player.character_races[race_id].name, new Coord_t(3, 15));
         }
 
         // Will print the history of a character -JWT-
@@ -246,16 +246,16 @@ namespace Moria.Core.Methods
                 flag = false;
                 while (!flag)
                 {
-                    if (State.Instance.character_backgrounds[background_id].chart == history_id)
+                    if (Library.Instance.Player.character_backgrounds[background_id].chart == history_id)
                     {
                         var test_roll = randomNumber(100);
 
-                        while (test_roll > State.Instance.character_backgrounds[background_id].roll)
+                        while (test_roll > Library.Instance.Player.character_backgrounds[background_id].roll)
                         {
                             background_id++;
                         }
 
-                        var background = State.Instance.character_backgrounds[background_id];
+                        var background = Library.Instance.Player.character_backgrounds[background_id];
 
                         history_block = $"{history_block}{background.info}";
                         //(void)strcat(history_block, background.info);
@@ -385,7 +385,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            var race = State.Instance.character_races[py.misc.race_id];
+            var race = Library.Instance.Player.character_races[(int)py.misc.race_id];
 
             py.misc.age = (uint)(race.base_age + randomNumber(race.max_age));
 
@@ -425,9 +425,9 @@ namespace Moria.Core.Methods
 
             for (uint i = 0; i < PLAYER_MAX_CLASSES; i++)
             {
-                if ((State.Instance.character_races[race_id].classes_bit_field & mask) != 0u)
+                if ((Library.Instance.Player.character_races[(int)race_id].classes_bit_field & mask) != 0u)
                 {
-                    var description = $"{class_id + 'a'}) {State.Instance.classes[i].title}";
+                    var description = $"{class_id + 'a'}) {Library.Instance.Player.classes[(int)i].title}";
                     // (void)sprintf(description, "%c) %s", class_id + 'a', classes[i].title);
                     putString(description, coord);
                     class_list[class_id] = i;
@@ -451,7 +451,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             py.misc.class_id = class_id;
 
-            var klass = State.Instance.classes[py.misc.class_id];
+            var klass = Library.Instance.Player.classes[(int)py.misc.class_id];
 
             clearToBottom(20);
             putString(klass.title, new Coord_t(5, 15));

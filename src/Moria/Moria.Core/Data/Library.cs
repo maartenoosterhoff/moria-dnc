@@ -13,5 +13,9 @@
         public Stores_d Stores { get; } = new Stores_d();
 
         public Store_owners_d StoreOwners { get; } = new Store_owners_d();
+
+        public Recall_d Recall { get; } = new Recall_d();
+
+        public Player_d Player { get; } = new Player_d();
     }
 }

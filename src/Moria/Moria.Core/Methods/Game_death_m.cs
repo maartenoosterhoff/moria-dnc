@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -45,7 +46,7 @@ namespace Moria.Core.Methods
 
             if (!game.total_winner)
             {
-                text = State.Instance.classes[py.misc.class_id].title;
+                text = Library.Instance.Player.classes[(int)py.misc.class_id].title;
             }
             else if (playerIsMale())
             {

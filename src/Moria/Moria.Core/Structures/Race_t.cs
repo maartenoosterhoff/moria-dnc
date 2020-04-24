@@ -2,6 +2,65 @@
 {
     public class Race_t
     {
+        public Race_t(
+            string name,
+            int str_adjustment,
+            int int_adjustment,
+            int wis_adjustment,
+            int dex_adjustment,
+            int con_adjustment,
+            int chr_adjustment,
+            uint base_age,
+            uint max_age,
+            uint male_height_base,
+            uint male_height_mod,
+            uint male_weight_base,
+            uint male_weight_mod,
+            uint female_height_base,
+            uint female_height_mod,
+            uint female_weight_base,
+            uint female_weight_mod,
+            int disarm_chance_base,
+            int search_chance_base,
+            int stealth,
+            int fos,
+            int base_to_hit,
+            int base_to_hit_bows,
+            int saving_throw_base,
+            uint hit_points_base,
+            uint infra_vision,
+            uint exp_factor_base,
+            uint classes_bit_field        )
+        {
+            this.name = name;
+            this.str_adjustment = str_adjustment;
+            this.int_adjustment = int_adjustment;
+            this.wis_adjustment = wis_adjustment;
+            this.dex_adjustment = dex_adjustment;
+            this.con_adjustment = con_adjustment;
+            this.chr_adjustment = chr_adjustment;
+            this.base_age = base_age;
+            this.max_age = max_age;
+            this.male_height_base = male_height_base;
+            this.male_height_mod = male_height_mod;
+            this.male_weight_base = male_weight_base;
+            this.male_weight_mod = male_weight_mod;
+            this.female_height_base = female_height_base;
+            this.female_height_mod = female_height_mod;
+            this.female_weight_base = female_weight_base;
+            this.female_weight_mod = female_weight_mod;
+            this.disarm_chance_base = disarm_chance_base;
+            this.search_chance_base = search_chance_base;
+            this.stealth = stealth;
+            this.fos = fos;
+            this.base_to_hit = base_to_hit;
+            this.base_to_hit_bows = base_to_hit_bows;
+            this.saving_throw_base = saving_throw_base;
+            this.hit_points_base = hit_points_base;
+            this.infra_vision = infra_vision;
+            this.exp_factor_base = exp_factor_base;
+            this.classes_bit_field = classes_bit_field;
+        }
         public string name { get; set; }
         public int str_adjustment { get; set; }
         public int int_adjustment { get; set; }
