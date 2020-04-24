@@ -496,7 +496,23 @@ namespace Moria.Core.Methods
 
             if (transparent)
             {
-                goto init_transparent;
+                //goto init_transparent;
+                // Find the end of this window of visibility.
+                do
+                {
+                    if (x == max_x)
+                    {
+                        // The window is trimmed by an earlier limit.
+                        return lookRay(y + 1, from, to);
+                    }
+
+                    x++;
+
+                    if (lookSee(new Coord_t(y, x), ref transparent))
+                    {
+                        return true;
+                    }
+                } while (transparent);
             }
 
             while (true)
@@ -531,7 +547,7 @@ namespace Moria.Core.Methods
                     }
                 } while (!transparent);
 
-            init_transparent:
+                // init_transparent:
 
                 // Find the end of this window of visibility.
                 do
@@ -623,6 +639,7 @@ namespace Moria.Core.Methods
             }
 
             var game = State.Instance.game;
+            bool skipForGraniteGoto = false;
             if (tile.temporary_light || tile.permanent_light || tile.field_mark)
             {
                 string wall_description;
@@ -631,6 +648,7 @@ namespace Moria.Core.Methods
                 {
                     if (game.treasure.list[tile.treasure_id].category_id == TV_SECRET_DOOR)
                     {
+                        skipForGraniteGoto = true;
                         goto granite;
                     }
 
@@ -649,13 +667,20 @@ namespace Moria.Core.Methods
                     }
                 }
 
-                if (((los_rocks_and_objects != 0) || (msg[0] != 0)) && tile.feature_id >= MIN_CLOSED_SPACE)
+                granite:
+                if (((los_rocks_and_objects != 0 || msg[0] != 0) && 
+                    tile.feature_id >= MIN_CLOSED_SPACE) ||
+                    skipForGraniteGoto)
                 {
-                    switch (tile.feature_id)
+                    var featureId = TILE_GRANITE_WALL;
+                    if (!skipForGraniteGoto)
+                    {
+                        featureId = tile.feature_id;
+                    }
+                    switch (featureId)
                     {
                         case TILE_BOUNDARY_WALL:
                         case TILE_GRANITE_WALL:
-                        granite:
                             // Granite is only interesting if it contains something.
                             if (msg[0] != 0)
                             {
