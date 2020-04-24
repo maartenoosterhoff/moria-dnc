@@ -38,14 +38,14 @@ Options:
             bool new_game = false;
             bool roguelike_keys = true;
 
-            // call this routine to grab a file pointer to the high score file
-            // and prepare things to relinquish setuid privileges
-            if (!initializeScoreFile())
-            {
-                Console.WriteLine($"Can't open score file '{Config.files.scores}.");
-                //std::cerr << "Can't open score file '" << config::files::scores << "'\n";
-                return 1;
-            }
+            //// call this routine to grab a file pointer to the high score file
+            //// and prepare things to relinquish setuid privileges
+            //if (!initializeScoreFile())
+            //{
+            //    Console.WriteLine($"Can't open score file '{Config.files.scores}.");
+            //    //std::cerr << "Can't open score file '" << config::files::scores << "'\n";
+            //    return 1;
+            //}
 
             if (!terminalInitialize())
             {
