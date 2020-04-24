@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Treasure_c;
+using static Moria.Core.Constants.Store_c;
 
 namespace Moria.Core.Data
 {
@@ -12,7 +14,20 @@ namespace Moria.Core.Data
             this.game_objects = CreateGameObjects().AsReadOnly();
         }
 
-        public IReadOnlyList<DungeonObject_t> game_objects { get; }
+        public void AdjustPrices()
+        {
+            if (COST_ADJUSTMENT != 100)
+            {
+                var objects = CreateGameObjects()
+
+                    // round half-way cases up
+                    .Select(item => item.ApplyCostAdjustment(((item.cost * (int) COST_ADJUSTMENT) + 50) / 100))
+                    .ToList();
+                this.game_objects = objects.AsReadOnly();
+            }
+        }
+
+        public IReadOnlyList<DungeonObject_t> game_objects { get; private set; }
 
         public IReadOnlyList<string> special_item_names { get; }
 

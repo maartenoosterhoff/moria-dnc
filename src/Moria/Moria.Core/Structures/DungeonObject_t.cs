@@ -74,8 +74,29 @@ namespace Moria.Core.Structures
             this.to_ac = to_ac;
             this.damage = damage;
             this.depth_first_found = depth_first_found;
-
         }
+
+        public DungeonObject_t ApplyCostAdjustment(int cost)
+        {
+            return new DungeonObject_t(
+                this.name,
+                this.flags,
+                this.category_id,
+                this.sprite,
+                this.misc_use,
+                cost,
+                this.sub_category_id,
+                this.items_count,
+                this.weight,
+                this.to_hit,
+                this.to_damage,
+                this.ac,
+                this.to_ac,
+                this.damage,
+                this.depth_first_found
+            );
+        }
+
         public string name { get; }
         public uint flags { get; }
         public uint category_id { get; }

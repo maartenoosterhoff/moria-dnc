@@ -316,14 +316,7 @@ namespace Moria.Core.Methods
         // Adjust prices of objects -RAK-
         static void priceAdjust()
         {
-            if (COST_ADJUSTMENT != 100)
-            {
-                // round half-way cases up
-                foreach (var item in Library.Instance.Treasure.game_objects)
-                {
-                    item.cost = ((item.cost * (int)COST_ADJUSTMENT) + 50) / 100;
-                }
-            }
+            Library.Instance.Treasure.AdjustPrices();
         }
 
         // Moria game module -RAK-
