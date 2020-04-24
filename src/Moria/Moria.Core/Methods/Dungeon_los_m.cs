@@ -482,7 +482,7 @@ namespace Moria.Core.Methods
             // what is opaque for the purposes of obscuring other objects.
             los_hack_no_query = (y == 0 && to > 1) || (y == x && from < GRADF * 2);
 
-            bool transparent = false;
+            var transparent = false;
 
             if (lookSee(new Coord_t(y, x), ref transparent))
             {
@@ -494,29 +494,20 @@ namespace Moria.Core.Methods
                 los_hack_no_query = false;
             }
 
+            var gotoTransparent = false;
             if (transparent)
             {
-                //goto init_transparent;
-                // Find the end of this window of visibility.
-                do
-                {
-                    if (x == max_x)
-                    {
-                        // The window is trimmed by an earlier limit.
-                        return lookRay(y + 1, from, to);
-                    }
-
-                    x++;
-
-                    if (lookSee(new Coord_t(y, x), ref transparent))
-                    {
-                        return true;
-                    }
-                } while (transparent);
+                // Old: goto init_transparent;
+                gotoTransparent = true;
             }
 
             while (true)
             {
+                if (!gotoTransparent)
+                {
+                    goto init_transparent;
+                }
+
                 // Look down the window we've found.
                 if (lookRay(y + 1, from, ((2 * y + 1) * (int)GRADF / x)))
                 {
@@ -547,7 +538,8 @@ namespace Moria.Core.Methods
                     }
                 } while (!transparent);
 
-                // init_transparent:
+                init_transparent:
+                gotoTransparent = false;
 
                 // Find the end of this window of visibility.
                 do
@@ -660,15 +652,15 @@ namespace Moria.Core.Methods
                         msg = $"{description} {obj_string} ---pause---";
                         //(void)sprintf(msg, "%s %s ---pause---", description, obj_string);
                         description = "It is in";
-                        putStringClearToEOL(msg, new Coord_t( 0, 0));
+                        putStringClearToEOL(msg, new Coord_t(0, 0));
 
                         panelMoveCursor(coord);
                         query = getKeyInput();
                     }
                 }
 
-                granite:
-                if (((los_rocks_and_objects != 0 || msg[0] != 0) && 
+            granite:
+                if (((los_rocks_and_objects != 0 || msg[0] != 0) &&
                     tile.feature_id >= MIN_CLOSED_SPACE) ||
                     skipForGraniteGoto)
                 {
@@ -706,7 +698,7 @@ namespace Moria.Core.Methods
                     {
                         msg = $"{description} {wall_description} ---pause---";
                         //(void)sprintf(msg, "%s %s ---pause---", description, wall_description);
-                        putStringClearToEOL(msg, new Coord_t( 0, 0));
+                        putStringClearToEOL(msg, new Coord_t(0, 0));
                         panelMoveCursor(coord);
                         query = getKeyInput();
                     }
