@@ -1,25 +1,30 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.States;
-using Moria.Core.Structures;
-using Moria.Core.Structures.Enumerations;
-using System;
-using static Moria.Core.Constants.Dungeon_c;
-using static Moria.Core.Constants.Game_c;
-using static Moria.Core.Constants.Inventory_c;
-using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Constants.Store_c;
-using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Scores_m;
-using static Moria.Core.Methods.Store_inventory_m;
-using static Moria.Core.Methods.Ui_io_m;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Moria.Core.Methods
 {
     public static class Game_save_m
     {
+        public static bool loadGame(ref bool generate)
+        {
+            var instance = State.Instance;
+            var saveGameContents = JsonConvert.SerializeObject((instance), Formatting.Indented);
+            File.WriteAllText(Config.files.save_game, saveGameContents);
+            return true;
+        }
+
+        public static bool saveGame()
+        {
+            var saveGameContents = File.ReadAllText(Config.files.save_game);
+            var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
+            State.Instance = instance;
+            return true;
+        }
+
+        /*
+
         // This save package was brought to by                -JWT-
         // and                                                -RAK-
         // and has been completely rewritten for UNIX by      -JEW-
@@ -64,7 +69,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool svWrite()
+        static bool svWrite()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -419,7 +424,7 @@ namespace Moria.Core.Methods
             return !((ferror(fileptr) != 0) || fflush(fileptr) == EOF);
         }
 
-        public static bool saveChar(string filename)
+        static bool saveChar(string filename)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -1349,12 +1354,12 @@ namespace Moria.Core.Methods
             DEBUG(fclose(logfile))
     }
 
-        public static void readHighScore(HighScore_t score)
+        static void readHighScore(HighScore_t score)
         {
             DEBUG(logfile = fopen("IO_LOG", "a"));
             DEBUG(fprintf(logfile, "Reading score:\n"));
-    
-    // Read the encryption byte.
+
+            // Read the encryption byte.
             xor_byte = getByte();
 
             score.points = rdLong();
@@ -1372,6 +1377,6 @@ namespace Moria.Core.Methods
             rdBytes((uint8_t*)score.died_from, 25);
             DEBUG(fclose(logfile));
         }
-
+        */
     }
 }

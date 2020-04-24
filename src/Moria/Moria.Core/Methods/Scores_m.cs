@@ -21,6 +21,7 @@ namespace Moria.Core.Methods
         // Enters a players name on the top twenty list -JWT-
         public static void recordNewHighScore()
         {
+            /*
             var game = State.Instance.game;
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -203,10 +204,13 @@ namespace Moria.Core.Methods
             }
 
             (void)fclose(highscore_fp);
+            */
         }
 
         public static void showScoresScreen()
         {
+            return;
+            /*
             if ((highscore_fp = fopen(config::files::scores.c_str(), "rb")) == nullptr)
             {
                 printMessage(("Error opening score file '" + config::files::scores + "'.").c_str());
@@ -276,6 +280,7 @@ namespace Moria.Core.Methods
             }
 
             (void)fclose(highscore_fp);
+            */
         }
 
         // Calculates the total number of points earned -JWT-

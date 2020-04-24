@@ -2,6 +2,6 @@
 {
     public partial class State
     {
-        public static readonly State Instance = new State();
+        public static State Instance { get; set; }= new State();
     }
 }

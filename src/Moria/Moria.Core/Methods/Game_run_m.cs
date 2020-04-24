@@ -99,6 +99,9 @@ namespace Moria.Core.Methods
                 result = true;
             }
 
+            game = State.Instance.game; // refresh pointer
+            py = State.Instance.py;
+
             // Executing after game load to override saved game settings
             if (use_roguelike_keys)
             {

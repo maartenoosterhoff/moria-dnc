@@ -505,10 +505,8 @@ namespace Moria.Core.Methods
         // any input prompt. getKeyInput() never returns ^R.
         public static char getKeyInput()
         {
-            var game = State.Instance.game;
-
             putQIO();               // Dump IO buffer
-            game.command_count = 0; // Just to be safe -CJS-
+            State.Instance.game.command_count = 0; // Just to be safe -CJS-
 
             while (true)
             {
@@ -525,7 +523,7 @@ namespace Moria.Core.Methods
 
                     refresh();
 
-                    if (!game.character_generated || game.character_saved)
+                    if (!State.Instance.game.character_generated || State.Instance.game.character_saved)
                     {
                         endGame();
                     }
@@ -537,13 +535,13 @@ namespace Moria.Core.Methods
                         // just in case, to make sure that the process eventually dies
                         State.Instance.panic_save = true;
 
-                        game.character_died_from = "(end of input: panic saved)";
+                        State.Instance.game.character_died_from = "(end of input: panic saved)";
                         //(void)strcpy(game.character_died_from, "(end of input: panic saved)");
                         if (!saveGame())
                         {
-                            game.character_died_from = "panic: unexpected eof";
+                            State.Instance.game.character_died_from = "panic: unexpected eof";
                             //(void)strcpy(game.character_died_from, "panic: unexpected eof");
-                            game.character_is_dead = true;
+                            State.Instance.game.character_is_dead = true;
                         }
                         endGame();
                     }
