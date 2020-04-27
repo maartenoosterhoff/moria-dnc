@@ -1105,7 +1105,8 @@ namespace Moria.Core.Methods
                         }
 
                         // third, wear new item
-                        *item = saved_item; // TOFIX: pointer set
+                        //*item = saved_item; // TOFIX: pointer set
+                        py.inventory[item_id] = item;
                         py.equipment_count++;
 
                         playerAdjustBonusesForItem(item, 1);
