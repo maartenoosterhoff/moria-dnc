@@ -698,9 +698,9 @@ namespace Moria.Core.Methods
         }
 
         // Returns a rating of x depending on y -JWT-
-        public static string statRating(Coord_t coord)
+        public static string statRating(int y, int x)
         {
-            switch (coord.x / coord.y)
+            switch (x / y)
             {
                 case -3:
                 case -2:
@@ -788,29 +788,29 @@ namespace Moria.Core.Methods
             int xdev =
                 py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3);
 
-            var xinfra = $"{py.flags.see_infra * 10} feed";
+            var xinfra = $"{py.flags.see_infra * 10} feet";
             //vtype_t xinfra = { '\0' };
             //(void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
 
             putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
             putString("Fighting    :", new Coord_t(16, 1));
-            putString(statRating(new Coord_t(12, xbth)), new Coord_t(16, 15));
+            putString(statRating(12, xbth), new Coord_t(16, 15));
             putString("Bows/Throw  :", new Coord_t(17, 1));
-            putString(statRating(new Coord_t(12, xbthb)), new Coord_t(17, 15));
+            putString(statRating(12, xbthb), new Coord_t(17, 15));
             putString("Saving Throw:", new Coord_t(18, 1));
-            putString(statRating(new Coord_t(6, xsave)), new Coord_t(18, 15));
+            putString(statRating(6, xsave), new Coord_t(18, 15));
 
             putString("Stealth     :", new Coord_t(16, 28));
-            putString(statRating(new Coord_t(1, xstl)), new Coord_t(16, 42));
+            putString(statRating(1, xstl), new Coord_t(16, 42));
             putString("Disarming   :", new Coord_t(17, 28));
-            putString(statRating(new Coord_t(8, xdis)), new Coord_t(17, 42));
+            putString(statRating(8, xdis), new Coord_t(17, 42));
             putString("Magic Device:", new Coord_t(18, 28));
-            putString(statRating(new Coord_t(6, xdev)), new Coord_t(18, 42));
+            putString(statRating(6, xdev), new Coord_t(18, 42));
 
             putString("Perception  :", new Coord_t(16, 55));
-            putString(statRating(new Coord_t(3, xfos)), new Coord_t(16, 69));
+            putString(statRating(3, xfos), new Coord_t(16, 69));
             putString("Searching   :", new Coord_t(17, 55));
-            putString(statRating(new Coord_t(6, xsrh)), new Coord_t(17, 69));
+            putString(statRating(6, xsrh), new Coord_t(17, 69));
             putString("Infra-Vision:", new Coord_t(18, 55));
             putString(xinfra, new Coord_t(18, 69));
         }
