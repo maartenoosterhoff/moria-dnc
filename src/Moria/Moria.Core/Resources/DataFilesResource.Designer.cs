@@ -153,9 +153,9 @@ namespace Moria.Core.Resources {
         ///  The licenses for most software are designed to take away your
         ///freedom to share and change it.  By contrast, the GNU General Publi [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string LICENSE {
+        internal static string license {
             get {
-                return ResourceManager.GetString("LICENSE", resourceCulture);
+                return ResourceManager.GetString("license", resourceCulture);
             }
         }
         

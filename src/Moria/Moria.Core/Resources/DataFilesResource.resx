@@ -130,8 +130,8 @@
   <data name="help_wizard" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>help_wizard.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="LICENSE" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>license;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="license" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>license.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="rl_help" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>rl_help.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>

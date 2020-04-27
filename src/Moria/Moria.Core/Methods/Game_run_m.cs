@@ -2074,7 +2074,7 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case CTRL_KEY_V: // (^V)iew license
-                    displayTextHelpFile(DataFilesResource.LICENSE);
+                    displayTextHelpFile(DataFilesResource.license);
                     //displayTextHelpFile(Config.files.license);
                     game.player_free_turn = true;
                     break;
