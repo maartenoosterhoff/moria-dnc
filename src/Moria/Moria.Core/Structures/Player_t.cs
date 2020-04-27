@@ -11,7 +11,7 @@ namespace Moria.Core.Structures
 
         public Player_flags_t flags { get; } = new Player_flags_t();
 
-        public Coord_t pos { get; } = new Coord_t();
+        public Coord_t pos { get; set; } = new Coord_t();
 
         public char prev_dir { get; set; } = ' ';
 

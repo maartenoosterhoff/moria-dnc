@@ -4,6 +4,6 @@ namespace Moria.Core.States
 {
     public partial class State
     {
-        public Player_t py { get; set; }
+        public Player_t py { get; } = new Player_t();
     }
 }

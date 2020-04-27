@@ -14,6 +14,11 @@ namespace Moria.Core.Structures
             this.y = y;
         }
 
+        public Coord_t Clone()
+        {
+            return new Coord_t(this.y, this.x);
+        }
+
         private int _x;
         public int x
         {
