@@ -793,73 +793,73 @@ namespace Moria.Core.Methods
         //#undef fopen
         //#undef open
 
-        // open a file just as does fopen, but allow a leading ~ to specify a home directory
-        public static FILE* tfopen(string file, string mode)
-        {
-            char expanded[1024];
-            if (tilde(file, expanded))
-            {
-                return (fopen(expanded, mode));
-            }
-            errno = ENOENT;
-            return nullptr;
-        }
+        //// open a file just as does fopen, but allow a leading ~ to specify a home directory
+        //public static FILE* tfopen(string file, string mode)
+        //{
+        //    char expanded[1024];
+        //    if (tilde(file, expanded))
+        //    {
+        //        return (fopen(expanded, mode));
+        //    }
+        //    errno = ENOENT;
+        //    return nullptr;
+        //}
 
-        // open a file just as does open, but expand a leading ~ into a home directory name
-        public static int topen(string file, int flags, int mode)
-        {
-            char expanded[1024];
-            if (tilde(file, expanded))
-            {
-                return (open(expanded, flags, mode));
-            }
-            errno = ENOENT;
-            return -1;
-        }
+        //// open a file just as does open, but expand a leading ~ into a home directory name
+        //public static int topen(string file, int flags, int mode)
+        //{
+        //    char expanded[1024];
+        //    if (tilde(file, expanded))
+        //    {
+        //        return (open(expanded, flags, mode));
+        //    }
+        //    errno = ENOENT;
+        //    return -1;
+        //}
 
-        // expands a tilde at the beginning of a file name to a users home directory
-        public static bool tilde(string file, ref string expanded)
-        {
-            if (file == nullptr)
-            {
-                return false;
-            }
+//        // expands a tilde at the beginning of a file name to a users home directory
+//        public static bool tilde(string file, ref string expanded)
+//        {
+//            if (file == nullptr)
+//            {
+//                return false;
+//            }
 
-            *expanded = '\0';
+//            *expanded = '\0';
 
-            if (*file == '~')
-            {
-                char user[128];
-        struct passwd * pw = nullptr;
-int i = 0;
+//            if (*file == '~')
+//            {
+//                char user[128];
+//        struct passwd * pw = nullptr;
+//int i = 0;
 
-        user[0] = '\0';
-        file++;
-        while (* file != '/' && i<(int) sizeof(user)) {
-            user[i++] = * file++;
-        }
-    user[i] = '\0';
-        if (i == 0) {
-            char* login = getlogin();
+//        user[0] = '\0';
+//        file++;
+//        while (* file != '/' && i<(int) sizeof(user)) {
+//            user[i++] = * file++;
+//        }
+//    user[i] = '\0';
+//        if (i == 0) {
+//            char* login = getlogin();
 
-            if (login != nullptr) {
-                (void) strcpy(user, login);
-} else if ((pw = getpwuid(getuid())) == nullptr) {
-                return false;
-            }
-        }
-        if (pw == nullptr && (pw = getpwnam(user)) == nullptr) {
-            return false;
-        }
-        (void) strcpy(expanded, pw->pw_dir);
-    }
+//            if (login != nullptr) {
+//                (void) strcpy(user, login);
+//} else if ((pw = getpwuid(getuid())) == nullptr) {
+//                return false;
+//            }
+//        }
+//        if (pw == nullptr && (pw = getpwnam(user)) == nullptr) {
+//            return false;
+//        }
+//        (void) strcpy(expanded, pw->pw_dir);
+//    }
 
-    (void) strcat(expanded, file);
+//    (void) strcat(expanded, file);
 
-    return true;
-}
+//    return true;
+//}
 
-#endif
+//#endif
 
     }
 }
