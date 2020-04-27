@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Moria.Core.Configs;
 using Moria.Core.States;
 using Moria.Core.Structures;
+using Moria.Core.Utils;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Types_c;
-using static Moria.Core.Configs.Config;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Game_death_m;
@@ -17,6 +15,8 @@ namespace Moria.Core.Methods
 {
     public static class Ui_io_m
     {
+        private static IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
+
         public static bool isprint(char c)
         {
             const string keys = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
@@ -52,6 +52,7 @@ namespace Moria.Core.Methods
             if ((input.Modifiers & ConsoleModifiers.Control) == ConsoleModifiers.Control)
             {
                 c = CTRL_KEY(input.KeyChar);
+                return true;
             }
 
             c = input.KeyChar;
@@ -60,38 +61,37 @@ namespace Moria.Core.Methods
 
         public static void move(int y, int x)
         {
-            Console.SetCursorPosition(y, x);
+            console.move(y, x);
         }
 
         public static void mvaddch(int y, int x, char c)
         {
-            Console.SetCursorPosition(y, x);
-            Console.Write(c);
+            console.move(y, x);
+            console.addch(c);
         }
 
         public static void mvaddstr(int y, int x, string s)
         {
-            Console.SetCursorPosition(y, x);
-            Console.Write(s);
+            console.move(y, x);
+            console.addstr(s);
         }
 
         public static void addch(char c)
         {
-            Console.Write(c);
+            console.addch(c);
         }
 
         public static void addstr(string s)
         {
-            Console.Write(s);
+            console.addstr(s);
         }
 
         public static void getyx(out int y, out int x)
         {
-            y = Console.CursorLeft;
-            x = Console.CursorTop;
+            console.getyx(out y, out x);
         }
 
-        public static void clear() => Console.Clear();
+        public static void clear() => console.clear();
 
         public static void clrtoeol(int y, int x)
         {
@@ -128,7 +128,7 @@ namespace Moria.Core.Methods
             initscr();
 
             // Check we have enough screen. -CJS-
-            if (Console.WindowHeight < 24 || Console.WindowWidth < 80)
+            if (console.WindowHeight < 24 || console.WindowWidth < 80)
             //if (LINES < 24 || COLS < 80)
             {
                 Console.WriteLine("Screen too small for moria.");
@@ -178,14 +178,12 @@ namespace Moria.Core.Methods
 
         public static void terminalSaveScreen()
         {
-            Console.
-            overwrite(stdscr, save_screen);
+            console.saveTerminal();
         }
 
         public static void terminalRestoreScreen()
         {
-            overwrite(save_screen, stdscr);
-            touchwin(stdscr);
+            console.restoreTerminal();
         }
 
         public static int terminalBellSound()
@@ -195,7 +193,7 @@ namespace Moria.Core.Methods
             // The player can turn off beeps if they find them annoying.
             if (Config.options.error_beep_sound)
             {
-                Console.Beep();
+                console.beep();
                 //return write(1, "\007", 1);
                 return 1;
             }
@@ -237,14 +235,14 @@ namespace Moria.Core.Methods
 
         public static void clearLine(int row)
         {
-            Console.SetCursorPosition(0, row);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, row);
+            move(0, row);
+            addstr(new string(' ', console.WindowWidth));
+            move(0, row);
         }
 
         public static void clearToBottom(int row)
         {
-            while (row <= Console.WindowHeight)
+            while (row <= console.WindowHeight)
             {
                 clearLine(row);
             }
@@ -257,7 +255,6 @@ namespace Moria.Core.Methods
         // move cursor to a given y, x position
         public static void moveCursor(Coord_t coord)
         {
-            //Console.SetCursorPosition(coord.y, coord.x);
             move(coord.y, coord.x);
         }
 
@@ -515,7 +512,7 @@ namespace Moria.Core.Methods
                 //int ch = getch();
 
                 // some machines may not sign extend.
-                const char EOF = unchecked((char)-1);
+                const char EOF = unchecked((char)-1); // or '\0' ??
                 if (ch == EOF)
                 {
                     // avoid infinite loops while trying to call getKeyInput() for a -more- prompt.
