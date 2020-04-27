@@ -34,7 +34,7 @@ namespace Moria.Core.Methods
         public static void displaySplashScreen()
         {
             clearScreen();
-            var lines = DataFilesResource.splash.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            var lines = DataFilesResource.splash.Split(new[] { Environment.NewLine, "\r", "\n" }, StringSplitOptions.None);
             int i = 0;
             foreach (var line in lines)
             {
@@ -75,12 +75,13 @@ namespace Moria.Core.Methods
 
             terminalSaveScreen();
 
-            var lines = helpText.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+            var lines = helpText.Split(new[] {Environment.NewLine, "\r", "\n"}, StringSplitOptions.None)
                 .ToList();
 
             while (lines.Any())
             {
-                for (var i = 0; i < 23; i++)
+                clearScreen();
+                for (var i = 0; i < 23 && lines.Count > 0; i++)
                 {
                     var line = lines[0];
                     lines.RemoveAt(0);
