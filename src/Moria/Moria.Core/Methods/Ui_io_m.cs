@@ -25,7 +25,12 @@ namespace Moria.Core.Methods
         }
 
         public static void mvcur(int y, int x) => move(y, x);
-        public static void initscr() { }
+
+        public static void initscr()
+        {
+            console.clear();
+            console.move(0,0);
+        }
         public static void refresh()
         {
             // Do... nothing?
@@ -33,7 +38,7 @@ namespace Moria.Core.Methods
 
         public static int getConsoleWidth() => console.WindowWidth;
 
-        public static bool getch(out char c) => getch(out c, TimeSpan.FromMilliseconds(10));
+        public static bool getch(out char c) => getch(out c, TimeSpan.MaxValue/*.FromMilliseconds(10)*/);
 
         public static bool getch(out char c, TimeSpan timeout)
         {
@@ -98,7 +103,7 @@ namespace Moria.Core.Methods
         public static void clrtoeol(int y, int x)
         {
             move(y, x);
-            var length = 79 - y;
+            var length = 79 - x;
             addstr(new string(' ', length));
             move(y, x);
         }
@@ -237,16 +242,17 @@ namespace Moria.Core.Methods
 
         public static void clearLine(int row)
         {
-            move(0, row);
+            move(row, 0);
             addstr(new string(' ', console.WindowWidth));
-            move(0, row);
+            move(row, 0);
         }
 
         public static void clearToBottom(int row)
         {
-            while (row <= console.WindowHeight)
+            while (row < console.WindowHeight)
             {
                 clearLine(row);
+                row++;
             }
 
             move(row, 0);
@@ -272,6 +278,7 @@ namespace Moria.Core.Methods
         // Dump IO to buffer -RAK-
         public static void putString(string out_str, Coord_t coord)
         {
+            out_str = out_str ?? string.Empty;
             // truncate the string, to make sure that it won't go past right edge of screen.
             if (coord.x > 79)
             {
@@ -279,7 +286,12 @@ namespace Moria.Core.Methods
             }
 
             //vtype_t str = { '\0' };
-            var str = out_str.Substring(0, 79 - coord.x);
+            var requestedLength = 79 - coord.x;
+            if (requestedLength > out_str.Length)
+            {
+                requestedLength = out_str.Length;
+            }
+            var str = out_str.Substring(0, requestedLength);
             //(void)strncpy(str, out_str, (size_t)(79 - coord.x));
             //str[79 - coord.x] = '\0';
 
@@ -321,10 +333,10 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
 
             // Real coords convert to screen positions
-            coord.y -= dg.panel.row_prt;
-            coord.x -= dg.panel.col_prt;
+            int y = coord.y - dg.panel.row_prt;
+            int x = coord.x - dg.panel.col_prt;
 
-            move(coord.y, coord.x);
+            move(y, x);
             //if (move(coord.y, coord.x) == ERR)
             //{
             //    abort();
@@ -338,10 +350,10 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
 
             // Real coords convert to screen positions
-            coord.y -= dg.panel.row_prt;
-            coord.x -= dg.panel.col_prt;
+            var y = coord.y - dg.panel.row_prt;
+            var x = coord.x - dg.panel.col_prt;
 
-            mvaddch(coord.y, coord.x, ch);
+            mvaddch(y, x, ch);
             //if (mvaddch(coord.y, coord.x, ch) == ERR)
             //{
             //    abort();
@@ -368,7 +380,10 @@ namespace Moria.Core.Methods
 
             // truncate message if it's too long!
             //message.resize(79);
-            message = message.Substring(0, 79);
+            if (message.Length > 79)
+            {
+                message = message.Substring(0, 79);
+            }
 
             addstr(message);
 
@@ -479,7 +494,11 @@ namespace Moria.Core.Methods
                     State.Instance.last_message_id = 0;
                 }
 
-                State.Instance.messages[State.Instance.last_message_id] = msg.Substring(0, (int)MORIA_MESSAGE_SIZE);
+                if (msg.Length > (int)MORIA_MESSAGE_SIZE)
+                {
+                    msg = msg.Substring(0, (int) MORIA_MESSAGE_SIZE);
+                }
+                State.Instance.messages[State.Instance.last_message_id] = msg;
                 //State.Instance.messages[State.Instance.last_message_id][MORIA_MESSAGE_SIZE - 1] = '\0';
             }
         }
@@ -722,6 +741,7 @@ namespace Moria.Core.Methods
             //
             //// Ugly non-blocking read...Ugh! -MRC-
             //timeout(8);
+            return false;
             return getch(out var result);
             //int result = getch();
             //timeout(-1);
