@@ -14,10 +14,10 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Character_m
+    public class Character_m
     {
         // Generates character's stats -JWT-
-        public static void characterGenerateStats()
+        private void characterGenerateStats()
         {
             var py = State.Instance.py;
             int total;
@@ -40,7 +40,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static uint decrementStat(int adjustment, uint current_stat)
+        private uint decrementStat(int adjustment, uint current_stat)
         {
             var stat = current_stat;
             for (var i = 0; i > adjustment; i--)
@@ -69,7 +69,7 @@ namespace Moria.Core.Methods
             return stat;
         }
 
-        public static uint incrementStat(int adjustment, uint current_stat)
+        private uint incrementStat(int adjustment, uint current_stat)
         {
             var stat = current_stat;
             for (var i = 0; i < adjustment; i++)
@@ -97,7 +97,7 @@ namespace Moria.Core.Methods
         // Changes stats by given amount -JWT-
         // During character creation we adjust player stats based
         // on their Race and Class...with a little randomness!
-        public static uint createModifyPlayerStat(uint stat, int adjustment)
+        private uint createModifyPlayerStat(uint stat, int adjustment)
         {
             if (adjustment < 0)
             {
@@ -108,7 +108,7 @@ namespace Moria.Core.Methods
 
         // generate all stats and modify for race. needed in a separate
         // module so looping of character selection would be allowed -RGM-
-        static void characterGenerateStatsAndRace()
+        void characterGenerateStatsAndRace()
         {
             var py = State.Instance.py;
             var race = Library.Instance.Player.character_races[(int)py.misc.race_id];
@@ -146,7 +146,7 @@ namespace Moria.Core.Methods
 
         // Prints a list of the available races: Human, Elf, etc.,
         // shown during the character creation screens.
-        public static void displayCharacterRaces()
+        private void displayCharacterRaces()
         {
             clearToBottom(20);
             putString("Choose a race (? for Help):", new Coord_t(20, 2));
@@ -168,7 +168,7 @@ namespace Moria.Core.Methods
         }
 
         // Allows player to select a race -JWT-
-        public static void characterChooseRace()
+        private void characterChooseRace()
         {
             displayCharacterRaces();
 
@@ -202,7 +202,7 @@ namespace Moria.Core.Methods
         }
 
         // Will print the history of a character -JWT-
-        public static void displayCharacterHistory()
+        private void displayCharacterHistory()
         {
             putString("Character Background", new Coord_t(14, 27));
 
@@ -213,7 +213,7 @@ namespace Moria.Core.Methods
         }
 
         // Clear the previous history strings
-        public static void playerClearHistory()
+        private void playerClearHistory()
         {
             State.Instance.py.misc.history = new string[4];
             //for (var  & entry : py.misc.history)
@@ -227,7 +227,7 @@ namespace Moria.Core.Methods
         // Assumptions:
         //   - Each race has init history beginning at (race-1)*3+1
         //   - All history parts are in ascending order
-        public static void characterGetHistory()
+        private void characterGetHistory()
         {
             var py = State.Instance.py;
             var history_id = py.misc.race_id * 3 + 1;
@@ -343,7 +343,7 @@ namespace Moria.Core.Methods
         }
 
         // Gets the character's gender -JWT-
-        static void characterSetGender()
+        void characterSetGender()
         {
             clearToBottom(20);
             putString("Choose a sex (? for Help):", new Coord_t(20, 2));
@@ -381,7 +381,7 @@ namespace Moria.Core.Methods
         }
 
         // Computes character's age, height, and weight -JWT-
-        static void characterSetAgeHeightWeight()
+        void characterSetAgeHeightWeight()
         {
             var py = State.Instance.py;
 
@@ -412,7 +412,7 @@ namespace Moria.Core.Methods
 
         // Prints the classes for a given race: Rogue, Mage, Priest, etc.,
         // shown during the character creation screens.
-        public static int displayRaceClasses(uint race_id, uint[] class_list)
+        private int displayRaceClasses(uint race_id, uint[] class_list)
         {
             var coord = new Coord_t(21, 2);
 
@@ -446,7 +446,7 @@ namespace Moria.Core.Methods
             return class_id;
         }
 
-        public static void generateCharacterClass(uint class_id)
+        private void generateCharacterClass(uint class_id)
         {
             var py = State.Instance.py;
             py.misc.class_id = class_id;
@@ -515,7 +515,7 @@ namespace Moria.Core.Methods
         }
 
         // Gets a character class -JWT-
-        public static void characterGetClass()
+        private void characterGetClass()
         {
             var py = State.Instance.py;
             var class_list = new uint[PLAYER_MAX_CLASSES];
@@ -551,12 +551,12 @@ namespace Moria.Core.Methods
 
         // Given a stat value, return a monetary value,
         // which affects the amount of gold a player has.
-        public static int monetaryValueCalculatedFromStat(uint stat)
+        private int monetaryValueCalculatedFromStat(uint stat)
         {
             return 5 * ((int)stat - 10);
         }
 
-        public static void playerCalculateStartGold()
+        private void playerCalculateStartGold()
         {
             var py = State.Instance.py;
 
@@ -591,7 +591,7 @@ namespace Moria.Core.Methods
         }
 
         // Main Character Creation Routine -JWT-
-        public static void characterCreate()
+        public void characterCreate()
         {
             printCharacterInformation();
             characterChooseRace();

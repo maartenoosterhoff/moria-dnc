@@ -10,10 +10,8 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Character_m;
 using static Moria.Core.Methods.Dungeon_generate_m;
 using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Dungeon_m;
@@ -53,6 +51,8 @@ namespace Moria.Core.Methods
 {
     public static class Game_run_m
     {
+        public static Character_m character = new Character_m();
+
         public static void startMoria(int seed, bool start_new_game, bool use_roguelike_keys)
         {
             var py = State.Instance.py;
@@ -131,7 +131,7 @@ namespace Moria.Core.Methods
             else
             {
                 // Create character
-                characterCreate();
+                character.characterCreate();
 
                 py.misc.date_of_birth = DateTime.Now;
 
