@@ -5,34 +5,34 @@ namespace Moria.Core.Structures
 {
     public class Player_t
     {
-        public Player_misc_t misc { get; set; } = new Player_misc_t();
+        public Player_misc_t misc { get; } = new Player_misc_t();
 
-        public Player_stats_t stats { get; set; } = new Player_stats_t();
+        public Player_stats_t stats { get; } = new Player_stats_t();
 
-        public Player_flags_t flags { get; set; } = new Player_flags_t();
+        public Player_flags_t flags { get; } = new Player_flags_t();
 
-        public Coord_t pos { get; set; } = new Coord_t();
+        public Coord_t pos { get; } = new Coord_t();
 
         public char prev_dir { get; set; } = ' ';
 
-        public uint[] base_hp_levels { get; set; } = new uint[Player_c.PLAYER_MAX_LEVEL];
+        public uint[] base_hp_levels { get; } = new uint[Player_c.PLAYER_MAX_LEVEL];
 
-        public uint[] base_exp_levels { get; set; } = new uint[Player_c.PLAYER_MAX_LEVEL];
+        public uint[] base_exp_levels { get; } = new uint[Player_c.PLAYER_MAX_LEVEL];
 
-        public uint running_tracker { get; set; } = 0;
-        public bool temporary_light_only { get; set; } = false;
+        public uint running_tracker { get; set; }
+        public bool temporary_light_only { get; set; }
 
-        public int max_score { get; set; } = 0;
+        public int max_score { get; } = 0;
 
-        public Player_pack_t pack { get; set; } = new Player_pack_t();
+        public Player_pack_t pack { get; } = new Player_pack_t();
 
         // TOFIX: change to dictionary
-        public Inventory_t[] inventory { get; set; } =
+        public Inventory_t[] inventory { get; } =
             ArrayInitializer.Initialize<Inventory_t>(Inventory_c.PLAYER_INVENTORY_SIZE);
 
-        public int equipment_count { get; set; } = 0;
-        public bool weapon_is_heavy { get; set; } = false;
-        public bool carrying_light { get; set; } = false;
+        public int equipment_count { get; set; }
+        public bool weapon_is_heavy { get; set; }
+        public bool carrying_light { get; set; }
     }
 
     /*
