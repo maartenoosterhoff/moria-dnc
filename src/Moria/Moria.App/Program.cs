@@ -1,13 +1,11 @@
-﻿using System;
-using System.Threading;
-
-namespace Moria.App
+﻿namespace Moria.App
 {
     class Program
     {
         static void Main(string[] args)
         {
-            //Moria.Core.Methods.Main_m.main(args);
+            Core.Methods.Main_m.main(args);
+            /*
             var input = '\0';
             Console.TreatControlCAsInput = true;
             var waiting = 0;
@@ -35,6 +33,7 @@ namespace Moria.App
 
                 Console.SetCursorPosition(0, 0);
             }
+            */
         }
     }
 }
