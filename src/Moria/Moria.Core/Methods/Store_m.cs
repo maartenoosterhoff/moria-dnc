@@ -370,7 +370,7 @@ namespace Moria.Core.Methods
             var prompt_len = prompt.Length;
             int start_len = prompt_len;
 
-            string p = null;
+            //string p = null;
             var msg = string.Empty;
             var last_offer_str = string.Empty;
             //char* p = nullptr;
@@ -400,14 +400,19 @@ namespace Moria.Core.Methods
                     valid_offer = false;
                 }
 
-                for (p = msg; *p == ' '; p++)   // TOFIX
-                {
-                    // fast forward to next space character
-                }
-                if (*p == '+' || *p == '-')
+                msg = msg.Trim();
+                if (msg.StartsWith("+") || msg.StartsWith("-"))
                 {
                     increment = true;
                 }
+                //for (p = msg; *p == ' '; p++)   // TOFIX
+                //{
+                //    // fast forward to next space character
+                //}
+                //if (*p == '+' || *p == '-')
+                //{
+                //    increment = true;
+                //}
 
                 if ((offer_count != 0) && increment)
                 {
