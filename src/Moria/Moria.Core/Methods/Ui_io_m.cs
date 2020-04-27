@@ -597,7 +597,8 @@ namespace Moria.Core.Methods
                 end_col = 79;
             }
 
-            char* p = in_str;
+            int p = 0; // index
+            //char* p = in_str;
 
             bool flag = false;
             bool aborted = false;
@@ -621,7 +622,9 @@ namespace Moria.Core.Methods
                             coord.x--;
                             putString(" ", coord);
                             moveCursor(coord);
-                            *--p = '\0';
+                            p--;
+                            in_str_value = in_str_value.Substring(0, in_str_value.Length - 1);
+                            //*--p = '\0';
                         }
                         break;
                     default:
@@ -632,7 +635,9 @@ namespace Moria.Core.Methods
                         else
                         {
                             mvaddch(coord.y, coord.x, (char)key);
-                            *p++ = (char)key;
+                            p++;
+                            in_str_value += (char)key;
+                            //*p++ = (char)key;
                             coord.x++;
                         }
                         break;
