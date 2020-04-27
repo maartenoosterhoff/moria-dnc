@@ -9,17 +9,17 @@ namespace Moria.Core.Methods
     {
         public static bool loadGame(ref bool generate)
         {
-            var instance = State.Instance;
-            var saveGameContents = JsonConvert.SerializeObject((instance), Formatting.Indented);
-            File.WriteAllText(Config.files.save_game, saveGameContents);
+            var saveGameContents = File.ReadAllText(Config.files.save_game);
+            var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
+            State.Instance = instance;
             return true;
         }
 
         public static bool saveGame()
         {
-            var saveGameContents = File.ReadAllText(Config.files.save_game);
-            var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
-            State.Instance = instance;
+            var instance = State.Instance;
+            var saveGameContents = JsonConvert.SerializeObject((instance), Formatting.Indented);
+            File.WriteAllText(Config.files.save_game, saveGameContents);
             return true;
         }
 
