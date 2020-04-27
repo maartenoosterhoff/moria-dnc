@@ -18,11 +18,10 @@
         public int ac { get; set; }
 
         public int to_ac { get; set; }
-        public Dice_t damage { get; set; } = new Dice_t();
+        public Dice_t damage { get; set; }
         public uint depth_first_found { get; set; }
         public uint identification { get; set; }
     }
-
     /*
 // Inventory_t is created for an item the player may wear about
 // their person, or store in their inventory pack.
