@@ -88,7 +88,7 @@ namespace Moria.Core.Methods
                 description = description.Substring(0, lim);
                 //description[lim] = 0;
 
-                descriptions[i] = $"{'a' + i:c}) {description}";
+                descriptions[i] = $"{(char)('a' + i):c}) {description}";
                 //(void)sprintf(descriptions[i], "%c) %s", 'a' + i, description);
 
                 int l = descriptions[i].Length + 2;
@@ -261,7 +261,7 @@ namespace Moria.Core.Methods
                 description = description.Substring(0, lim);
                 //description[lim] = 0;
 
-                descriptions[line] = $"{line + 'a'}) {position_description:s-14}: {description}";
+                descriptions[line] = $"{(char)(line + 'a')}) {position_description:s-14}: {description}";
                 //(void)sprintf(descriptions[line], "%c) %-14s: %s", line + 'a', position_description, description);
 
                 int l = descriptions[line].Length + 2;
@@ -1142,7 +1142,7 @@ namespace Moria.Core.Methods
                             }
                         }
 
-                        var msg = $"{text} {description} ({'a' + item_id})";
+                        var msg = $"{text} {description} ({(char)('a' + item_id)})";
                         //obj_desc_t msg = { '\0' };
                         //(void)sprintf(msg, "%s %s (%c)", text, description, 'a' + item_id);
                         printMessage(msg);
@@ -1476,8 +1476,8 @@ namespace Moria.Core.Methods
                     description = string.Format(
                         "({0}: {1:c}-{2:c},{3:s}{4:s} / for {5:s}, or ESC) {6:s}", //
                         (screen_id > 0 ? "Inven" : "Equip"), //
-                        item_id_start + 'a', //
-                        item_id_end + 'a', //
+                        (char)(item_id_start + 'a'), //
+                        (char)(item_id_end + 'a'), //
                         (screen_id > 0 ? " 0-9," : ""), //
                         (redraw_screen ? "" : " * to see,"), //
                         (screen_id > 0 ? "Equip" : "Inven"), //
@@ -1498,8 +1498,8 @@ namespace Moria.Core.Methods
                 {
                     description = string.Format(
                         "(Items {0:c}-{1:c},{2:s}{3:s} ESC to exit) {4:s}",             //
-                        item_id_start + 'a',                             //
-                        item_id_end + 'a',                               //
+                        (char)(item_id_start + 'a'),                             //
+                        (char)(item_id_end + 'a'),                               //
                         (screen_id > 0 ? " 0-9," : ""),                  //
                         (redraw_screen ? "" : " * for inventory list,"), //
                         prompt                                           //

@@ -774,7 +774,7 @@ namespace Moria.Core.Methods
             //obj_desc_t msg = { '\0' };
             if (pack_position_id >= 0)
             {
-                msg = $"{p}{description} ({'a' + pack_position_id})";
+                msg = $"{p}{description} ({(char)('a' + pack_position_id)})";
                 //(void)sprintf(msg, "%s%s (%c)", p, description, 'a' + pack_position_id);
             }
             else

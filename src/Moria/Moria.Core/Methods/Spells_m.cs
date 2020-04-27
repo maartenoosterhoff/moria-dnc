@@ -42,7 +42,9 @@ namespace Moria.Core.Methods
             //vtype_t str = { '\0' };
             str = string.Format(
                 "(Spells {0}-{1}, *=List, <ESCAPE>=exit) {2}",
-                spell_ids[0] + 'a' - first_spell, spell_ids[number_of_choices - 1] + 'a' - first_spell, prompt
+                (char)(spell_ids[0] + 'a' - first_spell),
+                (char)(spell_ids[number_of_choices - 1] + 'a' - first_spell),
+                prompt
             );
             //(void)sprintf(str, "(Spells %c-%c, *=List, <ESCAPE>=exit) %s", spell_ids[0] + 'a' - first_spell, spell_ids[number_of_choices - 1] + 'a' - first_spell, prompt);
 

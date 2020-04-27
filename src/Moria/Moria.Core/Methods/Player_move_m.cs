@@ -497,7 +497,7 @@ namespace Moria.Core.Methods
                     int locn = inventoryCarryItem(item);
 
                     itemDescription(ref description, py.inventory[locn], true);
-                    msg = $"You have {description} ({locn + 'a'})";
+                    msg = $"You have {description} ({(char)(locn + 'a')})";
                     //(void)sprintf(msg, "You have %s (%c)", description, locn + 'a');
                     printMessage(msg);
                     dungeonDeleteObject(coord);

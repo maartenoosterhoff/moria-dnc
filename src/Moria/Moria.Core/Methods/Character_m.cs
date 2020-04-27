@@ -155,7 +155,7 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i < PLAYER_MAX_RACES; i++)
             {
-                var description = $"{i + 'a'}) {Library.Instance.Player.character_races[i].name}";
+                var description = $"{(char)(i + 'a')}) {Library.Instance.Player.character_races[i].name}";
                 putString(description, coord);
 
                 coord.x += 15;
@@ -427,7 +427,7 @@ namespace Moria.Core.Methods
             {
                 if ((Library.Instance.Player.character_races[(int)race_id].classes_bit_field & mask) != 0u)
                 {
-                    var description = $"{class_id + 'a'}) {Library.Instance.Player.classes[(int)i].title}";
+                    var description = $"{(char)(class_id + 'a')}) {Library.Instance.Player.classes[(int)i].title}";
                     // (void)sprintf(description, "%c) %s", class_id + 'a', classes[i].title);
                     putString(description, coord);
                     class_list[class_id] = i;

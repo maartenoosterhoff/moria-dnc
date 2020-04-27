@@ -188,7 +188,7 @@ namespace Moria.Core.Methods
                 // Restore the number of items
                 item.items_count = (uint)current_item_count;
 
-                var msg = $"{'a' + item_line_num}) {description}";
+                var msg = $"{(char)('a' + item_line_num)}) {description}";
                 //obj_desc_t msg = { '\0' };
                 //(void)sprintf(msg, "%c) %s", 'a' + item_line_num, description);
                 putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 0));
@@ -286,7 +286,7 @@ namespace Moria.Core.Methods
             item_id = -1;
             bool item_found = false;
 
-            var msg = $"(Items {item_pos_start + 'a'}-{item_pos_end + 'a'}, ESC to exit) {prompt}";
+            var msg = $"(Items {(char)((char)(item_pos_start + 'a'))}-{(char)(item_pos_end + 'a')}, ESC to exit) {prompt}";
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
@@ -1074,7 +1074,7 @@ namespace Moria.Core.Methods
                     //obj_desc_t description = { '\0' };
                     itemDescription(ref description, py.inventory[new_item_id], true);
 
-                    var msg = $"You have {description:s} ({new_item_id + 'a':c}";
+                    var msg = $"You have {description:s} ({(char)(new_item_id + 'a'):c}";
                     //obj_desc_t msg = { '\0' };
                     //(void)sprintf(msg, "You have %s (%c)", description, new_item_id + 'a');
                     putStringClearToEOL(msg, new Coord_t(0, 0));
@@ -1294,7 +1294,7 @@ namespace Moria.Core.Methods
             var description = string.Empty;
             itemDescription(ref description, sold_item, true);
 
-            var msg = $"Selling {description:s} ({item_id + 'a':c}";
+            var msg = $"Selling {description:s} ({(char)(item_id + 'a'):c}";
             //obj_desc_t msg = { '\0' };
             //(void)sprintf(msg, "Selling %s (%c)", description, item_id + 'a');
             printMessage(msg);
