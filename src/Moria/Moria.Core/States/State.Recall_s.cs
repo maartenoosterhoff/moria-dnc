@@ -9,8 +9,11 @@ namespace Moria.Core.States
         public Recall_t[] creature_recall { get; set; } =
             ArrayInitializer.Initialize<Recall_t>(MON_MAX_CREATURES); // Monster memories. -CJS-
 
-        public string roff_buffer { get; set; }= string.Empty;
-        public int roff_print_line { get; set; } = 0;                 // Place to print line now being loaded.
+        public string roff_buffer { get; set; } = new string(' ', 80);
+
+        public string roff_buffer_pointer { get; set; }
+
+        public int roff_print_line { get; set; } // Place to print line now being loaded.
 
     }
 }

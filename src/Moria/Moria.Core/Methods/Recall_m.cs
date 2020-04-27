@@ -1,39 +1,12 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
-using Moria.Core.Structures.Enumerations;
-using System;
-using System.Resources;
-using Moria.Core.Data;
-using static Moria.Core.Constants.Dungeon_c;
-using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Constants.Inventory_c;
-using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Dungeon_m;
+using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Helpers_m;
-using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Player_magic_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Store_inventory_m;
-using static Moria.Core.Methods.Std_m;
-using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Player_traps_m;
-using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
-using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
@@ -55,12 +28,34 @@ namespace Moria.Core.Methods
         // Print out strings, filling up lines as we go.
         public static void memoryPrint(string p)
         {
+            if (string.IsNullOrEmpty(p))
+            {
+                return;
+            }
+
+            var width = getConsoleWidth();
+
+            while (p.Length >= 0)
+            {
+                var pos = width - 2;
+                while (!char.IsWhiteSpace(p[pos]))
+                {
+                    pos--;
+                }
+
+                var chunk = p.Substring(0, pos);
+                putStringClearToEOL(chunk, new Coord_t(State.Instance.roff_print_line, 0));
+                State.Instance.roff_print_line++;
+                p = p.Substring(pos + 1).Trim();
+            }
+            /*
+
             while (p.Length != 0)
             {
                 var roff_buffer_pointer = p;
                 //*roff_buffer_pointer = *p;
 
-                if (*p == '\n' || roff_buffer_pointer >= roff_buffer + sizeof(roff_buffer) - 1)
+                if (*p == '\n' || roff_buffer_pointer >= State.Instance.roff_buffer.Length + State.Instance.roff_buffer.Length - 1)
                 {
                     char* q = roff_buffer_pointer;
                     if (*p != '\n')
@@ -93,6 +88,7 @@ namespace Moria.Core.Methods
 
                 p++;
             }
+            */
         }
 
         // Do we know anything about this monster?
@@ -123,22 +119,22 @@ namespace Moria.Core.Methods
 
         public static void memoryWizardModeInit(Recall_t memory, Creature_t creature)
         {
-            memory.kills = (uint) SHRT_MAX;
+            memory.kills = (uint)SHRT_MAX;
             memory.wake = memory.ignore = UCHAR_MAX;
 
-            uint move = (uint) ((creature.movement & Config.monsters_move.CM_4D2_OBJ) != 0 ? 1 : 0) * 8;
-            move += (uint) ((creature.movement & Config.monsters_move.CM_2D2_OBJ) != 0 ? 1 : 0) * 4;
-            move += (uint) ((creature.movement & Config.monsters_move.CM_1D2_OBJ) != 0 ? 1 : 0) * 2;
-            move += (uint) ((creature.movement & Config.monsters_move.CM_90_RANDOM) != 0 ? 1 : 0);
-            move += (uint) ((creature.movement & Config.monsters_move.CM_60_RANDOM) != 0 ? 1 : 0);
+            uint move = (uint)((creature.movement & Config.monsters_move.CM_4D2_OBJ) != 0 ? 1 : 0) * 8;
+            move += (uint)((creature.movement & Config.monsters_move.CM_2D2_OBJ) != 0 ? 1 : 0) * 4;
+            move += (uint)((creature.movement & Config.monsters_move.CM_1D2_OBJ) != 0 ? 1 : 0) * 2;
+            move += (uint)((creature.movement & Config.monsters_move.CM_90_RANDOM) != 0 ? 1 : 0);
+            move += (uint)((creature.movement & Config.monsters_move.CM_60_RANDOM) != 0 ? 1 : 0);
 
-            memory.movement = (uint) ((creature.movement & ~Config.monsters_move.CM_TREASURE) |
-                                      (move << (int) Config.monsters_move.CM_TR_SHIFT));
+            memory.movement = (uint)((creature.movement & ~Config.monsters_move.CM_TREASURE) |
+                                      (move << (int)Config.monsters_move.CM_TR_SHIFT));
             memory.defenses = creature.defenses;
 
             if ((creature.spells & Config.monsters_spells.CS_FREQ) != 0u)
             {
-                memory.spells = (uint) (creature.spells | Config.monsters_spells.CS_FREQ);
+                memory.spells = (uint)(creature.spells | Config.monsters_spells.CS_FREQ);
             }
             else
             {
@@ -167,7 +163,7 @@ namespace Moria.Core.Methods
 
             if (deaths != 0u)
             {
-                desc = $"{deaths:d} of the contributors to your monster memory {plural((int) deaths, "has", "have")}";
+                desc = $"{deaths:d} of the contributors to your monster memory {plural((int)deaths, "has", "have")}";
                 //(void)sprintf(desc, "%d of the contributors to your monster memory %s", deaths, plural(deaths, "has", "have"));
                 memoryPrint(desc);
                 memoryPrint(" been killed by this creature, and ");
@@ -177,14 +173,14 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    desc = $"at least {kills:d} of the beasts {plural((int) kills, "has", "have")} been exterminated.";
+                    desc = $"at least {kills:d} of the beasts {plural((int)kills, "has", "have")} been exterminated.";
                     //(void)sprintf(desc, "at least %d of the beasts %s been exterminated.", kills, plural(kills, "has", "have"));
                     memoryPrint(desc);
                 }
             }
             else if (kills != 0u)
             {
-                desc = $"At least {kills:d} of these creatures {plural((int) kills, "has", "have")}";
+                desc = $"At least {kills:d} of these creatures {plural((int)kills, "has", "have")}";
                 //(void)sprintf(desc, "At least %d of these creatures %s", kills, plural(kills, "has", "have"));
                 memoryPrint(desc);
                 memoryPrint(" been killed by contributors to your monster memory.");
@@ -349,12 +345,12 @@ namespace Moria.Core.Methods
 
             // calculate the integer exp part, can be larger than 64K when first
             // level character looks at Balrog info, so must store in long
-            int quotient = (int) monster_exp * (int) level / (int) py.misc.level;
+            int quotient = (int)monster_exp * (int)level / (int)py.misc.level;
 
             // calculate the fractional exp part scaled by 100,
             // must use long arithmetic to avoid overflow
             int remainder =
-                (int) ((((int) monster_exp * (int) level % (int) py.misc.level) * (int) 1000 / (int) py.misc.level +
+                (int)((((int)monster_exp * (int)level % (int)py.misc.level) * (int)1000 / (int)py.misc.level +
                         5) / 10);
 
             char plural;
@@ -380,7 +376,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                int ord = (int) py.misc.level % 10;
+                int ord = (int)py.misc.level % 10;
                 if (ord == 1)
                 {
                     p = "st";
@@ -672,8 +668,8 @@ namespace Moria.Core.Methods
 
             memoryPrint(" It may");
 
-            var carrying_chance = (uint) ((memory_move & Config.monsters_move.CM_TREASURE) >>
-                                          (int) Config.monsters_move.CM_TR_SHIFT);
+            var carrying_chance = (uint)((memory_move & Config.monsters_move.CM_TREASURE) >>
+                                          (int)Config.monsters_move.CM_TR_SHIFT);
 
             if (carrying_chance == 1)
             {
@@ -770,7 +766,7 @@ namespace Moria.Core.Methods
             int attack_count = 0;
             for (int i = 0; i < MON_MAX_ATTACKS; i++)
             {
-                int attack_id = (int) creature.damage[i];
+                int attack_id = (int)creature.damage[i];
                 if (attack_id == 0)
                 {
                     break;
@@ -821,7 +817,7 @@ namespace Moria.Core.Methods
 
                     if ((dice.dice != 0) && (dice.sides != 0))
                     {
-                        if (knowDamage((int) creature.level, (int) memory.attacks[i], (int) (dice.dice * dice.sides)))
+                        if (knowDamage((int)creature.level, (int)memory.attacks[i], (int)(dice.dice * dice.sides)))
                         {
                             // Loss of experience
                             if (attack_type == 19)
@@ -873,12 +869,12 @@ namespace Moria.Core.Methods
             }
 
             State.Instance.roff_print_line = 0;
-            //roff_buffer_pointer = roff_buffer;
+            State.Instance.roff_buffer_pointer = State.Instance.roff_buffer;
 
-            var spells = (uint) (memory.spells & creature.spells & ~Config.monsters_spells.CS_FREQ);
+            var spells = (uint)(memory.spells & creature.spells & ~Config.monsters_spells.CS_FREQ);
 
             // the Config.monsters_move.CM_WIN property is always known, set it if a win monster
-            var move = (uint) (memory.movement | (creature.movement & Config.monsters_move.CM_WIN));
+            var move = (uint)(memory.movement | (creature.movement & Config.monsters_move.CM_WIN));
 
             uint defense = memory.defenses & creature.defenses;
 
@@ -966,7 +962,7 @@ namespace Moria.Core.Methods
             int n = 0;
             char query;
 
-            for (int i = (int) MON_MAX_CREATURES - 1; i >= 0; i--)
+            for (int i = (int)MON_MAX_CREATURES - 1; i >= 0; i--)
             {
                 if (Library.Instance.Creatures.creatures_list[i].sprite == command &&
                     memoryMonsterKnown(State.Instance.creature_recall[i]))
@@ -987,7 +983,7 @@ namespace Moria.Core.Methods
 
                     n++;
 
-                    query = (char) memoryRecall(i);
+                    query = (char)memoryRecall(i);
                     terminalRestoreScreen();
                     if (query == ESCAPE)
                     {

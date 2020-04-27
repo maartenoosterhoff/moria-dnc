@@ -31,6 +31,8 @@ namespace Moria.Core.Methods
             // Do... nothing?
         }
 
+        public static int getConsoleWidth() => console.WindowWidth;
+
         public static bool getch(out char c) => getch(out c, TimeSpan.FromMilliseconds(10));
 
         public static bool getch(out char c, TimeSpan timeout)
