@@ -821,7 +821,7 @@ namespace Moria.Core.Methods
 
                 if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
                 {
-                    playerMovePosition(direction, coord);
+                    playerMovePosition(direction, ref coord);
                     finished = true;
                     continue; // we're done here, break out of the loop
                 }
@@ -857,7 +857,7 @@ namespace Moria.Core.Methods
                 }
 
                 // move must be at end because want to light up current tmp_coord
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
             }
         }
@@ -932,7 +932,7 @@ namespace Moria.Core.Methods
                 }
 
                 // move must be at end because want to light up current spot
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
 
                 distance++;
             } while (distance <= Config.treasure.OBJECT_BOLTS_MAX_RANGE && tile.feature_id <= MAX_OPEN_SPACE);
@@ -1071,7 +1071,7 @@ namespace Moria.Core.Methods
             {
                 old_coord.y = coord.y;
                 old_coord.x = coord.x;
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
 
                 distance++;
 
@@ -1123,7 +1123,7 @@ namespace Moria.Core.Methods
             {
                 old_coord.y = coord.y;
                 old_coord.x = coord.x;
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
 
                 distance++;
 
@@ -1478,7 +1478,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1526,7 +1526,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1581,7 +1581,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1641,7 +1641,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1709,7 +1709,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1763,7 +1763,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1865,7 +1865,7 @@ namespace Moria.Core.Methods
 
             do
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 tile = dg.floor[coord.y][coord.x];
@@ -1911,7 +1911,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -1963,7 +1963,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -2040,7 +2040,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];
@@ -2137,8 +2137,9 @@ namespace Moria.Core.Methods
 
             dungeonLiteSpot(py.pos);
 
-            py.pos.y = rnd_coord.y;
-            py.pos.x = rnd_coord.x;
+            //py.pos.y = rnd_coord.y;
+            //py.pos.x = rnd_coord.x;
+            py.pos = rnd_coord;
 
             dungeonResetView();
 
@@ -2157,7 +2158,7 @@ namespace Moria.Core.Methods
 
             while (!finished)
             {
-                playerMovePosition(direction, coord);
+                playerMovePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];

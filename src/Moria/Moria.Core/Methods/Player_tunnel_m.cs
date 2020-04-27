@@ -179,8 +179,8 @@ namespace Moria.Core.Methods
                 direction = randomNumber(9);
             }
 
-            Coord_t coord = py.pos;
-            playerMovePosition(direction, coord);
+            Coord_t coord = py.pos.Clone();
+            playerMovePosition(direction, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
             var item = py.inventory[(int)PlayerEquipment.Wield];

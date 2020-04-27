@@ -524,10 +524,10 @@ namespace Moria.Core.Methods
                 playerEndRunning();
             }
 
-            Coord_t coord = py.pos;
+            Coord_t coord = py.pos.Clone();
 
             // Legal move?
-            if (!playerMovePosition(direction, coord))
+            if (!playerMovePosition(direction, ref coord))
             {
                 return;
             }
@@ -548,8 +548,9 @@ namespace Moria.Core.Methods
                     // Make final assignments of char coords
                     Coord_t old_coord = py.pos;
 
-                    py.pos.y = coord.y;
-                    py.pos.x = coord.x;
+                    //py.pos.y = coord.y;
+                    //py.pos.x = coord.x;
+                    py.pos = coord;
 
                     // Move character record (-1)
                     dungeonMoveCreatureRecord(old_coord, py.pos);
@@ -613,8 +614,9 @@ namespace Moria.Core.Methods
                             dungeonMoveCreatureRecord(py.pos, old_coord);
                             dungeonMoveCharacterLight(py.pos, old_coord);
 
-                            py.pos.y = old_coord.y;
-                            py.pos.x = old_coord.x;
+                            //py.pos.y = old_coord.y;
+                            //py.pos.x = old_coord.x;
+                            py.pos = old_coord;
 
                             // check to see if we have stepped back onto another trap, if so, set it off
                             uint id = dg.floor[py.pos.y][py.pos.x].treasure_id;

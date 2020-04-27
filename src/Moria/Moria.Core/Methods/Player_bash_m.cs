@@ -58,8 +58,8 @@ namespace Moria.Core.Methods
                 dir = getRandomDirection();
             }
 
-            Coord_t coord = py.pos;
-            playerMovePosition(dir, coord);
+            Coord_t coord = py.pos.Clone();
+            playerMovePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
 

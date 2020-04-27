@@ -246,14 +246,14 @@ namespace Moria.Core.Methods
             bool visible;
             int current_distance = 0;
 
-            Coord_t coord = py.pos;
-            Coord_t old_coord = py.pos;
+            Coord_t coord = py.pos.Clone();
+            Coord_t old_coord = py.pos.Clone();
 
             bool flag = false;
 
             while (!flag)
             {
-                playerMovePosition(dir, coord);
+                playerMovePosition(dir, ref coord);
 
                 if (current_distance + 1 > tdis)
                 {

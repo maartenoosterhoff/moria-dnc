@@ -212,7 +212,7 @@ namespace Moria.Core.Methods
                         }
                     }
                 }
-            } while (playerMovePosition(dir, coord));
+            } while (playerMovePosition(dir, ref coord));
         }
 
         public static void dungeonPlaceOpenDoor(Coord_t coord)
@@ -1372,8 +1372,9 @@ namespace Moria.Core.Methods
             // Set up the character coords, used by monsterPlaceNewWithinDistance, monsterPlaceWinning
             var coord = new Coord_t(0, 0);
             dungeonNewSpot(coord);
-            py.pos.y = coord.y;
-            py.pos.x = coord.x;
+            //py.pos.y = coord.y;
+            //py.pos.x = coord.x;
+            py.pos = coord;
 
             monsterPlaceNewWithinDistance((randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + alloc_level), 0, true);
             dungeonAllocateAndPlaceObject(setCorridors, 3, randomNumber(alloc_level));

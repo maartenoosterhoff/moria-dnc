@@ -70,7 +70,7 @@ namespace Moria.Core.Methods
         }
 
         // Given direction "dir", returns new row, column location -RAK-
-        public static bool playerMovePosition(int dir, Coord_t coord)
+        public static bool playerMovePosition(int dir, ref Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -165,8 +165,9 @@ namespace Moria.Core.Methods
 
             dungeonLiteSpot(py.pos);
 
-            py.pos.y = location.y;
-            py.pos.x = location.x;
+            //py.pos.y = location.y;
+            //py.pos.x = location.x;
+            py.pos = location;
 
             dungeonResetView();
             updateMonsters(false);
@@ -1674,8 +1675,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            Coord_t coord = py.pos;
-            playerMovePosition(dir, coord);
+            Coord_t coord = py.pos.Clone();
+            playerMovePosition(dir, ref coord);
 
             bool no_object = false;
 
@@ -1727,8 +1728,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            Coord_t coord = py.pos;
-            playerMovePosition(dir, coord);
+            Coord_t coord = py.pos.Clone();
+            playerMovePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
             var item = game.treasure.list[tile.treasure_id];

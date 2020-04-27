@@ -124,7 +124,7 @@ namespace Moria.Core.Methods
         static bool playerCanSeeDungeonWall(int dir, Coord_t coord)
         {
             // check to see if movement there possible
-            if (!playerMovePosition(dir, coord))
+            if (!playerMovePosition(dir, ref coord))
             {
                 return true;
             }
@@ -138,7 +138,7 @@ namespace Moria.Core.Methods
         static bool playerSeeNothing(int dir, Coord_t coord)
         {
             // check to see if movement there possible
-            return playerMovePosition(dir, coord) && caveGetTileSymbol(coord) == ' ';
+            return playerMovePosition(dir, ref coord) && caveGetTileSymbol(coord) == ' ';
         }
 
         static void findRunningBreak(int dir, Coord_t coord)
@@ -215,9 +215,9 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            Coord_t coord = py.pos;
+            Coord_t coord = py.pos.Clone();
 
-            if (!playerMovePosition(direction, coord))
+            if (!playerMovePosition(direction, ref coord))
             {
                 py.running_tracker = 0;
             }
@@ -435,7 +435,7 @@ namespace Moria.Core.Methods
                 spot.x = coord.x;
 
                 // Objects player can see (Including doors?) cause a stop.
-                if (playerMovePosition(new_dir, spot))
+                if (playerMovePosition(new_dir, ref spot))
                 {
                     areaAffectStopLookingAtSquares(i, direction, new_dir, spot, ref check_dir, ref dir_a, ref dir_b);
                 }
@@ -473,7 +473,7 @@ namespace Moria.Core.Methods
             // Two options!
 
             Coord_t location = new Coord_t(coord.y, coord.x);
-            playerMovePosition(dir_a, location);
+            playerMovePosition(dir_a, ref location);
 
             if (!playerCanSeeDungeonWall(dir_a, location) || !playerCanSeeDungeonWall(check_dir, location))
             {

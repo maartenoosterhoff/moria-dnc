@@ -2684,14 +2684,14 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = true;
 
-            Coord_t coord = py.pos;
+            Coord_t coord = py.pos.Clone();
 
             int direction = 0;
             if (!getDirectionWithMemory(/*CNIL*/ null, ref direction))
             {
                 return;
             }
-            playerMovePosition(direction, coord);
+            playerMovePosition(direction, ref coord);
 
             Tile_t tile = dg.floor[coord.y][coord.x];
 

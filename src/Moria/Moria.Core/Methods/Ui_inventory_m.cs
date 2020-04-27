@@ -85,7 +85,10 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, py.inventory[i], true);
 
                 // Truncate if too long.
-                description = description.Substring(0, lim);
+                if (description.Length > lim)
+                {
+                    description = description.Substring(0, lim);
+                }
                 //description[lim] = 0;
 
                 descriptions[i] = $"{(char)('a' + i):c}) {description}";
