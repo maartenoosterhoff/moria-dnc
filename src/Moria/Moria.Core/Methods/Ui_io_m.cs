@@ -515,6 +515,7 @@ namespace Moria.Core.Methods
                 //int ch = getch();
 
                 // some machines may not sign extend.
+                const char EOF = unchecked((char)-1);
                 if (ch == EOF)
                 {
                     // avoid infinite loops while trying to call getKeyInput() for a -more- prompt.
