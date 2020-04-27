@@ -2,9 +2,7 @@
 using Moria.Core.States;
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using static Moria.Core.Constants.Version_c;
-using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_run_m;
 using static Moria.Core.Methods.Helpers_m;
@@ -109,7 +107,7 @@ Options:
             }
 
             // Auto-restart of saved file
-            if (args[0] != null)
+            if (!string.IsNullOrEmpty(args[0]))
             {
                 // (void) strcpy(config::files::save_game, argv[0]);
                 //config::files::save_game = argv[0];
@@ -133,9 +131,8 @@ Options:
 
         public static bool parseGameSeed(string argv, ref uint seed)
         {
-            int value = 0;
 
-            if (!stringToNumber(argv, out value))
+            if (!stringToNumber(argv, out var value))
             {
                 return false;
             }
