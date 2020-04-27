@@ -113,7 +113,7 @@ namespace Moria.Core.Data
                 magicItemTitlesArray[mit] = title;
             }
 
-            this.magic_item_titles = magic_item_titles.ToList().AsReadOnly();
+            this.magic_item_titles = magicItemTitlesArray.ToList().AsReadOnly();
         }
 
         public IReadOnlyList<string> colors { get; private set; }
