@@ -93,9 +93,12 @@ namespace Moria.Core.Methods
 
         public static void clear() => Console.Clear();
 
-        public static void clrtoeol()
+        public static void clrtoeol(int y, int x)
         {
-            // TODO;
+            move(y, x);
+            var length = 79 - y;
+            addstr(new string(' ', length));
+            move(y, x);
         }
 
         public static void moriaTerminalInitialize()
@@ -296,8 +299,8 @@ namespace Moria.Core.Methods
                 printMessage(/*CNIL*/ null);
             }
 
-            move(coord.y, coord.x);
-            clrtoeol();
+            //move(coord.y, coord.x);
+            clrtoeol(coord.y, coord.x);
             putString(str, coord);
         }
 
@@ -309,8 +312,8 @@ namespace Moria.Core.Methods
                 printMessage(/*CNIL*/null);
             }
 
-            move(coord.y, coord.x);
-            clrtoeol();
+            //move(coord.y, coord.x);
+            clrtoeol(coord.y, coord.x);
         }
 
         // Moves the cursor to a given interpolated y, x position -RAK-
@@ -362,8 +365,7 @@ namespace Moria.Core.Methods
             Coord_t coord = currentCursorPosition();
 
             // move to beginning of message line, and clear it
-            move(0, 0);
-            clrtoeol();
+            clrtoeol(0, 0);
 
             // truncate message if it's too long!
             //message.resize(79);
@@ -383,8 +385,7 @@ namespace Moria.Core.Methods
             Coord_t coord = currentCursorPosition();
 
             // move to beginning of message line, and clear it
-            move(0, 0);
-            clrtoeol();
+            clrtoeol(0, 0);
 
             // restore cursor to old position
             move(coord.y, coord.x);
@@ -441,8 +442,8 @@ namespace Moria.Core.Methods
 
             if (!combine_messages)
             {
-                move((int)MSG_LINE, 0);
-                clrtoeol();
+                //move((int)MSG_LINE, 0);
+                clrtoeol((int)MSG_LINE, 0);
             }
 
             // Make the null string a special case. -CJS-
@@ -578,7 +579,7 @@ namespace Moria.Core.Methods
         public static bool getStringInput(out string in_str, Coord_t coord, int slen)
         {
             var in_str_value = "";
-            Console.SetCursorPosition(coord.y, coord.x);
+            move(coord.y, coord.x);
             //(void)move(coord.y, coord.x);
 
             for (int i = slen; i > 0; i--)
@@ -586,7 +587,7 @@ namespace Moria.Core.Methods
                 addch(' ');
             }
 
-            Console.SetCursorPosition(coord.y, coord.x);
+            move(coord.y, coord.x);
             //(void)move(coord.y, coord.x);
 
             int start_col = coord.x;
