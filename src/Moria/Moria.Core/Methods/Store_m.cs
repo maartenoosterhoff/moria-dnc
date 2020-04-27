@@ -855,7 +855,7 @@ namespace Moria.Core.Methods
                     {
                         bidding_open = true;
 
-                        var msg = $"{{comment}} :  {current_asking_price:d}";
+                        var msg = $"{comment} :  {current_asking_price:d}";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "%s :  %d", comment, current_asking_price);
                         putString(msg, new Coord_t(1, 0));
