@@ -62,7 +62,7 @@ namespace Moria.Core.Methods
         // However, the second always gets a number of one except for ammo etc.
         public static void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item)
         {
-            to_item = from_item; // TOFIX
+            to_item = from_item;
 
             if (to_item.items_count > 1 &&
                 to_item.sub_category_id >= ITEM_SINGLE_STACK_MIN &&
@@ -541,7 +541,7 @@ namespace Moria.Core.Methods
         // Functions to emulate the original Pascal sets
         public static bool setNull(Inventory_t item)
         {
-            //(void)item; // silence warnings // TOFIX: Huh?
+            //(void)item; // silence warnings 
             return false;
         }
 

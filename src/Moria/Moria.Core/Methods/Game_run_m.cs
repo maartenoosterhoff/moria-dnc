@@ -2087,9 +2087,9 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case '=': // (=) set options
-                    terminalSaveScreen();
-                    setGameOptions();
-                    terminalRestoreScreen();
+                    //terminalSaveScreen();
+                    //setGameOptions(); // TOFIX
+                    //terminalRestoreScreen();
                     game.player_free_turn = true;
                     break;
                 case '{': // ({) inscribe an object

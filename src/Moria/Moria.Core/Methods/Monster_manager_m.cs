@@ -126,7 +126,7 @@ namespace Moria.Core.Methods
             if (monster_id == -1)
             {
                 throw new InvalidOperationException();
-                //abort(); // TOFIX: Huh?
+                //abort();
             }
 
             var monster = State.Instance.monsters[monster_id];

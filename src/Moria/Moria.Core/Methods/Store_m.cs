@@ -405,7 +405,7 @@ namespace Moria.Core.Methods
                 {
                     increment = true;
                 }
-                //for (p = msg; *p == ' '; p++)   // TOFIX
+                //for (p = msg; *p == ' '; p++)
                 //{
                 //    // fast forward to next space character
                 //}

@@ -939,7 +939,7 @@ namespace Moria.Core.Methods
         }
 
         // Return flags for given type area affect -RAK-
-        public static void spellGetAreaAffectFlags(int spell_type, ref uint weapon_type, ref int harm_type, ref Func<Inventory_t, bool> destroy)
+        public static void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type, out Func<Inventory_t, bool> destroy)
         {
             switch ((MagicSpellFlags)spell_type)
             {
@@ -979,6 +979,9 @@ namespace Moria.Core.Methods
                     destroy = setNull;
                     break;
                 default:
+                    weapon_type = 0;
+                    harm_type = 0;
+                    destroy = setNull;
                     printMessage("ERROR in spellGetAreaAffectFlags()\n");
                     break;
             }
@@ -1053,11 +1056,9 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var py = State.Instance.py;
 
-            Func<Inventory_t, bool> dummy = null;
-            //bool(*dummy)(Inventory_t *);
-            int harm_type = 0;
-            uint weapon_type = 0;
-            spellGetAreaAffectFlags(spell_type, ref weapon_type, ref harm_type, ref dummy);
+            int harm_type;
+            uint weapon_type;
+            spellGetAreaAffectFlags(spell_type, out weapon_type, out harm_type, out _);
 
             Coord_t old_coord = new Coord_t(0, 0);
 
@@ -1108,10 +1109,7 @@ namespace Moria.Core.Methods
             int total_kills = 0;
             int max_distance = 2;
 
-            Func<Inventory_t, bool> destroy = null;
-            int harm_type = 0;
-            uint weapon_type = 0;
-            spellGetAreaAffectFlags(spell_type, ref weapon_type, ref harm_type, ref destroy);
+            spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out var destroy);
 
             Coord_t old_coord = new Coord_t(0, 0);
             Coord_t spot = new Coord_t(0, 0);
@@ -1161,7 +1159,7 @@ namespace Moria.Core.Methods
                             {
                                 tile = dg.floor[spot.y][spot.x];
 
-                                if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id])) // TOFIX: destroy can be null
+                                if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id]))
                                 {
                                     dungeonDeleteObject(spot);
                                 }
@@ -1277,11 +1275,7 @@ namespace Moria.Core.Methods
 
             int max_distance = 2;
 
-            Func<Inventory_t, bool> destroy = null;
-            //bool(*destroy)(Inventory_t *);
-            int harm_type = 0;
-            uint weapon_type = 0;
-            spellGetAreaAffectFlags(spell_type, ref weapon_type, ref harm_type, ref destroy);
+            spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out var destroy);
 
             Coord_t location = new Coord_t(0, 0);
 
@@ -1293,7 +1287,7 @@ namespace Moria.Core.Methods
                     {
                         var tile = dg.floor[location.y][location.x];
 
-                        if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id])) // TOFIX: destroy can be null
+                        if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id]))
                         {
                             dungeonDeleteObject(location);
                         }

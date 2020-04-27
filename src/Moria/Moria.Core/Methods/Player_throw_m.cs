@@ -30,7 +30,7 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            //*treasure = *item; // TOFIX: ref copy but also copy contents (i think)
+            //*treasure = *item;
             treasure = item;
 
             if (item.items_count > 1)

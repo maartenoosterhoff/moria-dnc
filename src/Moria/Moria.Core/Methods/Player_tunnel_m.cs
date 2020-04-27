@@ -219,13 +219,13 @@ namespace Moria.Core.Methods
                         else
                         {
                             exitProgram();
-                            //abort();    // TOFIX:
+                            //abort();
                         }
                     }
                     else
                     {
                         exitProgram();
-                        //abort();    // TOFIX
+                        //abort();
                     }
                 }
 
