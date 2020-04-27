@@ -13,7 +13,7 @@ namespace Moria.Core.Utils
 
         public void move(int y, int x)
         {
-            Console.SetCursorPosition(y, x);
+            Console.SetCursorPosition(x, y);
         }
 
         public void addch(char c)
@@ -28,13 +28,13 @@ namespace Moria.Core.Utils
 
         public void getyx(out int y, out int x)
         {
-            y = Console.CursorLeft;
-            x = Console.CursorTop;
+            y = Console.CursorTop;
+            x = Console.CursorLeft;
         }
 
-        public int WindowHeight => Console.WindowHeight;
+        public int WindowHeight => 24; //Console.WindowHeight;
 
-        public int WindowWidth => Console.WindowWidth;
+        public int WindowWidth => 80; //Console.WindowWidth - 1;
 
         public void saveTerminal()
         {

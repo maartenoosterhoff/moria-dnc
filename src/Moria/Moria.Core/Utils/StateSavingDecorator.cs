@@ -49,7 +49,7 @@ namespace Moria.Core.Utils
 
         public int WindowHeight => this.wrapper.WindowHeight;
 
-        public int WindowWidth => this.wrapper.WindowHeight;
+        public int WindowWidth => this.wrapper.WindowWidth;
 
         private Stack<ConsoleState> savedStates = new Stack<ConsoleState>();
 
