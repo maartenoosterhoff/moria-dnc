@@ -16,7 +16,6 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Treasure_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -39,10 +38,15 @@ namespace Moria.Core.Methods
     public class Wizard_m : IWizard
     {
         private readonly IRnd rnd;
+        private readonly ITreasure treasure;
 
-        public Wizard_m(IRnd rnd)
+        public Wizard_m(
+            IRnd rnd,
+            ITreasure treasure
+        )
         {
             this.rnd = rnd;
+            this.treasure = treasure;
         }
 
         // lets anyone enter wizard mode after a disclaimer... -JEW-
@@ -596,7 +600,7 @@ namespace Moria.Core.Methods
                     var free_treasure_id = popt();
                     dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
                     inventoryItemCopyTo(id, game.treasure.list[free_treasure_id]);
-                    magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
+                    treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 
                     // auto identify the item
                     itemIdentify(game.treasure.list[free_treasure_id], ref free_treasure_id);

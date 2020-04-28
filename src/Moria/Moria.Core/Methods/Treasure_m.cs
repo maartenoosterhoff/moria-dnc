@@ -7,31 +7,36 @@ using static Moria.Core.Constants.Std_c;
 
 namespace Moria.Core.Methods
 {
-    public static class Treasure_m
+    public interface ITreasure
     {
-        public static void SetDependencies(
+        void magicTreasureMagicalAbility(int item_id, int level);
+    }
+
+    public class Treasure_m : ITreasure
+    {
+        private Treasure_m(
             IDice dice,
             IRnd rnd,
             IStd std
         )
         {
-            Treasure_m.dice = dice;
-            Treasure_m.rnd = rnd;
-            Treasure_m.std = std;
+            this.dice = dice;
+            this.rnd = rnd;
+            this.std = std;
         }
 
-        private static IDice dice;
-        private static IRnd rnd;
-        private static IStd std;
+        private readonly IDice dice;
+        private readonly IRnd rnd;
+        private readonly IStd std;
 
         // Should the object be enchanted -RAK-
-        public static bool magicShouldBeEnchanted(int chance)
+        private bool magicShouldBeEnchanted(int chance)
         {
             return rnd.randomNumber(100) <= chance;
         }
 
         // Enchant a bonus based on degree desired -RAK-
-        public static int magicEnchantmentBonus(int @base, int max_standard, int level)
+        private int magicEnchantmentBonus(int @base, int max_standard, int level)
         {
             var stand_deviation = ((int)Config.treasure.LEVEL_STD_OBJECT_ADJUST * level / 100) + (int)Config.treasure.LEVEL_MIN_OBJECT_STD;
 
@@ -53,7 +58,7 @@ namespace Moria.Core.Methods
             return bonus;
         }
 
-        public static void magicalArmor(Inventory_t item, int special, int level)
+        private void magicalArmor(Inventory_t item, int special, int level)
         {
             item.to_ac += magicEnchantmentBonus(1, 30, level);
 
@@ -101,14 +106,14 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void cursedArmor(Inventory_t item, int level)
+        private void cursedArmor(Inventory_t item, int level)
         {
             item.to_ac -= magicEnchantmentBonus(1, 40, level);
             item.cost = 0;
             item.flags |= Config.treasure_flags.TR_CURSED;
         }
 
-        public static void magicalSword(Inventory_t item, int special, int level)
+        private void magicalSword(Inventory_t item, int special, int level)
         {
             item.to_hit += magicEnchantmentBonus(0, 40, level);
 
@@ -208,7 +213,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void cursedSword(Inventory_t item, int level)
+        private void cursedSword(Inventory_t item, int level)
         {
             item.to_hit -= magicEnchantmentBonus(1, 55, level);
 
@@ -220,7 +225,7 @@ namespace Moria.Core.Methods
             item.cost = 0;
         }
 
-        public static void magicalBow(Inventory_t item, int level)
+        private void magicalBow(Inventory_t item, int level)
         {
             item.to_hit += magicEnchantmentBonus(1, 30, level);
 
@@ -228,7 +233,7 @@ namespace Moria.Core.Methods
             item.to_damage += magicEnchantmentBonus(1, 20, level);
         }
 
-        public static void cursedBow(Inventory_t item, int level)
+        private void cursedBow(Inventory_t item, int level)
         {
             item.to_hit -= magicEnchantmentBonus(1, 50, level);
 
@@ -239,19 +244,19 @@ namespace Moria.Core.Methods
             item.cost = 0;
         }
 
-        public static void magicalDiggingTool(Inventory_t item, int level)
+        private void magicalDiggingTool(Inventory_t item, int level)
         {
             item.misc_use += magicEnchantmentBonus(0, 25, level);
         }
 
-        public static void cursedDiggingTool(Inventory_t item, int level)
+        private void cursedDiggingTool(Inventory_t item, int level)
         {
             item.misc_use = -magicEnchantmentBonus(1, 30, level);
             item.cost = 0;
             item.flags |= Config.treasure_flags.TR_CURSED;
         }
 
-        public static void magicalGloves(Inventory_t item, int special, int level)
+        private void magicalGloves(Inventory_t item, int special, int level)
         {
             item.to_ac += magicEnchantmentBonus(1, 20, level);
 
@@ -276,7 +281,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void cursedGloves(Inventory_t item, int special, int level)
+        private void cursedGloves(Inventory_t item, int special, int level)
         {
             if (magicShouldBeEnchanted(special))
             {
@@ -299,7 +304,7 @@ namespace Moria.Core.Methods
             item.cost = 0;
         }
 
-        public static void magicalBoots(Inventory_t item, int special, int level)
+        private void magicalBoots(Inventory_t item, int special, int level)
         {
             item.to_ac += magicEnchantmentBonus(1, 20, level);
 
@@ -335,7 +340,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void cursedBoots(Inventory_t item, int level)
+        private void cursedBoots(Inventory_t item, int level)
         {
             var magic_type = rnd.randomNumber(3);
 
@@ -362,7 +367,7 @@ namespace Moria.Core.Methods
             item.flags |= Config.treasure_flags.TR_CURSED;
         }
 
-        public static void magicalHelms(Inventory_t item, int special, int level)
+        private void magicalHelms(Inventory_t item, int special, int level)
         {
             item.to_ac += magicEnchantmentBonus(1, 20, level);
 
@@ -449,7 +454,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void cursedHelms(Inventory_t item, int special, int level)
+        private void cursedHelms(Inventory_t item, int special, int level)
         {
             item.to_ac -= magicEnchantmentBonus(1, 45, level);
             item.flags |= Config.treasure_flags.TR_CURSED;
@@ -503,7 +508,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void processRings(Inventory_t item, int level, int cursed)
+        private void processRings(Inventory_t item, int level, int cursed)
         {
             switch (item.sub_category_id)
             {
@@ -601,7 +606,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void processAmulets(Inventory_t item, int level, int cursed)
+        private void processAmulets(Inventory_t item, int level, int cursed)
         {
             if (item.sub_category_id < 2)
             {
@@ -639,7 +644,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int wandMagic(uint id)
+        private int wandMagic(uint id)
         {
             switch (id)
             {
@@ -694,7 +699,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int staffMagic(uint id)
+        private int staffMagic(uint id)
         {
             switch (id)
             {
@@ -744,7 +749,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void magicalCloak(Inventory_t item, int special, int level)
+        private void magicalCloak(Inventory_t item, int special, int level)
         {
             if (!magicShouldBeEnchanted(special))
             {
@@ -768,7 +773,7 @@ namespace Moria.Core.Methods
             item.cost += 500;
         }
 
-        public static void cursedCloak(Inventory_t item, int level)
+        private void cursedCloak(Inventory_t item, int level)
         {
             var magic_type = rnd.randomNumber(3);
 
@@ -801,7 +806,7 @@ namespace Moria.Core.Methods
             item.flags |= Config.treasure_flags.TR_CURSED;
         }
 
-        public static void magicalChests(Inventory_t item, int level)
+        private void magicalChests(Inventory_t item, int level)
         {
             var magic_type = rnd.randomNumber(level + 4);
 
@@ -856,7 +861,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void magicalProjectileAdjustment(Inventory_t item, int special, int level)
+        private void magicalProjectileAdjustment(Inventory_t item, int special, int level)
         {
             item.to_hit += magicEnchantmentBonus(1, 35, level);
             item.to_damage += magicEnchantmentBonus(1, 35, level);
@@ -911,7 +916,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void cursedProjectileAdjustment(Inventory_t item, int level)
+        private void cursedProjectileAdjustment(Inventory_t item, int level)
         {
             item.to_hit -= magicEnchantmentBonus(5, 55, level);
             item.to_damage -= magicEnchantmentBonus(5, 55, level);
@@ -919,7 +924,7 @@ namespace Moria.Core.Methods
             item.cost = 0;
         }
 
-        public static void magicalProjectile(Inventory_t item, int special, int level, int chance, int cursed)
+        private void magicalProjectile(Inventory_t item, int special, int level, int chance, int cursed)
         {
             if (item.category_id == TV_SLING_AMMO || item.category_id == TV_BOLT || item.category_id == TV_ARROW)
             {
@@ -957,7 +962,7 @@ namespace Moria.Core.Methods
 
         // Chance of treasure having magic abilities -RAK-
         // Chance increases with each dungeon level
-        public static void magicTreasureMagicalAbility(int item_id, int level)
+        public void magicTreasureMagicalAbility(int item_id, int level)
         {
             var game = State.Instance.game;
 

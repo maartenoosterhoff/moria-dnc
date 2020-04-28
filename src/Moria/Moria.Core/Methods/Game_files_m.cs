@@ -10,13 +10,21 @@ using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Treasure_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
     public static class Game_files_m
     {
+        public static void SetDependencies(
+            ITreasure treasure
+        )
+        {
+            Game_files_m.treasure = treasure;
+        }
+
+        private static ITreasure treasure;
+
         ////  initializeScoreFile
         ////  Open the score file while we still have the setuid privileges.  Later
         ////  when the score is being written out, you must be sure to flock the file
@@ -265,7 +273,7 @@ namespace Moria.Core.Methods
                 var object_id = itemGetRandomObjectId(level, small_objects);
                 inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
 
-                magicTreasureMagicalAbility(treasure_id, level);
+                treasure.magicTreasureMagicalAbility(treasure_id, level);
 
                 var item = game.treasure.list[treasure_id];
                 itemIdentifyAsStoreBought(item);

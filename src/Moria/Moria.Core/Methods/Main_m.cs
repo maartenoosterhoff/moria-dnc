@@ -159,8 +159,11 @@ Options:
             container.RegisterSingleton<IRng, Rng_m>();
             container.RegisterSingleton<IStd, Std_m>();
             container.RegisterSingleton<IStoreInventory, Store_inventory_m>();
+            container.RegisterSingleton<ITreasure, Treasure_m>();
             container.RegisterSingleton<IUiInventory, Ui_inventory_m>();
             container.RegisterSingleton<IWizard, Wizard_m>();
+
+            container.Verify();
 
             // Set static dependencies (goal is to have none)
             Dungeon_los_m.SetDependencies(
@@ -169,7 +172,8 @@ Options:
             );
 
             Dungeon_m.SetDependencies(
-                container.GetInstance<IRnd>()
+                container.GetInstance<IRnd>(),
+                container.GetInstance<ITreasure>()
             );
             
             Game_run_m.SetDependencies(
@@ -185,6 +189,10 @@ Options:
             Game_death_m.SetDependencies(
                 container.GetInstance<IGame>(),
                 container.GetInstance<IUiInventory>()
+            );
+
+            Game_files_m.SetDependencies(
+                container.GetInstance<ITreasure>()
             );
 
             Game_objects_m.SetDependencies(
@@ -312,12 +320,6 @@ Options:
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
-            );
-
-            Treasure_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<IStd>()
             );
 
             return container;

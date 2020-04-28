@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Treasure_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -19,13 +18,16 @@ namespace Moria.Core.Methods
     public static class Dungeon_m
     {
         public static void SetDependencies(
-            IRnd rnd
+            IRnd rnd,
+            ITreasure treasure
         )
         {
             Dungeon_m.rnd = rnd;
+            Dungeon_m.treasure = treasure;
         }
 
         private static IRnd rnd;
+        private static ITreasure treasure;
 
         public static void dungeonDisplayMap()
         {
@@ -375,7 +377,7 @@ namespace Moria.Core.Methods
             var object_id = itemGetRandomObjectId(dg.current_level, must_be_small);
             inventoryItemCopyTo(State.Instance.sorted_objects[object_id], State.Instance.game.treasure.list[free_treasure_id]);
 
-            magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
+            treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {

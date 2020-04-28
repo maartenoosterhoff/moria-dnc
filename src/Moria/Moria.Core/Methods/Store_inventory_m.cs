@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Treasure_m;
 
 namespace Moria.Core.Methods
 {
@@ -26,13 +25,16 @@ namespace Moria.Core.Methods
     public class Store_inventory_m : IStoreInventory
     {
         public Store_inventory_m(
-            IRnd rnd
+            IRnd rnd,
+            ITreasure treasure
         )
         {
             this.rnd = rnd;
+            this.treasure = treasure;
         }
 
         private readonly IRnd rnd;
+        private readonly ITreasure treasure;
 
         // Initialize and up-keep the store's inventory. -RAK-
         public void storeMaintenance()
@@ -457,7 +459,7 @@ namespace Moria.Core.Methods
             {
                 var id = (int)Library.Instance.Stores.store_choices[store_id][rnd.randomNumber(STORE_MAX_ITEM_TYPES) - 1];
                 inventoryItemCopyTo(id, game.treasure.list[free_id]);
-                magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
+                treasure.magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
 
                 var item = game.treasure.list[free_id];
 
