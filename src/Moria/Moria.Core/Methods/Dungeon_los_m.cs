@@ -45,6 +45,9 @@ namespace Moria.Core.Methods
         // occur if deltaX and deltaY exceed 90.
         public static bool los(Coord_t from, Coord_t to)
         {
+            from = from.Clone();
+            to = to.Clone();
+
             var dg = State.Instance.dg;
 
             var delta_x = to.x - from.x;
