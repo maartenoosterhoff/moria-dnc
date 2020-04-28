@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Moria.Core.Utils
 {
@@ -24,14 +25,17 @@ namespace Moria.Core.Utils
             Enumerable.Range(0, (int)size).Select(x => defaultValue).ToArray();
 
         public static T[][] InitializeWithDefault<T>(uint size1, uint size2) =>
-            InitializeWithDefault<T>(size1, size2, default);
+            InitializeWithDefault<T>(size1, size2, default(T));
 
-        public static T[][] InitializeWithDefault<T>(uint size1, uint size2, T defaultValue) =>
+        public static T[][] InitializeWithDefault<T>(uint size1, uint size2, T defaultValue)
+            => InitializeWithDefault(size1, size2, () => defaultValue);
+
+        public static T[][] InitializeWithDefault<T>(uint size1, uint size2, Func<T> defaultValue) =>
             Enumerable
                 .Range(0, (int)size1)
                 .Select(x => Enumerable
                     .Range(0, (int)size2)
-                    .Select(y => defaultValue)
+                    .Select(y => defaultValue())
                     .ToArray())
                 .ToArray();
     }

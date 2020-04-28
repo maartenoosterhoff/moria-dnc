@@ -1,4 +1,5 @@
-﻿using Moria.Core.Configs;
+﻿using System;
+using Moria.Core.Configs;
 using Moria.Core.Constants;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -112,7 +113,17 @@ namespace Moria.Core.Methods
         // Blanks out entire cave -RAK-
         private void dungeonBlankEntireCave()
         {
-            State.Instance.dg.floor = ArrayInitializer.Initialize<Tile_t>(Dungeon_c.MAX_HEIGHT, Dungeon_c.MAX_WIDTH);
+            State.Instance.dg.floor = ArrayInitializer.InitializeWithDefault<Tile_t>(
+                Dungeon_c.MAX_HEIGHT,
+                Dungeon_c.MAX_WIDTH,
+                () => new Tile_t
+                {
+                    perma_lit_room = false,
+                    field_mark = false,
+                    permanent_light = false,
+                    temporary_light = false
+                }
+            );
             //memset((char*)&dg.floor[0][0], 0, sizeof(dg.floor));
         }
 
