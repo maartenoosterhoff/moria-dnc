@@ -11,8 +11,6 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-
-
     public interface IDungeon
     {
         void dungeonLiteSpot(Coord_t coord);

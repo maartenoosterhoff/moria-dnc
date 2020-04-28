@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using Moria.Core.Resources;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
 
@@ -17,18 +16,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IGameObjects gameObjects,
             IGameObjectsPush gameObjectsPush,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             ITreasure treasure
         )
         {
             Game_files_m.gameObjects = gameObjects;
             Game_files_m.gameObjectsPush = gameObjectsPush;
+            Game_files_m.helpers = helpers;
             Game_files_m.inventoryManager = inventoryManager;
             Game_files_m.treasure = treasure;
         }
 
         private static IGameObjects gameObjects;
         private static IGameObjectsPush gameObjectsPush;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static ITreasure treasure;
 
@@ -209,7 +211,7 @@ namespace Moria.Core.Methods
             }
 
             int level;
-            if (!stringToNumber(input, out level))
+            if (!helpers.stringToNumber(input, out level))
             {
                 return;
             }
@@ -221,7 +223,7 @@ namespace Moria.Core.Methods
             }
 
             int count;
-            if (!stringToNumber(input, out count))
+            if (!helpers.stringToNumber(input, out count))
             {
                 return;
             }

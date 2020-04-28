@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
@@ -24,6 +23,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonLos dungeonLos,
             IDungeonPlacer dungeonPlacer,
+            IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
@@ -35,6 +35,7 @@ namespace Moria.Core.Methods
             Monster_m.dungeon = dungeon;
             Monster_m.dungeonLos = dungeonLos;
             Monster_m.dungeonPlacer = dungeonPlacer;
+            Monster_m.helpers = helpers;
             Monster_m.inventory = inventory;
             Monster_m.inventoryManager = inventoryManager;
             Monster_m.monsterManager = monsterManager;
@@ -47,6 +48,7 @@ namespace Moria.Core.Methods
         private static IDungeonLos dungeonLos;
         private static IDungeonPlacer dungeonPlacer;
         private static IInventory inventory;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -1173,7 +1175,7 @@ namespace Moria.Core.Methods
             var id = 0;
             while (spell_flags != 0)
             {
-                spell_choice[id] = getAndClearFirstBit(ref spell_flags);
+                spell_choice[id] = helpers.getAndClearFirstBit(ref spell_flags);
                 id++;
             }
 

@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -22,16 +21,19 @@ namespace Moria.Core.Methods
     {
         public Dungeon_los_m(
             IGame game,
+            IHelpers helpers,
             IRecall recall,
             IStd std
         )
         {
             this.game = game;
+            this.helpers = helpers;
             this.recall = recall;
             this.std = std;
         }
 
         private IGame game;
+        private readonly IHelpers helpers;
         private IRecall recall;
         private IStd std;
 
@@ -633,7 +635,7 @@ namespace Moria.Core.Methods
             if (los_rocks_and_objects == 0 && tile.creature_id > 1 && monsters[tile.creature_id].lit)
             {
                 j = (int)monsters[tile.creature_id].creature_id;
-                var prefix = isVowel(Library.Instance.Creatures.creatures_list[j].name[0]) ? "an" : "a";
+                var prefix = this.helpers.isVowel(Library.Instance.Creatures.creatures_list[j].name[0]) ? "an" : "a";
                 var creatureName = Library.Instance.Creatures.creatures_list[j].name;
                 msg = $"{description} {prefix} {creatureName}. [(r)ecall]";
                 //(void)sprintf(msg, "%s %s %s. [(r)ecall]", description, isVowel(creatures_list[j].name[0]) ? "an" : "a", creatures_list[j].name);

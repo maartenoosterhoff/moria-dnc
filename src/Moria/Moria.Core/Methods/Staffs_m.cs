@@ -4,7 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -19,6 +18,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
         {
             Staffs_m.dice = dice;
             Staffs_m.game = game;
+            Staffs_m.helpers = helpers;
             Staffs_m.inventoryManager = inventoryManager;
             Staffs_m.monsterManager = monsterManager;
             Staffs_m.playerMagic = playerMagic;
@@ -37,6 +38,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IGame game;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
@@ -116,7 +118,7 @@ namespace Moria.Core.Methods
             var flags = item.flags;
             while (flags != 0)
             {
-                switch ((StaffSpellTypes)(getAndClearFirstBit(ref flags) + 1))
+                switch ((StaffSpellTypes)(helpers.getAndClearFirstBit(ref flags) + 1))
                 {
                     case StaffSpellTypes.StaffLight:
                         identified = spellLightArea(py.pos);
@@ -301,7 +303,7 @@ namespace Moria.Core.Methods
                 coord.x = py.pos.x;
 
                 // Wand types
-                switch ((WandSpellTypes)(getAndClearFirstBit(ref flags) + 1))
+                switch ((WandSpellTypes)(helpers.getAndClearFirstBit(ref flags) + 1))
                 {
                     case WandSpellTypes.WandLight:
                         printMessage("A line of blue shimmering light appears.");

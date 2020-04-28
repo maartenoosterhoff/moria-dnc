@@ -2,10 +2,20 @@
 
 namespace Moria.Core.Methods
 {
-    public static class Helpers_m
+    public interface IHelpers
+    {
+        int getAndClearFirstBit(ref uint flag);
+        bool isVowel(char ch);
+        bool stringToNumber(string str, out int number);
+        void insertNumberIntoString(ref string to_string, string from_string, int number, bool show_sign);
+        void insertStringIntoString(ref string to_string, string from_string, string str_to_insert);
+        void humanDateString(out string day);
+    }
+
+    public class Helpers_m : IHelpers
     {
         // Returns position of first set bit and clears that bit -RAK-
-        public static int getAndClearFirstBit(ref uint flag)
+        public int getAndClearFirstBit(ref uint flag)
         {
             uint mask = 0x1;
 
@@ -25,18 +35,18 @@ namespace Moria.Core.Methods
         }
 
         // Insert a long number into a string (was `insert_lnum()` function)
-        public static void insertNumberIntoString(ref string to_string, string from_string, int number, bool show_sign)
+        public void insertNumberIntoString(ref string to_string, string from_string, int number, bool show_sign)
         {
             throw new NotImplementedException();
         }
 
         // Inserts a string into a string
-        public static void insertStringIntoString(ref string to_string, string from_string, string str_to_insert)
+        public void insertStringIntoString(ref string to_string, string from_string, string str_to_insert)
         {
             throw new NotImplementedException();
         }
 
-        public static bool isVowel(char ch)
+        public bool isVowel(char ch)
         {
             switch (ch)
             {
@@ -57,12 +67,12 @@ namespace Moria.Core.Methods
         }
 
         // http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
-        public static bool stringToNumber(string str, out int number)
+        public bool stringToNumber(string str, out int number)
         {
             return int.TryParse(str, out number);
         }
 
-        public static void humanDateString(out string day)
+        public void humanDateString(out string day)
         {
             /*
     time_t now = time(nullptr);

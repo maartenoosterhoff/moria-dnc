@@ -3,7 +3,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -17,6 +16,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -24,6 +24,7 @@ namespace Moria.Core.Methods
         )
         {
             Player_eat_m.dice = dice;
+            Player_eat_m.helpers = helpers;
             Player_eat_m.inventoryManager = inventoryManager;
             Player_eat_m.playerMagic = playerMagic;
             Player_eat_m.rnd = rnd;
@@ -31,6 +32,7 @@ namespace Moria.Core.Methods
         }
 
         private static IDice dice;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -72,7 +74,7 @@ namespace Moria.Core.Methods
 
             while (item_flags != 0)
             {
-                switch ((FoodMagicTypes)(getAndClearFirstBit(ref item_flags) + 1))
+                switch ((FoodMagicTypes)(helpers.getAndClearFirstBit(ref item_flags) + 1))
                 {
                     case FoodMagicTypes.Poison:
                         py.flags.poisoned += rnd.randomNumber(10) + (int)item.depth_first_found;

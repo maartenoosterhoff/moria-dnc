@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -14,6 +13,7 @@ namespace Moria.Core.Methods
     public static class Identification_m
     {
         public static void SetDependencies(
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IRecall recall,
             IRnd rnd,
@@ -21,6 +21,7 @@ namespace Moria.Core.Methods
             IUiInventory uiInventory
         )
         {
+            Identification_m.helpers = helpers;
             Identification_m.inventoryManager = inventoryManager;
             Identification_m.recall = recall;
             Identification_m.rnd = rnd;
@@ -28,6 +29,7 @@ namespace Moria.Core.Methods
             Identification_m.uiInventory = uiInventory;
         }
 
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IRecall recall;
         private static IRnd rnd;
@@ -937,7 +939,7 @@ namespace Moria.Core.Methods
                     description = string.Format("{0}{1}", "no more", tmp_val.Substring(1));
                     //(void)sprintf(description, "%s%s", "no more", &tmp_val[1]);
                 }
-                else if (isVowel(tmp_val[2]))
+                else if (helpers.isVowel(tmp_val[2]))
                 {
                     description = $"an{tmp_val.Substring(1)}";
                     //(void)sprintf(description, "an%s", &tmp_val[1]);

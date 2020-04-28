@@ -3,7 +3,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_eat_m;
@@ -18,6 +17,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -25,6 +25,7 @@ namespace Moria.Core.Methods
         )
         {
             Player_quaff_m.dice = dice;
+            Player_quaff_m.helpers = helpers;
             Player_quaff_m.inventoryManager = inventoryManager;
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
@@ -32,6 +33,7 @@ namespace Moria.Core.Methods
         }
 
         private static IDice dice;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -44,7 +46,7 @@ namespace Moria.Core.Methods
 
             while (flags != 0)
             {
-                var potion_id = getAndClearFirstBit(ref flags) + 1;
+                var potion_id = helpers.getAndClearFirstBit(ref flags) + 1;
 
                 if (item_type == TV_POTION2)
                 {

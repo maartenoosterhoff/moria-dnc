@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_save_m;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Scores_m;
@@ -20,14 +19,17 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IGame game,
+            IHelpers helpers,
             IUiInventory uiInventory
         )
         {
             Game_death_m.game = game;
+            Game_death_m.helpers = helpers;
             Game_death_m.uiInventory = uiInventory;
         }
 
         private static IGame game;
+        private static IHelpers helpers;
         private static IUiInventory uiInventory;
 
         // Prints the gravestone of the character -RAK-
@@ -82,7 +84,7 @@ namespace Moria.Core.Methods
             text = game.character_died_from;
             putString(text, new Coord_t(16, (int)(26 - text.Length / 2)));
 
-            humanDateString(out var day);
+            helpers.humanDateString(out var day);
             text = day;
             putString(text, new Coord_t(17, (int)(26 - text.Length / 2)));
 

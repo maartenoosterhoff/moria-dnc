@@ -16,7 +16,6 @@ using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_save_m;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
@@ -49,6 +48,7 @@ namespace Moria.Core.Methods
             IDungeonLos dungeonLos,
             IDungeonGenerate dungeonGenerate,
             IGame game,
+            IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
@@ -63,6 +63,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeonLos = dungeonLos;
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
+            Game_run_m.helpers = helpers;
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
@@ -78,6 +79,7 @@ namespace Moria.Core.Methods
         private static IDungeonLos dungeonLos;
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
+        private static IHelpers helpers;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
@@ -2641,7 +2643,7 @@ namespace Moria.Core.Methods
                 var spell_id = 0;
                 while (item_flags != 0u)
                 {
-                    item_pos_end = getAndClearFirstBit(ref item_flags);
+                    item_pos_end = helpers.getAndClearFirstBit(ref item_flags);
 
                     if (Library.Instance.Player.magic_spells[(int)(py.misc.class_id - 1)][item_pos_end].level_required < 99)
                     {

@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -28,6 +27,7 @@ namespace Moria.Core.Methods
             IDungeonLos dungeonLos,
             IDungeonPlacer dungeonPlacer,
             IGameObjects gameObjects,
+            IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
@@ -40,6 +40,7 @@ namespace Moria.Core.Methods
             Spells_m.dungeonLos = dungeonLos;
             Spells_m.dungeonPlacer = dungeonPlacer;
             Spells_m.gameObjects = gameObjects;
+            Spells_m.helpers = helpers;
             Spells_m.inventory = inventory;
             Spells_m.inventoryManager = inventoryManager;
             Spells_m.monsterManager = monsterManager;
@@ -52,6 +53,7 @@ namespace Moria.Core.Methods
         private static IDungeonLos dungeonLos;
         private static IDungeonPlacer dungeonPlacer;
         private static IGameObjects gameObjects;
+        private static IHelpers helpers;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
@@ -200,7 +202,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             // NOTE: `flags` gets set again, since getAndClearFirstBit modified it
             var flags = py.inventory[item_id].flags;
-            var first_spell = getAndClearFirstBit(ref flags);
+            var first_spell = helpers.getAndClearFirstBit(ref flags);
             flags = py.inventory[item_id].flags & py.flags.spells_learnt;
 
             // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
@@ -211,7 +213,7 @@ namespace Moria.Core.Methods
 
             while (flags != 0u)
             {
-                var pos = getAndClearFirstBit(ref flags);
+                var pos = helpers.getAndClearFirstBit(ref flags);
 
                 if (spells[pos].level_required <= py.misc.level)
                 {

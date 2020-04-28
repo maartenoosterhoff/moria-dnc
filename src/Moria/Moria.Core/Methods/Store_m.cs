@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies
         (
+            IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IStd std,
@@ -29,6 +29,7 @@ namespace Moria.Core.Methods
             IUiInventory uiInventory
         )
         {
+            Store_m.helpers = helpers;
             Store_m.inventory = inventory;
             Store_m.inventoryManager = inventoryManager;
             Store_m.std = std;
@@ -37,6 +38,7 @@ namespace Moria.Core.Methods
             Store_m.uiInventory = uiInventory;
         }
 
+        private static IHelpers helpers;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IStd std;
@@ -92,8 +94,8 @@ namespace Moria.Core.Methods
                 //(void)strcpy(comment, speech_selling_haggle[rnd.randomNumber(16) - 1]);
             }
 
-            insertNumberIntoString(ref comment, "%A1", offer, false);
-            insertNumberIntoString(ref comment, "%A2", asking, false);
+            helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
+            helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
             printMessage(comment);
         }
 
@@ -113,8 +115,8 @@ namespace Moria.Core.Methods
                 //(void)strcpy(comment, speech_buying_haggle[rnd.randomNumber(15) - 1]);
             }
 
-            insertNumberIntoString(ref comment, "%A1", offer, false);
-            insertNumberIntoString(ref comment, "%A2", asking, false);
+            helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
+            helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
             printMessage(comment);
         }
 
@@ -419,7 +421,7 @@ namespace Moria.Core.Methods
 
                 if ((offer_count != 0) && increment)
                 {
-                    stringToNumber(msg, out adjustment);
+                    helpers.stringToNumber(msg, out adjustment);
 
                     // Don't accept a zero here.  Turn off increment if it was zero
                     // because a zero will not exit.  This can be zero if the user
@@ -440,7 +442,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    stringToNumber(msg, out adjustment);
+                    helpers.stringToNumber(msg, out adjustment);
                 }
 
                 // don't allow incremental haggling, if player has not made an offer yet

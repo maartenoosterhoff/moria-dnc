@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using System;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
@@ -35,6 +34,7 @@ namespace Moria.Core.Methods
         private readonly IDungeon dungeon;
         private readonly IDungeonPlacer dungeonPlacer;
         private readonly IGameObjects gameObjects;
+        private readonly IHelpers helpers;
         private readonly IInventoryManager inventoryManager;
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
@@ -45,6 +45,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
             IGameObjects gameObjects,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -55,6 +56,7 @@ namespace Moria.Core.Methods
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
             this.gameObjects = gameObjects;
+            this.helpers = helpers;
             this.inventoryManager = inventoryManager;
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
@@ -160,7 +162,7 @@ namespace Moria.Core.Methods
 
                 if (getStringInput(out input, new Coord_t(0, 27), 10))
                 {
-                    stringToNumber(input, out i);
+                    this.helpers.stringToNumber(input, out i);
                 }
             }
 
@@ -257,7 +259,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Strength     = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.STR] = (uint)number;
@@ -272,7 +274,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Intelligence = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.INT] = (uint)number;
@@ -287,7 +289,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Wisdom       = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.WIS] = (uint)number;
@@ -302,7 +304,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Dexterity    = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.DEX] = (uint)number;
@@ -317,7 +319,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Constitution = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.CON] = (uint)number;
@@ -332,7 +334,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Charisma     = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.CHR] = (uint)number;
@@ -347,7 +349,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(1 - 32767) Hit points = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 5))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 0 && number <= SHRT_MAX)
                 {
                     py.misc.max_hp = (int)number;
@@ -365,7 +367,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(0 - 32767) Mana       = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 5))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number <= SHRT_MAX)
                 {
                     py.misc.mana = (int)number;
@@ -387,7 +389,7 @@ namespace Moria.Core.Methods
             if (getStringInput(out input, new Coord_t(0, number), 7))
             {
                 int new_gold;
-                var valid_number = stringToNumber(input, out new_gold);
+                var valid_number = this.helpers.stringToNumber(input, out new_gold);
                 if (valid_number && new_gold > -1)
                 {
                     py.misc.au = new_gold;
@@ -407,7 +409,7 @@ namespace Moria.Core.Methods
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
                 int new_gold;
-                var valid_number = stringToNumber(input, out new_gold);
+                var valid_number = this.helpers.stringToNumber(input, out new_gold);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.chance_in_search = (int)number;
@@ -425,7 +427,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -2 && number < 19)
                 {
                     py.misc.stealth_factor = (int)number;
@@ -443,7 +445,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.disarm = (int)number;
@@ -461,7 +463,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.saving_throw = (int)number;
@@ -479,7 +481,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.bth = (int)number;
@@ -497,7 +499,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.bth_with_bows = (int)number;
@@ -515,7 +517,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                var valid_number = stringToNumber(input, out number);
+                var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1)
                 {
                     py.misc.weight = (uint)number;
@@ -566,7 +568,7 @@ namespace Moria.Core.Methods
             }
 
             int given_id;
-            if (!stringToNumber(input, out given_id))
+            if (!this.helpers.stringToNumber(input, out given_id))
             {
                 return false;
             }
@@ -645,7 +647,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.category_id = (uint)number;
             }
@@ -662,7 +664,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.sub_category_id = (uint)number;
             }
@@ -672,7 +674,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.weight = (uint)number;
             }
@@ -682,7 +684,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.items_count = (uint)number;
             }
@@ -692,7 +694,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.damage.SetDice((uint) number);
             }
@@ -702,7 +704,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.damage.SetSides((uint) number);
             }
@@ -712,7 +714,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.to_hit = (int)number;
             }
@@ -722,7 +724,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.to_damage = (int)number;
             }
@@ -732,7 +734,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.ac = (int)number;
             }
@@ -742,7 +744,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.to_ac = (int)number;
             }
@@ -752,7 +754,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.misc_use = (int)number;
             }
@@ -783,7 +785,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out input_number))
+            if (this.helpers.stringToNumber(input, out input_number))
             {
                 item.cost = input_number;
             }
@@ -793,7 +795,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            if (stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out number))
             {
                 item.depth_first_found = (uint)number;
             }

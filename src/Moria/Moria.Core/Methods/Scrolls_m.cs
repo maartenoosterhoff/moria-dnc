@@ -3,7 +3,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Spells_m;
@@ -17,7 +16,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
-            IInventory inventory,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -26,7 +25,7 @@ namespace Moria.Core.Methods
         )
         {
             Scrolls_m.dice = dice;
-            Scrolls_m.inventory = inventory;
+            Scrolls_m.helpers = helpers;
             Scrolls_m.inventoryManager = inventoryManager;
             Scrolls_m.monsterManager = monsterManager;
             Scrolls_m.playerMagic = playerMagic;
@@ -35,7 +34,7 @@ namespace Moria.Core.Methods
         }
 
         private static IDice dice;
-        private static IInventory inventory;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
@@ -648,7 +647,7 @@ namespace Moria.Core.Methods
 
             while (item_flags != 0)
             {
-                var scroll_type = getAndClearFirstBit(ref item_flags) + 1;
+                var scroll_type = helpers.getAndClearFirstBit(ref item_flags) + 1;
 
                 if (item.category_id == TV_SCROLL2)
                 {

@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Monster_m;
@@ -27,6 +26,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd
@@ -35,6 +35,7 @@ namespace Moria.Core.Methods
             Player_m.dice = dice;
             Player_m.dungeon = dungeon;
             Player_m.game = game;
+            Player_m.helpers = helpers;
             Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
@@ -43,6 +44,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -291,7 +293,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        stringToNumber(rest_str, out rest_num);
+                        helpers.stringToNumber(rest_str, out rest_num);
                         //(void)stringToNumber(rest_str, rest_num);
                     }
                 }
@@ -350,7 +352,7 @@ namespace Moria.Core.Methods
                 description = $"The {monster_name}";
                 //(void) sprintf(*description, "The %s", monster_name);
             }
-            else if (isVowel(monster_name[0]))
+            else if (helpers.isVowel(monster_name[0]))
             {
                 description = $"an {monster_name}";
                 //(void) sprintf(*description, "an %s", monster_name);

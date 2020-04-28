@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using SimpleInjector;
 using static Moria.Core.Constants.Version_c;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -83,7 +82,7 @@ Options:
                         // Move onto the NUMBER value
                         argsList.RemoveAt(0);
 
-                        if (!parseGameSeed(argsList[0], ref seed))
+                        if (!parseGameSeed(container.GetInstance<IHelpers>(), argsList[0], ref seed))
                         {
                             terminalRestore();
                             Console.WriteLine("Game seed must be a decimal number between 1 and 2147483647.");
@@ -130,10 +129,10 @@ Options:
 
         public const int INT_MAX = 2147483647;
 
-        public static bool parseGameSeed(string argv, ref uint seed)
+        public static bool parseGameSeed(IHelpers helpers, string argv, ref uint seed)
         {
 
-            if (!stringToNumber(argv, out var value))
+            if (!helpers.stringToNumber(argv, out var value))
             {
                 return false;
             }
@@ -160,6 +159,7 @@ Options:
             container.RegisterSingleton<IGame, Game_m>();
             container.RegisterSingleton<IGameObjects, Game_objects_m>();
             container.RegisterSingleton<IGameObjectsPush, Game_objects_push_m>();
+            container.RegisterSingleton<IHelpers, Helpers_m>();
             container.RegisterSingleton<IInventory, Inventory_m>();
             container.RegisterSingleton<IInventoryManager, Inventory_manager_m>();
             container.RegisterSingleton<IMonsterManager, Monster_manager_m>();
@@ -182,6 +182,7 @@ Options:
                 container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonGenerate>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
@@ -193,17 +194,20 @@ Options:
 
             Game_death_m.SetDependencies(
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IUiInventory>()
             );
 
             Game_files_m.SetDependencies(
                 container.GetInstance<IGameObjects>(),
                 container.GetInstance<IGameObjectsPush>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<ITreasure>()
                     );
 
             Identification_m.SetDependencies(
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IRecall>(),
                 container.GetInstance<IRnd>(),
@@ -225,6 +229,7 @@ Options:
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonPlacer>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
@@ -236,6 +241,7 @@ Options:
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>()
@@ -252,6 +258,7 @@ Options:
 
             Player_eat_m.SetDependencies(
                 container.GetInstance<IDice>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
@@ -278,6 +285,7 @@ Options:
 
             Player_quaff_m.SetDependencies(
                 container.GetInstance<IDice>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
@@ -325,7 +333,7 @@ Options:
 
             Scrolls_m.SetDependencies(
                 container.GetInstance<IDice>(),
-                container.GetInstance<IInventory>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerMagic>(),
@@ -339,6 +347,7 @@ Options:
                 container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonPlacer>(),
                 container.GetInstance<IGameObjects>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
@@ -349,6 +358,7 @@ Options:
             Staffs_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerMagic>(),
@@ -357,6 +367,7 @@ Options:
             );
 
             Store_m.SetDependencies(
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IStd>(),
