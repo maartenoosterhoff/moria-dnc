@@ -247,8 +247,6 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            var item = new Inventory_t();
-
             // this is needed for bash to work right, it can't hurt anyway
             foreach (var entry in py.inventory)
             {
@@ -257,6 +255,8 @@ namespace Moria.Core.Methods
 
             foreach (var item_id in Library.Instance.Player.class_base_provisions[(int)py.misc.class_id])
             {
+                var item = new Inventory_t();
+
                 inventoryManager.inventoryItemCopyTo((int)item_id, item);
 
                 // this makes it spellItemIdentifyAndRemoveRandomInscription and itemSetAsIdentified
