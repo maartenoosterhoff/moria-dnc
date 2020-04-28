@@ -70,10 +70,10 @@ namespace Moria.Core.Methods
             text = py.misc.level.ToString();
             putString(text, new Coord_t(11, 30));
 
-            text = py.misc.exp.ToString() + " Exp";
+            text = py.misc.exp + " Exp";
             putString(text, new Coord_t(12, (int)(26 - text.Length / 2)));
 
-            text = py.misc.au.ToString() + " Au";
+            text = py.misc.au + " Au";
             putString(text, new Coord_t(13, (int)(26 - text.Length / 2)));
 
             text = State.Instance.dg.current_level.ToString();
@@ -82,8 +82,7 @@ namespace Moria.Core.Methods
             text = game.character_died_from;
             putString(text, new Coord_t(16, (int)(26 - text.Length / 2)));
 
-            var day = string.Empty;
-            humanDateString(out day);
+            humanDateString(out var day);
             text = day;
             putString(text, new Coord_t(17, (int)(26 - text.Length / 2)));
 
