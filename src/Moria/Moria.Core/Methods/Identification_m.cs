@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Recall_m;
 using static Moria.Core.Methods.Helpers_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -16,16 +15,19 @@ namespace Moria.Core.Methods
     public static class Identification_m
     {
         public static void SetDependencies(
+            IInventoryManager inventoryManager,
             IRnd rnd,
             IStd std,
             IUiInventory uiInventory
         )
         {
+            Identification_m.inventoryManager = inventoryManager;
             Identification_m.rnd = rnd;
             Identification_m.std = std;
             Identification_m.uiInventory = uiInventory;
         }
 
+        private static IInventoryManager inventoryManager;
         private static IRnd rnd;
         private static IStd std;
         private static IUiInventory uiInventory;
@@ -468,7 +470,7 @@ namespace Moria.Core.Methods
                         py.inventory[j] = py.inventory[j + 1];
                     }
 
-                    inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[j]);
+                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[j]);
                 }
             }
         }

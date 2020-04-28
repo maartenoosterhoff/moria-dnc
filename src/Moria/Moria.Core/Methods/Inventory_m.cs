@@ -13,18 +13,59 @@ using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
+    public interface IInventoryManager
+    {
+        void inventoryItemCopyTo(int from_item_id, Inventory_t to_item);
+    }
+
+    public class Inventory_manager_m : IInventoryManager
+    {
+        public void inventoryItemCopyTo(int from_item_id, Inventory_t to_item)
+        {
+            var from = Library.Instance.Treasure.game_objects[from_item_id];
+
+            to_item.id = (uint)from_item_id;
+            to_item.special_name_id = (int)SpecialNameIds.SN_NULL;
+            to_item.inscription = string.Empty;
+            to_item.flags = from.flags;
+            to_item.category_id = from.category_id;
+            to_item.sprite = from.sprite;
+            to_item.misc_use = from.misc_use;
+            to_item.cost = from.cost;
+            to_item.sub_category_id = from.sub_category_id;
+            to_item.items_count = from.items_count;
+            to_item.weight = from.weight;
+            to_item.to_hit = from.to_hit;
+            to_item.to_damage = from.to_damage;
+            to_item.ac = from.ac;
+            to_item.to_ac = from.to_ac;
+            to_item.damage = new Dice_t(from.damage.dice, from.damage.sides);
+            //to_item.damage.sides = from.damage.sides;
+            to_item.depth_first_found = from.depth_first_found;
+            to_item.identification = 0;
+        }
+    }
+
+    public interface IInventory
+    {
+
+    }
+
     public static class Inventory_m
     {
         public static void SetDependencies(
             IDungeon dungeon,
+            IInventoryManager inventoryManager,
             IRnd rnd
         )
         {
             Inventory_m.dungeon = dungeon;
+            Inventory_m.inventoryManager = inventoryManager;
             Inventory_m.rnd = rnd;
         }
 
         private static IDungeon dungeon;
+        private static IInventoryManager inventoryManager;
         private static IRnd rnd;
 
         public static uint inventoryCollectAllItemFlags()
@@ -61,7 +102,7 @@ namespace Moria.Core.Methods
                     py.inventory[i] = py.inventory[i + 1];
                 }
 
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items - 1]);
+                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items - 1]);
                 py.pack.unique_items--;
             }
 
@@ -118,7 +159,7 @@ namespace Moria.Core.Methods
                         item_id++;
                     }
 
-                    inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items]);
+                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items]);
                 }
                 else
                 {
@@ -437,30 +478,7 @@ namespace Moria.Core.Methods
             return at_end_of_range;
         }
 
-        public static void inventoryItemCopyTo(int from_item_id, Inventory_t to_item)
-        {
-            var from = Library.Instance.Treasure.game_objects[from_item_id];
-
-            to_item.id = (uint)from_item_id;
-            to_item.special_name_id = (int)SpecialNameIds.SN_NULL;
-            to_item.inscription = string.Empty;
-            to_item.flags = from.flags;
-            to_item.category_id = from.category_id;
-            to_item.sprite = from.sprite;
-            to_item.misc_use = from.misc_use;
-            to_item.cost = from.cost;
-            to_item.sub_category_id = from.sub_category_id;
-            to_item.items_count = from.items_count;
-            to_item.weight = from.weight;
-            to_item.to_hit = from.to_hit;
-            to_item.to_damage = from.to_damage;
-            to_item.ac = from.ac;
-            to_item.to_ac = from.to_ac;
-            to_item.damage = new Dice_t(from.damage.dice, from.damage.sides);
-            //to_item.damage.sides = from.damage.sides;
-            to_item.depth_first_found = from.depth_first_found;
-            to_item.identification = 0;
-        }
+        
 
         // AC gets worse -RAK-
         // Note: This routine affects magical AC bonuses so

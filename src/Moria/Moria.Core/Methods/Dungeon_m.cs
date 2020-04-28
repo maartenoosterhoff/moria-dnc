@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -45,14 +44,17 @@ namespace Moria.Core.Methods
     public class Dungeon_m : IDungeon
     {
         public Dungeon_m(
+            IInventoryManager inventoryManager,
             IRnd rnd,
             ITreasure treasure
         )
         {
+            this.inventoryManager = inventoryManager;
             this.rnd = rnd;
             this.treasure = treasure;
         }
 
+        private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
 
@@ -318,7 +320,7 @@ namespace Moria.Core.Methods
 
             var free_treasure_id = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_TRAP_LIST + sub_type_id, game.treasure.list[free_treasure_id]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_TRAP_LIST + sub_type_id, game.treasure.list[free_treasure_id]);
         }
 
         // Change a trap from invisible to visible -RAK-
@@ -358,7 +360,7 @@ namespace Moria.Core.Methods
             var free_treasure_id = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_RUBBLE, game.treasure.list[free_treasure_id]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_RUBBLE, game.treasure.list[free_treasure_id]);
         }
 
         // Places a treasure (Gold or Gems) at given row, column -RAK-
@@ -382,7 +384,7 @@ namespace Moria.Core.Methods
             }
 
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_GOLD_LIST + gold_type_id, game.treasure.list[free_treasure_id]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_GOLD_LIST + gold_type_id, game.treasure.list[free_treasure_id]);
             game.treasure.list[free_treasure_id].cost += (8 * rnd.randomNumber(game.treasure.list[free_treasure_id].cost)) + rnd.randomNumber(8);
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
@@ -402,7 +404,7 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
 
             var object_id = itemGetRandomObjectId(dg.current_level, must_be_small);
-            inventoryItemCopyTo(State.Instance.sorted_objects[object_id], State.Instance.game.treasure.list[free_treasure_id]);
+            this.inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], State.Instance.game.treasure.list[free_treasure_id]);
 
             treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 

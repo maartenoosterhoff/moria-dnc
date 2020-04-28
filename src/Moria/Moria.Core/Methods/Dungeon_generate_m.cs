@@ -7,7 +7,6 @@ using Moria.Core.Utils;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
@@ -20,18 +19,21 @@ namespace Moria.Core.Methods
     public class Dungeon_generate_m : IDungeonGenerate
     {
         private readonly IDungeon dungeon;
+        private readonly IInventoryManager inventoryManager;
         private readonly IMonsterManager monsterManager;
         private readonly IRnd rnd;
         private readonly IStoreInventory storeInventory;
 
         public Dungeon_generate_m(
             IDungeon dungeon,
+            IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
             IStoreInventory storeInventory
         )
         {
             this.dungeon = dungeon;
+            this.inventoryManager = inventoryManager;
             this.monsterManager = monsterManager;
             this.rnd = rnd;
             this.storeInventory = storeInventory;
@@ -241,7 +243,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_CORR_FLOOR;
         }
 
@@ -252,7 +254,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_CORR_FLOOR;
             game.treasure.list[cur_pos].misc_use = 1;
         }
@@ -264,7 +266,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
         }
 
@@ -275,7 +277,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
             game.treasure.list[cur_pos].misc_use = this.rnd.randomNumber(10) + 10;
         }
@@ -287,7 +289,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
             game.treasure.list[cur_pos].misc_use = (-this.rnd.randomNumber(10) - 10);
         }
@@ -299,7 +301,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_SECRET_DOOR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_SECRET_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
         }
 
@@ -354,7 +356,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_UP_STAIR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_UP_STAIR, game.treasure.list[cur_pos]);
         }
 
         // Place a down staircase at given y, x -RAK-
@@ -370,7 +372,7 @@ namespace Moria.Core.Methods
 
             var cur_pos = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_DOWN_STAIR, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_DOWN_STAIR, game.treasure.list[cur_pos]);
         }
 
         // Places a staircase 1=up, 2=down -RAK-
@@ -1464,7 +1466,7 @@ namespace Moria.Core.Methods
             var cur_pos = popt();
             dg.floor[y][x].treasure_id = (uint)cur_pos;
 
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_STORE_DOOR + store_id, game.treasure.list[cur_pos]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_STORE_DOOR + store_id, game.treasure.list[cur_pos]);
         }
 
         // Link all free space in treasure list together
@@ -1472,7 +1474,7 @@ namespace Moria.Core.Methods
         {
             foreach (var item in State.Instance.game.treasure.list)
             {
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item);
+                this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item);
             }
             State.Instance.game.treasure.current_id = (int)Config.treasure.MIN_TREASURE_LIST_ID;
         }

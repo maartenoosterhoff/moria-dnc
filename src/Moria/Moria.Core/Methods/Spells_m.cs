@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using System.ComponentModel;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
@@ -28,6 +29,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
             IUiInventory uiInventory
@@ -35,6 +37,7 @@ namespace Moria.Core.Methods
         {
             Spells_m.dice = dice;
             Spells_m.dungeon = dungeon;
+            Spells_m.inventoryManager = inventoryManager;
             Spells_m.monsterManager = monsterManager;
             Spells_m.rnd = rnd;
             Spells_m.uiInventory = uiInventory;
@@ -42,6 +45,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -702,7 +706,7 @@ namespace Moria.Core.Methods
                         tile.feature_id = TILE_BLOCKED_FLOOR;
                         tile.treasure_id = (uint)free_id;
 
-                        inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[free_id]);
+                        inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[free_id]);
                         dungeon.dungeonLiteSpot(coord);
 
                         created = true;
@@ -2578,7 +2582,7 @@ namespace Moria.Core.Methods
             }
 
             dungeon.dungeonPlaceRandomObjectAt(py.pos, false);
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_MUSH, game.treasure.list[tile.treasure_id]);
+            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_MUSH, game.treasure.list[tile.treasure_id]);
         }
 
         // Attempts to destroy a type of creature.  Success depends on
@@ -2675,7 +2679,7 @@ namespace Moria.Core.Methods
             {
                 var free_id = popt();
                 dg.floor[py.pos.y][py.pos.x].treasure_id = (uint)free_id;
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_SCARE_MON, game.treasure.list[free_id]);
+                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_SCARE_MON, game.treasure.list[free_id]);
             }
         }
 

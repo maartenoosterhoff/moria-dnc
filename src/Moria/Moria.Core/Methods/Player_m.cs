@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd
         )
@@ -35,6 +36,7 @@ namespace Moria.Core.Methods
             Player_m.dice = dice;
             Player_m.dungeon = dungeon;
             Player_m.game = game;
+            Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
         }
@@ -42,6 +44,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
 
@@ -809,7 +812,7 @@ namespace Moria.Core.Methods
                 playerAdjustBonusesForItem(item, -1);
             }
 
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item);
+            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item);
         }
 
         // Attacker's level and plusses,  defender's AC -RAK-
@@ -1548,7 +1551,7 @@ namespace Moria.Core.Methods
                     {
                         py.equipment_count--;
                         playerAdjustBonusesForItem(item, -1);
-                        inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item);
+                        inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item);
                         playerRecalculateBonuses();
                     }
                 }
@@ -1607,7 +1610,7 @@ namespace Moria.Core.Methods
 
             if (item.misc_use == 0)
             {
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
+                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
                 tile.feature_id = TILE_CORR_FLOOR;
                 dungeon.dungeonLiteSpot(coord);
                 game.command_count = 0;
@@ -1762,7 +1765,7 @@ namespace Moria.Core.Methods
                     {
                         if (item.misc_use == 0)
                         {
-                            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, item);
+                            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, item);
                             tile.feature_id = TILE_BLOCKED_FLOOR;
                             dungeon.dungeonLiteSpot(coord);
                         }

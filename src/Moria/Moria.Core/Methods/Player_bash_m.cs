@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Monster_m;
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IInventoryManager inventoryManager,
             IRnd rnd,
             IStd std
         )
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
             Player_bash_m.dice = dice;
             Player_bash_m.dungeon = dungeon;
             Player_bash_m.game = game;
+            Player_bash_m.inventoryManager = inventoryManager;
             Player_bash_m.rnd = rnd;
             Player_bash_m.std = std;
         }
@@ -35,6 +36,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IInventoryManager inventoryManager;
         private static IRnd rnd;
         private static IStd std;
 
@@ -260,7 +262,7 @@ namespace Moria.Core.Methods
             {
                 printMessage("The door crashes open!");
 
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
+                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
 
                 // 50% chance of breaking door
                 item.misc_use = (int)(uint)(1 - rnd.randomNumber(2));

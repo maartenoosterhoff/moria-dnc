@@ -22,18 +22,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies
         (
+            IInventoryManager inventoryManager,
             IStd std,
             IStoreInventory storeInventory,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
+            Store_m.inventoryManager = inventoryManager;
             Store_m.std = std;
             Store_m.storeInventory = storeInventory;
             Store_m.rnd = rnd;
             Store_m.uiInventory = uiInventory;
         }
 
+        private static IInventoryManager inventoryManager;
         private static IStd std;
         private static IStoreInventory storeInventory;
         private static IRnd rnd;
@@ -57,7 +60,7 @@ namespace Moria.Core.Methods
 
                 foreach (var item in store.inventory)
                 {
-                    inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item.item);
+                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item.item);
                     item.cost = 0;
                 }
             }

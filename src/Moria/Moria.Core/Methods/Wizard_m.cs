@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -35,6 +34,7 @@ namespace Moria.Core.Methods
     public class Wizard_m : IWizard
     {
         private readonly IDungeon dungeon;
+        private readonly IInventoryManager inventoryManager;
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
@@ -42,6 +42,7 @@ namespace Moria.Core.Methods
 
         public Wizard_m(
             IDungeon dungeon,
+            IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -49,6 +50,7 @@ namespace Moria.Core.Methods
         )
         {
             this.dungeon = dungeon;
+            this.inventoryManager = inventoryManager;
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
@@ -605,7 +607,7 @@ namespace Moria.Core.Methods
                     // place the object
                     var free_treasure_id = popt();
                     dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
-                    inventoryItemCopyTo(id, game.treasure.list[free_treasure_id]);
+                    this.inventoryManager.inventoryItemCopyTo(id, game.treasure.list[free_treasure_id]);
                     treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 
                     // auto identify the item

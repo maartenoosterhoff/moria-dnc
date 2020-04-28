@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -17,12 +16,15 @@ namespace Moria.Core.Methods
     public static class Game_files_m
     {
         public static void SetDependencies(
+            IInventoryManager inventoryManager,
             ITreasure treasure
         )
         {
+            Game_files_m.inventoryManager = inventoryManager;
             Game_files_m.treasure = treasure;
         }
 
+        private static IInventoryManager inventoryManager;
         private static ITreasure treasure;
 
         ////  initializeScoreFile
@@ -271,7 +273,7 @@ namespace Moria.Core.Methods
             for (var i = 0; i < count; i++)
             {
                 var object_id = itemGetRandomObjectId(level, small_objects);
-                inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
+                inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
 
                 treasure.magicTreasureMagicalAbility(treasure_id, level);
 

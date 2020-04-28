@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Identification_m;
 
 namespace Moria.Core.Methods
@@ -25,14 +24,17 @@ namespace Moria.Core.Methods
     public class Store_inventory_m : IStoreInventory
     {
         public Store_inventory_m(
+            IInventoryManager inventoryManager,
             IRnd rnd,
             ITreasure treasure
         )
         {
+            this.inventoryManager = inventoryManager;
             this.rnd = rnd;
             this.treasure = treasure;
         }
 
+        private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
 
@@ -443,7 +445,7 @@ namespace Moria.Core.Methods
                 {
                     store.inventory[i] = store.inventory[i + 1];
                 }
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, store.inventory[store.unique_items_counter - 1].item);
+                this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, store.inventory[store.unique_items_counter - 1].item);
                 store.inventory[store.unique_items_counter - 1].cost = 0;
                 store.unique_items_counter--;
             }
@@ -458,7 +460,7 @@ namespace Moria.Core.Methods
             for (var tries = 0; tries <= 3; tries++)
             {
                 var id = (int)Library.Instance.Stores.store_choices[store_id][rnd.randomNumber(STORE_MAX_ITEM_TYPES) - 1];
-                inventoryItemCopyTo(id, game.treasure.list[free_id]);
+                this.inventoryManager.inventoryItemCopyTo(id, game.treasure.list[free_id]);
                 treasure.magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
 
                 var item = game.treasure.list[free_id];

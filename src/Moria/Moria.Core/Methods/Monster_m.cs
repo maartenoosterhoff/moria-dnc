@@ -24,6 +24,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
             IStd std
@@ -31,6 +32,7 @@ namespace Moria.Core.Methods
         {
             Monster_m.dice = dice;
             Monster_m.dungeon = dungeon;
+            Monster_m.inventoryManager = inventoryManager;
             Monster_m.monsterManager = monsterManager;
             Monster_m.rnd = rnd;
             Monster_m.std = std;
@@ -38,6 +40,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStd std;
@@ -669,7 +672,7 @@ namespace Moria.Core.Methods
 
                 if (do_move)
                 {
-                    inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
+                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
 
                     // 50% chance of breaking door
                     if (door_is_stuck)
@@ -690,7 +693,7 @@ namespace Moria.Core.Methods
                 var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
                 if (rnd.randomNumber((monster_hp + 1) * (80 + abs_misc_use)) < 40 * (monster_hp - 20 - abs_misc_use))
                 {
-                    inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
+                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
 
                     // 50% chance of breaking door
                     item.misc_use = (1 - rnd.randomNumber(2));

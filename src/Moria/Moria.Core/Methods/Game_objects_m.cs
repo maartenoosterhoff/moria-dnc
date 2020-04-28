@@ -5,7 +5,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -15,14 +14,17 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDungeon dungeon,
-            IRnd rnd
+            IInventoryManager inventoryManager,
+                IRnd rnd
         )
         {
             Game_objects_m.dungeon = dungeon;
+            Game_objects_m.inventoryManager = inventoryManager;
             Game_objects_m.rnd = rnd;
         }
 
         private static IDungeon dungeon;
+        private static IInventoryManager inventoryManager;
         private static IRnd rnd;
 
         // If too many objects on floor level, delete some of them-RAK-
@@ -133,7 +135,7 @@ namespace Moria.Core.Methods
             }
             game.treasure.current_id--;
 
-            inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, game.treasure.list[game.treasure.current_id]);
+            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, game.treasure.list[game.treasure.current_id]);
         }
 
         // Item too large to fit in chest? -DJG-

@@ -50,6 +50,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonGenerate dungeonGenerate,
             IGame game,
+            IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
             IStoreInventory storeInventory,
@@ -61,6 +62,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeon = dungeon;
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
+            Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.rnd = rnd;
             Game_run_m.storeInventory = storeInventory;
@@ -73,6 +75,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
+        private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStoreInventory storeInventory;
@@ -247,12 +250,12 @@ namespace Moria.Core.Methods
             // this is needed for bash to work right, it can't hurt anyway
             foreach (var entry in py.inventory)
             {
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, entry);
+                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, entry);
             }
 
             foreach (var item_id in Library.Instance.Player.class_base_provisions[(int)py.misc.class_id])
             {
-                inventoryItemCopyTo((int)item_id, item);
+                inventoryManager.inventoryItemCopyTo((int)item_id, item);
 
                 // this makes it spellItemIdentifyAndRemoveRandomInscription and itemSetAsIdentified
                 itemIdentifyAsStoreBought(item);
