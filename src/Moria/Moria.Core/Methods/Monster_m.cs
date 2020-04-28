@@ -1352,6 +1352,11 @@ namespace Moria.Core.Methods
             {
                 for (var x = monster.pos.x - 1; x <= monster.pos.x + 1; x++)
                 {
+                    if (y < 0 || x < 0)
+                    {
+                        continue;
+                    }
+
                     if (dir != 5 && dg.floor[y][x].feature_id <= MAX_OPEN_SPACE && dg.floor[y][x].creature_id != 1)
                     {
                         directions[id] = dir;
