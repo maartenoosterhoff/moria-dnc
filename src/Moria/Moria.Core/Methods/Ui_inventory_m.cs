@@ -669,8 +669,8 @@ namespace Moria.Core.Methods
 
         private void buildCommandHeading(ref string str, int from, int to, string swap, char command, string prompt)
         {
-            from = from + 'a';
-            to = to + 'a';
+            var fromChar = (char)(from + 'a');
+            var toChar = (char) (to + 'a');
 
             var list_items = string.Empty;
             if (screen_state == BLANK_SCR)
@@ -684,7 +684,7 @@ namespace Moria.Core.Methods
                 digits = ", 0-9";
             }
 
-            str = $"({from}-{to}{list_items}{swap}{digits}, space to break, ESC to exit) {prompt} which one?";
+            str = $"({fromChar}-{toChar}{list_items}{swap}{digits}, space to break, ESC to exit) {prompt} which one?";
             //(void)sprintf(str, "(%c-%c%s%s%s, space to break, ESC to exit) %s which one?", from, to, list_items, swap, digits, prompt);
         }
 
