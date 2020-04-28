@@ -160,6 +160,7 @@ Options:
             container.RegisterSingleton<IInventoryManager, Inventory_manager_m>();
             container.RegisterSingleton<IMonsterManager, Monster_manager_m>();
             container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
+            container.RegisterSingleton<IRecall, Recall_m>();
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
             container.RegisterSingleton<IStd, Std_m>();
@@ -173,6 +174,7 @@ Options:
             // Set static dependencies (goal is to have none)
             Dungeon_los_m.SetDependencies(
                 container.GetInstance<IGame>(),
+                container.GetInstance<IRecall>(),
                 container.GetInstance<IStd>()
             );
 
@@ -208,6 +210,7 @@ Options:
 
             Identification_m.SetDependencies(
                 container.GetInstance<IInventoryManager>(),
+                container.GetInstance<IRecall>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IStd>(),
                 container.GetInstance<IUiInventory>()

@@ -16,18 +16,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IInventoryManager inventoryManager,
+            IRecall recall,
             IRnd rnd,
             IStd std,
             IUiInventory uiInventory
         )
         {
             Identification_m.inventoryManager = inventoryManager;
+            Identification_m.recall = recall;
             Identification_m.rnd = rnd;
             Identification_m.std = std;
             Identification_m.uiInventory = uiInventory;
         }
 
         private static IInventoryManager inventoryManager;
+        private static IRecall recall;
         private static IRnd rnd;
         private static IStd std;
         private static IUiInventory uiInventory;
@@ -247,7 +250,7 @@ namespace Moria.Core.Methods
 
             putStringClearToEOL(objectDescription(command), new Coord_t(0, 0));
 
-            recallMonsterAttributes(command);
+            recall.recallMonsterAttributes(command);
         }
 
         // Initialize all Potions, wands, staves, scrolls, etc.

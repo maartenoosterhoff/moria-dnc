@@ -10,12 +10,19 @@ using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Recall_m
+    public interface IRecall
     {
-        public static T plural<T>(int count, T ss, T sp)
+        int memoryRecall(int monster_id);
+        void recallMonsterAttributes(char command);
+    }
+
+    public class Recall_m : IRecall
+    {
+        private T plural<T>(int count, T ss, T sp)
         {
             return count == 1 ? ss : sp;
         }
+
         //#define plural(c, ss, sp) ((c) == 1 ? (s) : (sp))
 
         // Number of kills needed for information.
@@ -23,10 +30,10 @@ namespace Moria.Core.Methods
         // the more damage an attack does, the more attacks you need.
         //#define knowdamage(l, a, d) ((4 + (l)) * (a) > 80 * (d))
 
-        public static bool knowDamage(int l, int a, int d) => ((4 + (l)) * (a) > 80 * (d));
+        private bool knowDamage(int l, int a, int d) => ((4 + (l)) * (a) > 80 * (d));
 
         // Print out strings, filling up lines as we go.
-        public static void memoryPrint(string p)
+        private void memoryPrint(string p)
         {
             if (string.IsNullOrEmpty(p))
             {
@@ -105,7 +112,7 @@ namespace Moria.Core.Methods
         }
 
         // Do we know anything about this monster?
-        public static bool memoryMonsterKnown(Recall_t memory)
+        private bool memoryMonsterKnown(Recall_t memory)
         {
             var game = State.Instance.game;
             if (game.wizard_mode)
@@ -130,7 +137,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static void memoryWizardModeInit(Recall_t memory, Creature_t creature)
+        private void memoryWizardModeInit(Recall_t memory, Creature_t creature)
         {
             memory.kills = (uint)SHRT_MAX;
             memory.wake = memory.ignore = UCHAR_MAX;
@@ -169,7 +176,7 @@ namespace Moria.Core.Methods
         }
 
         // Conflict history.
-        public static void memoryConflictHistory(uint deaths, uint kills)
+        private void memoryConflictHistory(uint deaths, uint kills)
         {
             var desc = string.Empty;
             //vtype_t desc = { '\0' };
@@ -205,7 +212,7 @@ namespace Moria.Core.Methods
         }
 
         // Immediately obvious.
-        public static bool memoryDepthFoundAt(uint level, uint kills)
+        private bool memoryDepthFoundAt(uint level, uint kills)
         {
             var known = false;
 
@@ -233,7 +240,7 @@ namespace Moria.Core.Methods
             return known;
         }
 
-        public static bool memoryMovement(uint rc_move, int monster_speed, bool is_known)
+        private bool memoryMovement(uint rc_move, int monster_speed, bool is_known)
         {
             // the creatures_list speed value is 10 greater, so that it can be a uint8_t
             monster_speed -= 10;
@@ -335,7 +342,7 @@ namespace Moria.Core.Methods
 
         // Kill it once to know experience, and quality (evil, undead, monstrous).
         // The quality of being a dragon is obvious.
-        public static void memoryKillPoints(uint creature_defense, uint monster_exp, uint level)
+        private void memoryKillPoints(uint creature_defense, uint monster_exp, uint level)
         {
             var py = State.Instance.py;
 
@@ -424,7 +431,7 @@ namespace Moria.Core.Methods
 
         // Spells known, if have been used against us.
         // Breath weapons or resistance might be known only because we cast spells at it.
-        public static void memoryMagicSkills(uint memory_spell_flags, uint monster_spell_flags,
+        private void memoryMagicSkills(uint memory_spell_flags, uint monster_spell_flags,
             uint creature_spell_flags)
         {
             var known = true;
@@ -514,7 +521,7 @@ namespace Moria.Core.Methods
         }
 
         // Do we know how hard they are to kill? Armor class, hit die.
-        public static void memoryKillDifficulty(Creature_t creature, uint monster_kills)
+        private void memoryKillDifficulty(Creature_t creature, uint monster_kills)
         {
             // the higher the level of the monster, the fewer the kills you need
             // Original knowarmor macro inlined
@@ -542,7 +549,7 @@ namespace Moria.Core.Methods
         }
 
         // Do we know how clever they are? Special abilities.
-        public static void memorySpecialAbilities(uint move)
+        private void memorySpecialAbilities(uint move)
         {
             var known = true;
 
@@ -577,7 +584,7 @@ namespace Moria.Core.Methods
         }
 
         // Do we know its special weaknesses? Most defenses flags.
-        public static void memoryWeaknesses(uint defense)
+        private void memoryWeaknesses(uint defense)
         {
             var known = true;
 
@@ -611,7 +618,7 @@ namespace Moria.Core.Methods
         }
 
         // Do we know how aware it is?
-        public static void memoryAwareness(Creature_t creature, Recall_t memory)
+        private void memoryAwareness(Creature_t creature, Recall_t memory)
         {
             if (memory.wake * memory.wake > creature.sleep_counter ||
                 memory.ignore == UCHAR_MAX ||
@@ -672,7 +679,7 @@ namespace Moria.Core.Methods
         }
 
         // Do we know what it might carry?
-        public static void memoryLootCarried(uint creature_move, uint memory_move)
+        private void memoryLootCarried(uint creature_move, uint memory_move)
         {
             if ((memory_move & (Config.monsters_move.CM_CARRY_OBJ | Config.monsters_move.CM_CARRY_GOLD)) == 0u)
             {
@@ -761,7 +768,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void memoryAttackNumberAndDamage(Recall_t memory, Creature_t creature)
+        private void memoryAttackNumberAndDamage(Recall_t memory, Creature_t creature)
         {
             // We know about attacks it has used on us, and maybe the damage they do.
             // known_attacks is the total number of known attacks, used for punctuation
@@ -866,7 +873,7 @@ namespace Moria.Core.Methods
         }
 
         // Print out what we have discovered about this monster.
-        public static int memoryRecall(int monster_id)
+        public int memoryRecall(int monster_id)
         {
             var game = State.Instance.game;
 
@@ -970,7 +977,7 @@ namespace Moria.Core.Methods
         }
 
         // Allow access to monster memory. -CJS-
-        public static void recallMonsterAttributes(char command)
+        public void recallMonsterAttributes(char command)
         {
             var n = 0;
             char query;

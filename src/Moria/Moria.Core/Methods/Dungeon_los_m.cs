@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
-using static Moria.Core.Methods.Recall_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -17,14 +16,17 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IGame game,
+            IRecall recall,
             IStd std
         )
         {
             Dungeon_los_m.game = game;
+            Dungeon_los_m.recall = recall;
             Dungeon_los_m.std = std;
         }
 
         private static IGame game;
+        private static IRecall recall;
         private static IStd std;
 
 
@@ -638,7 +640,7 @@ namespace Moria.Core.Methods
                 if (query == 'r' || query == 'R')
                 {
                     terminalSaveScreen();
-                    query = (char)memoryRecall(j);
+                    query = (char)recall.memoryRecall(j);
                     terminalRestoreScreen();
                 }
             }
