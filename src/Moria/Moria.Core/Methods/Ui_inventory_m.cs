@@ -259,8 +259,10 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, py.inventory[i], true);
 
                 // Truncate if necessary
-                description = description.Substring(0, lim);
-                //description[lim] = 0;
+                if (description.Length > lim)
+                {
+                    description = description.Substring(0, lim);
+                }
 
                 descriptions[line] = $"{(char)(line + 'a')}) {position_description:s-14}: {description}";
                 //(void)sprintf(descriptions[line], "%c) %-14s: %s", line + 'a', position_description, description);
@@ -776,8 +778,7 @@ namespace Moria.Core.Methods
                         // Rings. Give choice over where they go.
                         do
                         {
-                            var query = '\0';
-                            if (!getCommand("Put ring on which hand (l/r/L/R)?", out query))
+                            if (!getCommand("Put ring on which hand (l/r/L/R)?", out var query))
                             {
                                 slot = -1;
                             }
@@ -1016,7 +1017,7 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            slot = this.inventory.inventoryCarryItem(py.inventory[item_id]);
+                            slot = this.inventory.inventoryCarryItem(py.inventory[item_id].Clone());
                             playerTakeOff(item_id, slot);
                         }
 
@@ -1066,12 +1067,13 @@ namespace Moria.Core.Methods
                     }
 
                     // OK. Wear it.
+                    string text = null;
                     if (item_id >= 0)
                     {
                         game.player_free_turn = false;
 
                         // first remove new item from inventory
-                        var saved_item = py.inventory[item_id];
+                        var saved_item = py.inventory[item_id].Clone();
                         var item = saved_item;
 
                         wear_high--;
@@ -1109,13 +1111,13 @@ namespace Moria.Core.Methods
 
                         // third, wear new item
                         //*item = saved_item;
-                        py.inventory[item_id] = item;
+                        //py.inventory[item_id] = item;
+                        py.inventory[slot] = saved_item;
                         py.equipment_count++;
 
                         playerAdjustBonusesForItem(item, 1);
 
                         //const char* text = nullptr;
-                        string text = null;
                         if (slot == (int)PlayerEquipment.Wield)
                         {
                             text = "You are wielding";
@@ -1131,7 +1133,7 @@ namespace Moria.Core.Methods
 
                         var description = string.Empty;
                         //obj_desc_t description = { '\0' };
-                        itemDescription(ref description, item, true);
+                        itemDescription(ref description, saved_item, true);
 
                         // Get the right equipment letter.
                         item_to_take_off = (int)PlayerEquipment.Wield;

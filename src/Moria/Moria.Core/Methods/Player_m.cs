@@ -793,7 +793,7 @@ namespace Moria.Core.Methods
             //obj_desc_t description = { '\0' };
             itemDescription(ref description, item, true);
 
-            var msg = string.Empty;
+            string msg;
             //obj_desc_t msg = { '\0' };
             if (pack_position_id >= 0)
             {

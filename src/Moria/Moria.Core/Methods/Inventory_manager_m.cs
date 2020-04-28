@@ -86,7 +86,7 @@ namespace Moria.Core.Methods
 
                 for (var i = item_id; i < py.pack.unique_items - 1; i++)
                 {
-                    py.inventory[i] = py.inventory[i + 1];
+                    py.inventory[i] = py.inventory[i + 1].Clone();
                 }
 
                 inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items - 1]);

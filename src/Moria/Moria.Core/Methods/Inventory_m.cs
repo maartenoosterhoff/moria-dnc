@@ -259,7 +259,7 @@ namespace Moria.Core.Methods
                     // insert them into the inventory in sorted order.
                     for (var i = py.pack.unique_items - 1; i >= slot_id; i--)
                     {
-                        py.inventory[i + 1] = py.inventory[i];
+                        py.inventory[i + 1] = py.inventory[i].Clone();
                     }
                     py.inventory[slot_id] = new_item;
                     py.pack.unique_items++;

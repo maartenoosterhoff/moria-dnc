@@ -946,7 +946,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    description = $"a {tmp_val.Substring(1)}";
+                    description = $"a{tmp_val.Substring(1)}";
                     //(void)sprintf(description, "a%s", &tmp_val[1]);
                 }
             }

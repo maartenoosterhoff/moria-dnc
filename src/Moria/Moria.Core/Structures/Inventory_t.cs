@@ -2,6 +2,31 @@
 {
     public class Inventory_t
     {
+        public Inventory_t Clone()
+        {
+            return new Inventory_t
+            {
+                id = id,
+                special_name_id = special_name_id,
+                inscription = inscription,
+                flags = flags,
+                category_id = category_id,
+                sprite = sprite,
+                misc_use = misc_use,
+                cost = cost,
+                sub_category_id = sub_category_id,
+                items_count = items_count,
+                weight = weight,
+                to_hit = to_hit,
+                to_damage = to_damage,
+                ac = ac,
+                to_ac = to_ac,
+                damage = damage,
+                depth_first_found = depth_first_found,
+                identification = identification
+            };
+        }
+
         public uint id { get; set; }
         public uint special_name_id { get; set; }
         public string inscription { get; set; }
