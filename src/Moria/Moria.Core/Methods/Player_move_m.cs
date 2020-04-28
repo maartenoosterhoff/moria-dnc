@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
@@ -22,14 +21,17 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IRnd rnd
         )
         {
             Player_move_m.dice = dice;
+            Player_move_m.dungeon = dungeon;
             Player_move_m.rnd = rnd;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IRnd rnd;
 
         public static void trapOpenPit(Inventory_t item, int dam)
@@ -85,7 +87,7 @@ namespace Moria.Core.Methods
                 playerTakesHit(dam, description);
             }
 
-            dungeonSetTrap(coord, 0);
+            dungeon.dungeonSetTrap(coord, 0);
         }
 
         public static void trapDoor(Inventory_t item, int dam)
@@ -137,9 +139,9 @@ namespace Moria.Core.Methods
 
         public static void trapHiddenObject(Coord_t coord)
         {
-            dungeonDeleteObject(coord);
+            dungeon.dungeonDeleteObject(coord);
 
-            dungeonPlaceRandomObjectAt(coord, false);
+            dungeon.dungeonPlaceRandomObjectAt(coord, false);
 
             printMessage("Hmmm, there was something under this rock.");
         }
@@ -180,15 +182,15 @@ namespace Moria.Core.Methods
             printMessage("You hit a teleport trap!");
 
             // Light up the teleport trap, before we teleport away.
-            dungeonMoveCharacterLight(coord, coord);
+            dungeon.dungeonMoveCharacterLight(coord, coord);
         }
 
         public static void trapRockfall(Coord_t coord, int dam)
         {
             playerTakesHit(dam, "a falling rock");
 
-            dungeonDeleteObject(coord);
-            dungeonPlaceRubble(coord);
+            dungeon.dungeonDeleteObject(coord);
+            dungeon.dungeonPlaceRubble(coord);
 
             printMessage("You are hit by falling rock.");
         }
@@ -203,7 +205,7 @@ namespace Moria.Core.Methods
         public static void trapSummonMonster(Coord_t coord)
         {
             // Rune disappears.
-            dungeonDeleteObject(coord);
+            dungeon.dungeonDeleteObject(coord);
 
             var num = 2 + rnd.randomNumber(3);
 
@@ -319,7 +321,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
 
             playerEndRunning();
-            trapChangeVisibility(coord);
+            dungeon.trapChangeVisibility(coord);
 
             var item = game.treasure.list[dg.floor[coord.y][coord.x].treasure_id];
 
@@ -469,7 +471,7 @@ namespace Moria.Core.Methods
                 //(void)sprintf(msg, "You have found %d gold pieces worth of %s", item.cost, description);
 
                 printCharacterGoldValue();
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
 
                 printMessage(msg);
 
@@ -510,7 +512,7 @@ namespace Moria.Core.Methods
                     msg = $"You have {description} ({(char)(locn + 'a')})";
                     //(void)sprintf(msg, "You have %s (%c)", description, locn + 'a');
                     printMessage(msg);
-                    dungeonDeleteObject(coord);
+                    dungeon.dungeonDeleteObject(coord);
                 }
             }
             else
@@ -563,7 +565,7 @@ namespace Moria.Core.Methods
                     py.pos = coord;
 
                     // Move character record (-1)
-                    dungeonMoveCreatureRecord(old_coord, py.pos);
+                    dungeon.dungeonMoveCreatureRecord(old_coord, py.pos);
 
                     // Check for new panel
                     if (coordOutsidePanel(py.pos, false))
@@ -590,7 +592,7 @@ namespace Moria.Core.Methods
 
                         if (!tile.permanent_light && (py.flags.blind == 0))
                         {
-                            dungeonLightRoom(py.pos);
+                            dungeon.dungeonLightRoom(py.pos);
                         }
                     }
                     else if (tile.perma_lit_room && py.flags.blind < 1)
@@ -603,14 +605,14 @@ namespace Moria.Core.Methods
                             {
                                 if (dg.floor[row][col].feature_id == TILE_LIGHT_FLOOR && !dg.floor[row][col].permanent_light)
                                 {
-                                    dungeonLightRoom(new Coord_t(row, col));
+                                    dungeon.dungeonLightRoom(new Coord_t(row, col));
                                 }
                             }
                         }
                     }
 
                     // Move the light source
-                    dungeonMoveCharacterLight(old_coord, py.pos);
+                    dungeon.dungeonMoveCharacterLight(old_coord, py.pos);
 
                     // An object is beneath them.
                     if (tile.treasure_id != 0)
@@ -621,8 +623,8 @@ namespace Moria.Core.Methods
                         // rubble, then step back into a clear area
                         if (game.treasure.list[tile.treasure_id].category_id == TV_RUBBLE)
                         {
-                            dungeonMoveCreatureRecord(py.pos, old_coord);
-                            dungeonMoveCharacterLight(py.pos, old_coord);
+                            dungeon.dungeonMoveCreatureRecord(py.pos, old_coord);
+                            dungeon.dungeonMoveCharacterLight(py.pos, old_coord);
 
                             //py.pos.y = old_coord.y;
                             //py.pos.x = old_coord.x;

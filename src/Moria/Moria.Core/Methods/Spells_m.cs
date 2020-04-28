@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
@@ -29,16 +28,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Spells_m.dice = dice;
+            Spells_m.dungeon = dungeon;
             Spells_m.rnd = rnd;
             Spells_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -251,10 +253,10 @@ namespace Moria.Core.Methods
                 {
                     var tile = dg.floor[coord.y][coord.x];
 
-                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id == TV_GOLD && !caveTileVisible(coord))
+                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id == TV_GOLD && !dungeon.caveTileVisible(coord))
                     {
                         tile.field_mark = true;
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
                         detected = true;
                     }
                 }
@@ -279,10 +281,10 @@ namespace Moria.Core.Methods
                 {
                     var tile = dg.floor[coord.y][coord.x];
 
-                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id < TV_MAX_OBJECT && !caveTileVisible(coord))
+                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id < TV_MAX_OBJECT && !dungeon.caveTileVisible(coord))
                     {
                         tile.field_mark = true;
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
                         detected = true;
                     }
                 }
@@ -314,7 +316,7 @@ namespace Moria.Core.Methods
                     if (game.treasure.list[tile.treasure_id].category_id == TV_INVIS_TRAP)
                     {
                         tile.field_mark = true;
-                        trapChangeVisibility(coord);
+                        dungeon.trapChangeVisibility(coord);
                         detected = true;
                     }
                     else if (game.treasure.list[tile.treasure_id].category_id == TV_CHEST)
@@ -353,7 +355,7 @@ namespace Moria.Core.Methods
                         // Secret doors
 
                         tile.field_mark = true;
-                        trapChangeVisibility(coord);
+                        dungeon.trapChangeVisibility(coord);
                         detected = true;
                     }
                     else if ((game.treasure.list[tile.treasure_id].category_id == TV_UP_STAIR || game.treasure.list[tile.treasure_id].category_id == TV_DOWN_STAIR) && !tile.field_mark)
@@ -361,7 +363,7 @@ namespace Moria.Core.Methods
                         // Staircases
 
                         tile.field_mark = true;
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
                         detected = true;
                     }
                 }
@@ -421,7 +423,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[coord.y][coord.x].perma_lit_room && dg.current_level > 0)
             {
-                dungeonLightRoom(coord);
+                dungeon.dungeonLightRoom(coord);
             }
 
             // Must always light immediate area, because one might be standing on
@@ -432,7 +434,7 @@ namespace Moria.Core.Methods
                 for (spot.x = coord.x - 1; spot.x <= coord.x + 1; spot.x++)
                 {
                     dg.floor[spot.y][spot.x].permanent_light = true;
-                    dungeonLiteSpot(spot);
+                    dungeon.dungeonLiteSpot(spot);
                 }
             }
 
@@ -468,9 +470,9 @@ namespace Moria.Core.Methods
                             tile.permanent_light = false;
                             tile.feature_id = TILE_DARK_FLOOR;
 
-                            dungeonLiteSpot(spot);
+                            dungeon.dungeonLiteSpot(spot);
 
-                            if (!caveTileVisible(spot))
+                            if (!dungeon.caveTileVisible(spot))
                             {
                                 darkened = true;
                             }
@@ -546,7 +548,7 @@ namespace Moria.Core.Methods
             {
                 for (coord.x = col_min; coord.x <= col_max; coord.x++)
                 {
-                    if (coordInBounds(coord) && dg.floor[coord.y][coord.x].feature_id <= MAX_CAVE_FLOOR)
+                    if (dungeon.coordInBounds(coord) && dg.floor[coord.y][coord.x].feature_id <= MAX_CAVE_FLOOR)
                     {
                         dungeonLightAreaAroundFloorTile(coord);
                     }
@@ -646,16 +648,16 @@ namespace Moria.Core.Methods
                     {
                         if (tile.treasure_id != 0)
                         {
-                            dungeonDeleteObject(coord);
+                            dungeon.dungeonDeleteObject(coord);
                         }
 
-                        dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
+                        dungeon.dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
 
                         // don't let player gain exp from the newly created traps
                         game.treasure.list[tile.treasure_id].misc_use = 0;
 
                         // open pits are immediately visible, so call dungeonLiteSpot
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
                     }
                 }
             }
@@ -691,7 +693,7 @@ namespace Moria.Core.Methods
                     {
                         if (tile.treasure_id != 0)
                         {
-                            dungeonDeleteObject(coord);
+                            dungeon.dungeonDeleteObject(coord);
                         }
 
                         var free_id = popt();
@@ -699,7 +701,7 @@ namespace Moria.Core.Methods
                         tile.treasure_id = (uint)free_id;
 
                         inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[free_id]);
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
 
                         created = true;
                     }
@@ -735,7 +737,7 @@ namespace Moria.Core.Methods
 
                     if ((item.category_id >= TV_INVIS_TRAP && item.category_id <= TV_CLOSED_DOOR && item.category_id != TV_RUBBLE) || item.category_id == TV_SECRET_DOOR)
                     {
-                        if (dungeonDeleteObject(coord))
+                        if (dungeon.dungeonDeleteObject(coord))
                         {
                             destroyed = true;
                         }
@@ -851,12 +853,12 @@ namespace Moria.Core.Methods
                     {
                         if (coordInsidePanel(tmp_coord))
                         {
-                            dungeonLightRoom(tmp_coord);
+                            dungeon.dungeonLightRoom(tmp_coord);
                         }
                     }
                     else
                     {
-                        dungeonLiteSpot(tmp_coord);
+                        dungeon.dungeonLiteSpot(tmp_coord);
                     }
                 }
 
@@ -915,7 +917,7 @@ namespace Moria.Core.Methods
 
                     if (item.category_id == TV_INVIS_TRAP || item.category_id == TV_VIS_TRAP)
                     {
-                        if (dungeonDeleteObject(coord))
+                        if (dungeon.dungeonDeleteObject(coord))
                         {
                             disarmed = true;
                         }
@@ -928,7 +930,7 @@ namespace Moria.Core.Methods
                     else if (item.category_id == TV_SECRET_DOOR)
                     {
                         tile.field_mark = true;
-                        trapChangeVisibility(coord);
+                        dungeon.trapChangeVisibility(coord);
                         disarmed = true;
                     }
                     else if (item.category_id == TV_CHEST && item.flags != 0)
@@ -1089,7 +1091,7 @@ namespace Moria.Core.Methods
 
                 var tile = dg.floor[coord.y][coord.x];
 
-                dungeonLiteSpot(old_coord);
+                dungeon.dungeonLiteSpot(old_coord);
 
                 if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
                 {
@@ -1139,7 +1141,7 @@ namespace Moria.Core.Methods
 
                 distance++;
 
-                dungeonLiteSpot(old_coord);
+                dungeon.dungeonLiteSpot(old_coord);
 
                 if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE)
                 {
@@ -1169,13 +1171,13 @@ namespace Moria.Core.Methods
                             spot.y = row;
                             spot.x = col;
 
-                            if (coordInBounds(spot) && coordDistanceBetween(coord, spot) <= max_distance && los(coord, spot))
+                            if (dungeon.coordInBounds(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance && los(coord, spot))
                             {
                                 tile = dg.floor[spot.y][spot.x];
 
                                 if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id]))
                                 {
-                                    dungeonDeleteObject(spot);
+                                    dungeon.dungeonDeleteObject(spot);
                                 }
 
                                 if (tile.feature_id <= MAX_OPEN_SPACE)
@@ -1210,7 +1212,7 @@ namespace Moria.Core.Methods
                                             }
                                         }
 
-                                        damage = (damage / (coordDistanceBetween(spot, coord) + 1));
+                                        damage = (damage / (dungeon.coordDistanceBetween(spot, coord) + 1));
 
                                         if (monsterTakeHit((int)tile.creature_id, damage) >= 0)
                                         {
@@ -1237,9 +1239,9 @@ namespace Moria.Core.Methods
                             spot.y = row;
                             spot.x = col;
 
-                            if (coordInBounds(spot) && coordInsidePanel(spot) && coordDistanceBetween(coord, spot) <= max_distance)
+                            if (dungeon.coordInBounds(spot) && coordInsidePanel(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                             {
-                                dungeonLiteSpot(spot);
+                                dungeon.dungeonLiteSpot(spot);
                             }
                         }
                     }
@@ -1297,13 +1299,13 @@ namespace Moria.Core.Methods
             {
                 for (location.x = coord.x - 2; location.x <= coord.x + 2; location.x++)
                 {
-                    if (coordInBounds(location) && coordDistanceBetween(coord, location) <= max_distance && los(coord, location))
+                    if (dungeon.coordInBounds(location) && dungeon.coordDistanceBetween(coord, location) <= max_distance && los(coord, location))
                     {
                         var tile = dg.floor[location.y][location.x];
 
                         if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id]))
                         {
-                            dungeonDeleteObject(location);
+                            dungeon.dungeonDeleteObject(location);
                         }
 
                         if (tile.feature_id <= MAX_OPEN_SPACE)
@@ -1332,7 +1334,7 @@ namespace Moria.Core.Methods
                                     damage = (damage / 4);
                                 }
 
-                                damage = (damage / (coordDistanceBetween(location, coord) + 1));
+                                damage = (damage / (dungeon.coordDistanceBetween(location, coord) + 1));
 
                                 // can not call monsterTakeHit here, since player does not
                                 // get experience for kill
@@ -1357,20 +1359,20 @@ namespace Moria.Core.Methods
                                     // It ate an already processed monster. Handle normally.
                                     if (monster_id < tile.creature_id)
                                     {
-                                        dungeonDeleteMonster((int)tile.creature_id);
+                                        dungeon.dungeonDeleteMonster((int)tile.creature_id);
                                     }
                                     else
                                     {
                                         // If it eats this monster, an already processed monster
                                         // will take its place, causing all kinds of havoc.
                                         // Delay the kill a bit.
-                                        dungeonDeleteMonsterFix1((int)tile.creature_id);
+                                        dungeon.dungeonDeleteMonsterFix1((int)tile.creature_id);
                                     }
                                 }
                             }
                             else if (tile.creature_id == 1)
                             {
-                                var damage = (damage_hp / (coordDistanceBetween(location, coord) + 1));
+                                var damage = (damage_hp / (dungeon.coordDistanceBetween(location, coord) + 1));
 
                                 // let's do at least one point of damage
                                 // prevents rnd.randomNumber(0) problem with damagePoisonedGas, also
@@ -1413,9 +1415,9 @@ namespace Moria.Core.Methods
             {
                 for (spot.x = (coord.x - 2); spot.x <= (coord.x + 2); spot.x++)
                 {
-                    if (coordInBounds(spot) && coordInsidePanel(spot) && coordDistanceBetween(coord, spot) <= max_distance)
+                    if (dungeon.coordInBounds(spot) && coordInsidePanel(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                     {
-                        dungeonLiteSpot(spot);
+                        dungeon.dungeonLiteSpot(spot);
                     }
                 }
             }
@@ -1792,7 +1794,7 @@ namespace Moria.Core.Methods
 
                     playerTunnelWall(coord, 1, 0);
 
-                    if (caveTileVisible(coord))
+                    if (dungeon.caveTileVisible(coord))
                     {
                         turned = true;
                         printMessage("The wall turns into mud.");
@@ -1802,7 +1804,7 @@ namespace Moria.Core.Methods
                 {
                     finished = true;
 
-                    if (coordInsidePanel(coord) && caveTileVisible(coord))
+                    if (coordInsidePanel(coord) && dungeon.caveTileVisible(coord))
                     {
                         turned = true;
 
@@ -1817,20 +1819,20 @@ namespace Moria.Core.Methods
 
                     if (game.treasure.list[tile.treasure_id].category_id == TV_RUBBLE)
                     {
-                        dungeonDeleteObject(coord);
+                        dungeon.dungeonDeleteObject(coord);
                         if (rnd.randomNumber(10) == 1)
                         {
-                            dungeonPlaceRandomObjectAt(coord, false);
-                            if (caveTileVisible(coord))
+                            dungeon.dungeonPlaceRandomObjectAt(coord, false);
+                            if (dungeon.caveTileVisible(coord))
                             {
                                 printMessage("You have found something!");
                             }
                         }
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
                     }
                     else
                     {
-                        dungeonDeleteObject(coord);
+                        dungeon.dungeonDeleteObject(coord);
                     }
                 }
 
@@ -1890,7 +1892,7 @@ namespace Moria.Core.Methods
                     if (item.category_id == TV_INVIS_TRAP || item.category_id == TV_CLOSED_DOOR || item.category_id == TV_VIS_TRAP || item.category_id == TV_OPEN_DOOR ||
                         item.category_id == TV_SECRET_DOOR)
                     {
-                        if (dungeonDeleteObject(coord))
+                        if (dungeon.dungeonDeleteObject(coord))
                         {
                             destroyed = true;
                             printMessage("There is a bright flash of light!");
@@ -1943,7 +1945,7 @@ namespace Moria.Core.Methods
                     {
                         finished = true;
 
-                        dungeonDeleteMonster((int)tile.creature_id);
+                        dungeon.dungeonDeleteMonster((int)tile.creature_id);
 
                         // Place_monster() should always return true here.
                         morphed = monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
@@ -1988,7 +1990,7 @@ namespace Moria.Core.Methods
 
                 if (tile.treasure_id != 0)
                 {
-                    dungeonDeleteObject(coord);
+                    dungeon.dungeonDeleteObject(coord);
                 }
 
                 if (tile.creature_id > 1)
@@ -2035,7 +2037,7 @@ namespace Moria.Core.Methods
 
                 // Permanently light this wall if it is lit by player's lamp.
                 tile.permanent_light = (tile.temporary_light || tile.permanent_light);
-                dungeonLiteSpot(coord);
+                dungeon.dungeonLiteSpot(coord);
 
                 built = true;
             }
@@ -2088,7 +2090,7 @@ namespace Moria.Core.Methods
                 {
                     coord.y = monster.pos.y + (rnd.randomNumber(2 * distance_from_player + 1) - (distance_from_player + 1));
                     coord.x = monster.pos.x + (rnd.randomNumber(2 * distance_from_player + 1) - (distance_from_player + 1));
-                } while (!coordInBounds(coord));
+                } while (!dungeon.coordInBounds(coord));
 
                 counter++;
                 if (counter > 9)
@@ -2098,8 +2100,8 @@ namespace Moria.Core.Methods
                 }
             } while ((dg.floor[coord.y][coord.x].feature_id >= MIN_CLOSED_SPACE) || (dg.floor[coord.y][coord.x].creature_id != 0));
 
-            dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
-            dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+            dungeon.dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
+            dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
 
             monster.pos.y = coord.y;
             monster.pos.x = coord.x;
@@ -2107,7 +2109,7 @@ namespace Moria.Core.Methods
             // this is necessary, because the creature is
             // not currently visible in its new position.
             monster.lit = false;
-            monster.distance_from_player = (uint)coordDistanceBetween(State.Instance.py.pos, coord);
+            monster.distance_from_player = (uint)dungeon.coordDistanceBetween(State.Instance.py.pos, coord);
 
             monsterUpdateVisibility(monster_id);
         }
@@ -2133,9 +2135,9 @@ namespace Moria.Core.Methods
                     counter = 0;
                     distance++;
                 }
-            } while (!coordInBounds(rnd_coord) || (dg.floor[rnd_coord.y][rnd_coord.x].feature_id >= MIN_CLOSED_SPACE) || (dg.floor[rnd_coord.y][rnd_coord.x].creature_id >= 2));
+            } while (!dungeon.coordInBounds(rnd_coord) || (dg.floor[rnd_coord.y][rnd_coord.x].feature_id >= MIN_CLOSED_SPACE) || (dg.floor[rnd_coord.y][rnd_coord.x].creature_id >= 2));
 
-            dungeonMoveCreatureRecord(py.pos, rnd_coord);
+            dungeon.dungeonMoveCreatureRecord(py.pos, rnd_coord);
 
             var spot = new Coord_t(0, 0);
             for (spot.y = py.pos.y - 1; spot.y <= py.pos.y + 1; spot.y++)
@@ -2143,11 +2145,11 @@ namespace Moria.Core.Methods
                 for (spot.x = py.pos.x - 1; spot.x <= py.pos.x + 1; spot.x++)
                 {
                     dg.floor[spot.y][spot.x].temporary_light = false;
-                    dungeonLiteSpot(spot);
+                    dungeon.dungeonLiteSpot(spot);
                 }
             }
 
-            dungeonLiteSpot(py.pos);
+            dungeon.dungeonLiteSpot(py.pos);
 
             //py.pos.y = rnd_coord.y;
             //py.pos.x = rnd_coord.x;
@@ -2209,7 +2211,7 @@ namespace Moria.Core.Methods
                 if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.movement & Config.monsters_move.CM_WIN) == 0)
                 {
                     killed = true;
-                    dungeonDeleteMonster(id);
+                    dungeon.dungeonDeleteMonster(id);
                 }
             }
 
@@ -2239,7 +2241,7 @@ namespace Moria.Core.Methods
                     if ((creature.movement & Config.monsters_move.CM_WIN) == 0)
                     {
                         killed = true;
-                        dungeonDeleteMonster(id);
+                        dungeon.dungeonDeleteMonster(id);
                     }
                     else
                     {
@@ -2369,7 +2371,7 @@ namespace Moria.Core.Methods
                     {
                         coord.y = monster.pos.y;
                         coord.x = monster.pos.x;
-                        dungeonDeleteMonster(id);
+                        dungeon.dungeonDeleteMonster(id);
 
                         // Place_monster() should always return true here.
                         morphed = monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
@@ -2506,13 +2508,13 @@ namespace Moria.Core.Methods
             {
                 for (coord.x = py.pos.x - 8; coord.x <= py.pos.x + 8; coord.x++)
                 {
-                    if ((coord.y != py.pos.y || coord.x != py.pos.x) && coordInBounds(coord) && rnd.randomNumber(8) == 1)
+                    if ((coord.y != py.pos.y || coord.x != py.pos.x) && dungeon.coordInBounds(coord) && rnd.randomNumber(8) == 1)
                     {
                         var tile = dg.floor[coord.y][coord.x];
 
                         if (tile.treasure_id != 0)
                         {
-                            dungeonDeleteObject(coord);
+                            dungeon.dungeonDeleteObject(coord);
                         }
 
                         if (tile.creature_id > 1)
@@ -2545,7 +2547,7 @@ namespace Moria.Core.Methods
 
                             tile.field_mark = false;
                         }
-                        dungeonLiteSpot(coord);
+                        dungeon.dungeonLiteSpot(coord);
                     }
                 }
             }
@@ -2573,7 +2575,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            dungeonPlaceRandomObjectAt(py.pos, false);
+            dungeon.dungeonPlaceRandomObjectAt(py.pos, false);
             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_MUSH, game.treasure.list[tile.treasure_id]);
         }
 
@@ -2871,12 +2873,12 @@ namespace Moria.Core.Methods
 
             if (tile.treasure_id != 0)
             {
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
             }
 
             if (tile.creature_id > 1)
             {
-                dungeonDeleteMonster((int)tile.creature_id);
+                dungeon.dungeonDeleteMonster((int)tile.creature_id);
             }
         }
 
@@ -2896,9 +2898,9 @@ namespace Moria.Core.Methods
                 {
                     for (spot.x = coord.x - 15; spot.x <= coord.x + 15; spot.x++)
                     {
-                        if (coordInBounds(spot) && dg.floor[spot.y][spot.x].feature_id != TILE_BOUNDARY_WALL)
+                        if (dungeon.coordInBounds(spot) && dg.floor[spot.y][spot.x].feature_id != TILE_BOUNDARY_WALL)
                         {
-                            var distance = coordDistanceBetween(spot, coord);
+                            var distance = dungeon.coordDistanceBetween(spot, coord);
 
                             // clear player's spot, but don't put wall there
                             if (distance == 0)

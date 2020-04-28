@@ -15,21 +15,48 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Dungeon_m
+    public interface IDungeon
     {
-        public static void SetDependencies(
+        void dungeonLiteSpot(Coord_t coord);
+        bool dungeonDeleteObject(Coord_t coord);
+        void dungeonDeleteMonster(int id);
+        void dungeonDeleteMonsterFix1(int id);
+        void dungeonMoveCreatureRecord(Coord_t from, Coord_t to);
+        int coordDistanceBetween(Coord_t from, Coord_t to);
+        bool coordInBounds(Coord_t coord);
+        void dungeonDeleteMonsterFix2(int id);
+        int dungeonSummonObject(Coord_t coord, int amount, int object_type);
+        void dungeonPlaceGold(Coord_t coord);
+        void dungeonAllocateAndPlaceObject(Func<int, bool> set_function, int object_type, int number);
+        int coordWallsNextTo(Coord_t coord);
+        void dungeonSetTrap(Coord_t coord, int sub_type_id);
+        void dungeonPlaceRandomObjectAt(Coord_t coord, bool must_be_small);
+        void dungeonPlaceRandomObjectNear(Coord_t coord, int tries);
+        int coordCorridorWallsNextTo(Coord_t coord);
+        void dungeonDisplayMap();
+        void trapChangeVisibility(Coord_t coord);
+        bool caveTileVisible(Coord_t coord);
+        void dungeonLightRoom(Coord_t coord);
+        void dungeonMoveCharacterLight(Coord_t from, Coord_t to);
+        void dungeonPlaceRubble(Coord_t coord);
+        char caveGetTileSymbol(Coord_t coord);
+    }
+
+    public class Dungeon_m : IDungeon
+    {
+        public Dungeon_m(
             IRnd rnd,
             ITreasure treasure
         )
         {
-            Dungeon_m.rnd = rnd;
-            Dungeon_m.treasure = treasure;
+            this.rnd = rnd;
+            this.treasure = treasure;
         }
 
-        private static IRnd rnd;
-        private static ITreasure treasure;
+        private readonly IRnd rnd;
+        private readonly ITreasure treasure;
 
-        public static void dungeonDisplayMap()
+        public void dungeonDisplayMap()
         {
             // Save the game screen
             terminalSaveScreen();
@@ -127,7 +154,7 @@ namespace Moria.Core.Methods
         }
 
         // Checks a co-ordinate for in bounds status -RAK-
-        public static bool coordInBounds(Coord_t coord)
+        public bool coordInBounds(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -138,7 +165,7 @@ namespace Moria.Core.Methods
         }
 
         // Distance between two points -RAK-
-        public static int coordDistanceBetween(Coord_t from, Coord_t to)
+        public int coordDistanceBetween(Coord_t from, Coord_t to)
         {
             var dg = State.Instance.dg;
 
@@ -163,7 +190,7 @@ namespace Moria.Core.Methods
         // Checks points north, south, east, and west for a wall -RAK-
         // note that y,x is always coordInBounds(), i.e. 0 < y < dg.height-1,
         // and 0 < x < dg.width-1
-        public static int coordWallsNextTo(Coord_t coord)
+        public int coordWallsNextTo(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -195,7 +222,7 @@ namespace Moria.Core.Methods
         // Checks all adjacent spots for corridors -RAK-
         // note that y, x is always coordInBounds(), hence no need to check that
         // j, k are coordInBounds(), even if they are 0 or cur_x-1 is still works
-        public static int coordCorridorWallsNextTo(Coord_t coord)
+        public int coordCorridorWallsNextTo(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -221,7 +248,7 @@ namespace Moria.Core.Methods
         }
 
         // Returns symbol for given row, column -RAK-
-        public static char caveGetTileSymbol(Coord_t coord)
+        public char caveGetTileSymbol(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -275,7 +302,7 @@ namespace Moria.Core.Methods
         }
 
         // Tests a spot for light or field mark status -RAK-
-        public static bool caveTileVisible(Coord_t coord)
+        public bool caveTileVisible(Coord_t coord)
         {
             var dg = State.Instance.dg;
             return dg.floor[coord.y][coord.x].permanent_light ||
@@ -284,7 +311,7 @@ namespace Moria.Core.Methods
         }
 
         // Places a particular trap at location y, x -RAK-
-        public static void dungeonSetTrap(Coord_t coord, int sub_type_id)
+        public void dungeonSetTrap(Coord_t coord, int sub_type_id)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -296,7 +323,7 @@ namespace Moria.Core.Methods
 
         // Change a trap from invisible to visible -RAK-
         // Note: Secret doors are handled here
-        public static void trapChangeVisibility(Coord_t coord)
+        public void trapChangeVisibility(Coord_t coord)
         {
             var game = State.Instance.game;
             var dg = State.Instance.dg;
@@ -323,7 +350,7 @@ namespace Moria.Core.Methods
         }
 
         // Places rubble at location y, x -RAK-
-        public static void dungeonPlaceRubble(Coord_t coord)
+        public void dungeonPlaceRubble(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -335,7 +362,7 @@ namespace Moria.Core.Methods
         }
 
         // Places a treasure (Gold or Gems) at given row, column -RAK-
-        public static void dungeonPlaceGold(Coord_t coord)
+        public void dungeonPlaceGold(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -365,7 +392,7 @@ namespace Moria.Core.Methods
         }
 
         // Places an object at given row, column co-ordinate -RAK-
-        public static void dungeonPlaceRandomObjectAt(Coord_t coord, bool must_be_small)
+        public void dungeonPlaceRandomObjectAt(Coord_t coord, bool must_be_small)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -386,7 +413,7 @@ namespace Moria.Core.Methods
         }
 
         // Allocates an object for tunnels and rooms -RAK-
-        public static void dungeonAllocateAndPlaceObject(Func<int, bool> set_function, int object_type, int number)
+        public void dungeonAllocateAndPlaceObject(Func<int, bool> set_function, int object_type, int number)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -429,7 +456,7 @@ namespace Moria.Core.Methods
         }
 
         // Creates objects nearby the coordinates given -RAK-
-        public static void dungeonPlaceRandomObjectNear(Coord_t coord, int tries)
+        public void dungeonPlaceRandomObjectNear(Coord_t coord, int tries)
         {
             var dg = State.Instance.dg;
             do
@@ -460,7 +487,7 @@ namespace Moria.Core.Methods
 
         // Moves creature record from one space to another -RAK-
         // this always works correctly, even if y1==y2 and x1==x2
-        public static void dungeonMoveCreatureRecord(Coord_t from, Coord_t to)
+        public void dungeonMoveCreatureRecord(Coord_t from, Coord_t to)
         {
             var dg = State.Instance.dg;
 
@@ -470,7 +497,7 @@ namespace Moria.Core.Methods
         }
 
         // Room is lit, make it appear -RAK-
-        public static void dungeonLightRoom(Coord_t coord)
+        public void dungeonLightRoom(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -514,7 +541,7 @@ namespace Moria.Core.Methods
         }
 
         // Lights up given location -RAK-
-        public static void dungeonLiteSpot(Coord_t coord)
+        public void dungeonLiteSpot(Coord_t coord)
         {
             if (!coordInsidePanel(coord))
             {
@@ -527,7 +554,7 @@ namespace Moria.Core.Methods
 
         // Normal movement
         // When FIND_FLAG,  light only permanent features
-        public static void sub1MoveLight(Coord_t from, Coord_t to)
+        private void sub1MoveLight(Coord_t from, Coord_t to)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -618,7 +645,7 @@ namespace Moria.Core.Methods
 
         // When blinded,  move only the player symbol.
         // With no light,  movement becomes involved.
-        public static void sub3MoveLight(Coord_t from, Coord_t to)
+        private void sub3MoveLight(Coord_t from, Coord_t to)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -651,7 +678,7 @@ namespace Moria.Core.Methods
 
         // Package for moving the character's light about the screen
         // Four cases : Normal, Finding, Blind, and No light -RAK-
-        public static void dungeonMoveCharacterLight(Coord_t from, Coord_t to)
+        public void dungeonMoveCharacterLight(Coord_t from, Coord_t to)
         {
             var py = State.Instance.py;
 
@@ -666,7 +693,7 @@ namespace Moria.Core.Methods
         }
 
         // Deletes a monster entry from the level -RAK-
-        public static void dungeonDeleteMonster(int id)
+        public void dungeonDeleteMonster(int id)
         {
             var dg = State.Instance.dg;
             var monsters = State.Instance.monsters;
@@ -707,7 +734,7 @@ namespace Moria.Core.Methods
         // dungeonDeleteMonsterFix1 does everything dungeonDeleteMonster does except delete
         // the monster record and reduce next_free_monster_id, this is called in breathe, and
         // a couple of places in creatures.c
-        public static void dungeonDeleteMonsterFix1(int id)
+        public void dungeonDeleteMonsterFix1(int id)
         {
             var dg = State.Instance.dg;
             var monsters = State.Instance.monsters;
@@ -734,7 +761,7 @@ namespace Moria.Core.Methods
 
         // dungeonDeleteMonsterFix2 does everything in dungeonDeleteMonster that wasn't done
         // by fix1_monster_delete above, this is only called in updateMonsters()
-        public static void dungeonDeleteMonsterFix2(int id)
+        public void dungeonDeleteMonsterFix2(int id)
         {
             var dg = State.Instance.dg;
             var monsters = State.Instance.monsters;
@@ -755,7 +782,7 @@ namespace Moria.Core.Methods
         }
 
         // Creates objects nearby the coordinates given -RAK-
-        public static int dungeonSummonObject(Coord_t coord, int amount, int object_type)
+        public int dungeonSummonObject(Coord_t coord, int amount, int object_type)
         {
             var dg = State.Instance.dg;
 
@@ -825,7 +852,7 @@ namespace Moria.Core.Methods
         }
 
         // Deletes object from given location -RAK-
-        public static bool dungeonDeleteObject(Coord_t coord)
+        public bool dungeonDeleteObject(Coord_t coord)
         {
             var dg = State.Instance.dg;
 

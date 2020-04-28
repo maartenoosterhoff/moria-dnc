@@ -3,7 +3,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -12,6 +11,15 @@ namespace Moria.Core.Methods
 {
     public static class Player_run_m
     {
+        public static void SetDependencies(
+            IDungeon dungeon
+        )
+        {
+            Player_run_m.dungeon = dungeon;
+        }
+
+        private static IDungeon dungeon;
+
         // Overview: You keep moving until something interesting happens. If you are in
         // an enclosed space, you follow corners. This is the usual corridor scheme. If
         // you are in an open space, you go straight, but stop before entering enclosed
@@ -129,7 +137,7 @@ namespace Moria.Core.Methods
                 return true;
             }
 
-            var c = caveGetTileSymbol(coord);
+            var c = dungeon.caveGetTileSymbol(coord);
 
             return c == '#' || c == '%';
         }
@@ -138,7 +146,7 @@ namespace Moria.Core.Methods
         static bool playerSeeNothing(int dir, Coord_t coord)
         {
             // check to see if movement there possible
-            return playerMovePosition(dir, ref coord) && caveGetTileSymbol(coord) == ' ';
+            return playerMovePosition(dir, ref coord) && dungeon.caveGetTileSymbol(coord) == ' ';
         }
 
         static void findRunningBreak(int dir, Coord_t coord)
@@ -245,7 +253,7 @@ namespace Moria.Core.Methods
             // Hence we must do the erasure here.
             if (!py.temporary_light_only && !Config.options.run_print_self)
             {
-                panelPutTile(caveGetTileSymbol(py.pos), py.pos);
+                panelPutTile(dungeon.caveGetTileSymbol(py.pos), py.pos);
             }
 
             playerMove(direction, true);
@@ -286,7 +294,7 @@ namespace Moria.Core.Methods
 
             py.running_tracker = 0;
 
-            dungeonMoveCharacterLight(py.pos, py.pos);
+            dungeon.dungeonMoveCharacterLight(py.pos, py.pos);
         }
 
         static bool areaAffectStopLookingAtSquares(int i, int dir, int new_dir, Coord_t coord, ref int check_dir, ref int dir_a, ref int dir_b)

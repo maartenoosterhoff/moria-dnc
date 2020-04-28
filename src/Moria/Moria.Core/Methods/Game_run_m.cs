@@ -14,7 +14,6 @@ using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_save_m;
@@ -49,6 +48,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             ICharacter character,
+            IDungeon dungeon,
             IDungeonGenerate dungeonGenerate,
             IGame game,
             IRnd rnd,
@@ -58,6 +58,7 @@ namespace Moria.Core.Methods
         )
         {
             Game_run_m.character = character;
+            Game_run_m.dungeon = dungeon;
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
             Game_run_m.rnd = rnd;
@@ -68,6 +69,7 @@ namespace Moria.Core.Methods
 
 
         private static ICharacter character;
+        private static IDungeon dungeon;
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
         private static IRnd rnd;
@@ -2271,7 +2273,7 @@ namespace Moria.Core.Methods
                     wandAim();
                     break;
                 case 'M':
-                    dungeonDisplayMap();
+                    dungeon.dungeonDisplayMap();
                     game.player_free_turn = true;
                     break;
                 case 'P': // (P)eruse a book  (B)rowse in a book

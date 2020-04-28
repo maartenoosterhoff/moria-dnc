@@ -4,7 +4,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -15,16 +14,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IGame game,
             IRnd rnd
         )
         {
             Player_tunnel_m.dice = dice;
+            Player_tunnel_m.dungeon = dungeon;
             Player_tunnel_m.game = game;
             Player_tunnel_m.rnd = rnd;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IGame game;
         private static IRnd rnd;
 
@@ -133,20 +135,20 @@ namespace Moria.Core.Methods
         {
             if (digging_ability > rnd.randomNumber(180))
             {
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
                 printMessage("You have removed the rubble.");
 
                 if (rnd.randomNumber(10) == 1)
                 {
-                    dungeonPlaceRandomObjectAt(coord, false);
+                    dungeon.dungeonPlaceRandomObjectAt(coord, false);
 
-                    if (caveTileVisible(coord))
+                    if (dungeon.caveTileVisible(coord))
                     {
                         printMessage("You have found something!");
                     }
                 }
 
-                dungeonLiteSpot(coord);
+                dungeon.dungeonLiteSpot(coord);
             }
             else
             {

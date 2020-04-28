@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Player_run_m;
@@ -19,6 +18,15 @@ namespace Moria.Core.Methods
 {
     public static class Ui_m
     {
+        public static void SetDependencies(
+            IDungeon dungeon
+        )
+        {
+            Ui_m.dungeon = dungeon;
+        }
+
+        private static IDungeon dungeon;
+
         public static string[] stat_names = new string[] {
             "STR : ", "INT : ", "WIS : ", "DEX : ", "CON : ", "CHR : "
         };
@@ -124,7 +132,7 @@ namespace Moria.Core.Methods
                 // Left to right
                 for (coord.x = dg.panel.left; coord.x <= dg.panel.right; coord.x++)
                 {
-                    var ch = caveGetTileSymbol(coord);
+                    var ch = dungeon.caveGetTileSymbol(coord);
                     if (ch != ' ')
                     {
                         panelPutTile(ch, coord);
@@ -157,14 +165,14 @@ namespace Moria.Core.Methods
             }
 
             // Move the light source
-            dungeonMoveCharacterLight(py.pos, py.pos);
+            dungeon.dungeonMoveCharacterLight(py.pos, py.pos);
 
             // A room of light should be lit.
             if (tile.feature_id == TILE_LIGHT_FLOOR)
             {
                 if (py.flags.blind < 1 && !tile.permanent_light)
                 {
-                    dungeonLightRoom(py.pos);
+                    dungeon.dungeonLightRoom(py.pos);
                 }
                 return;
             }
@@ -178,7 +186,7 @@ namespace Moria.Core.Methods
                     {
                         if (dg.floor[i][j].feature_id == TILE_LIGHT_FLOOR && !dg.floor[i][j].permanent_light)
                         {
-                            dungeonLightRoom(new Coord_t(i, j));
+                            dungeon.dungeonLightRoom(new Coord_t(i, j));
                         }
                     }
                 }

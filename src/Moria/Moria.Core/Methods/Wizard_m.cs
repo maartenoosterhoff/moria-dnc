@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using System;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
@@ -36,16 +35,19 @@ namespace Moria.Core.Methods
 
     public class Wizard_m : IWizard
     {
+        private readonly IDungeon dungeon;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
 
         public Wizard_m(
+            IDungeon dungeon,
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITreasure treasure
         )
         {
+            this.dungeon = dungeon;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.treasure = treasure;
@@ -115,7 +117,7 @@ namespace Moria.Core.Methods
             {
                 i = 1;
             }
-            dungeonPlaceRandomObjectNear(State.Instance.py.pos, i);
+            this.dungeon.dungeonPlaceRandomObjectNear(State.Instance.py.pos, i);
 
             drawDungeonPanel();
         }
@@ -590,12 +592,12 @@ namespace Moria.Core.Methods
                 coord.y = py.pos.y - 3 + this.rnd.randomNumber(5);
                 coord.x = py.pos.x - 4 + this.rnd.randomNumber(7);
 
-                if (coordInBounds(coord) && dg.floor[coord.y][coord.x].feature_id <= MAX_CAVE_FLOOR && dg.floor[coord.y][coord.x].treasure_id == 0)
+                if (this.dungeon.coordInBounds(coord) && dg.floor[coord.y][coord.x].feature_id <= MAX_CAVE_FLOOR && dg.floor[coord.y][coord.x].treasure_id == 0)
                 {
                     // delete any object at location, before call popt()
                     if (dg.floor[coord.y][coord.x].treasure_id != 0)
                     {
-                        dungeonDeleteObject(coord);
+                        this.dungeon.dungeonDeleteObject(coord);
                     }
 
                     // place the object
@@ -798,7 +800,7 @@ namespace Moria.Core.Methods
 
                 if (tile.treasure_id != 0)
                 {
-                    dungeonDeleteObject(py.pos);
+                    this.dungeon.dungeonDeleteObject(py.pos);
                 }
 
                 number = popt();

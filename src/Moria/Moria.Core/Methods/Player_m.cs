@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
@@ -27,18 +26,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IGame game,
             IPlayerMagic playerMagic,
             IRnd rnd
         )
         {
             Player_m.dice = dice;
+            Player_m.dungeon = dungeon;
             Player_m.game = game;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IGame game;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -160,14 +162,14 @@ namespace Moria.Core.Methods
                 location.y = rnd.randomNumber(dg.height) - 1;
                 location.x = rnd.randomNumber(dg.width) - 1;
 
-                while (coordDistanceBetween(location, py.pos) > new_distance)
+                while (dungeon.coordDistanceBetween(location, py.pos) > new_distance)
                 {
                     location.y += (py.pos.y - location.y) / 2;
                     location.x += (py.pos.x - location.x) / 2;
                 }
             } while (dg.floor[location.y][location.x].feature_id >= MIN_CLOSED_SPACE || dg.floor[location.y][location.x].creature_id >= 2);
 
-            dungeonMoveCreatureRecord(py.pos, location);
+            dungeon.dungeonMoveCreatureRecord(py.pos, location);
 
             var spot = new Coord_t(0, 0);
             for (spot.y = py.pos.y - 1; spot.y <= py.pos.y + 1; spot.y++)
@@ -175,11 +177,11 @@ namespace Moria.Core.Methods
                 for (spot.x = py.pos.x - 1; spot.x <= py.pos.x + 1; spot.x++)
                 {
                     dg.floor[spot.y][spot.x].temporary_light = false;
-                    dungeonLiteSpot(spot);
+                    dungeon.dungeonLiteSpot(spot);
                 }
             }
 
-            dungeonLiteSpot(py.pos);
+            dungeon.dungeonLiteSpot(py.pos);
 
             //py.pos.y = location.y;
             //py.pos.x = location.x;
@@ -911,7 +913,7 @@ namespace Moria.Core.Methods
                         //(void)sprintf(msg, "You have found %s", description);
                         printMessage(msg);
 
-                        trapChangeVisibility(spot);
+                        dungeon.trapChangeVisibility(spot);
                         playerEndRunning();
                     }
                     else if (item.category_id == TV_SECRET_DOOR)
@@ -920,7 +922,7 @@ namespace Moria.Core.Methods
 
                         printMessage("You have found a secret door.");
 
-                        trapChangeVisibility(spot);
+                        dungeon.trapChangeVisibility(spot);
                         playerEndRunning();
                     }
                     else if (item.category_id == TV_CHEST)
@@ -1607,7 +1609,7 @@ namespace Moria.Core.Methods
             {
                 inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
                 tile.feature_id = TILE_CORR_FLOOR;
-                dungeonLiteSpot(coord);
+                dungeon.dungeonLiteSpot(coord);
                 game.command_count = 0;
             }
         }
@@ -1762,7 +1764,7 @@ namespace Moria.Core.Methods
                         {
                             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, item);
                             tile.feature_id = TILE_BLOCKED_FLOOR;
-                            dungeonLiteSpot(coord);
+                            dungeon.dungeonLiteSpot(coord);
                         }
                         else
                         {
@@ -1844,7 +1846,7 @@ namespace Moria.Core.Methods
                 printMessage("You have found something!");
             }
 
-            dungeonLiteSpot(coord);
+            dungeon.dungeonLiteSpot(coord);
 
             return true;
         }

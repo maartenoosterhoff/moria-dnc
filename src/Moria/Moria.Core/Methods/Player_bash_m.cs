@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
@@ -20,18 +19,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IGame game,
             IRnd rnd,
             IStd std
         )
         {
             Player_bash_m.dice = dice;
+            Player_bash_m.dungeon = dungeon;
             Player_bash_m.game = game;
             Player_bash_m.rnd = rnd;
             Player_bash_m.std = std;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IGame game;
         private static IRnd rnd;
         private static IStd std;
@@ -271,7 +273,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    dungeonLiteSpot(coord);
+                    dungeon.dungeonLiteSpot(coord);
                 }
 
                 return;

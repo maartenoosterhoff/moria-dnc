@@ -5,7 +5,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -15,12 +14,15 @@ namespace Moria.Core.Methods
     public class Game_objects_m
     {
         public static void SetDependencies(
+            IDungeon dungeon,
             IRnd rnd
         )
         {
+            Game_objects_m.dungeon = dungeon;
             Game_objects_m.rnd = rnd;
         }
 
+        private static IDungeon dungeon;
         private static IRnd rnd;
 
         // If too many objects on floor level, delete some of them-RAK-
@@ -43,7 +45,7 @@ namespace Moria.Core.Methods
                 {
                     for (coord.x = 0; coord.x < dg.width; coord.x++)
                     {
-                        if (dg.floor[coord.y][coord.x].treasure_id != 0 && coordDistanceBetween(coord, py.pos) > current_distance)
+                        if (dg.floor[coord.y][coord.x].treasure_id != 0 && dungeon.coordDistanceBetween(coord, py.pos) > current_distance)
                         {
                             int chance;
 
@@ -74,7 +76,7 @@ namespace Moria.Core.Methods
                             }
                             if (rnd.randomNumber(100) <= chance)
                             {
-                                dungeonDeleteObject(coord);
+                                dungeon.dungeonDeleteObject(coord);
                                 counter++;
                             }
                         }

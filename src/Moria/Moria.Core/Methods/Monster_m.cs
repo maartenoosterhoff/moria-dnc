@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -25,16 +24,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IRnd rnd,
             IStd std
         )
         {
             Monster_m.dice = dice;
+            Monster_m.dungeon = dungeon;
             Monster_m.rnd = rnd;
             Monster_m.std = std;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IRnd rnd;
         private static IStd std;
 
@@ -103,7 +105,7 @@ namespace Moria.Core.Methods
                 {
                     playerDisturb(1, 0);
                     monster.lit = true;
-                    dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                    dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
 
                     // notify inventoryExecuteCommand()
                     State.Instance.screen_has_changed = true;
@@ -113,7 +115,7 @@ namespace Moria.Core.Methods
             {
                 // Turn it off.
                 monster.lit = false;
-                dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
 
                 // notify inventoryExecuteCommand()
                 State.Instance.screen_has_changed = true;
@@ -673,7 +675,7 @@ namespace Moria.Core.Methods
                         item.misc_use = (1 - rnd.randomNumber(2));
                     }
                     tile.feature_id = TILE_CORR_FLOOR;
-                    dungeonLiteSpot(coord);
+                    dungeon.dungeonLiteSpot(coord);
                     rcmove |= Config.monsters_move.CM_OPEN_DOOR;
                     do_move = false;
                 }
@@ -691,7 +693,7 @@ namespace Moria.Core.Methods
                     // 50% chance of breaking door
                     item.misc_use = (1 - rnd.randomNumber(2));
                     tile.feature_id = TILE_CORR_FLOOR;
-                    dungeonLiteSpot(coord);
+                    dungeon.dungeonLiteSpot(coord);
                     printMessage("You hear a door burst open!");
                     playerDisturb(1, 0);
                 }
@@ -708,7 +710,7 @@ namespace Moria.Core.Methods
                 {
                     printMessage("The rune of protection is broken!");
                 }
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
                 return;
             }
 
@@ -756,14 +758,14 @@ namespace Moria.Core.Methods
                     // It ate an already processed monster. Handle normally.
                     if (monster_id < creature_id)
                     {
-                        dungeonDeleteMonster((int)creature_id);
+                        dungeon.dungeonDeleteMonster((int)creature_id);
                     }
                     else
                     {
                         // If it eats this monster, an already processed
                         // monster will take its place, causing all kinds
                         // of havoc. Delay the kill a bit.
-                        dungeonDeleteMonsterFix1((int)creature_id);
+                        dungeon.dungeonDeleteMonsterFix1((int)creature_id);
                     }
                 }
                 else
@@ -787,22 +789,22 @@ namespace Moria.Core.Methods
                 if (treasure_id != 0 && game.treasure.list[treasure_id].category_id <= TV_MAX_OBJECT)
                 {
                     rcmove |= Config.monsters_move.CM_PICKS_UP;
-                    dungeonDeleteObject(coord);
+                    dungeon.dungeonDeleteObject(coord);
                 }
             }
 
             // Move creature record
-            dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
+            dungeon.dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
 
             if (monster.lit)
             {
                 monster.lit = false;
-                dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
             }
 
             monster.pos.y = coord.y;
             monster.pos.x = coord.x;
-            monster.distance_from_player = (uint)coordDistanceBetween(py.pos, coord);
+            monster.distance_from_player = (uint)dungeon.coordDistanceBetween(py.pos, coord);
 
             do_turn = true;
         }
@@ -1216,7 +1218,7 @@ namespace Moria.Core.Methods
 
                 // don't create a new creature on top of the old one, that
                 // causes invincible/invisible creatures to appear.
-                if (coordInBounds(position) && (position.y != coord.y || position.x != coord.x))
+                if (dungeon.coordInBounds(position) && (position.y != coord.y || position.x != coord.x))
                 {
                     var tile = dg.floor[position.y][position.x];
 
@@ -1236,14 +1238,14 @@ namespace Moria.Core.Methods
                                 // It ate an already processed monster. Handle * normally.
                                 if (monster_id < tile.creature_id)
                                 {
-                                    dungeonDeleteMonster((int)tile.creature_id);
+                                    dungeon.dungeonDeleteMonster((int)tile.creature_id);
                                 }
                                 else
                                 {
                                     // If it eats this monster, an already processed
                                     // monster will take its place, causing all kinds
                                     // of havoc. Delay the kill a bit.
-                                    dungeonDeleteMonsterFix1((int)tile.creature_id);
+                                    dungeon.dungeonDeleteMonsterFix1((int)tile.creature_id);
                                 }
 
                                 // in case compact_monster() is called, it needs monster_id.
@@ -1295,7 +1297,7 @@ namespace Moria.Core.Methods
             {
                 for (coord.x = monster.pos.x - 1; coord.x <= monster.pos.x + 1; coord.x++)
                 {
-                    if (coordInBounds(coord) && (dg.floor[coord.y][coord.x].creature_id > 1))
+                    if (dungeon.coordInBounds(coord) && (dg.floor[coord.y][coord.x].creature_id > 1))
                     {
                         counter++;
                     }
@@ -1717,11 +1719,11 @@ namespace Moria.Core.Methods
                 // monsters while scanning the monsters here.
                 if (monster.hp < 0)
                 {
-                    dungeonDeleteMonsterFix2(id);
+                    dungeon.dungeonDeleteMonsterFix2(id);
                     continue;
                 }
 
-                monster.distance_from_player = (uint)coordDistanceBetween(py.pos, new Coord_t(monster.pos.y, monster.pos.x));
+                monster.distance_from_player = (uint)dungeon.coordDistanceBetween(py.pos, new Coord_t(monster.pos.y, monster.pos.x));
 
                 // Attack is argument passed to CREATURE
                 if (attack)
@@ -1747,7 +1749,7 @@ namespace Moria.Core.Methods
                 // This monster may have been killed during monsterMove().
                 if (monster.hp < 0)
                 {
-                    dungeonDeleteMonsterFix2(id);
+                    dungeon.dungeonDeleteMonsterFix2(id);
                     continue;
                 }
             }
@@ -1803,11 +1805,11 @@ namespace Moria.Core.Methods
             // hack, the monsters/updateMonsters() code needs to be rewritten.
             if (State.Instance.hack_monptr < monster_id)
             {
-                dungeonDeleteMonster(monster_id);
+                dungeon.dungeonDeleteMonster(monster_id);
             }
             else
             {
-                dungeonDeleteMonsterFix1(monster_id);
+                dungeon.dungeonDeleteMonsterFix1(monster_id);
             }
 
             return m_take_hit;
@@ -1888,7 +1890,7 @@ namespace Moria.Core.Methods
 
             if (item_count > 0)
             {
-                dropped_item_id = (uint)dungeonSummonObject(coord, item_count, item_type);
+                dropped_item_id = (uint)dungeon.dungeonSummonObject(coord, item_count, item_type);
             }
 
             // maybe the player died in mid-turn

@@ -4,7 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -19,16 +18,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IGame game,
             IRnd rnd
         )
         {
             Player_traps_m.dice = dice;
+            Player_traps_m.dungeon = dungeon;
             Player_traps_m.game = game;
             Player_traps_m.rnd = rnd;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IGame game;
         private static IRnd rnd;
 
@@ -70,7 +72,7 @@ namespace Moria.Core.Methods
             {
                 printMessage("You have disarmed the trap.");
                 py.misc.exp += misc_use;
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
 
                 // make sure we move onto the trap even if confused
                 py.flags.confused = 0;
@@ -265,7 +267,7 @@ namespace Moria.Core.Methods
         {
             printMessage("There is a sudden explosion!");
 
-            dungeonDeleteObject(coord);
+            dungeon.dungeonDeleteObject(coord);
 
             playerTakesHit(dice.diceRoll(new Dice_t(5, 8)), "an exploding chest");
         }

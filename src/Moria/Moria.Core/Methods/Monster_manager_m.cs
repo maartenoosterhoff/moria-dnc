@@ -5,7 +5,6 @@ using System;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -14,16 +13,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IRnd rnd,
             IStd std
         )
         {
             Monster_manager_m.dice = dice;
+            Monster_manager_m.dungeon = dungeon;
             Monster_manager_m.rnd = rnd;
             Monster_manager_m.std = std;
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IRnd rnd;
         private static IStd std;
 
@@ -76,7 +78,7 @@ namespace Moria.Core.Methods
             // the creatures_list[] speed value is 10 greater, so that it can be a uint8_t
             monster.speed = ((int)creatures_list[creature_id].speed - 10 + py.flags.speed);
             monster.stunned_amount = 0;
-            monster.distance_from_player = (uint)coordDistanceBetween(py.pos, coord);
+            monster.distance_from_player = (uint)dungeon.coordDistanceBetween(py.pos, coord);
             monster.lit = false;
 
             dg.floor[coord.y][coord.x].creature_id = (uint)monster_id;
@@ -121,7 +123,7 @@ namespace Moria.Core.Methods
             } while (dg.floor[coord.y][coord.x].feature_id >= MIN_CLOSED_SPACE ||           //
                      dg.floor[coord.y][coord.x].creature_id != 0 ||                         //
                      dg.floor[coord.y][coord.x].treasure_id != 0 ||                         //
-                     coordDistanceBetween(coord, py.pos) <= Config.monsters.MON_MAX_SIGHT //
+                     dungeon.coordDistanceBetween(coord, py.pos) <= Config.monsters.MON_MAX_SIGHT //
             );
 
             var creature_id = rnd.randomNumber(Config.monsters.MON_ENDGAME_MONSTERS) - 1 + State.Instance.monster_levels[MON_MAX_LEVELS];
@@ -161,7 +163,7 @@ namespace Moria.Core.Methods
             // the creatures_list speed value is 10 greater, so that it can be a uint8_t
             monster.speed = ((int)creatures_list[creature_id].speed - 10 + py.flags.speed);
             monster.stunned_amount = 0;
-            monster.distance_from_player = (uint)coordDistanceBetween(py.pos, coord);
+            monster.distance_from_player = (uint)dungeon.coordDistanceBetween(py.pos, coord);
 
             dg.floor[coord.y][coord.x].creature_id = (uint)monster_id;
 
@@ -231,7 +233,7 @@ namespace Moria.Core.Methods
                     position.x = rnd.randomNumber(dg.width - 2);
                 } while (dg.floor[position.y][position.x].feature_id >= MIN_CLOSED_SPACE || //
                          dg.floor[position.y][position.x].creature_id != 0 ||               //
-                         coordDistanceBetween(position, py.pos) <= distance_from_source     //
+                         dungeon.coordDistanceBetween(position, py.pos) <= distance_from_source     //
                 );
 
                 var l = monsterGetOneSuitableForLevel(dg.current_level);
@@ -261,7 +263,7 @@ namespace Moria.Core.Methods
                 position.y = coord.y - 2 + rnd.randomNumber(3);
                 position.x = coord.x - 2 + rnd.randomNumber(3);
 
-                if (coordInBounds(position))
+                if (dungeon.coordInBounds(position))
                 {
                     if (dg.floor[position.y][position.x].feature_id <= MAX_OPEN_SPACE &&
                         dg.floor[position.y][position.x].creature_id == 0)
@@ -350,14 +352,14 @@ namespace Moria.Core.Methods
                         {
                             // in case this is called from within updateMonsters(), this is a horrible
                             // hack, the monsters/updateMonsters() code needs to be rewritten.
-                            dungeonDeleteMonster(i);
+                            dungeon.dungeonDeleteMonster(i);
                             delete_any = true;
                         }
                         else
                         {
                             // dungeonDeleteMonsterFix1() does not decrement next_free_monster_id,
                             // so don't set delete_any if this was called.
-                            dungeonDeleteMonsterFix1(i);
+                            dungeon.dungeonDeleteMonsterFix1(i);
                         }
                     }
                 }

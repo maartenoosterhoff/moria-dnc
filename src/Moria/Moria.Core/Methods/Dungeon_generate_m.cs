@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_manager_m;
 
@@ -21,14 +20,17 @@ namespace Moria.Core.Methods
 
     public class Dungeon_generate_m : IDungeonGenerate
     {
+        private readonly IDungeon dungeon;
         private readonly IRnd rnd;
         private readonly IStoreInventory storeInventory;
 
         public Dungeon_generate_m(
+            IDungeon dungeon,
             IRnd rnd,
             IStoreInventory storeInventory
         )
         {
+            this.dungeon = dungeon;
             this.rnd = rnd;
             this.storeInventory = storeInventory;
         }
@@ -214,7 +216,7 @@ namespace Moria.Core.Methods
                         coord.x + this.rnd.randomNumber(t1) - t2
                     );
 
-                    if (coordInBounds(spot))
+                    if (dungeon.coordInBounds(spot))
                     {
                         if (dg.floor[spot.y][spot.x].feature_id == TILE_GRANITE_WALL)
                         {
@@ -222,7 +224,7 @@ namespace Moria.Core.Methods
 
                             if (this.rnd.randomNumber(chance_of_treasure) == 1)
                             {
-                                dungeonPlaceGold(spot);
+                                dungeon.dungeonPlaceGold(spot);
                             }
                         }
                     }
@@ -345,7 +347,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[coord.y][coord.x].treasure_id != 0)
             {
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
             }
 
             var cur_pos = popt();
@@ -361,7 +363,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[coord.y][coord.x].treasure_id != 0)
             {
-                dungeonDeleteObject(coord);
+                dungeon.dungeonDeleteObject(coord);
             }
 
             var cur_pos = popt();
@@ -401,7 +403,7 @@ namespace Moria.Core.Methods
                             do
                             {
                                 if (dg.floor[coord1.y][coord1.x].feature_id <= MAX_OPEN_SPACE &&
-                                    dg.floor[coord1.y][coord1.x].treasure_id == 0 && coordWallsNextTo(coord1) >= walls)
+                                    dg.floor[coord1.y][coord1.x].treasure_id == 0 && dungeon.coordWallsNextTo(coord1) >= walls)
                                 {
                                     placed = true;
                                     if (stair_type == 1)
@@ -448,7 +450,7 @@ namespace Moria.Core.Methods
                         dg.floor[spot.y][spot.x].feature_id <= MAX_CAVE_FLOOR &&
                         dg.floor[spot.y][spot.x].treasure_id == 0)
                     {
-                        dungeonSetTrap(spot, this.rnd.randomNumber((int)Config.dungeon_objects.MAX_TRAPS) - 1);
+                        dungeon.dungeonSetTrap(spot, this.rnd.randomNumber((int)Config.dungeon_objects.MAX_TRAPS) - 1);
                         placed = true;
                     }
                 }
@@ -813,12 +815,12 @@ namespace Moria.Core.Methods
 
                     if (this.rnd.randomNumber(3) == 1)
                     {
-                        dungeonPlaceRandomObjectAt(new Coord_t(coord.y, coord.x - 2), false);
+                        dungeon.dungeonPlaceRandomObjectAt(new Coord_t(coord.y, coord.x - 2), false);
                     }
 
                     if (this.rnd.randomNumber(3) == 1)
                     {
-                        dungeonPlaceRandomObjectAt(new Coord_t(coord.y, coord.x + 2), false);
+                        dungeon.dungeonPlaceRandomObjectAt(new Coord_t(coord.y, coord.x + 2), false);
                     }
 
                     dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x - 2), this.rnd.randomNumber(2));
@@ -840,14 +842,14 @@ namespace Moria.Core.Methods
                     // Mazes should have some treasure too..
                     for (var i = 0; i < 3; i++)
                     {
-                        dungeonPlaceRandomObjectNear(coord, 1);
+                        dungeon.dungeonPlaceRandomObjectNear(coord, 1);
                     }
                     break;
                 case InnerRoomTypes.FourSmallRooms:
                     dungeonPlaceFourSmallRooms(coord, depth, height, left, right);
 
                     // Treasure in each one.
-                    dungeonPlaceRandomObjectNear(coord, 2 + this.rnd.randomNumber(2));
+                    dungeon.dungeonPlaceRandomObjectNear(coord, 2 + this.rnd.randomNumber(2));
 
                     // Gotta have some monsters.
                     dungeonPlaceVaultMonster(new Coord_t(coord.y + 2, coord.x - 4), this.rnd.randomNumber(2));
@@ -983,7 +985,7 @@ namespace Moria.Core.Methods
                     }
 
                     // Place a treasure in the vault
-                    dungeonPlaceRandomObjectAt(coord, false);
+                    dungeon.dungeonPlaceRandomObjectAt(coord, false);
 
                     // Let's guard the treasure well.
                     dungeonPlaceVaultMonster(coord, 2 + this.rnd.randomNumber(2));
@@ -1078,7 +1080,7 @@ namespace Moria.Core.Methods
                 var tmp_row = start.y + y_direction;
                 var tmp_col = start.x + x_direction;
 
-                while (!coordInBounds(new Coord_t(tmp_row, tmp_col)))
+                while (!dungeon.coordInBounds(new Coord_t(tmp_row, tmp_col)))
                 {
                     if (this.rnd.randomNumber((int)Config.dungeon.DUN_RANDOM_DIR) == 1)
                     {
@@ -1123,7 +1125,7 @@ namespace Moria.Core.Methods
                         {
                             for (var x = start.x - 1; x <= start.x + 1; x++)
                             {
-                                if (coordInBounds(new Coord_t(y, x)))
+                                if (dungeon.coordInBounds(new Coord_t(y, x)))
                                 {
                                     // values 11 and 12 are impossible here, dungeonPlaceStreamerRock
                                     // is never run before dungeonBuildTunnel
@@ -1209,7 +1211,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            if (coordCorridorWallsNextTo(coord) > 2)
+            if (dungeon.coordCorridorWallsNextTo(coord) > 2)
             {
                 var vertical = dg.floor[coord.y - 1][coord.x].feature_id >= MIN_CAVE_WALL &&
                                dg.floor[coord.y + 1][coord.x].feature_id >= MIN_CAVE_WALL;
@@ -1392,11 +1394,11 @@ namespace Moria.Core.Methods
             py.pos = coord;
 
             monsterPlaceNewWithinDistance((this.rnd.randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + alloc_level), 0, true);
-            dungeonAllocateAndPlaceObject(setCorridors, 3, this.rnd.randomNumber(alloc_level));
-            dungeonAllocateAndPlaceObject(setRooms, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_ROOM, 3));
-            dungeonAllocateAndPlaceObject(setFloors, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_CORRIDOR, 3));
-            dungeonAllocateAndPlaceObject(setFloors, 4, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_TOTAL_GOLD_AND_GEMS, 3));
-            dungeonAllocateAndPlaceObject(setFloors, 1, this.rnd.randomNumber(alloc_level));
+            dungeon.dungeonAllocateAndPlaceObject(setCorridors, 3, this.rnd.randomNumber(alloc_level));
+            dungeon.dungeonAllocateAndPlaceObject(setRooms, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_ROOM, 3));
+            dungeon.dungeonAllocateAndPlaceObject(setFloors, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_CORRIDOR, 3));
+            dungeon.dungeonAllocateAndPlaceObject(setFloors, 4, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_TOTAL_GOLD_AND_GEMS, 3));
+            dungeon.dungeonAllocateAndPlaceObject(setFloors, 1, this.rnd.randomNumber(alloc_level));
 
             if (dg.current_level >= Config.monsters.MON_ENDGAME_LEVEL)
             {

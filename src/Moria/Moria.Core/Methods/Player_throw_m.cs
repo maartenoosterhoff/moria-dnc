@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IDungeon dungeon,
             IGame game,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
         )
         {
             Player_throw_m.dice = dice;
+            Player_throw_m.dungeon = dungeon;
             Player_throw_m.game = game;
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
@@ -35,6 +36,7 @@ namespace Moria.Core.Methods
         }
 
         private static IDice dice;
+        private static IDungeon dungeon;
         private static IGame game;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -179,7 +181,7 @@ namespace Moria.Core.Methods
             {
                 for (var k = 0; !flag && k <= 9;)
                 {
-                    if (coordInBounds(position))
+                    if (dungeon.coordInBounds(position))
                     {
                         if (dg.floor[position.y][position.x].feature_id <= MAX_OPEN_SPACE && dg.floor[position.y][position.x].treasure_id == 0)
                         {
@@ -201,7 +203,7 @@ namespace Moria.Core.Methods
                 var cur_pos = popt();
                 dg.floor[position.y][position.x].treasure_id = (uint)cur_pos;
                 game.treasure.list[cur_pos] = item;
-                dungeonLiteSpot(position);
+                dungeon.dungeonLiteSpot(position);
             }
             else
             {
@@ -277,7 +279,7 @@ namespace Moria.Core.Methods
                 }
 
                 current_distance++;
-                dungeonLiteSpot(old_coord);
+                dungeon.dungeonLiteSpot(old_coord);
 
                 var tile = dg.floor[coord.y][coord.x];
 

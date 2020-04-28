@@ -6,7 +6,6 @@ using System;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Game_objects_m;
@@ -17,12 +16,15 @@ namespace Moria.Core.Methods
     public static class Inventory_m
     {
         public static void SetDependencies(
+            IDungeon dungeon,
             IRnd rnd
         )
         {
+            Inventory_m.dungeon = dungeon;
             Inventory_m.rnd = rnd;
         }
 
+        private static IDungeon dungeon;
         private static IRnd rnd;
 
         public static uint inventoryCollectAllItemFlags()
@@ -89,7 +91,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[py.pos.y][py.pos.x].treasure_id != 0)
             {
-                dungeonDeleteObject(py.pos);
+                dungeon.dungeonDeleteObject(py.pos);
             }
 
             var treasure_id = popt();
