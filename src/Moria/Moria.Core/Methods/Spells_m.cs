@@ -1435,7 +1435,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventory.inventoryFindRange((int)TV_STAFF, (int)TV_WAND, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_WAND, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You have nothing to recharge.");
                 return false;

@@ -2578,7 +2578,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventory.inventoryFindRange((int)TV_MAGIC_BOOK, (int)TV_PRAYER_BOOK, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, (int)TV_PRAYER_BOOK, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You are not carrying any books.");
                 return;
@@ -2752,7 +2752,7 @@ namespace Moria.Core.Methods
             if (tile.creature_id == 0)
             {
                 int item_pos_start = 0, item_pos_end = 0;
-                if (inventory.inventoryFindRange((int)TV_SPIKE, TV_NEVER, ref item_pos_start, ref item_pos_end))
+                if (inventoryManager.inventoryFindRange((int)TV_SPIKE, TV_NEVER, ref item_pos_start, ref item_pos_end))
                 {
                     game.player_free_turn = false;
 
@@ -2810,7 +2810,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventory.inventoryFindRange((int)TV_FLASK, TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_FLASK, TV_NEVER, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You have no oil.");
                 return;

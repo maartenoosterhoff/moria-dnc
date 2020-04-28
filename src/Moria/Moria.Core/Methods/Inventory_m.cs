@@ -29,7 +29,6 @@ namespace Moria.Core.Methods
         void damageCold(int damage, string creature_name);
         void damageFire(int damage, string creature_name);
         void damageCorrodingGas(string creature_name);
-        bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k);
         bool inventoryDiminishLightAttack(bool noticed);
         bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed);
     }
@@ -272,48 +271,6 @@ namespace Moria.Core.Methods
 
             return slot_id;
         }
-
-        // Finds range of item in inventory list -RAK-
-        public bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k)
-        {
-            var py = State.Instance.py;
-
-            j = -1;
-            k = -1;
-
-            var at_end_of_range = false;
-
-            for (var i = 0; i < py.pack.unique_items; i++)
-            {
-                var item_id = (int)py.inventory[i].category_id;
-
-                if (!at_end_of_range)
-                {
-                    if (item_id == item_id_start || item_id == item_id_end)
-                    {
-                        at_end_of_range = true;
-                        j = i;
-                    }
-                }
-                else
-                {
-                    if (item_id != item_id_start && item_id != item_id_end)
-                    {
-                        k = i - 1;
-                        break;
-                    }
-                }
-            }
-
-            if (at_end_of_range && k == -1)
-            {
-                k = py.pack.unique_items - 1;
-            }
-
-            return at_end_of_range;
-        }
-
-        
 
         // AC gets worse -RAK-
         // Note: This routine affects magical AC bonuses so

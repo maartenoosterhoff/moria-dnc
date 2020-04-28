@@ -216,7 +216,7 @@ Options:
             Mage_spells_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
-                container.GetInstance<IInventory>(),
+                container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
@@ -252,7 +252,6 @@ Options:
 
             Player_eat_m.SetDependencies(
                 container.GetInstance<IDice>(),
-                container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
@@ -270,7 +269,7 @@ Options:
             Player_pray_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
-                container.GetInstance<IInventory>(),
+                container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
@@ -278,7 +277,6 @@ Options:
 
             Player_quaff_m.SetDependencies(
                 container.GetInstance<IDice>(),
-                container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
@@ -346,7 +344,7 @@ Options:
             Staffs_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
-                container.GetInstance<IInventory>(),
+                container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),

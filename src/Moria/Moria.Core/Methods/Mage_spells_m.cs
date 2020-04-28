@@ -19,7 +19,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
-            IInventory inventory,
+            IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -27,7 +27,7 @@ namespace Moria.Core.Methods
         {
             Mage_spells_m.dice = dice;
             Mage_spells_m.game = game;
-            Mage_spells_m.inventory = inventory;
+            Mage_spells_m.inventoryManager = inventoryManager;
             Mage_spells_m.playerMagic = playerMagic;
             Mage_spells_m.rnd = rnd;
             Mage_spells_m.uiInventory = uiInventory;
@@ -35,7 +35,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IGame game;
-        private static IInventory inventory;
+        private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -234,7 +234,7 @@ namespace Moria.Core.Methods
             }
 
             int i = 0, j = 0;
-            if (!inventory.inventoryFindRange((int)TV_MAGIC_BOOK, TV_NEVER, ref i, ref j))
+            if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, TV_NEVER, ref i, ref j))
             {
                 printMessage("But you are not carrying any spell-books!");
                 return;

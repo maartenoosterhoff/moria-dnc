@@ -18,7 +18,6 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
-            IInventory inventory,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -26,7 +25,6 @@ namespace Moria.Core.Methods
         )
         {
             Player_quaff_m.dice = dice;
-            Player_quaff_m.inventory = inventory;
             Player_quaff_m.inventoryManager = inventoryManager;
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
@@ -34,7 +32,6 @@ namespace Moria.Core.Methods
         }
 
         private static IDice dice;
-        private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -370,7 +367,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_begin = 0, item_pos_end = 0;
-            if (!inventory.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, ref item_pos_begin, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, ref item_pos_begin, ref item_pos_end))
             {
                 printMessage("You are not carrying any potions.");
                 return;
