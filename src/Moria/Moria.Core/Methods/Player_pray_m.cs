@@ -4,7 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -19,6 +18,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IInventory inventory,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -26,6 +26,7 @@ namespace Moria.Core.Methods
         {
             Player_pray_m.dice = dice;
             Player_pray_m.game = game;
+            Player_pray_m.inventory = inventory;
             Player_pray_m.playerMagic = playerMagic;
             Player_pray_m.rnd = rnd;
             Player_pray_m.uiInventory = uiInventory;
@@ -33,6 +34,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IGame game;
+        private static IInventory inventory;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -70,7 +72,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (!inventoryFindRange((int)TV_PRAYER_BOOK, TV_NEVER, ref item_pos_begin, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_PRAYER_BOOK, TV_NEVER, ref item_pos_begin, ref item_pos_end))
             {
                 printMessage("You are not carrying any Holy Books!");
                 return false;

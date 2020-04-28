@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
@@ -18,18 +17,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IInventory inventory,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Player_eat_m.dice = dice;
+            Player_eat_m.inventory = inventory;
             Player_eat_m.playerMagic = playerMagic;
             Player_eat_m.rnd = rnd;
             Player_eat_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IInventory inventory;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -49,7 +51,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You are not carrying any food.");
                 return;
@@ -255,7 +257,7 @@ namespace Moria.Core.Methods
             printCharacterHungerStatus();
 
             itemTypeRemainingCountDescription(item_id);
-            inventoryDestroyItem(item_id);
+            inventory.inventoryDestroyItem(item_id);
         }
 
         // Add to the players food time -RAK-

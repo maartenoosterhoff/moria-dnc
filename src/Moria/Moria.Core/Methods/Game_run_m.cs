@@ -19,7 +19,6 @@ using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_bash_m;
@@ -50,6 +49,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonGenerate dungeonGenerate,
             IGame game,
+            IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
@@ -62,6 +62,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeon = dungeon;
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
+            Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.rnd = rnd;
@@ -75,6 +76,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
+        private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -266,7 +268,7 @@ namespace Moria.Core.Methods
                     item.identification |= Config.identification.ID_SHOW_HIT_DAM;
                 }
 
-                inventoryCarryItem(item);
+                inventory.inventoryCarryItem(item);
             }
 
             // weird place for it, but why not?
@@ -2576,7 +2578,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryFindRange((int)TV_MAGIC_BOOK, (int)TV_PRAYER_BOOK, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_MAGIC_BOOK, (int)TV_PRAYER_BOOK, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You are not carrying any books.");
                 return;
@@ -2750,7 +2752,7 @@ namespace Moria.Core.Methods
             if (tile.creature_id == 0)
             {
                 int item_pos_start = 0, item_pos_end = 0;
-                if (inventoryFindRange((int)TV_SPIKE, TV_NEVER, ref item_pos_start, ref item_pos_end))
+                if (inventory.inventoryFindRange((int)TV_SPIKE, TV_NEVER, ref item_pos_start, ref item_pos_end))
                 {
                     game.player_free_turn = false;
 
@@ -2773,7 +2775,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        inventoryDestroyItem(item_pos_start);
+                        inventory.inventoryDestroyItem(item_pos_start);
                     }
                 }
                 else
@@ -2808,7 +2810,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryFindRange((int)TV_FLASK, TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_FLASK, TV_NEVER, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You have no oil.");
                 return;
@@ -2839,7 +2841,7 @@ namespace Moria.Core.Methods
             }
 
             itemTypeRemainingCountDescription(item_pos_start);
-            inventoryDestroyItem(item_pos_start);
+            inventory.inventoryDestroyItem(item_pos_start);
         }
 
         // Main procedure for dungeon. -RAK-

@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -22,6 +21,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies
         (
+            IInventory inventory,
             IInventoryManager inventoryManager,
             IStd std,
             IStoreInventory storeInventory,
@@ -29,6 +29,7 @@ namespace Moria.Core.Methods
             IUiInventory uiInventory
         )
         {
+            Store_m.inventory = inventory;
             Store_m.inventoryManager = inventoryManager;
             Store_m.std = std;
             Store_m.storeInventory = storeInventory;
@@ -36,6 +37,7 @@ namespace Moria.Core.Methods
             Store_m.uiInventory = uiInventory;
         }
 
+        private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IStd std;
         private static IStoreInventory storeInventory;
@@ -1034,9 +1036,9 @@ namespace Moria.Core.Methods
             item_id = item_id + current_top_item_id; // true item_id
 
             var sell_item = new Inventory_t();
-            inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
+            inventory.inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
 
-            if (!inventoryCanCarryItemCount(sell_item))
+            if (!inventory.inventoryCanCarryItemCount(sell_item))
             {
                 putStringClearToEOL("You cannot carry that many different items.", new Coord_t(0, 0));
                 return false;
@@ -1066,7 +1068,7 @@ namespace Moria.Core.Methods
                     storeDecreaseInsults(store_id);
                     py.misc.au -= price;
 
-                    var new_item_id = inventoryCarryItem(sell_item);
+                    var new_item_id = inventory.inventoryCarryItem(sell_item);
                     var saved_store_counter = (int)store.unique_items_counter;
 
                     storeInventory.storeDestroyItem(store_id, item_id, true);
@@ -1290,7 +1292,7 @@ namespace Moria.Core.Methods
             }
 
             var sold_item = new Inventory_t();
-            inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
+            inventory.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
             var description = string.Empty;
             itemDescription(ref description, sold_item, true);
@@ -1332,11 +1334,11 @@ namespace Moria.Core.Methods
                 itemIdentify(py.inventory[item_id], ref item_id);
 
                 // retake sold_item so that it will be identified
-                inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
+                inventory.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
                 // call spellItemIdentifyAndRemoveRandomInscription for store item, so charges/pluses are known
                 spellItemIdentifyAndRemoveRandomInscription(sold_item);
-                inventoryDestroyItem(item_id);
+                inventory.inventoryDestroyItem(item_id);
 
                 itemDescription(ref description, sold_item, true);
                 msg = $"You've sold {description:s}";

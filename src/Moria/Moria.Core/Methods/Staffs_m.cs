@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -20,6 +19,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IInventory inventory,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
         {
             Staffs_m.dice = dice;
             Staffs_m.game = game;
+            Staffs_m.inventory = inventory;
             Staffs_m.monsterManager = monsterManager;
             Staffs_m.playerMagic = playerMagic;
             Staffs_m.rnd = rnd;
@@ -36,6 +37,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IGame game;
+        private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -50,7 +52,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (!inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You are not carrying any staffs.");
                 return false;
@@ -409,7 +411,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryFindRange((int)TV_WAND, TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_WAND, TV_NEVER, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You are not carrying any wands.");
                 return;

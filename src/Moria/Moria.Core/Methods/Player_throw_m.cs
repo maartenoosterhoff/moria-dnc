@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -22,6 +21,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IInventory inventory,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -30,6 +30,7 @@ namespace Moria.Core.Methods
             Player_throw_m.dice = dice;
             Player_throw_m.dungeon = dungeon;
             Player_throw_m.game = game;
+            Player_throw_m.inventory = inventory;
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
             Player_throw_m.uiInventory = uiInventory;
@@ -38,6 +39,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IInventory inventory;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -60,7 +62,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                inventoryDestroyItem(item_id);
+                inventory.inventoryDestroyItem(item_id);
             }
         }
 

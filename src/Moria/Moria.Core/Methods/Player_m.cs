@@ -12,7 +12,6 @@ using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_traps_m;
@@ -28,6 +27,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IInventory inventory,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd
@@ -36,6 +36,7 @@ namespace Moria.Core.Methods
             Player_m.dice = dice;
             Player_m.dungeon = dungeon;
             Player_m.game = game;
+            Player_m.inventory = inventory;
             Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
@@ -44,6 +45,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -703,7 +705,7 @@ namespace Moria.Core.Methods
                 py.flags.status |= Config.player_status.PY_ARMOR;
             }
 
-            var item_flags = inventoryCollectAllItemFlags();
+            var item_flags = inventory.inventoryCollectAllItemFlags();
 
             if ((item_flags & Config.treasure_flags.TR_SLOW_DIGEST) != 0u)
             {

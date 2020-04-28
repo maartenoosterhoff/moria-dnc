@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -18,6 +17,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IInventory inventory,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -25,6 +25,7 @@ namespace Moria.Core.Methods
         )
         {
             Scrolls_m.dice = dice;
+            Scrolls_m.inventory = inventory;
             Scrolls_m.monsterManager = monsterManager;
             Scrolls_m.playerMagic = playerMagic;
             Scrolls_m.rnd = rnd;
@@ -32,6 +33,7 @@ namespace Moria.Core.Methods
         }
 
         private static IDice dice;
+        private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -66,7 +68,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (!inventoryFindRange((int)TV_SCROLL1, (int)TV_SCROLL2, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_SCROLL1, (int)TV_SCROLL2, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You are not carrying any scrolls!");
                 return false;
@@ -819,7 +821,7 @@ namespace Moria.Core.Methods
             if (used_up)
             {
                 itemTypeRemainingCountDescription(item_id);
-                inventoryDestroyItem(item_id);
+                inventory.inventoryDestroyItem(item_id);
             }
         }
 

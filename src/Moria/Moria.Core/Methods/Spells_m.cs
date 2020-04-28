@@ -3,7 +3,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
-using System.ComponentModel;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
@@ -14,7 +13,6 @@ using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Mage_spells_m;
@@ -29,6 +27,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
@@ -37,6 +36,7 @@ namespace Moria.Core.Methods
         {
             Spells_m.dice = dice;
             Spells_m.dungeon = dungeon;
+            Spells_m.inventory = inventory;
             Spells_m.inventoryManager = inventoryManager;
             Spells_m.monsterManager = monsterManager;
             Spells_m.rnd = rnd;
@@ -45,6 +45,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -968,42 +969,42 @@ namespace Moria.Core.Methods
                 case MagicSpellFlags.MagicMissile:
                     weapon_type = 0;
                     harm_type = 0;
-                    destroy = setNull;
+                    destroy = inventory.setNull;
                     break;
                 case MagicSpellFlags.Lightning:
                     weapon_type = Config.monsters_spells.CS_BR_LIGHT;
                     harm_type = (int)Config.monsters_defense.CD_LIGHT;
-                    destroy = setLightningDestroyableItems;
+                    destroy = inventory.setLightningDestroyableItems;
                     break;
                 case MagicSpellFlags.PoisonGas:
                     weapon_type = Config.monsters_spells.CS_BR_GAS;
                     harm_type = (int)Config.monsters_defense.CD_POISON;
-                    destroy = setNull;
+                    destroy = inventory.setNull;
                     break;
                 case MagicSpellFlags.Acid:
                     weapon_type = Config.monsters_spells.CS_BR_ACID;
                     harm_type = (int)Config.monsters_defense.CD_ACID;
-                    destroy = setAcidDestroyableItems;
+                    destroy = inventory.setAcidDestroyableItems;
                     break;
                 case MagicSpellFlags.Frost:
                     weapon_type = Config.monsters_spells.CS_BR_FROST;
                     harm_type = (int)Config.monsters_defense.CD_FROST;
-                    destroy = setFrostDestroyableItems;
+                    destroy = inventory.setFrostDestroyableItems;
                     break;
                 case MagicSpellFlags.Fire:
                     weapon_type = Config.monsters_spells.CS_BR_FIRE;
                     harm_type = (int)Config.monsters_defense.CD_FIRE;
-                    destroy = setFireDestroyableItems;
+                    destroy = inventory.setFireDestroyableItems;
                     break;
                 case MagicSpellFlags.HolyOrb:
                     weapon_type = 0;
                     harm_type = (int)Config.monsters_defense.CD_EVIL;
-                    destroy = setNull;
+                    destroy = inventory.setNull;
                     break;
                 default:
                     weapon_type = 0;
                     harm_type = 0;
-                    destroy = setNull;
+                    destroy = inventory.setNull;
                     printMessage("ERROR in spellGetAreaAffectFlags()\n");
                     break;
             }
@@ -1390,19 +1391,19 @@ namespace Moria.Core.Methods
                                 switch ((MagicSpellFlags)spell_type)
                                 {
                                     case MagicSpellFlags.Lightning:
-                                        damageLightningBolt(damage, spell_name);
+                                        inventory.damageLightningBolt(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.PoisonGas:
-                                        damagePoisonedGas(damage, spell_name);
+                                        inventory.damagePoisonedGas(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.Acid:
-                                        damageAcid(damage, spell_name);
+                                        inventory.damageAcid(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.Frost:
-                                        damageCold(damage, spell_name);
+                                        inventory.damageCold(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.Fire:
-                                        damageFire(damage, spell_name);
+                                        inventory.damageFire(damage, spell_name);
                                         break;
                                     default:
                                         break;
@@ -1434,7 +1435,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryFindRange((int)TV_STAFF, (int)TV_WAND, ref item_pos_start, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_STAFF, (int)TV_WAND, ref item_pos_start, ref item_pos_end))
             {
                 printMessage("You have nothing to recharge.");
                 return false;
@@ -1469,7 +1470,7 @@ namespace Moria.Core.Methods
             if (fail_chance == 1)
             {
                 printMessage("There is a bright flash of light.");
-                inventoryDestroyItem(item_id);
+                inventory.inventoryDestroyItem(item_id);
             }
             else
             {

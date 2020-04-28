@@ -13,7 +13,6 @@ using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -24,6 +23,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
@@ -32,6 +32,7 @@ namespace Moria.Core.Methods
         {
             Monster_m.dice = dice;
             Monster_m.dungeon = dungeon;
+            Monster_m.inventory = inventory;
             Monster_m.inventoryManager = inventoryManager;
             Monster_m.monsterManager = monsterManager;
             Monster_m.rnd = rnd;
@@ -40,6 +41,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -2067,23 +2069,23 @@ namespace Moria.Core.Methods
                     break;
                 case 5: // Fire attack
                     printMessage("You are enveloped in flames!");
-                    damageFire(damage, death_description);
+                    inventory.damageFire(damage, death_description);
                     break;
                 case 6: // Acid attack
                     printMessage("You are covered in acid!");
-                    damageAcid(damage, death_description);
+                    inventory.damageAcid(damage, death_description);
                     break;
                 case 7: // Cold attack
                     printMessage("You are covered with frost!");
-                    damageCold(damage, death_description);
+                    inventory.damageCold(damage, death_description);
                     break;
                 case 8: // Lightning attack
                     printMessage("Lightning strikes you!");
-                    damageLightningBolt(damage, death_description);
+                    inventory.damageLightningBolt(damage, death_description);
                     break;
                 case 9: // Corrosion attack
                     printMessage("A stinging red gas swirls about you.");
-                    damageCorrodingGas(death_description);
+                    inventory.damageCorrodingGas(death_description);
                     playerTakesHit(damage, death_description);
                     break;
                 case 10: // Blindness attack
@@ -2154,7 +2156,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
+                        inventory.inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
                         printMessage("Your backpack feels lighter.");
                     }
                     if (rnd.randomNumber(2) == 1)
@@ -2224,7 +2226,7 @@ namespace Moria.Core.Methods
                     spellAggravateMonsters(20);
                     break;
                 case 21: // Disenchant
-                    if (executeDisenchantAttack())
+                    if (inventory.executeDisenchantAttack())
                     {
                         printMessage("There is a static feeling in the air.");
                         playerRecalculateBonuses();
@@ -2235,9 +2237,9 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 22: // Eat food
-                    if (inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
+                    if (inventory.inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
                     {
-                        inventoryDestroyItem(item_pos_start);
+                        inventory.inventoryDestroyItem(item_pos_start);
                         printMessage("It got at your rations!");
                     }
                     else
@@ -2246,10 +2248,10 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 23: // Eat light
-                    noticed = inventoryDiminishLightAttack(noticed);
+                    noticed = inventory.inventoryDiminishLightAttack(noticed);
                     break;
                 case 24: // Eat charges
-                    noticed = inventoryDiminishChargesAttack(creature_level, ref monster_hp, noticed);
+                    noticed = inventory.inventoryDiminishChargesAttack(creature_level, ref monster_hp, noticed);
                     break;
                 // NOTE: default handles this case
                 // case 99:

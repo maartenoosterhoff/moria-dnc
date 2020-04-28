@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Constants.Std_c;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -19,18 +18,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IInventory inventory,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Player_quaff_m.dice = dice;
+            Player_quaff_m.inventory = inventory;
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
             Player_quaff_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IInventory inventory;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -365,7 +367,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_begin = 0, item_pos_end = 0;
-            if (!inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, ref item_pos_begin, ref item_pos_end))
+            if (!inventory.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, ref item_pos_begin, ref item_pos_end))
             {
                 printMessage("You are not carrying any potions.");
                 return;
@@ -411,7 +413,7 @@ namespace Moria.Core.Methods
 
             playerIngestFood(item.misc_use);
             itemTypeRemainingCountDescription(item_id);
-            inventoryDestroyItem(item_id);
+            inventory.inventoryDestroyItem(item_id);
         }
     }
 }

@@ -3,7 +3,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
-using Moria.Core.Data;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
@@ -13,62 +12,50 @@ using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
-    public interface IInventoryManager
-    {
-        void inventoryItemCopyTo(int from_item_id, Inventory_t to_item);
-    }
-
-    public class Inventory_manager_m : IInventoryManager
-    {
-        public void inventoryItemCopyTo(int from_item_id, Inventory_t to_item)
-        {
-            var from = Library.Instance.Treasure.game_objects[from_item_id];
-
-            to_item.id = (uint)from_item_id;
-            to_item.special_name_id = (int)SpecialNameIds.SN_NULL;
-            to_item.inscription = string.Empty;
-            to_item.flags = from.flags;
-            to_item.category_id = from.category_id;
-            to_item.sprite = from.sprite;
-            to_item.misc_use = from.misc_use;
-            to_item.cost = from.cost;
-            to_item.sub_category_id = from.sub_category_id;
-            to_item.items_count = from.items_count;
-            to_item.weight = from.weight;
-            to_item.to_hit = from.to_hit;
-            to_item.to_damage = from.to_damage;
-            to_item.ac = from.ac;
-            to_item.to_ac = from.to_ac;
-            to_item.damage = new Dice_t(from.damage.dice, from.damage.sides);
-            //to_item.damage.sides = from.damage.sides;
-            to_item.depth_first_found = from.depth_first_found;
-            to_item.identification = 0;
-        }
-    }
-
     public interface IInventory
     {
-
+        bool inventoryCanCarryItemCount(Inventory_t item);
+        void inventoryDropItem(int item_id, bool drop_all);
+        int inventoryCarryItem(Inventory_t new_item);
+        bool inventoryCanCarryItem(Inventory_t item);
+        void inventoryDestroyItem(int item_id);
+        bool setNull(Inventory_t item);
+        bool setLightningDestroyableItems(Inventory_t item);
+        bool setAcidDestroyableItems(Inventory_t item);
+        bool setFrostDestroyableItems(Inventory_t item);
+        bool setFireDestroyableItems(Inventory_t item);
+        void damageLightningBolt(int damage, string creature_name);
+        void damagePoisonedGas(int damage, string creature_name);
+        void damageAcid(int damage, string creature_name);
+        void damageCold(int damage, string creature_name);
+        void damageFire(int damage, string creature_name);
+        void damageCorrodingGas(string creature_name);
+        bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k);
+        bool executeDisenchantAttack();
+        bool inventoryDiminishLightAttack(bool noticed);
+        bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed);
+        void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item);
+        uint inventoryCollectAllItemFlags();
     }
 
-    public static class Inventory_m
+    public class Inventory_m : IInventory
     {
-        public static void SetDependencies(
+        public Inventory_m(
             IDungeon dungeon,
             IInventoryManager inventoryManager,
             IRnd rnd
         )
         {
-            Inventory_m.dungeon = dungeon;
-            Inventory_m.inventoryManager = inventoryManager;
-            Inventory_m.rnd = rnd;
+            this.dungeon = dungeon;
+            this.inventoryManager = inventoryManager;
+            this.rnd = rnd;
         }
 
-        private static IDungeon dungeon;
-        private static IInventoryManager inventoryManager;
-        private static IRnd rnd;
+        private readonly IDungeon dungeon;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IRnd rnd;
 
-        public static uint inventoryCollectAllItemFlags()
+        public uint inventoryCollectAllItemFlags()
         {
             var py = State.Instance.py;
             uint flags = 0;
@@ -82,7 +69,7 @@ namespace Moria.Core.Methods
         }
 
         // Destroy an item in the inventory -RAK-
-        public static void inventoryDestroyItem(int item_id)
+        public void inventoryDestroyItem(int item_id)
         {
             var py = State.Instance.py;
 
@@ -111,7 +98,7 @@ namespace Moria.Core.Methods
 
         // Copies the object in the second argument over the first argument.
         // However, the second always gets a number of one except for ammo etc.
-        public static void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item)
+        public void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item)
         {
             to_item = from_item;
 
@@ -124,7 +111,7 @@ namespace Moria.Core.Methods
         }
 
         // Drops an item from inventory to given location -RAK-
-        public static void inventoryDropItem(int item_id, bool drop_all)
+        public void inventoryDropItem(int item_id, bool drop_all)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -180,7 +167,7 @@ namespace Moria.Core.Methods
         }
 
         // Destroys a type of item on a given percent chance -RAK-
-        public static int inventoryDamageItem(Func<Inventory_t, bool> item_type, int chance_percentage)
+        private int inventoryDamageItem(Func<Inventory_t, bool> item_type, int chance_percentage)
         {
             var py = State.Instance.py;
 
@@ -200,7 +187,7 @@ namespace Moria.Core.Methods
             return damage;
         }
 
-        public static bool inventoryDiminishLightAttack(bool noticed)
+        public bool inventoryDiminishLightAttack(bool noticed)
         {
             var py = State.Instance.py;
             var item = py.inventory[(int)PlayerEquipment.Light];
@@ -231,7 +218,7 @@ namespace Moria.Core.Methods
             return noticed;
         }
 
-        public static bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed)
+        public bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed)
         {
             var py = State.Instance.py;
             var item = py.inventory[rnd.randomNumber(py.pack.unique_items) - 1];
@@ -256,7 +243,7 @@ namespace Moria.Core.Methods
             return noticed;
         }
 
-        public static bool executeDisenchantAttack()
+        public bool executeDisenchantAttack()
         {
             int item_id;
 
@@ -329,7 +316,7 @@ namespace Moria.Core.Methods
         }
 
         // this code must be identical to the inventoryCarryItem() code below
-        public static bool inventoryCanCarryItemCount(Inventory_t item)
+        public bool inventoryCanCarryItemCount(Inventory_t item)
         {
             var py = State.Instance.py;
             if (py.pack.unique_items < (int)PlayerEquipment.Wield)
@@ -370,7 +357,7 @@ namespace Moria.Core.Methods
         }
 
         // return false if picking up an object would change the players speed
-        public static bool inventoryCanCarryItem(Inventory_t item)
+        public bool inventoryCanCarryItem(Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -392,7 +379,7 @@ namespace Moria.Core.Methods
         // Add an item to players inventory.  Return the
         // item position for a description if needed. -RAK-
         // this code must be identical to the inventoryCanCarryItemCount() code above
-        public static int inventoryCarryItem(Inventory_t new_item)
+        public int inventoryCarryItem(Inventory_t new_item)
         {
             var py = State.Instance.py;
             var is_known = itemSetColorlessAsIdentified((int)new_item.category_id, (int)new_item.sub_category_id, (int)new_item.identification);
@@ -439,7 +426,7 @@ namespace Moria.Core.Methods
         }
 
         // Finds range of item in inventory list -RAK-
-        public static bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k)
+        public bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k)
         {
             var py = State.Instance.py;
 
@@ -483,7 +470,7 @@ namespace Moria.Core.Methods
         // AC gets worse -RAK-
         // Note: This routine affects magical AC bonuses so
         // that stores can detect the damage.
-        public static bool damageMinusAC(uint typ_dam)
+        private bool damageMinusAC(uint typ_dam)
         {
             var py = State.Instance.py;
             var items_count = 0;
@@ -567,13 +554,13 @@ namespace Moria.Core.Methods
         }
 
         // Functions to emulate the original Pascal sets
-        public static bool setNull(Inventory_t item)
+        public bool setNull(Inventory_t item)
         {
             //(void)item; // silence warnings 
             return false;
         }
 
-        public static bool setCorrodableItems(Inventory_t item)
+        private bool setCorrodableItems(Inventory_t item)
         {
             switch (item.category_id)
             {
@@ -588,7 +575,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setFlammableItems(Inventory_t item)
+        private bool setFlammableItems(Inventory_t item)
         {
             switch (item.category_id)
             {
@@ -611,7 +598,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setAcidAffectedItems(Inventory_t item)
+        private bool setAcidAffectedItems(Inventory_t item)
         {
             switch (item.category_id)
             {
@@ -633,17 +620,17 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setFrostDestroyableItems(Inventory_t item)
+        public bool setFrostDestroyableItems(Inventory_t item)
         {
             return (item.category_id == TV_POTION1 || item.category_id == TV_POTION2 || item.category_id == TV_FLASK);
         }
 
-        public static bool setLightningDestroyableItems(Inventory_t item)
+        public bool setLightningDestroyableItems(Inventory_t item)
         {
             return (item.category_id == TV_RING || item.category_id == TV_WAND || item.category_id == TV_SPIKE);
         }
 
-        public static bool setAcidDestroyableItems(Inventory_t item)
+        public bool setAcidDestroyableItems(Inventory_t item)
         {
             switch (item.category_id)
             {
@@ -671,7 +658,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setFireDestroyableItems(Inventory_t item)
+        public bool setFireDestroyableItems(Inventory_t item)
         {
             switch (item.category_id)
             {
@@ -700,7 +687,7 @@ namespace Moria.Core.Methods
         }
 
         // Corrode the unsuspecting person's armor -RAK-
-        public static void damageCorrodingGas(string creature_name)
+        public void damageCorrodingGas(string creature_name)
         {
             if (!damageMinusAC(Config.treasure_flags.TR_RES_ACID))
             {
@@ -714,7 +701,7 @@ namespace Moria.Core.Methods
         }
 
         // Poison gas the idiot. -RAK-
-        public static void damagePoisonedGas(int damage, string creature_name)
+        public void damagePoisonedGas(int damage, string creature_name)
         {
             var py = State.Instance.py;
 
@@ -724,7 +711,7 @@ namespace Moria.Core.Methods
         }
 
         // Burn the fool up. -RAK-
-        public static void damageFire(int damage, string creature_name)
+        public void damageFire(int damage, string creature_name)
         {
             var py = State.Instance.py;
 
@@ -747,7 +734,7 @@ namespace Moria.Core.Methods
         }
 
         // Freeze them to death. -RAK-
-        public static void damageCold(int damage, string creature_name)
+        public void damageCold(int damage, string creature_name)
         {
             var py = State.Instance.py;
 
@@ -770,7 +757,7 @@ namespace Moria.Core.Methods
         }
 
         // Lightning bolt the sucker away. -RAK-
-        public static void damageLightningBolt(int damage, string creature_name)
+        public void damageLightningBolt(int damage, string creature_name)
         {
             var py = State.Instance.py;
 
@@ -788,7 +775,7 @@ namespace Moria.Core.Methods
         }
 
         // Throw acid on the hapless victim -RAK-
-        public static void damageAcid(int damage, string creature_name)
+        public void damageAcid(int damage, string creature_name)
         {
             var py = State.Instance.py;
 

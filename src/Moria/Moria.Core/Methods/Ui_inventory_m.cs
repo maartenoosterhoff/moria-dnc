@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
 
@@ -25,6 +24,15 @@ namespace Moria.Core.Methods
 
     public class Ui_inventory_m : IUiInventory
     {
+        private readonly IInventory inventory;
+
+        public Ui_inventory_m(
+            IInventory inventory
+        )
+        {
+            this.inventory = inventory;
+        }
+
         private void inventoryItemWeightText(ref string text, int item_id)
         {
             var py = State.Instance.py;
@@ -974,7 +982,7 @@ namespace Moria.Core.Methods
                         item_id = -1;
                         printMessage("Hmmm, it seems to be cursed.");
                     }
-                    else if (command == 't' && !inventoryCanCarryItemCount(py.inventory[item_id]))
+                    else if (command == 't' && !this.inventory.inventoryCanCarryItemCount(py.inventory[item_id]))
                     {
                         if (dg.floor[py.pos.y][py.pos.x].treasure_id != 0)
                         {
@@ -995,7 +1003,7 @@ namespace Moria.Core.Methods
                     {
                         if (command == 'r')
                         {
-                            inventoryDropItem(item_id, true);
+                            this.inventory.inventoryDropItem(item_id, true);
                             // As a safety measure, set the player's inven
                             // weight to 0, when the last object is dropped.
                             if (py.pack.unique_items == 0 && py.equipment_count == 0)
@@ -1005,7 +1013,7 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            slot = inventoryCarryItem(py.inventory[item_id]);
+                            slot = this.inventory.inventoryCarryItem(py.inventory[item_id]);
                             playerTakeOff(item_id, slot);
                         }
 
@@ -1043,7 +1051,9 @@ namespace Moria.Core.Methods
                             inventoryItemIsCursedMessage(slot);
                             item_id = -1;
                         }
-                        else if (py.inventory[item_id].sub_category_id == ITEM_GROUP_MIN && py.inventory[item_id].items_count > 1 && !inventoryCanCarryItemCount(py.inventory[slot]))
+                        else if (py.inventory[item_id].sub_category_id == ITEM_GROUP_MIN && 
+                                 py.inventory[item_id].items_count > 1 && 
+                                 !this.inventory.inventoryCanCarryItemCount(py.inventory[slot]))
                         {
                             // this can happen if try to wield a torch,
                             // and have more than one in inventory
@@ -1073,7 +1083,7 @@ namespace Moria.Core.Methods
                         py.pack.weight += (int)(item.weight * item.items_count);
 
                         // Subtracts weight
-                        inventoryDestroyItem(item_id);
+                        this.inventory.inventoryDestroyItem(item_id);
 
                         // Second, add old item to inv and remove
                         // from equipment list, if necessary.
@@ -1082,7 +1092,7 @@ namespace Moria.Core.Methods
                         {
                             var saved_counter = py.pack.unique_items;
 
-                            item_to_take_off = inventoryCarryItem(item);
+                            item_to_take_off = this.inventory.inventoryCarryItem(item);
 
                             // If item removed did not stack with anything
                             // in inventory, then increment wear_high.
@@ -1202,7 +1212,7 @@ namespace Moria.Core.Methods
                     {
                         game.player_free_turn = false;
 
-                        inventoryDropItem(item_id, query == 'y');
+                        this.inventory.inventoryDropItem(item_id, query == 'y');
                         playerStrength();
                     }
 

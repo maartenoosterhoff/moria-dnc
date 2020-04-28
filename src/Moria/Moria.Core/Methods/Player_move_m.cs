@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_run_m;
@@ -21,18 +20,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IInventory inventory,
             IMonsterManager monsterManager,
             IRnd rnd
         )
         {
             Player_move_m.dice = dice;
             Player_move_m.dungeon = dungeon;
+            Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
 
@@ -201,7 +203,7 @@ namespace Moria.Core.Methods
         {
             printMessage("A strange red gas surrounds you.");
 
-            damageCorrodingGas("corrosion gas");
+            inventory.damageCorrodingGas("corrosion gas");
         }
 
         public static void trapSummonMonster(Coord_t coord)
@@ -225,21 +227,21 @@ namespace Moria.Core.Methods
         {
             printMessage("You are enveloped in flames!");
 
-            damageFire(dam, "a fire trap");
+            inventory.damageFire(dam, "a fire trap");
         }
 
         static void trapAcid(int dam)
         {
             printMessage("You are splashed with acid!");
 
-            damageAcid(dam, "an acid trap");
+            inventory.damageAcid(dam, "an acid trap");
         }
 
         static void trapPoisonGas(int dam)
         {
             printMessage("A pungent green gas surrounds you!");
 
-            damagePoisonedGas(dam, "a poison gas trap");
+            inventory.damagePoisonedGas(dam, "a poison gas trap");
         }
 
         static void trapBlindGas()
@@ -481,7 +483,7 @@ namespace Moria.Core.Methods
             }
 
             // Too many objects?
-            if (inventoryCanCarryItemCount(item))
+            if (inventory.inventoryCanCarryItemCount(item))
             {
                 // Okay,  pick it up
                 if (pickup && Config.options.prompt_to_pickup)
@@ -495,7 +497,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Check to see if it will change the players speed.
-                if (pickup && !inventoryCanCarryItem(item))
+                if (pickup && !inventory.inventoryCanCarryItem(item))
                 {
                     itemDescription(ref description, item, true);
 
@@ -508,7 +510,7 @@ namespace Moria.Core.Methods
                 // Attempt to pick up an object.
                 if (pickup)
                 {
-                    var locn = inventoryCarryItem(item);
+                    var locn = inventory.inventoryCarryItem(item);
 
                     itemDescription(ref description, py.inventory[locn], true);
                     msg = $"You have {description} ({(char)(locn + 'a')})";
