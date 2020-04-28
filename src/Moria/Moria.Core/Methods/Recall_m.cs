@@ -35,18 +35,31 @@ namespace Moria.Core.Methods
 
             var width = getConsoleWidth();
 
-            while (p.Length >= 0)
+            while (p.Length > 0)
             {
-                var pos = width - 2;
-                while (!char.IsWhiteSpace(p[pos]))
+                var pos = p.Length;
+                if (pos> width - 2 && p.Contains(" "))
                 {
-                    pos--;
+                    pos = width - 2;
+                    while (
+                        pos >= p.Length ||
+                        !char.IsWhiteSpace(p[pos]))
+                    {
+                        pos--;
+                    }
                 }
 
                 var chunk = p.Substring(0, pos);
                 putStringClearToEOL(chunk, new Coord_t(State.Instance.roff_print_line, 0));
                 State.Instance.roff_print_line++;
-                p = p.Substring(pos + 1).Trim();
+                if (pos == p.Length)
+                {
+                    p = string.Empty;
+                }
+                else
+                {
+                    p = p.Substring(pos + 1).Trim();
+                }
             }
             /*
 
