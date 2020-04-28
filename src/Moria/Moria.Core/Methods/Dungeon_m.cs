@@ -110,7 +110,7 @@ namespace Moria.Core.Methods
                 {
                     if (line >= 0)
                     {
-                        line_buffer = $"|{map}|";
+                        line_buffer = $"|{new string(map)}|";
                         //sprintf(line_buffer, "|%s|", map);
                         putString(line_buffer, new Coord_t(line + 1, 0));
                     }
@@ -140,7 +140,7 @@ namespace Moria.Core.Methods
 
             if (line >= 0)
             {
-                line_buffer = $"|{map}|";
+                line_buffer = $"|{new string(map)}|";
                 //sprintf(line_buffer, "|%s|", map);
                 putString(line_buffer, new Coord_t(line + 1, 0));
             }
