@@ -11,7 +11,7 @@ namespace Moria.Core.Structures
         public uint defenses { get; set; }
         public uint wake { get; set; }
         public uint ignore { get; set; }
-        public uint[] attacks { get; set; } = new uint[Monster_c.MON_MAX_ATTACKS];
+        public uint[] attacks { get; } = new uint[Monster_c.MON_MAX_ATTACKS];
     }
 
     /*

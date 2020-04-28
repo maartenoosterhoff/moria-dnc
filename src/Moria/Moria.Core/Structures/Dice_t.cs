@@ -8,9 +8,19 @@
             this.sides = sides;
         }
 
-        public uint dice { get; set; }
+        public uint dice { get; private set; }
 
-        public uint sides { get; set; }
+        public uint sides { get; private set; }
+
+        public void SetDice(uint dice)
+        {
+            this.dice = dice;
+        }
+
+        public void SetSides(uint sides)
+        {
+            this.sides = sides;
+        }
     }
 
 /*

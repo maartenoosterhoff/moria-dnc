@@ -689,7 +689,7 @@ namespace Moria.Core.Methods
             }
             if (stringToNumber(input, out number))
             {
-                item.damage.dice = (uint)number;
+                item.damage.SetDice((uint) number);
             }
 
             putStringClearToEOL("Damage (sides): ", new Coord_t(0, 0));
@@ -699,7 +699,7 @@ namespace Moria.Core.Methods
             }
             if (stringToNumber(input, out number))
             {
-                item.damage.sides = (uint)number;
+                item.damage.SetSides((uint) number);
             }
 
             putStringClearToEOL("+To hit: ", new Coord_t(0, 0));

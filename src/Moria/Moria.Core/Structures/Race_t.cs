@@ -61,34 +61,34 @@
             this.exp_factor_base = exp_factor_base;
             this.classes_bit_field = classes_bit_field;
         }
-        public string name { get; set; }
-        public int str_adjustment { get; set; }
-        public int int_adjustment { get; set; }
-        public int wis_adjustment { get; set; }
-        public int dex_adjustment { get; set; }
-        public int con_adjustment { get; set; }
-        public int chr_adjustment { get; set; }
-        public uint base_age { get; set; }
-        public uint max_age { get; set; }
-        public uint male_height_base { get; set; }
-        public uint male_height_mod { get; set; }
-        public uint male_weight_base { get; set; }
-        public uint male_weight_mod { get; set; }
-        public uint female_height_base { get; set; }
-        public uint female_height_mod { get; set; }
-        public uint female_weight_base { get; set; }
-        public uint female_weight_mod { get; set; }
-        public int disarm_chance_base { get; set; }
-        public int search_chance_base { get; set; }
-        public int stealth { get; set; }
-        public int fos { get; set; }
-        public int base_to_hit { get; set; }
-        public int base_to_hit_bows { get; set; }
-        public int saving_throw_base { get; set; }
-        public uint hit_points_base { get; set; }
-        public uint infra_vision { get; set; }
-        public uint exp_factor_base { get; set; }
-        public uint classes_bit_field { get; set; }
+        public string name { get; }
+        public int str_adjustment { get; }
+        public int int_adjustment { get; }
+        public int wis_adjustment { get; }
+        public int dex_adjustment { get; }
+        public int con_adjustment { get; }
+        public int chr_adjustment { get; }
+        public uint base_age { get; }
+        public uint max_age { get; }
+        public uint male_height_base { get; }
+        public uint male_height_mod { get; }
+        public uint male_weight_base { get; }
+        public uint male_weight_mod { get; }
+        public uint female_height_base { get; }
+        public uint female_height_mod { get; }
+        public uint female_weight_base { get; }
+        public uint female_weight_mod { get; }
+        public int disarm_chance_base { get; }
+        public int search_chance_base { get; }
+        public int stealth { get; }
+        public int fos { get; }
+        public int base_to_hit { get; }
+        public int base_to_hit_bows { get; }
+        public int saving_throw_base { get; }
+        public uint hit_points_base { get; }
+        public uint infra_vision { get; }
+        public uint exp_factor_base { get; }
+        public uint classes_bit_field { get; }
     }
 
     /*

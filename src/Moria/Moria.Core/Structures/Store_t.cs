@@ -12,7 +12,7 @@ namespace Moria.Core.Structures
         public uint good_purchases { get; set; }
         public uint bad_purchases { get; set; }
 
-        public InventoryRecord_t[] inventory { get; set; } =
+        public InventoryRecord_t[] inventory { get; } =
             ArrayInitializer.Initialize<InventoryRecord_t>(Store_c.STORE_MAX_DISCRETE_ITEMS);
     }
 
