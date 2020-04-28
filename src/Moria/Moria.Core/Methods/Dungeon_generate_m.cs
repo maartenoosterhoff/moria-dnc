@@ -1577,8 +1577,9 @@ namespace Moria.Core.Methods
             // Set up the character coords, used by monsterPlaceNewWithinDistance below
             var coord = new Coord_t(0, 0);
             dungeonNewSpot(coord);
-            State.Instance.py.pos.y = coord.y;
-            State.Instance.py.pos.x = coord.x;
+            //State.Instance.py.pos.y = coord.y;
+            //State.Instance.py.pos.x = coord.x;
+            State.Instance.py.pos = coord;
 
             lightTown();
 

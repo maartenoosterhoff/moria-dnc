@@ -581,8 +581,7 @@ namespace Moria.Core.Methods
 
             if (coord.x < 0 || coord.y < 0 || coord.y > coord.x)
             {
-                var error_message = string.Empty;
-                error_message = $"Illegal call to lookSee({coord.y}, {coord.x})";
+                var error_message = $"Illegal call to lookSee({coord.y}, {coord.x})";
                 //(void)sprintf(error_message, "Illegal call to lookSee(%d, %d)", coord.y, coord.x);
                 printMessage(error_message);
             }

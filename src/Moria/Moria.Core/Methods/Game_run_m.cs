@@ -1902,7 +1902,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var player_coord = py.pos;
+            var player_coord = py.pos.Clone();
             if (coordOutsidePanel(player_coord, true))
             {
                 drawDungeonPanel();
