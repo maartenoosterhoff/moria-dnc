@@ -10,7 +10,6 @@ using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Store_m;
 using static Moria.Core.Methods.Ui_m;
@@ -22,16 +21,19 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IMonsterManager monsterManager,
             IRnd rnd
         )
         {
             Player_move_m.dice = dice;
             Player_move_m.dungeon = dungeon;
+            Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IMonsterManager monsterManager;
         private static IRnd rnd;
 
         public static void trapOpenPit(Inventory_t item, int dam)
@@ -215,7 +217,7 @@ namespace Moria.Core.Methods
             {
                 location.y = coord.y;
                 location.x = coord.x;
-                monsterSummon(location, false);
+                monsterManager.monsterSummon(location, false);
             }
         }
 

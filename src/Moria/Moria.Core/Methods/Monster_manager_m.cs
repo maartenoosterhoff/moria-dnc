@@ -9,29 +9,39 @@ using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Monster_manager_m
+    public interface IMonsterManager
     {
-        public static void SetDependencies(
+        bool monsterSummon(Coord_t coord, bool sleeping);
+        void monsterPlaceWinning();
+        void monsterPlaceNewWithinDistance(int number, int distance_from_source, bool sleeping);
+        bool monsterSummonUndead(Coord_t coord);
+        bool monsterPlaceNew(Coord_t coord, int creature_id, bool sleeping);
+        bool compactMonsters();
+    }
+
+    public class Monster_manager_m : IMonsterManager
+    {
+        public Monster_manager_m(
             IDice dice,
             IDungeon dungeon,
             IRnd rnd,
             IStd std
         )
         {
-            Monster_manager_m.dice = dice;
-            Monster_manager_m.dungeon = dungeon;
-            Monster_manager_m.rnd = rnd;
-            Monster_manager_m.std = std;
+            this.dice = dice;
+            this.dungeon = dungeon;
+            this.rnd = rnd;
+            this.std = std;
         }
 
-        private static IDice dice;
-        private static IDungeon dungeon;
-        private static IRnd rnd;
-        private static IStd std;
+        private readonly IDice dice;
+        private readonly IDungeon dungeon;
+        private readonly IRnd rnd;
+        private readonly IStd std;
 
         // Returns a pointer to next free space -RAK-
         // Returns -1 if could not allocate a monster.
-        public static int popm()
+        private int popm()
         {
             if (State.Instance.next_free_monster_id == MON_TOTAL_ALLOCATIONS)
             {
@@ -46,7 +56,7 @@ namespace Moria.Core.Methods
         }
 
         // Places a monster at given location -RAK-
-        public static bool monsterPlaceNew(Coord_t coord, int creature_id, bool sleeping)
+        public bool monsterPlaceNew(Coord_t coord, int creature_id, bool sleeping)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -103,7 +113,7 @@ namespace Moria.Core.Methods
         }
 
         // Places a monster at given location -RAK-
-        public static void monsterPlaceWinning()
+        public void monsterPlaceWinning()
         {
             var game = State.Instance.game;
             var dg = State.Instance.dg;
@@ -173,7 +183,7 @@ namespace Moria.Core.Methods
         // Return a monster suitable to be placed at a given level. This
         // makes high level monsters (up to the given level) slightly more
         // common than low level monsters at any given level. -CJS-
-        public static int monsterGetOneSuitableForLevel(int level)
+        private int monsterGetOneSuitableForLevel(int level)
         {
             var monster_levels = State.Instance.monster_levels;
             if (level == 0)
@@ -217,7 +227,7 @@ namespace Moria.Core.Methods
         }
 
         // Allocates a random monster -RAK-
-        public static void monsterPlaceNewWithinDistance(int number, int distance_from_source, bool sleeping)
+        public void monsterPlaceNewWithinDistance(int number, int distance_from_source, bool sleeping)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -251,7 +261,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool placeMonsterAdjacentTo(int monster_id, Coord_t coord, bool slp)
+        private bool placeMonsterAdjacentTo(int monster_id, Coord_t coord, bool slp)
         {
             var dg = State.Instance.dg;
             var placed = false;
@@ -287,7 +297,7 @@ namespace Moria.Core.Methods
         }
 
         // Places creature adjacent to given location -RAK-
-        public static bool monsterSummon(Coord_t coord, bool sleeping)
+        public bool monsterSummon(Coord_t coord, bool sleeping)
         {
             var dg = State.Instance.dg;
 
@@ -296,7 +306,7 @@ namespace Moria.Core.Methods
         }
 
         // Places undead adjacent to given location -RAK-
-        public static bool monsterSummonUndead(Coord_t coord)
+        public bool monsterSummonUndead(Coord_t coord)
         {
             int monster_id;
             var max_levels = State.Instance.monster_levels[MON_MAX_LEVELS];
@@ -331,7 +341,7 @@ namespace Moria.Core.Methods
 
         // Compact monsters -RAK-
         // Return true if any monsters were deleted, false if could not delete any monsters.
-        public static bool compactMonsters()
+        public bool compactMonsters()
         {
             printMessage("Compacting monsters...");
 

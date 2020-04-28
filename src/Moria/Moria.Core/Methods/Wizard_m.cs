@@ -10,7 +10,6 @@ using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
@@ -36,18 +35,21 @@ namespace Moria.Core.Methods
     public class Wizard_m : IWizard
     {
         private readonly IDungeon dungeon;
+        private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
 
         public Wizard_m(
             IDungeon dungeon,
+            IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITreasure treasure
         )
         {
             this.dungeon = dungeon;
+            this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.treasure = treasure;
@@ -198,7 +200,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var coord = new Coord_t(py.pos.y, py.pos.x);
 
-            monsterSummon(coord, true);
+            this.monsterManager.monsterSummon(coord, true);
 
             updateMonsters(false);
         }

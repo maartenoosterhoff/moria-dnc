@@ -22,7 +22,6 @@ using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Player_bash_m;
 using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Player_m;
@@ -51,6 +50,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonGenerate dungeonGenerate,
             IGame game,
+            IMonsterManager monsterManager,
             IRnd rnd,
             IStoreInventory storeInventory,
             IUiInventory uiInventory,
@@ -61,6 +61,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeon = dungeon;
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
+            Game_run_m.monsterManager = monsterManager;
             Game_run_m.rnd = rnd;
             Game_run_m.storeInventory = storeInventory;
             Game_run_m.wizard = wizard;
@@ -72,6 +73,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
+        private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStoreInventory storeInventory;
         private static IWizard wizard;
@@ -2892,7 +2894,7 @@ namespace Moria.Core.Methods
                 // Check for creature generation
                 if (rnd.randomNumber(Config.monsters.MON_CHANCE_OF_NEW) == 1)
                 {
-                    monsterPlaceNewWithinDistance(1, (int)Config.monsters.MON_MAX_SIGHT, false);
+                    monsterManager.monsterPlaceNewWithinDistance(1, (int)Config.monsters.MON_MAX_SIGHT, false);
                 }
 
                 playerUpdateLightStatus();
@@ -2968,7 +2970,7 @@ namespace Moria.Core.Methods
                 // from within updateMonsters().
                 if (MON_TOTAL_ALLOCATIONS - State.Instance.next_free_monster_id < 10)
                 {
-                    compactMonsters();
+                    monsterManager.compactMonsters();
                 }
 
                 // Accept a command?

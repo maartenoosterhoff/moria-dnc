@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
         {
             Staffs_m.dice = dice;
             Staffs_m.game = game;
+            Staffs_m.monsterManager = monsterManager;
             Staffs_m.playerMagic = playerMagic;
             Staffs_m.rnd = rnd;
             Staffs_m.uiInventory = uiInventory;
@@ -35,6 +36,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IGame game;
+        private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -143,7 +145,7 @@ namespace Moria.Core.Methods
                         for (var i = 0; i < rnd.randomNumber(4); i++)
                         {
                             var coord = py.pos;
-                            identified |= monsterSummon(coord, false);
+                            identified |= monsterManager.monsterSummon(coord, false);
                         }
                         break;
                     case StaffSpellTypes.Destruction:

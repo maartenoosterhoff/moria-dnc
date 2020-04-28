@@ -18,7 +18,6 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -29,18 +28,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IMonsterManager monsterManager,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Spells_m.dice = dice;
             Spells_m.dungeon = dungeon;
+            Spells_m.monsterManager = monsterManager;
             Spells_m.rnd = rnd;
             Spells_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -1948,7 +1950,7 @@ namespace Moria.Core.Methods
                         dungeon.dungeonDeleteMonster((int)tile.creature_id);
 
                         // Place_monster() should always return true here.
-                        morphed = monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
+                        morphed = monsterManager.monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
 
                         // don't test tile.field_mark here, only permanent_light/temporary_light
                         if (morphed && coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light))
@@ -2374,7 +2376,7 @@ namespace Moria.Core.Methods
                         dungeon.dungeonDeleteMonster(id);
 
                         // Place_monster() should always return true here.
-                        morphed = monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
+                        morphed = monsterManager.monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
                     }
                 }
             }

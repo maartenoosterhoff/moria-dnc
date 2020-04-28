@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -20,18 +19,21 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IMonsterManager monsterManager,
             IRnd rnd
         )
         {
             Player_traps_m.dice = dice;
             Player_traps_m.dungeon = dungeon;
             Player_traps_m.game = game;
+            Player_traps_m.monsterManager = monsterManager;
             Player_traps_m.rnd = rnd;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IMonsterManager monsterManager;
         private static IRnd rnd;
 
         private static int playerTrapDisarmAbility()
@@ -259,7 +261,7 @@ namespace Moria.Core.Methods
             {
                 position.y = coord.y;
                 position.x = coord.x;
-                monsterSummon(position, false);
+                monsterManager.monsterSummon(position, false);
             }
         }
 

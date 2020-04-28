@@ -14,7 +14,6 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -25,18 +24,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IMonsterManager monsterManager,
             IRnd rnd,
             IStd std
         )
         {
             Monster_m.dice = dice;
             Monster_m.dungeon = dungeon;
+            Monster_m.monsterManager = monsterManager;
             Monster_m.rnd = rnd;
             Monster_m.std = std;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStd std;
 
@@ -1003,7 +1005,7 @@ namespace Moria.Core.Methods
 
                     // in case compact_monster() is called,it needs monster_id
                     State.Instance.hack_monptr = monster_id;
-                    monsterSummon(coord, false);
+                    monsterManager.monsterSummon(coord, false);
                     State.Instance.hack_monptr = -1;
                     monsterUpdateVisibility((int)dg.floor[coord.y][coord.x].creature_id);
                     break;
@@ -1016,7 +1018,7 @@ namespace Moria.Core.Methods
 
                     // in case compact_monster() is called,it needs monster_id
                     State.Instance.hack_monptr = monster_id;
-                    monsterSummonUndead(coord);
+                    monsterManager.monsterSummonUndead(coord);
                     State.Instance.hack_monptr = -1;
                     monsterUpdateVisibility((int)dg.floor[coord.y][coord.x].creature_id);
                     break;
@@ -1251,7 +1253,7 @@ namespace Moria.Core.Methods
                                 // in case compact_monster() is called, it needs monster_id.
                                 State.Instance.hack_monptr = monster_id;
                                 // Place_monster() may fail if monster list full.
-                                var result = monsterPlaceNew(position, creature_id, false);
+                                var result = monsterManager.monsterPlaceNew(position, creature_id, false);
                                 State.Instance.hack_monptr = -1;
                                 if (!result)
                                 {
@@ -1269,7 +1271,7 @@ namespace Moria.Core.Methods
                             // in case compact_monster() is called,it needs monster_id
                             State.Instance.hack_monptr = monster_id;
                             // Place_monster() may fail if monster list full.
-                            var result = monsterPlaceNew(position, creature_id, false);
+                            var result = monsterManager.monsterPlaceNew(position, creature_id, false);
                             State.Instance.hack_monptr = -1;
                             if (!result)
                             {

@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Monster_manager_m;
 
 namespace Moria.Core.Methods
 {
@@ -21,16 +20,19 @@ namespace Moria.Core.Methods
     public class Dungeon_generate_m : IDungeonGenerate
     {
         private readonly IDungeon dungeon;
+        private readonly IMonsterManager monsterManager;
         private readonly IRnd rnd;
         private readonly IStoreInventory storeInventory;
 
         public Dungeon_generate_m(
             IDungeon dungeon,
+            IMonsterManager monsterManager,
             IRnd rnd,
             IStoreInventory storeInventory
         )
         {
             this.dungeon = dungeon;
+            this.monsterManager = monsterManager;
             this.rnd = rnd;
             this.storeInventory = storeInventory;
         }
@@ -466,7 +468,7 @@ namespace Moria.Core.Methods
             {
                 spot.y = coord.y;
                 spot.x = coord.x;
-                monsterSummon(spot, true);
+                this.monsterManager.monsterSummon(spot, true);
             }
         }
 
@@ -1393,7 +1395,7 @@ namespace Moria.Core.Methods
             //py.pos.x = coord.x;
             py.pos = coord;
 
-            monsterPlaceNewWithinDistance((this.rnd.randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + alloc_level), 0, true);
+            this.monsterManager.monsterPlaceNewWithinDistance((this.rnd.randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + alloc_level), 0, true);
             dungeon.dungeonAllocateAndPlaceObject(setCorridors, 3, this.rnd.randomNumber(alloc_level));
             dungeon.dungeonAllocateAndPlaceObject(setRooms, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_ROOM, 3));
             dungeon.dungeonAllocateAndPlaceObject(setFloors, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_CORRIDOR, 3));
@@ -1402,7 +1404,7 @@ namespace Moria.Core.Methods
 
             if (dg.current_level >= Config.monsters.MON_ENDGAME_LEVEL)
             {
-                monsterPlaceWinning();
+                this.monsterManager.monsterPlaceWinning();
             }
         }
 
@@ -1535,7 +1537,7 @@ namespace Moria.Core.Methods
                         }
                     }
                 }
-                monsterPlaceNewWithinDistance((int)Config.monsters.MON_MIN_TOWNSFOLK_NIGHT, 3, true);
+                this.monsterManager.monsterPlaceNewWithinDistance((int)Config.monsters.MON_MIN_TOWNSFOLK_NIGHT, 3, true);
             }
             else
             {
@@ -1547,7 +1549,7 @@ namespace Moria.Core.Methods
                         dg.floor[y][x].permanent_light = true;
                     }
                 }
-                monsterPlaceNewWithinDistance((int)Config.monsters.MON_MIN_TOWNSFOLK_DAY, 3, true);
+                this.monsterManager.monsterPlaceNewWithinDistance((int)Config.monsters.MON_MIN_TOWNSFOLK_DAY, 3, true);
             }
         }
 

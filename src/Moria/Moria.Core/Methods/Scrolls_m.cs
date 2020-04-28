@@ -7,7 +7,6 @@ using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -19,18 +18,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Scrolls_m.dice = dice;
+            Scrolls_m.monsterManager = monsterManager;
             Scrolls_m.playerMagic = playerMagic;
             Scrolls_m.rnd = rnd;
             Scrolls_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -311,7 +313,7 @@ namespace Moria.Core.Methods
             {
                 coord.y = py.pos.y;
                 coord.x = py.pos.x;
-                identified |= monsterSummon(coord, false);
+                identified |= monsterManager.monsterSummon(coord, false);
             }
 
             return identified;
@@ -594,7 +596,7 @@ namespace Moria.Core.Methods
             {
                 coord.y = py.pos.y;
                 coord.x = py.pos.x;
-                identified |= monsterSummonUndead(coord);
+                identified |= monsterManager.monsterSummonUndead(coord);
             }
 
             return identified;
