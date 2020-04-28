@@ -14,7 +14,7 @@ namespace Moria.Core.Methods
 
     public class Treasure_m : ITreasure
     {
-        private Treasure_m(
+        public Treasure_m(
             IDice dice,
             IRnd rnd,
             IStd std
