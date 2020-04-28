@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moria.App", "Moria.App\Mori
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moria.Core", "Moria.Core\Moria.Core.csproj", "{F86E965E-FFBB-45A1-BDB0-5E6E0E2F9342}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moria.Core.Tests", "Moria.Core.Tests\Moria.Core.Tests.csproj", "{7C586BC6-1BB2-4972-988C-6CE9349CC941}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moria.App.Tests", "Moria.App.Tests\Moria.App.Tests.csproj", "{486C8693-BCC9-441A-A107-16C4CCDE7365}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{F86E965E-FFBB-45A1-BDB0-5E6E0E2F9342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F86E965E-FFBB-45A1-BDB0-5E6E0E2F9342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F86E965E-FFBB-45A1-BDB0-5E6E0E2F9342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C586BC6-1BB2-4972-988C-6CE9349CC941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C586BC6-1BB2-4972-988C-6CE9349CC941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C586BC6-1BB2-4972-988C-6CE9349CC941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C586BC6-1BB2-4972-988C-6CE9349CC941}.Release|Any CPU.Build.0 = Release|Any CPU
+		{486C8693-BCC9-441A-A107-16C4CCDE7365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{486C8693-BCC9-441A-A107-16C4CCDE7365}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{486C8693-BCC9-441A-A107-16C4CCDE7365}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{486C8693-BCC9-441A-A107-16C4CCDE7365}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
