@@ -1,8 +1,5 @@
 ﻿using Moria.Core.States;
-using Moria.Core.Structures;
-using static Moria.Core.Constants.Version_c;
 using static Moria.Core.Methods.Store_inventory_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
@@ -289,7 +286,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            int total = py.misc.max_exp + (100 * (int)py.misc.max_dungeon_depth);
+            var total = py.misc.max_exp + (100 * (int)py.misc.max_dungeon_depth);
             total += py.misc.au / 100;
 
             foreach (var item in py.inventory)

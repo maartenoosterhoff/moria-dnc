@@ -3,7 +3,6 @@ using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
 
@@ -11,6 +10,15 @@ namespace Moria.Core.Methods
 {
     public static class Player_stats_m
     {
+        public static void SetDependencies(
+            IRnd rnd
+        )
+        {
+            Player_stats_m.rnd = rnd;
+        }
+
+        private static IRnd rnd;
+
         // I don't really like this, but for now, it's better than being a global -MRC-
         public static void playerInitializeBaseExperienceLevels()
         {
@@ -32,7 +40,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int hp = (int)py.base_hp_levels[py.misc.level - 1] + (playerStatAdjustmentConstitution() * (int)py.misc.level);
+            var hp = (int)py.base_hp_levels[py.misc.level - 1] + (playerStatAdjustmentConstitution() * (int)py.misc.level);
 
             // Always give at least one point per level + 1
             if (hp < (py.misc.level + 1))
@@ -55,7 +63,7 @@ namespace Moria.Core.Methods
             {
                 // Change current hit points proportionately to change of MHP,
                 // divide first to avoid overflow, little loss of accuracy
-                int value = (((int)py.misc.current_hp << 16) + (int)py.misc.current_hp_fraction) / py.misc.max_hp * hp;
+                var value = (((int)py.misc.current_hp << 16) + (int)py.misc.current_hp_fraction) / py.misc.max_hp * hp;
                 py.misc.current_hp = (int)(value >> 16);
                 py.misc.current_hp_fraction = (uint)(value & 0xFFFF);
                 py.misc.max_hp = (int)hp;
@@ -99,7 +107,7 @@ namespace Moria.Core.Methods
 
         static int playerAttackBlowsStrength(int strength, int weight)
         {
-            int adj_weight = (strength * 10 / weight);
+            var adj_weight = (strength * 10 / weight);
 
             int str;
 
@@ -141,7 +149,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             weight_to_hit = 0;
 
-            int player_strength = (int)py.stats.used[(int)PlayerAttr.STR];
+            var player_strength = (int)py.stats.used[(int)PlayerAttr.STR];
 
             if (player_strength * 15 < weight)
             {
@@ -149,8 +157,8 @@ namespace Moria.Core.Methods
                 return 1;
             }
 
-            int dexterity = playerAttackBlowsDexterity((int)py.stats.used[(int)PlayerAttr.DEX]);
-            int strength = playerAttackBlowsStrength(player_strength, weight);
+            var dexterity = playerAttackBlowsDexterity((int)py.stats.used[(int)PlayerAttr.DEX]);
+            var strength = playerAttackBlowsStrength(player_strength, weight);
 
             return (int)Library.Instance.Tables.blows_table[strength][dexterity];
         }
@@ -158,7 +166,7 @@ namespace Moria.Core.Methods
         // Adjustment for wisdom/intelligence -JWT-
         public static int playerStatAdjustmentWisdomIntelligence(int stat)
         {
-            int value = (int)State.Instance.py.stats.used[stat];
+            var value = (int)State.Instance.py.stats.used[stat];
 
             int adjustment;
 
@@ -202,7 +210,7 @@ namespace Moria.Core.Methods
         // Percent decrease or increase in price of goods
         public static int playerStatAdjustmentCharisma()
         {
-            int charisma = (int)State.Instance.py.stats.used[(int)PlayerAttr.CHR];
+            var charisma = (int)State.Instance.py.stats.used[(int)PlayerAttr.CHR];
 
             if (charisma > 117)
             {
@@ -272,7 +280,7 @@ namespace Moria.Core.Methods
         public static int playerStatAdjustmentConstitution()
         {
             var py = State.Instance.py;
-            int con = (int)py.stats.used[(int)PlayerAttr.CON];
+            var con = (int)py.stats.used[(int)PlayerAttr.CON];
 
             if (con < 7)
             {
@@ -305,11 +313,11 @@ namespace Moria.Core.Methods
         public static uint playerModifyStat(int stat, int amount)
         {
             var py = State.Instance.py;
-            uint new_stat = py.stats.current[stat];
+            var new_stat = py.stats.current[stat];
 
-            int loop = (amount < 0 ? -amount : amount);
+            var loop = (amount < 0 ? -amount : amount);
 
-            for (int i = 0; i < loop; i++)
+            for (var i = 0; i < loop; i++)
             {
                 if (amount > 0)
                 {
@@ -383,7 +391,7 @@ namespace Moria.Core.Methods
         public static bool playerStatRandomIncrease(int stat)
         {
             var py = State.Instance.py;
-            int new_stat = (int)py.stats.current[stat];
+            var new_stat = (int)py.stats.current[stat];
 
             if (new_stat >= 118)
             {
@@ -393,9 +401,9 @@ namespace Moria.Core.Methods
             if (new_stat >= 18 && new_stat < 116)
             {
                 // stat increases by 1/6 to 1/3 of difference from max
-                int gain = ((118 - new_stat) / 3 + 1) >> 1;
+                var gain = ((118 - new_stat) / 3 + 1) >> 1;
 
-                new_stat += randomNumber(gain) + gain;
+                new_stat += rnd.randomNumber(gain) + gain;
             }
             else
             {
@@ -420,7 +428,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int new_stat = (int)py.stats.current[stat];
+            var new_stat = (int)py.stats.current[stat];
 
             if (new_stat <= 3)
             {
@@ -429,8 +437,8 @@ namespace Moria.Core.Methods
 
             if (new_stat >= 19 && new_stat < 117)
             {
-                int loss = (((118 - new_stat) >> 1) + 1) >> 1;
-                new_stat += -randomNumber(loss) - loss;
+                var loss = (((118 - new_stat) >> 1) + 1) >> 1;
+                new_stat += -rnd.randomNumber(loss) - loss;
 
                 if (new_stat < 18)
                 {
@@ -454,7 +462,7 @@ namespace Moria.Core.Methods
         public static bool playerStatRestore(int stat)
         {
             var py = State.Instance.py;
-            int new_stat = (int)(py.stats.max[stat] - py.stats.current[stat]);
+            var new_stat = (int)(py.stats.max[stat] - py.stats.current[stat]);
 
             if (new_stat == 0)
             {
@@ -490,7 +498,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             int total;
 
-            int dexterity = (int)py.stats.used[(int)PlayerAttr.DEX];
+            var dexterity = (int)py.stats.used[(int)PlayerAttr.DEX];
             if (dexterity < 4)
             {
                 total = -3;
@@ -528,7 +536,7 @@ namespace Moria.Core.Methods
                 total = 5;
             }
 
-            int strength = (int)py.stats.used[(int)PlayerAttr.STR];
+            var strength = (int)py.stats.used[(int)PlayerAttr.STR];
             if (strength < 4)
             {
                 total -= 3;
@@ -569,7 +577,7 @@ namespace Moria.Core.Methods
         public static int playerArmorClassAdjustment()
         {
             var py = State.Instance.py;
-            int stat = (int)py.stats.used[(int)PlayerAttr.DEX];
+            var stat = (int)py.stats.used[(int)PlayerAttr.DEX];
 
             int adjustment;
 
@@ -623,7 +631,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var stat = (int)py.stats.used[(int)PlayerAttr.DEX];
 
-            int adjustment = 0;
+            var adjustment = 0;
 
             if (stat < 4)
             {
@@ -681,7 +689,7 @@ namespace Moria.Core.Methods
         public static int playerDamageAdjustment()
         {
             var py = State.Instance.py;
-            int stat = (int)py.stats.used[(int)PlayerAttr.STR];
+            var stat = (int)py.stats.used[(int)PlayerAttr.STR];
 
             int adjustment;
 

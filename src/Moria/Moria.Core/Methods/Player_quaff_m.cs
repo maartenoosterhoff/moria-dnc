@@ -3,10 +3,9 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
+using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Player_magic_m;
@@ -14,20 +13,34 @@ using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Player_quaff_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Player_quaff_m.dice = dice;
+            Player_quaff_m.rnd = rnd;
+            Player_quaff_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         static bool playerDrinkPotion(uint flags, uint item_type)
         {
             var py = State.Instance.py;
-            bool identified = false;
+            var identified = false;
 
             while (flags != 0)
             {
-                int potion_id = getAndClearFirstBit(ref flags) + 1;
+                var potion_id = getAndClearFirstBit(ref flags) + 1;
 
                 if (item_type == TV_POTION2)
                 {
@@ -110,13 +123,13 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.CureLightWounds:
-                        identified = spellChangePlayerHitPoints(diceRoll(new Dice_t(2, 7)));
+                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(2, 7)));
                         break;
                     case PotionSpellTypes.CureSeriousWounds:
-                        identified = spellChangePlayerHitPoints(diceRoll(new Dice_t(4, 7)));
+                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 7)));
                         break;
                     case PotionSpellTypes.CureCriticalWounds:
-                        identified = spellChangePlayerHitPoints(diceRoll(new Dice_t(6, 7)));
+                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(6, 7)));
                         break;
                     case PotionSpellTypes.Healing:
                         identified = spellChangePlayerHitPoints(1000);
@@ -148,7 +161,7 @@ namespace Moria.Core.Methods
                         {
                             // paralysis must == 0, otherwise could not drink potion
                             printMessage("You fall asleep.");
-                            py.flags.paralysis += randomNumber(4) + 4;
+                            py.flags.paralysis += rnd.randomNumber(4) + 4;
                             identified = true;
                         }
                         break;
@@ -158,7 +171,7 @@ namespace Moria.Core.Methods
                             printMessage("You are covered by a veil of darkness.");
                             identified = true;
                         }
-                        py.flags.blind += randomNumber(100) + 100;
+                        py.flags.blind += rnd.randomNumber(100) + 100;
                         break;
                     case PotionSpellTypes.Confusion:
                         if (py.flags.confused == 0)
@@ -166,7 +179,7 @@ namespace Moria.Core.Methods
                             printMessage("Hey!  This is good stuff!  * Hick! *");
                             identified = true;
                         }
-                        py.flags.confused += randomNumber(20) + 12;
+                        py.flags.confused += rnd.randomNumber(20) + 12;
                         break;
                     case PotionSpellTypes.Poison:
                         if (py.flags.poisoned == 0)
@@ -174,21 +187,21 @@ namespace Moria.Core.Methods
                             printMessage("You feel very sick.");
                             identified = true;
                         }
-                        py.flags.poisoned += randomNumber(15) + 10;
+                        py.flags.poisoned += rnd.randomNumber(15) + 10;
                         break;
                     case PotionSpellTypes.HasteSelf:
                         if (py.flags.fast == 0)
                         {
                             identified = true;
                         }
-                        py.flags.fast += randomNumber(25) + 15;
+                        py.flags.fast += rnd.randomNumber(25) + 15;
                         break;
                     case PotionSpellTypes.Slowness:
                         if (py.flags.slow == 0)
                         {
                             identified = true;
                         }
-                        py.flags.slow += randomNumber(25) + 15;
+                        py.flags.slow += rnd.randomNumber(25) + 15;
                         break;
                     case PotionSpellTypes.Dexterity:
                         if (playerStatRandomIncrease((int)PlayerAttr.DEX))
@@ -227,17 +240,17 @@ namespace Moria.Core.Methods
                             printMessage("You feel your memories fade.");
 
                             // Lose between 1/5 and 2/5 of your experience
-                            int exp = py.misc.exp / 5;
+                            var exp = py.misc.exp / 5;
 
                             if (py.misc.exp > SHRT_MAX)
                             {
                                 const int intMax = +2147483647;
                                 var scale = (int)(intMax / py.misc.exp);
-                                exp += (randomNumber((int)scale) * py.misc.exp) / (scale * 5);
+                                exp += (rnd.randomNumber((int)scale) * py.misc.exp) / (scale * 5);
                             }
                             else
                             {
-                                exp += randomNumber((int)py.misc.exp) / 5;
+                                exp += rnd.randomNumber((int)py.misc.exp) / 5;
                             }
                             spellLoseEXP(exp);
                             identified = true;
@@ -259,21 +272,21 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        py.flags.invulnerability += randomNumber(10) + 10;
+                        py.flags.invulnerability += rnd.randomNumber(10) + 10;
                         break;
                     case PotionSpellTypes.Heroism:
                         if (py.flags.heroism == 0)
                         {
                             identified = true;
                         }
-                        py.flags.heroism += randomNumber(25) + 25;
+                        py.flags.heroism += rnd.randomNumber(25) + 25;
                         break;
                     case PotionSpellTypes.SuperHeroism:
                         if (py.flags.super_heroism == 0)
                         {
                             identified = true;
                         }
-                        py.flags.super_heroism += randomNumber(25) + 25;
+                        py.flags.super_heroism += rnd.randomNumber(25) + 25;
                         break;
                     case PotionSpellTypes.Boldness:
                         identified = playerRemoveFear();
@@ -286,21 +299,21 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        py.flags.heat_resistance += randomNumber(10) + 10;
+                        py.flags.heat_resistance += rnd.randomNumber(10) + 10;
                         break;
                     case PotionSpellTypes.ResistCold:
                         if (py.flags.cold_resistance == 0)
                         {
                             identified = true;
                         }
-                        py.flags.cold_resistance += randomNumber(10) + 10;
+                        py.flags.cold_resistance += rnd.randomNumber(10) + 10;
                         break;
                     case PotionSpellTypes.DetectInvisible:
                         if (py.flags.detect_invisible == 0)
                         {
                             identified = true;
                         }
-                        playerDetectInvisible(randomNumber(12) + 12);
+                        playerDetectInvisible(rnd.randomNumber(12) + 12);
                         break;
                     case PotionSpellTypes.SlowPoison:
                         identified = spellSlowPoison();
@@ -323,7 +336,7 @@ namespace Moria.Core.Methods
                             printMessage("Your eyes begin to tingle.");
                             identified = true;
                         }
-                        py.flags.timed_infra += 100 + randomNumber(100);
+                        py.flags.timed_infra += 100 + rnd.randomNumber(100);
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
@@ -356,8 +369,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }

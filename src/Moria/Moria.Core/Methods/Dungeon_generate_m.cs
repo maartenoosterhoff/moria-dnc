@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using Moria.Core.Utils;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Dungeon_m;
@@ -16,13 +15,25 @@ using static Moria.Core.Methods.Store_inventory_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Dungeon_generate_m
+    public interface IDungeonGenerate
     {
+        void generateCave();
+    }
+
+    public class Dungeon_generate_m : IDungeonGenerate
+    {
+        private readonly IRnd rnd;
+
+        public Dungeon_generate_m(IRnd rnd)
+        {
+            this.rnd = rnd;
+        }
+
         // Returns a Dark/Light floor tile based on dg.current_level, and random number
-        public static uint dungeonFloorTileForLevel()
+        private uint dungeonFloorTileForLevel()
         {
             var dg = State.Instance.dg;
-            if (dg.current_level <= randomNumber(25))
+            if (dg.current_level <= this.rnd.randomNumber(25))
             {
                 return TILE_LIGHT_FLOOR;
             }
@@ -30,7 +41,7 @@ namespace Moria.Core.Methods
         }
 
         // Always picks a correct direction
-        public static void pickCorrectDirection(ref int vertical, ref int horizontal, Coord_t start, Coord_t end)
+        private void pickCorrectDirection(ref int vertical, ref int horizontal, Coord_t start, Coord_t end)
         {
             if (start.y < end.y)
             {
@@ -60,7 +71,7 @@ namespace Moria.Core.Methods
 
             if (vertical != 0 && horizontal != 0)
             {
-                if (randomNumber(2) == 1)
+                if (this.rnd.randomNumber(2) == 1)
                 {
                     vertical = 0;
                 }
@@ -72,9 +83,9 @@ namespace Moria.Core.Methods
         }
 
         // Chance of wandering direction
-        public static void chanceOfRandomDirection(ref int vertical, ref int horizontal)
+        private void chanceOfRandomDirection(ref int vertical, ref int horizontal)
         {
-            var direction = randomNumber(4);
+            var direction = this.rnd.randomNumber(4);
 
             if (direction < 3)
             {
@@ -89,7 +100,7 @@ namespace Moria.Core.Methods
         }
 
         // Blanks out entire cave -RAK-
-        public static void dungeonBlankEntireCave()
+        private void dungeonBlankEntireCave()
         {
             State.Instance.dg.floor = ArrayInitializer.Initialize<Tile_t>(Dungeon_c.MAX_HEIGHT, Dungeon_c.MAX_WIDTH);
             //memset((char*)&dg.floor[0][0], 0, sizeof(dg.floor));
@@ -97,7 +108,7 @@ namespace Moria.Core.Methods
 
         // Fills in empty spots with desired rock -RAK-
         // Note: 9 is a temporary value.
-        public static void dungeonFillEmptyTilesWith(uint rock_type)
+        private void dungeonFillEmptyTilesWith(uint rock_type)
         {
             var dg = State.Instance.dg;
 
@@ -120,7 +131,7 @@ namespace Moria.Core.Methods
         }
 
         // Places indestructible rock around edges of dungeon -RAK-
-        public static void dungeonPlaceBoundaryWalls()
+        private void dungeonPlaceBoundaryWalls()
         {
             var dg = State.Instance.dg;
 
@@ -169,18 +180,18 @@ namespace Moria.Core.Methods
         }
 
         // Places "streamers" of rock through dungeon -RAK-
-        public static void dungeonPlaceStreamerRock(uint rock_type, int chance_of_treasure)
+        private void dungeonPlaceStreamerRock(uint rock_type, int chance_of_treasure)
         {
             var dg = State.Instance.dg;
 
             // Choose starting point and direction
             var coord = new Coord_t(
-                (dg.height / 2) + 11 - randomNumber(23),
-                (dg.width / 2) + 16 - randomNumber(33)
+                (dg.height / 2) + 11 - this.rnd.randomNumber(23),
+                (dg.width / 2) + 16 - this.rnd.randomNumber(33)
             );
 
             // Get random direction. Numbers 1-4, 6-9
-            var dir = randomNumber(8);
+            var dir = this.rnd.randomNumber(8);
             if (dir > 4)
             {
                 dir += 1;
@@ -195,8 +206,8 @@ namespace Moria.Core.Methods
                 for (var i = 0; i < Config.dungeon.DUN_STREAMER_DENSITY; i++)
                 {
                     var spot = new Coord_t(
-                        coord.y + randomNumber(t1) - t2,
-                        coord.x + randomNumber(t1) - t2
+                        coord.y + this.rnd.randomNumber(t1) - t2,
+                        coord.x + this.rnd.randomNumber(t1) - t2
                     );
 
                     if (coordInBounds(spot))
@@ -205,7 +216,7 @@ namespace Moria.Core.Methods
                         {
                             dg.floor[spot.y][spot.x].feature_id = rock_type;
 
-                            if (randomNumber(chance_of_treasure) == 1)
+                            if (this.rnd.randomNumber(chance_of_treasure) == 1)
                             {
                                 dungeonPlaceGold(spot);
                             }
@@ -215,7 +226,7 @@ namespace Moria.Core.Methods
             } while (playerMovePosition(dir, ref coord));
         }
 
-        public static void dungeonPlaceOpenDoor(Coord_t coord)
+        private void dungeonPlaceOpenDoor(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -226,7 +237,7 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].feature_id = TILE_CORR_FLOOR;
         }
 
-        public static void dungeonPlaceBrokenDoor(Coord_t coord)
+        private void dungeonPlaceBrokenDoor(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -238,7 +249,7 @@ namespace Moria.Core.Methods
             game.treasure.list[cur_pos].misc_use = 1;
         }
 
-        static void dungeonPlaceClosedDoor(Coord_t coord)
+        private void dungeonPlaceClosedDoor(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -249,7 +260,7 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
         }
 
-        public static void dungeonPlaceLockedDoor(Coord_t coord)
+        private void dungeonPlaceLockedDoor(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -258,10 +269,10 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
-            game.treasure.list[cur_pos].misc_use = randomNumber(10) + 10;
+            game.treasure.list[cur_pos].misc_use = this.rnd.randomNumber(10) + 10;
         }
 
-        static void dungeonPlaceStuckDoor(Coord_t coord)
+        private void dungeonPlaceStuckDoor(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -270,10 +281,10 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].treasure_id = (uint)cur_pos;
             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[cur_pos]);
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
-            game.treasure.list[cur_pos].misc_use = (-randomNumber(10) - 10);
+            game.treasure.list[cur_pos].misc_use = (-this.rnd.randomNumber(10) - 10);
         }
 
-        static void dungeonPlaceSecretDoor(Coord_t coord)
+        private void dungeonPlaceSecretDoor(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -284,13 +295,13 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
         }
 
-        static void dungeonPlaceDoor(Coord_t coord)
+        private void dungeonPlaceDoor(Coord_t coord)
         {
-            var door_type = randomNumber(3);
+            var door_type = this.rnd.randomNumber(3);
 
             if (door_type == 1)
             {
-                if (randomNumber(4) == 1)
+                if (this.rnd.randomNumber(4) == 1)
                 {
                     dungeonPlaceBrokenDoor(coord);
                 }
@@ -301,7 +312,7 @@ namespace Moria.Core.Methods
             }
             else if (door_type == 2)
             {
-                door_type = randomNumber(12);
+                door_type = this.rnd.randomNumber(12);
 
                 if (door_type > 3)
                 {
@@ -323,7 +334,7 @@ namespace Moria.Core.Methods
         }
 
         // Place an up staircase at given y, x -RAK-
-        public static void dungeonPlaceUpStairs(Coord_t coord)
+        private void dungeonPlaceUpStairs(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -339,7 +350,7 @@ namespace Moria.Core.Methods
         }
 
         // Place a down staircase at given y, x -RAK-
-        public static void dungeonPlaceDownStairs(Coord_t coord)
+        private void dungeonPlaceDownStairs(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -355,7 +366,7 @@ namespace Moria.Core.Methods
         }
 
         // Places a staircase 1=up, 2=down -RAK-
-        public static void dungeonPlaceStairs(int stair_type, int number, int walls)
+        private void dungeonPlaceStairs(int stair_type, int number, int walls)
         {
             var dg = State.Instance.dg;
 
@@ -376,8 +387,8 @@ namespace Moria.Core.Methods
                         // don't let y1/x1 be zero,
                         // don't let y2/x2 be equal to dg.height-1/dg.width-1,
                         // these values are always BOUNDARY_ROCK.
-                        coord1.y = randomNumber(dg.height - 14);
-                        coord1.x = randomNumber(dg.width - 14);
+                        coord1.y = this.rnd.randomNumber(dg.height - 14);
+                        coord1.x = this.rnd.randomNumber(dg.width - 14);
                         coord2.y = coord1.y + 12;
                         coord2.x = coord1.x + 12;
 
@@ -414,7 +425,7 @@ namespace Moria.Core.Methods
         }
 
         // Place a trap with a given displacement of point -RAK-
-        public static void dungeonPlaceVaultTrap(Coord_t coord, Coord_t displacement, int number)
+        private void dungeonPlaceVaultTrap(Coord_t coord, Coord_t displacement, int number)
         {
             var dg = State.Instance.dg;
 
@@ -426,14 +437,14 @@ namespace Moria.Core.Methods
 
                 for (var count = 0; !placed && count <= 5; count++)
                 {
-                    spot.y = coord.y - displacement.y - 1 + randomNumber(2 * displacement.y + 1);
-                    spot.x = coord.x - displacement.x - 1 + randomNumber(2 * displacement.x + 1);
+                    spot.y = coord.y - displacement.y - 1 + this.rnd.randomNumber(2 * displacement.y + 1);
+                    spot.x = coord.x - displacement.x - 1 + this.rnd.randomNumber(2 * displacement.x + 1);
 
                     if (dg.floor[spot.y][spot.x].feature_id != TILE_NULL_WALL &&
                         dg.floor[spot.y][spot.x].feature_id <= MAX_CAVE_FLOOR &&
                         dg.floor[spot.y][spot.x].treasure_id == 0)
                     {
-                        dungeonSetTrap(spot, randomNumber((int)Config.dungeon_objects.MAX_TRAPS) - 1);
+                        dungeonSetTrap(spot, this.rnd.randomNumber((int)Config.dungeon_objects.MAX_TRAPS) - 1);
                         placed = true;
                     }
                 }
@@ -441,7 +452,7 @@ namespace Moria.Core.Methods
         }
 
         // Place a trap with a given displacement of point -RAK-
-        public static void dungeonPlaceVaultMonster(Coord_t coord, int number)
+        private void dungeonPlaceVaultMonster(Coord_t coord, int number)
         {
             var spot = new Coord_t(0, 0);
 
@@ -454,16 +465,16 @@ namespace Moria.Core.Methods
         }
 
         // Builds a room at a row, column coordinate -RAK-
-        public static void dungeonBuildRoom(Coord_t coord)
+        private void dungeonBuildRoom(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
             var floor = dungeonFloorTileForLevel();
 
-            var height = coord.y - randomNumber(4);
-            var depth = coord.y + randomNumber(3);
-            var left = coord.x - randomNumber(11);
-            var right = coord.x + randomNumber(11);
+            var height = coord.y - this.rnd.randomNumber(4);
+            var depth = coord.y + this.rnd.randomNumber(3);
+            var left = coord.x - this.rnd.randomNumber(11);
+            var right = coord.x + this.rnd.randomNumber(11);
 
             // the x dim of rooms tends to be much larger than the y dim,
             // so don't bother rewriting the y loop.
@@ -500,20 +511,20 @@ namespace Moria.Core.Methods
 
         // Builds a room at a row, column coordinate -RAK-
         // Type 1 unusual rooms are several overlapping rectangular ones
-        public static void dungeonBuildRoomOverlappingRectangles(Coord_t coord)
+        private void dungeonBuildRoomOverlappingRectangles(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
             var floor = dungeonFloorTileForLevel();
 
-            var limit = 1 + randomNumber(2);
+            var limit = 1 + this.rnd.randomNumber(2);
 
             for (var count = 0; count < limit; count++)
             {
-                var height = coord.y - randomNumber(4);
-                var depth = coord.y + randomNumber(3);
-                var left = coord.x - randomNumber(11);
-                var right = coord.x + randomNumber(11);
+                var height = coord.y - this.rnd.randomNumber(4);
+                var depth = coord.y + this.rnd.randomNumber(3);
+                var left = coord.x - this.rnd.randomNumber(11);
+                var right = coord.x + this.rnd.randomNumber(11);
 
                 // the x dim of rooms tends to be much larger than the y dim,
                 // so don't bother rewriting the y loop.
@@ -560,9 +571,9 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void dungeonPlaceRandomSecretDoor(Coord_t coord, int depth, int height, int left, int right)
+        private void dungeonPlaceRandomSecretDoor(Coord_t coord, int depth, int height, int left, int right)
         {
-            switch (randomNumber(4))
+            switch (this.rnd.randomNumber(4))
             {
                 case 1:
                     dungeonPlaceSecretDoor(new Coord_t(height - 1, coord.x));
@@ -579,7 +590,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void dungeonPlaceVault(Coord_t coord)
+        private void dungeonPlaceVault(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -593,13 +604,13 @@ namespace Moria.Core.Methods
             dg.floor[coord.y + 1][coord.x].feature_id = TMP1_WALL;
         }
 
-        public static void dungeonPlaceTreasureVault(Coord_t coord, int depth, int height, int left, int right)
+        private void dungeonPlaceTreasureVault(Coord_t coord, int depth, int height, int left, int right)
         {
             dungeonPlaceRandomSecretDoor(coord, depth, height, left, right);
             dungeonPlaceVault(coord);
 
             // Place a locked door
-            var offset = randomNumber(4);
+            var offset = this.rnd.randomNumber(4);
             if (offset < 3)
             {
                 // 1 -> y-1; 2 -> y+1
@@ -611,7 +622,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void dungeonPlaceInnerPillars(Coord_t coord)
+        private void dungeonPlaceInnerPillars(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -625,12 +636,12 @@ namespace Moria.Core.Methods
                 }
             }
 
-            if (randomNumber(2) != 1)
+            if (this.rnd.randomNumber(2) != 1)
             {
                 return;
             }
 
-            var offset = randomNumber(2);
+            var offset = this.rnd.randomNumber(2);
 
             for (y = coord.y - 1; y <= coord.y + 1; y++)
             {
@@ -649,7 +660,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void dungeonPlaceMazeInsideRoom(int depth, int height, int left, int right)
+        private void dungeonPlaceMazeInsideRoom(int depth, int height, int left, int right)
         {
             var dg = State.Instance.dg;
 
@@ -665,7 +676,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void dungeonPlaceFourSmallRooms(Coord_t coord, int depth, int height, int left, int right)
+        private void dungeonPlaceFourSmallRooms(Coord_t coord, int depth, int height, int left, int right)
         {
             var dg = State.Instance.dg;
 
@@ -680,9 +691,9 @@ namespace Moria.Core.Methods
             }
 
             // place random secret door
-            if (randomNumber(2) == 1)
+            if (this.rnd.randomNumber(2) == 1)
             {
-                var offset = randomNumber(10);
+                var offset = this.rnd.randomNumber(10);
                 dungeonPlaceSecretDoor(new Coord_t(height - 1, coord.x - offset));
                 dungeonPlaceSecretDoor(new Coord_t(height - 1, coord.x + offset));
                 dungeonPlaceSecretDoor(new Coord_t(depth + 1, coord.x - offset));
@@ -690,7 +701,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                var offset = randomNumber(3);
+                var offset = this.rnd.randomNumber(3);
                 dungeonPlaceSecretDoor(new Coord_t(coord.y + offset, left - 1));
                 dungeonPlaceSecretDoor(new Coord_t(coord.y - offset, left - 1));
                 dungeonPlaceSecretDoor(new Coord_t(coord.y + offset, right + 1));
@@ -699,7 +710,7 @@ namespace Moria.Core.Methods
         }
 
         // Builds a type 2 unusual room at a row, column coordinate -RAK-
-        public static void dungeonBuildRoomWithInnerRooms(Coord_t coord)
+        private void dungeonBuildRoomWithInnerRooms(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -759,7 +770,7 @@ namespace Moria.Core.Methods
             }
 
             // Inner room variations
-            switch ((InnerRoomTypes)randomNumber(5))
+            switch ((InnerRoomTypes)this.rnd.randomNumber(5))
             {
                 case InnerRoomTypes.Plain:
                     dungeonPlaceRandomSecretDoor(coord, depth, height, left, right);
@@ -769,17 +780,17 @@ namespace Moria.Core.Methods
                     dungeonPlaceTreasureVault(coord, depth, height, left, right);
 
                     // Guard the treasure well
-                    dungeonPlaceVaultMonster(coord, 2 + randomNumber(3));
+                    dungeonPlaceVaultMonster(coord, 2 + this.rnd.randomNumber(3));
 
                     // If the monsters don't get 'em.
-                    dungeonPlaceVaultTrap(coord, new Coord_t(4, 10), 2 + randomNumber(3));
+                    dungeonPlaceVaultTrap(coord, new Coord_t(4, 10), 2 + this.rnd.randomNumber(3));
                     break;
                 case InnerRoomTypes.Pillars:
                     dungeonPlaceRandomSecretDoor(coord, depth, height, left, right);
 
                     dungeonPlaceInnerPillars(coord);
 
-                    if (randomNumber(3) != 1)
+                    if (this.rnd.randomNumber(3) != 1)
                     {
                         break;
                     }
@@ -793,21 +804,21 @@ namespace Moria.Core.Methods
                     dg.floor[coord.y][coord.x - 5].feature_id = TMP1_WALL;
                     dg.floor[coord.y][coord.x + 5].feature_id = TMP1_WALL;
 
-                    dungeonPlaceSecretDoor(new Coord_t(coord.y - 3 + (randomNumber(2) << 1), coord.x - 3));
-                    dungeonPlaceSecretDoor(new Coord_t(coord.y - 3 + (randomNumber(2) << 1), coord.x + 3));
+                    dungeonPlaceSecretDoor(new Coord_t(coord.y - 3 + (this.rnd.randomNumber(2) << 1), coord.x - 3));
+                    dungeonPlaceSecretDoor(new Coord_t(coord.y - 3 + (this.rnd.randomNumber(2) << 1), coord.x + 3));
 
-                    if (randomNumber(3) == 1)
+                    if (this.rnd.randomNumber(3) == 1)
                     {
                         dungeonPlaceRandomObjectAt(new Coord_t(coord.y, coord.x - 2), false);
                     }
 
-                    if (randomNumber(3) == 1)
+                    if (this.rnd.randomNumber(3) == 1)
                     {
                         dungeonPlaceRandomObjectAt(new Coord_t(coord.y, coord.x + 2), false);
                     }
 
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x - 2), randomNumber(2));
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x + 2), randomNumber(2));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x - 2), this.rnd.randomNumber(2));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x + 2), this.rnd.randomNumber(2));
                     break;
                 case InnerRoomTypes.Maze:
                     dungeonPlaceRandomSecretDoor(coord, depth, height, left, right);
@@ -815,12 +826,12 @@ namespace Moria.Core.Methods
                     dungeonPlaceMazeInsideRoom(depth, height, left, right);
 
                     // Monsters just love mazes.
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x - 5), randomNumber(3));
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x + 5), randomNumber(3));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x - 5), this.rnd.randomNumber(3));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y, coord.x + 5), this.rnd.randomNumber(3));
 
                     // Traps make them entertaining.
-                    dungeonPlaceVaultTrap(new Coord_t(coord.y, coord.x - 3), new Coord_t(2, 8), randomNumber(3));
-                    dungeonPlaceVaultTrap(new Coord_t(coord.y, coord.x + 3), new Coord_t(2, 8), randomNumber(3));
+                    dungeonPlaceVaultTrap(new Coord_t(coord.y, coord.x - 3), new Coord_t(2, 8), this.rnd.randomNumber(3));
+                    dungeonPlaceVaultTrap(new Coord_t(coord.y, coord.x + 3), new Coord_t(2, 8), this.rnd.randomNumber(3));
 
                     // Mazes should have some treasure too..
                     for (var i = 0; i < 3; i++)
@@ -832,13 +843,13 @@ namespace Moria.Core.Methods
                     dungeonPlaceFourSmallRooms(coord, depth, height, left, right);
 
                     // Treasure in each one.
-                    dungeonPlaceRandomObjectNear(coord, 2 + randomNumber(2));
+                    dungeonPlaceRandomObjectNear(coord, 2 + this.rnd.randomNumber(2));
 
                     // Gotta have some monsters.
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y + 2, coord.x - 4), randomNumber(2));
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y + 2, coord.x + 4), randomNumber(2));
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y - 2, coord.x - 4), randomNumber(2));
-                    dungeonPlaceVaultMonster(new Coord_t(coord.y - 2, coord.x + 4), randomNumber(2));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y + 2, coord.x - 4), this.rnd.randomNumber(2));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y + 2, coord.x + 4), this.rnd.randomNumber(2));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y - 2, coord.x - 4), this.rnd.randomNumber(2));
+                    dungeonPlaceVaultMonster(new Coord_t(coord.y - 2, coord.x + 4), this.rnd.randomNumber(2));
                     break;
                 default:
                     // All cases are handled, so this should never be reached!
@@ -846,7 +857,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void dungeonPlaceLargeMiddlePillar(Coord_t coord)
+        private void dungeonPlaceLargeMiddlePillar(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -861,13 +872,13 @@ namespace Moria.Core.Methods
 
         // Builds a room at a row, column coordinate -RAK-
         // Type 3 unusual rooms are cross shaped
-        public static void dungeonBuildRoomCrossShaped(Coord_t coord)
+        private void dungeonBuildRoomCrossShaped(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
             var floor = dungeonFloorTileForLevel();
 
-            var random_offset = 2 + randomNumber(2);
+            var random_offset = 2 + this.rnd.randomNumber(2);
 
             var height = coord.y - random_offset;
             var depth = coord.y + random_offset;
@@ -901,7 +912,7 @@ namespace Moria.Core.Methods
                 dg.floor[depth + 1][i].perma_lit_room = true;
             }
 
-            random_offset = 2 + randomNumber(9);
+            random_offset = 2 + this.rnd.randomNumber(9);
 
             height = coord.y - 1;
             depth = coord.y + 1;
@@ -948,7 +959,7 @@ namespace Moria.Core.Methods
             }
 
             // Special features.
-            switch (randomNumber(4))
+            switch (this.rnd.randomNumber(4))
             {
                 case 1: // Large middle pillar
                     dungeonPlaceLargeMiddlePillar(coord);
@@ -957,7 +968,7 @@ namespace Moria.Core.Methods
                     dungeonPlaceVault(coord);
 
                     // Place a secret door
-                    random_offset = randomNumber(4);
+                    random_offset = this.rnd.randomNumber(4);
                     if (random_offset < 3)
                     {
                         dungeonPlaceSecretDoor(new Coord_t(coord.y - 3 + (random_offset << 1), coord.x));
@@ -971,13 +982,13 @@ namespace Moria.Core.Methods
                     dungeonPlaceRandomObjectAt(coord, false);
 
                     // Let's guard the treasure well.
-                    dungeonPlaceVaultMonster(coord, 2 + randomNumber(2));
+                    dungeonPlaceVaultMonster(coord, 2 + this.rnd.randomNumber(2));
 
                     // Traps naturally
-                    dungeonPlaceVaultTrap(coord, new Coord_t(4, 4), 1 + randomNumber(3));
+                    dungeonPlaceVaultTrap(coord, new Coord_t(4, 4), 1 + this.rnd.randomNumber(3));
                     break;
                 case 3:
-                    if (randomNumber(3) == 1)
+                    if (this.rnd.randomNumber(3) == 1)
                     {
                         dg.floor[coord.y - 1][coord.x - 2].feature_id = TMP1_WALL;
                         dg.floor[coord.y + 1][coord.x - 2].feature_id = TMP1_WALL;
@@ -987,7 +998,7 @@ namespace Moria.Core.Methods
                         dg.floor[coord.y - 2][coord.x + 1].feature_id = TMP1_WALL;
                         dg.floor[coord.y + 2][coord.x - 1].feature_id = TMP1_WALL;
                         dg.floor[coord.y + 2][coord.x + 1].feature_id = TMP1_WALL;
-                        if (randomNumber(3) == 1)
+                        if (this.rnd.randomNumber(3) == 1)
                         {
                             dungeonPlaceSecretDoor(new Coord_t(coord.y, coord.x - 2));
                             dungeonPlaceSecretDoor(new Coord_t(coord.y, coord.x + 2));
@@ -995,7 +1006,7 @@ namespace Moria.Core.Methods
                             dungeonPlaceSecretDoor(new Coord_t(coord.y + 2, coord.x));
                         }
                     }
-                    else if (randomNumber(3) == 1)
+                    else if (this.rnd.randomNumber(3) == 1)
                     {
                         dg.floor[coord.y][coord.x].feature_id = TMP1_WALL;
                         dg.floor[coord.y - 1][coord.x].feature_id = TMP1_WALL;
@@ -1003,7 +1014,7 @@ namespace Moria.Core.Methods
                         dg.floor[coord.y][coord.x - 1].feature_id = TMP1_WALL;
                         dg.floor[coord.y][coord.x + 1].feature_id = TMP1_WALL;
                     }
-                    else if (randomNumber(3) == 1)
+                    else if (this.rnd.randomNumber(3) == 1)
                     {
                         dg.floor[coord.y][coord.x].feature_id = TMP1_WALL;
                     }
@@ -1018,7 +1029,7 @@ namespace Moria.Core.Methods
         }
 
         // Constructs a tunnel between two points
-        public static void dungeonBuildTunnel(Coord_t start, Coord_t end)
+        private void dungeonBuildTunnel(Coord_t start, Coord_t end)
         {
             var dg = State.Instance.dg;
 
@@ -1048,9 +1059,9 @@ namespace Moria.Core.Methods
                     stop_flag = true;
                 }
 
-                if (randomNumber(100) > Config.dungeon.DUN_DIR_CHANGE)
+                if (this.rnd.randomNumber(100) > Config.dungeon.DUN_DIR_CHANGE)
                 {
-                    if (randomNumber((int)Config.dungeon.DUN_RANDOM_DIR) == 1)
+                    if (this.rnd.randomNumber((int)Config.dungeon.DUN_RANDOM_DIR) == 1)
                     {
                         chanceOfRandomDirection(ref y_direction, ref x_direction);
                     }
@@ -1065,7 +1076,7 @@ namespace Moria.Core.Methods
 
                 while (!coordInBounds(new Coord_t(tmp_row, tmp_col)))
                 {
-                    if (randomNumber((int)Config.dungeon.DUN_RANDOM_DIR) == 1)
+                    if (this.rnd.randomNumber((int)Config.dungeon.DUN_RANDOM_DIR) == 1)
                     {
                         chanceOfRandomDirection(ref y_direction, ref x_direction);
                     }
@@ -1136,7 +1147,7 @@ namespace Moria.Core.Methods
                             door_flag = true;
                         }
 
-                        if (randomNumber(100) > Config.dungeon.DUN_TUNNELING)
+                        if (this.rnd.randomNumber(100) > Config.dungeon.DUN_TUNNELING)
                         {
                             // make sure that tunnel has gone a reasonable distance
                             // before stopping it, this helps prevent isolated rooms
@@ -1177,7 +1188,7 @@ namespace Moria.Core.Methods
 
                 if (tile.feature_id == TMP2_WALL)
                 {
-                    if (randomNumber(100) < Config.dungeon.DUN_ROOM_DOORS)
+                    if (this.rnd.randomNumber(100) < Config.dungeon.DUN_ROOM_DOORS)
                     {
                         dungeonPlaceDoor(new Coord_t(walls_tk[i].y, walls_tk[i].x));
                     }
@@ -1190,7 +1201,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool dungeonIsNextTo(Coord_t coord)
+        private bool dungeonIsNextTo(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -1208,12 +1219,12 @@ namespace Moria.Core.Methods
         }
 
         // Places door at y, x position if at least 2 walls found
-        public static void dungeonPlaceDoorIfNextToTwoWalls(Coord_t coord)
+        private void dungeonPlaceDoorIfNextToTwoWalls(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
             if (dg.floor[coord.y][coord.x].feature_id == TILE_CORR_FLOOR &&
-                randomNumber(100) > Config.dungeon.DUN_TUNNEL_DOORS &&
+                this.rnd.randomNumber(100) > Config.dungeon.DUN_TUNNEL_DOORS &&
                 dungeonIsNextTo(coord))
             {
                 dungeonPlaceDoor(coord);
@@ -1221,7 +1232,7 @@ namespace Moria.Core.Methods
         }
 
         // Returns random co-ordinates -RAK-
-        public static void dungeonNewSpot(Coord_t coord)
+        private void dungeonNewSpot(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -1230,8 +1241,8 @@ namespace Moria.Core.Methods
 
             do
             {
-                position.y = randomNumber(dg.height - 2);
-                position.x = randomNumber(dg.width - 2);
+                position.y = this.rnd.randomNumber(dg.height - 2);
+                position.x = this.rnd.randomNumber(dg.width - 2);
                 tile = dg.floor[position.y][position.x];
             } while (tile.feature_id >= MIN_CLOSED_SPACE || tile.creature_id != 0 || tile.treasure_id != 0);
 
@@ -1240,23 +1251,23 @@ namespace Moria.Core.Methods
         }
 
         // Functions to emulate the original Pascal sets
-        public static bool setRooms(int tile_id)
+        private bool setRooms(int tile_id)
         {
             return (tile_id == TILE_DARK_FLOOR || tile_id == TILE_LIGHT_FLOOR);
         }
 
-        public static bool setCorridors(int tile_id)
+        private bool setCorridors(int tile_id)
         {
             return (tile_id == TILE_CORR_FLOOR || tile_id == TILE_BLOCKED_FLOOR);
         }
 
-        public static bool setFloors(int tile_id)
+        private bool setFloors(int tile_id)
         {
             return (tile_id <= MAX_CAVE_FLOOR);
         }
 
         // Cave logic flow for generation of new dungeon
-        public static void dungeonGenerate()
+        private void dungeonGenerate()
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -1267,10 +1278,10 @@ namespace Moria.Core.Methods
 
             var room_map = ArrayInitializer.InitializeWithDefault(20, 20, false);
 
-            var random_room_count = randomNumberNormalDistribution((int)Config.dungeon.DUN_ROOMS_MEAN, 2);
+            var random_room_count = this.rnd.randomNumberNormalDistribution((int)Config.dungeon.DUN_ROOMS_MEAN, 2);
             for (var i = 0; i < random_room_count; i++)
             {
-                room_map[randomNumber(row_rooms) - 1][randomNumber(col_rooms) - 1] = true;
+                room_map[this.rnd.randomNumber(row_rooms) - 1][this.rnd.randomNumber(col_rooms) - 1] = true;
             }
 
             // Build rooms
@@ -1285,9 +1296,9 @@ namespace Moria.Core.Methods
                     {
                         locations[location_id].y = (row * (int)(SCREEN_HEIGHT >> 1) + (int)QUART_HEIGHT);
                         locations[location_id].x = (col * (int)(SCREEN_WIDTH >> 1) + (int)QUART_WIDTH);
-                        if (dg.current_level > randomNumber(Config.dungeon.DUN_UNUSUAL_ROOMS))
+                        if (dg.current_level > this.rnd.randomNumber(Config.dungeon.DUN_UNUSUAL_ROOMS))
                         {
-                            var room_type = randomNumber(3);
+                            var room_type = this.rnd.randomNumber(3);
 
                             if (room_type == 1)
                             {
@@ -1313,8 +1324,8 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i < location_id; i++)
             {
-                var pick1 = randomNumber(location_id) - 1;
-                var pick2 = randomNumber(location_id) - 1;
+                var pick1 = this.rnd.randomNumber(location_id) - 1;
+                var pick2 = this.rnd.randomNumber(location_id) - 1;
 
                 var y = locations[pick1].y;
                 var x = locations[pick1].x;
@@ -1366,8 +1377,8 @@ namespace Moria.Core.Methods
                 alloc_level = 10;
             }
 
-            dungeonPlaceStairs(2, randomNumber(2) + 2, 3);
-            dungeonPlaceStairs(1, randomNumber(2), 3);
+            dungeonPlaceStairs(2, this.rnd.randomNumber(2) + 2, 3);
+            dungeonPlaceStairs(1, this.rnd.randomNumber(2), 3);
 
             // Set up the character coords, used by monsterPlaceNewWithinDistance, monsterPlaceWinning
             var coord = new Coord_t(0, 0);
@@ -1376,12 +1387,12 @@ namespace Moria.Core.Methods
             //py.pos.x = coord.x;
             py.pos = coord;
 
-            monsterPlaceNewWithinDistance((randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + alloc_level), 0, true);
-            dungeonAllocateAndPlaceObject(setCorridors, 3, randomNumber(alloc_level));
-            dungeonAllocateAndPlaceObject(setRooms, 5, randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_ROOM, 3));
-            dungeonAllocateAndPlaceObject(setFloors, 5, randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_CORRIDOR, 3));
-            dungeonAllocateAndPlaceObject(setFloors, 4, randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_TOTAL_GOLD_AND_GEMS, 3));
-            dungeonAllocateAndPlaceObject(setFloors, 1, randomNumber(alloc_level));
+            monsterPlaceNewWithinDistance((this.rnd.randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + alloc_level), 0, true);
+            dungeonAllocateAndPlaceObject(setCorridors, 3, this.rnd.randomNumber(alloc_level));
+            dungeonAllocateAndPlaceObject(setRooms, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_ROOM, 3));
+            dungeonAllocateAndPlaceObject(setFloors, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_CORRIDOR, 3));
+            dungeonAllocateAndPlaceObject(setFloors, 4, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_TOTAL_GOLD_AND_GEMS, 3));
+            dungeonAllocateAndPlaceObject(setFloors, 1, this.rnd.randomNumber(alloc_level));
 
             if (dg.current_level >= Config.monsters.MON_ENDGAME_LEVEL)
             {
@@ -1390,17 +1401,17 @@ namespace Moria.Core.Methods
         }
 
         // Builds a store at a row, column coordinate
-        public static void dungeonBuildStore(int store_id, Coord_t coord)
+        private void dungeonBuildStore(int store_id, Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
             var yval = coord.y * 10 + 5;
             var xval = coord.x * 16 + 16;
-            var height = yval - randomNumber(3);
-            var depth = yval + randomNumber(4);
-            var left = xval - randomNumber(6);
-            var right = xval + randomNumber(6);
+            var height = yval - this.rnd.randomNumber(3);
+            var depth = yval + this.rnd.randomNumber(4);
+            var left = xval - this.rnd.randomNumber(6);
+            var right = xval + this.rnd.randomNumber(6);
 
             int y, x;
 
@@ -1412,10 +1423,10 @@ namespace Moria.Core.Methods
                 }
             }
 
-            var tmp = randomNumber(4);
+            var tmp = this.rnd.randomNumber(4);
             if (tmp < 3)
             {
-                y = randomNumber(depth - height) + height - 1;
+                y = this.rnd.randomNumber(depth - height) + height - 1;
 
                 if (tmp == 1)
                 {
@@ -1428,7 +1439,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                x = randomNumber(right - left) + left - 1;
+                x = this.rnd.randomNumber(right - left) + left - 1;
 
                 if (tmp == 3)
                 {
@@ -1449,7 +1460,7 @@ namespace Moria.Core.Methods
         }
 
         // Link all free space in treasure list together
-        public static void treasureLinker()
+        private void treasureLinker()
         {
             foreach (var item in State.Instance.game.treasure.list)
             {
@@ -1459,7 +1470,7 @@ namespace Moria.Core.Methods
         }
 
         // Link all free space in monster list together
-        public static void monsterLinker()
+        private void monsterLinker()
         {
             var monsters = State.Instance.monsters;
             for (var i = 0; i < monsters.Length; i++)
@@ -1469,7 +1480,7 @@ namespace Moria.Core.Methods
             State.Instance.next_free_monster_id = (int)Config.monsters.MON_MIN_INDEX_ID;
         }
 
-        public static void dungeonPlaceTownStores()
+        private void dungeonPlaceTownStores()
         {
             var rooms = new int[6];
             for (var i = 0; i < 6; i++)
@@ -1483,7 +1494,7 @@ namespace Moria.Core.Methods
             {
                 for (var x = 0; x < 3; x++)
                 {
-                    var room_id = randomNumber(rooms_count) - 1;
+                    var room_id = this.rnd.randomNumber(rooms_count) - 1;
                     dungeonBuildStore(rooms[room_id], new Coord_t(y, x));
 
                     for (var i = room_id; i < rooms_count - 1; i++)
@@ -1496,14 +1507,14 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool isNighTime()
+        private bool isNighTime()
         {
             var dg = State.Instance.dg;
             return (0x1 & (dg.game_turn / 5000)) != 0;
         }
 
         // Light town based on whether it is Night time, or day time.
-        public static void lightTown()
+        private void lightTown()
         {
             var dg = State.Instance.dg;
             if (isNighTime())
@@ -1539,9 +1550,9 @@ namespace Moria.Core.Methods
         // hooks which I have not had time to re-think. -RAK-
 
         // Town logic flow for generation of new town
-        public static void townGeneration()
+        private void townGeneration()
         {
-            seedSet(State.Instance.game.town_seed);
+            this.rnd.seedSet(State.Instance.game.town_seed);
 
             dungeonPlaceTownStores();
 
@@ -1551,7 +1562,7 @@ namespace Moria.Core.Methods
             dungeonPlaceBoundaryWalls();
             dungeonPlaceStairs(2, 1, 0);
 
-            seedResetToOldSeed();
+            this.rnd.seedResetToOldSeed();
 
             // Set up the character coords, used by monsterPlaceNewWithinDistance below
             var coord = new Coord_t(0, 0);
@@ -1565,7 +1576,7 @@ namespace Moria.Core.Methods
         }
 
         // Generates a random dungeon level -RAK-
-        public static void generateCave()
+        public void generateCave()
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;

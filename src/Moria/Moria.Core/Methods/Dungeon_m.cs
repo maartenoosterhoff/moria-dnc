@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Treasure_m;
@@ -19,6 +18,15 @@ namespace Moria.Core.Methods
 {
     public static class Dungeon_m
     {
+        public static void SetDependencies(
+            IRnd rnd
+        )
+        {
+            Dungeon_m.rnd = rnd;
+        }
+
+        private static IRnd rnd;
+
         public static void dungeonDisplayMap()
         {
             // Save the game screen
@@ -35,8 +43,8 @@ namespace Moria.Core.Methods
             priority[32] = -15; // char ' '
 
             // Display highest priority object in the RATIO, by RATIO area
-            int panel_width = (int)(MAX_WIDTH / RATIO);
-            int panel_height = (int)(MAX_HEIGHT / RATIO);
+            var panel_width = (int)(MAX_WIDTH / RATIO);
+            var panel_height = (int)(MAX_HEIGHT / RATIO);
 
             var map = ArrayInitializer.InitializeWithDefault(MAX_WIDTH / RATIO + 1, '\0');
             string line_buffer;
@@ -45,12 +53,12 @@ namespace Moria.Core.Methods
             // Add screen border
             addChar('+', new Coord_t(0, 0));
             addChar('+', new Coord_t(0, panel_width + 1));
-            for (int i = 0; i < panel_width; i++)
+            for (var i = 0; i < panel_width; i++)
             {
                 addChar('-', new Coord_t(0, i + 1));
                 addChar('-', new Coord_t(panel_height + 1, i + 1));
             }
-            for (int i = 0; i < panel_height; i++)
+            for (var i = 0; i < panel_height; i++)
             {
                 addChar('|', new Coord_t(i + 1, 0));
                 addChar('|', new Coord_t(i + 1, panel_width + 1));
@@ -59,14 +67,14 @@ namespace Moria.Core.Methods
             addChar('+', new Coord_t(panel_height + 1, panel_width + 1));
             putString("Hit any key to continue", new Coord_t(23, 23));
 
-            int player_y = 0;
-            int player_x = 0;
-            int line = -1;
+            var player_y = 0;
+            var player_x = 0;
+            var line = -1;
 
             // Shrink the dungeon!
-            for (int y = 0; y < MAX_HEIGHT; y++)
+            for (var y = 0; y < MAX_HEIGHT; y++)
             {
-                int row = y / (int)RATIO;
+                var row = y / (int)RATIO;
                 if (row != line)
                 {
                     if (line >= 0)
@@ -75,17 +83,17 @@ namespace Moria.Core.Methods
                         //sprintf(line_buffer, "|%s|", map);
                         putString(line_buffer, new Coord_t(line + 1, 0));
                     }
-                    for (int j = 0; j < panel_width; j++)
+                    for (var j = 0; j < panel_width; j++)
                     {
                         map[j] = ' ';
                     }
                     line = row;
                 }
 
-                for (int x = 0; x < MAX_WIDTH; x++)
+                for (var x = 0; x < MAX_WIDTH; x++)
                 {
-                    int col = x / (int)RATIO;
-                    char cave_char = caveGetTileSymbol(new Coord_t(y, x));
+                    var col = x / (int)RATIO;
+                    var cave_char = caveGetTileSymbol(new Coord_t(y, x));
                     if (priority[map[col]] < priority[cave_char])
                     {
                         map[col] = cave_char;
@@ -121,8 +129,8 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            bool y = coord.y > 0 && coord.y < dg.height - 1;
-            bool x = coord.x > 0 && coord.x < dg.width - 1;
+            var y = coord.y > 0 && coord.y < dg.height - 1;
+            var x = coord.x > 0 && coord.x < dg.width - 1;
 
             return y && x;
         }
@@ -132,20 +140,20 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            int dy = from.y - to.y;
+            var dy = from.y - to.y;
             if (dy < 0)
             {
                 dy = -dy;
             }
 
-            int dx = from.x - to.x;
+            var dx = from.x - to.x;
             if (dx < 0)
             {
                 dx = -dx;
             }
 
-            int a = (dy + dx) << 1;
-            int b = dy > dx ? dx : dy;
+            var a = (dy + dx) << 1;
+            var b = dy > dx ? dx : dy;
 
             return ((a - b) >> 1);
         }
@@ -157,7 +165,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            int walls = 0;
+            var walls = 0;
 
             if (dg.floor[coord.y - 1][coord.x].feature_id >= MIN_CAVE_WALL)
             {
@@ -190,14 +198,14 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int walls = 0;
+            var walls = 0;
 
-            for (int y = coord.y - 1; y <= coord.y + 1; y++)
+            for (var y = coord.y - 1; y <= coord.y + 1; y++)
             {
-                for (int x = coord.x - 1; x <= coord.x + 1; x++)
+                for (var x = coord.x - 1; x <= coord.x + 1; x++)
                 {
-                    int tile_id = (int)dg.floor[y][x].feature_id;
-                    int treasure_id = (int)dg.floor[y][x].treasure_id;
+                    var tile_id = (int)dg.floor[y][x].feature_id;
+                    var treasure_id = (int)dg.floor[y][x].treasure_id;
 
                     // should fail if there is already a door present
                     if (tile_id == TILE_CORR_FLOOR && (treasure_id == 0 || game.treasure.list[treasure_id].category_id < TV_MIN_DOORS))
@@ -229,9 +237,9 @@ namespace Moria.Core.Methods
                 return ' ';
             }
 
-            if (py.flags.image > 0 && randomNumber(12) == 1)
+            if (py.flags.image > 0 && rnd.randomNumber(12) == 1)
             {
-                return (char)(randomNumber(95) + 31);
+                return (char)(rnd.randomNumber(95) + 31);
             }
 
             if (tile.creature_id > 1 && State.Instance.monsters[tile.creature_id].lit)
@@ -279,7 +287,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int free_treasure_id = popt();
+            var free_treasure_id = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_TRAP_LIST + sub_type_id, game.treasure.list[free_treasure_id]);
         }
@@ -291,7 +299,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
-            uint treasure_id = dg.floor[coord.y][coord.x].treasure_id;
+            var treasure_id = dg.floor[coord.y][coord.x].treasure_id;
 
             var item = game.treasure.list[treasure_id];
 
@@ -318,7 +326,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int free_treasure_id = popt();
+            var free_treasure_id = popt();
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
             dg.floor[coord.y][coord.x].feature_id = TILE_BLOCKED_FLOOR;
             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_RUBBLE, game.treasure.list[free_treasure_id]);
@@ -330,13 +338,13 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int free_treasure_id = popt();
+            var free_treasure_id = popt();
 
-            int gold_type_id = ((randomNumber(dg.current_level + 2) + 2) / 2) - 1;
+            var gold_type_id = ((rnd.randomNumber(dg.current_level + 2) + 2) / 2) - 1;
 
-            if (randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
+            if (rnd.randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
             {
-                gold_type_id += randomNumber(dg.current_level + 1);
+                gold_type_id += rnd.randomNumber(dg.current_level + 1);
             }
 
             if (gold_type_id >= Config.dungeon_objects.MAX_GOLD_TYPES)
@@ -346,7 +354,7 @@ namespace Moria.Core.Methods
 
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
             inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_GOLD_LIST + gold_type_id, game.treasure.list[free_treasure_id]);
-            game.treasure.list[free_treasure_id].cost += (8 * randomNumber(game.treasure.list[free_treasure_id].cost)) + randomNumber(8);
+            game.treasure.list[free_treasure_id].cost += (8 * rnd.randomNumber(game.treasure.list[free_treasure_id].cost)) + rnd.randomNumber(8);
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {
@@ -360,11 +368,11 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int free_treasure_id = popt();
+            var free_treasure_id = popt();
 
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
 
-            int object_id = itemGetRandomObjectId(dg.current_level, must_be_small);
+            var object_id = itemGetRandomObjectId(dg.current_level, must_be_small);
             inventoryItemCopyTo(State.Instance.sorted_objects[object_id], State.Instance.game.treasure.list[free_treasure_id]);
 
             magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
@@ -381,16 +389,16 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var py = State.Instance.py;
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
 
-            for (int i = 0; i < number; i++)
+            for (var i = 0; i < number; i++)
             {
                 // don't put an object beneath the player, this could cause
                 // problems if player is standing under rubble, or on a trap.
                 do
                 {
-                    coord.y = randomNumber(dg.height) - 1;
-                    coord.x = randomNumber(dg.width) - 1;
+                    coord.y = rnd.randomNumber(dg.height) - 1;
+                    coord.x = rnd.randomNumber(dg.width) - 1;
                 } while (!set_function((int)dg.floor[coord.y][coord.x].feature_id) ||
                          dg.floor[coord.y][coord.x].treasure_id != 0 ||
                          (coord.y == py.pos.y && coord.x == py.pos.x));
@@ -398,7 +406,7 @@ namespace Moria.Core.Methods
                 switch (object_type)
                 {
                     case 1:
-                        dungeonSetTrap(coord, randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
+                        dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
                         break;
                     case 2:
                     // NOTE: object_type == 2 is no longer used - it used to be visible traps.
@@ -424,15 +432,15 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             do
             {
-                for (int i = 0; i <= 10; i++)
+                for (var i = 0; i <= 10; i++)
                 {
-                    Coord_t at = new Coord_t(coord.y - 3 + randomNumber(5), coord.x - 4 + randomNumber(7));
+                    var at = new Coord_t(coord.y - 3 + rnd.randomNumber(5), coord.x - 4 + rnd.randomNumber(7));
 
                     if (coordInBounds(at) &&
                         dg.floor[at.y][at.x].feature_id <= MAX_CAVE_FLOOR &&
                         dg.floor[at.y][at.x].treasure_id == 0)
                     {
-                        if (randomNumber(100) < 75)
+                        if (rnd.randomNumber(100) < 75)
                         {
                             dungeonPlaceRandomObjectAt(at, false);
                         }
@@ -465,15 +473,15 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int height_middle = ((int)SCREEN_HEIGHT / 2);
-            int width_middle = ((int)SCREEN_WIDTH / 2);
+            var height_middle = ((int)SCREEN_HEIGHT / 2);
+            var width_middle = ((int)SCREEN_WIDTH / 2);
 
-            int top = (coord.y / height_middle) * height_middle;
-            int left = (coord.x / width_middle) * width_middle;
-            int bottom = top + height_middle - 1;
-            int right = left + width_middle - 1;
+            var top = (coord.y / height_middle) * height_middle;
+            var left = (coord.x / width_middle) * width_middle;
+            var bottom = top + height_middle - 1;
+            var right = left + width_middle - 1;
 
-            Coord_t location = new Coord_t(0, 0);
+            var location = new Coord_t(0, 0);
 
             for (location.y = top; location.y <= bottom; location.y++)
             {
@@ -491,7 +499,7 @@ namespace Moria.Core.Methods
                         }
                         if (!tile.field_mark && tile.treasure_id != 0)
                         {
-                            int treasure_id = (int)game.treasure.list[tile.treasure_id].category_id;
+                            var treasure_id = (int)game.treasure.list[tile.treasure_id].category_id;
                             if (treasure_id >= TV_MIN_VISIBLE && treasure_id <= TV_MAX_VISIBLE)
                             {
                                 tile.field_mark = true;
@@ -511,7 +519,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            char symbol = caveGetTileSymbol(coord);
+            var symbol = caveGetTileSymbol(coord);
             panelPutTile(symbol, coord);
         }
 
@@ -526,9 +534,9 @@ namespace Moria.Core.Methods
             if (py.temporary_light_only)
             {
                 // Turn off lamp light
-                for (int y = from.y - 1; y <= from.y + 1; y++)
+                for (var y = from.y - 1; y <= from.y + 1; y++)
                 {
-                    for (int x = from.x - 1; x <= from.x + 1; x++)
+                    for (var x = from.x - 1; x <= from.x + 1; x++)
                     {
                         dg.floor[y][x].temporary_light = false;
                     }
@@ -543,9 +551,9 @@ namespace Moria.Core.Methods
                 py.temporary_light_only = true;
             }
 
-            for (int y = to.y - 1; y <= to.y + 1; y++)
+            for (var y = to.y - 1; y <= to.y + 1; y++)
             {
-                for (int x = to.x - 1; x <= to.x + 1; x++)
+                for (var x = to.x - 1; x <= to.x + 1; x++)
                 {
                     var tile = dg.floor[y][x];
 
@@ -561,7 +569,7 @@ namespace Moria.Core.Methods
                     }
                     else if (!tile.field_mark && tile.treasure_id != 0)
                     {
-                        int tval = (int)game.treasure.list[tile.treasure_id].category_id;
+                        var tval = (int)game.treasure.list[tile.treasure_id].category_id;
 
                         if (tval >= TV_MIN_VISIBLE && tval <= TV_MAX_VISIBLE)
                         {
@@ -595,7 +603,7 @@ namespace Moria.Core.Methods
                 right = from.x + 1;
             }
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
             for (coord.y = top; coord.y <= bottom; coord.y++)
             {
                 // Leftmost to rightmost do
@@ -615,7 +623,7 @@ namespace Moria.Core.Methods
 
             if (py.temporary_light_only)
             {
-                Coord_t coord = new Coord_t(0, 0);
+                var coord = new Coord_t(0, 0);
 
                 for (coord.y = from.y - 1; coord.y <= from.y + 1; coord.y++)
                 {
@@ -670,7 +678,7 @@ namespace Moria.Core.Methods
                 dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
             }
 
-            int last_id = State.Instance.next_free_monster_id - 1;
+            var last_id = State.Instance.next_free_monster_id - 1;
 
             if (id != last_id)
             {
@@ -729,12 +737,12 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var monsters = State.Instance.monsters;
 
-            int last_id = State.Instance.next_free_monster_id - 1;
+            var last_id = State.Instance.next_free_monster_id - 1;
 
             if (id != last_id)
             {
-                int y = monsters[last_id].pos.y;
-                int x = monsters[last_id].pos.x;
+                var y = monsters[last_id].pos.y;
+                var x = monsters[last_id].pos.x;
                 dg.floor[y][x].creature_id = (uint)id;
 
                 monsters[id] = monsters[last_id];
@@ -760,15 +768,15 @@ namespace Moria.Core.Methods
                 real_type = 256; // object_type == 2 -> gold
             }
 
-            int result = 0;
+            var result = 0;
 
             do
             {
-                for (int tries = 0; tries <= 20; tries++)
+                for (var tries = 0; tries <= 20; tries++)
                 {
-                    Coord_t at = new Coord_t(
-                        coord.y - 3 + randomNumber(5),
-                        coord.x - 3 + randomNumber(5));
+                    var at = new Coord_t(
+                        coord.y - 3 + rnd.randomNumber(5),
+                        coord.x - 3 + rnd.randomNumber(5));
 
                     if (coordInBounds(at) && los(coord, at))
                     {
@@ -777,7 +785,7 @@ namespace Moria.Core.Methods
                             // object_type == 3 -> 50% objects, 50% gold
                             if (object_type == 3 || object_type == 7)
                             {
-                                if (randomNumber(100) < 50)
+                                if (rnd.randomNumber(100) < 50)
                                 {
                                     real_type = 1;
                                 }

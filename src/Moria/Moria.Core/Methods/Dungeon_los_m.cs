@@ -7,16 +7,27 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Recall_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
     public static class Dungeon_los_m
     {
+        public static void SetDependencies(
+            IGame game,
+            IStd std
+        )
+        {
+            Dungeon_los_m.game = game;
+            Dungeon_los_m.std = std;
+        }
+
+        private static IGame game;
+        private static IStd std;
+
+
         // A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
         // 4116 Brewster Drive, Raleigh NC 27606.  Email to jnh@ecemwl.ncsu.edu.
         //
@@ -36,8 +47,8 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            int delta_x = to.x - from.x;
-            int delta_y = to.y - from.y;
+            var delta_x = to.x - from.x;
+            var delta_y = to.y - from.y;
 
             // Adjacent?
             if (delta_x < 2 && delta_x > -2 && delta_y < 2 && delta_y > -2)
@@ -50,12 +61,12 @@ namespace Moria.Core.Methods
             {
                 if (delta_y < 0)
                 {
-                    int tmp = from.y;
+                    var tmp = from.y;
                     from.y = to.y;
                     to.y = tmp;
                 }
 
-                for (int yy = from.y + 1; yy < to.y; yy++)
+                for (var yy = from.y + 1; yy < to.y; yy++)
                 {
                     if (dg.floor[yy][from.x].feature_id >= MIN_CLOSED_SPACE)
                     {
@@ -70,12 +81,12 @@ namespace Moria.Core.Methods
             {
                 if (delta_x < 0)
                 {
-                    int tmp = from.x;
+                    var tmp = from.x;
                     from.x = to.x;
                     to.x = tmp;
                 }
 
-                for (int xx = from.x + 1; xx < to.x; xx++)
+                for (var xx = from.x + 1; xx < to.x; xx++)
                 {
                     if (dg.floor[from.y][xx].feature_id >= MIN_CLOSED_SPACE)
                     {
@@ -98,16 +109,16 @@ namespace Moria.Core.Methods
                 int y_sign;     // sign of delta_y
                 int slope;      // slope or 1/slope of LOS
 
-                int delta_multiply = delta_x * delta_y;
-                scale_half = (int)std_abs(std_intmax_t(delta_multiply));
+                var delta_multiply = delta_x * delta_y;
+                scale_half = (int)std.std_abs(std.std_intmax_t(delta_multiply));
                 scale = scale_half << 1;
                 x_sign = delta_x < 0 ? -1 : 1;
                 y_sign = delta_y < 0 ? -1 : 1;
 
                 // Travel from one end of the line to the other, oriented along the longer axis.
 
-                var abs_delta_x = (int)std_abs(std_intmax_t(delta_x));
-                var abs_delta_y = (int)std_abs(std_intmax_t(delta_y));
+                var abs_delta_x = (int)std.std_abs(std.std_intmax_t(delta_x));
+                var abs_delta_y = (int)std.std_abs(std.std_intmax_t(delta_y));
 
                 if (abs_delta_x >= abs_delta_y)
                 {
@@ -313,8 +324,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int dir = 0;
-            if (!getAllDirections("Look which direction?", ref dir))
+            var dir = 0;
+            if (!game.getAllDirections("Look which direction?", ref dir))
             {
                 return;
             }
@@ -325,7 +336,7 @@ namespace Moria.Core.Methods
             // Have to set this up for the lookSee
             los_hack_no_query = false;
 
-            bool dummy = false;
+            var dummy = false;
             if (lookSee(new Coord_t(0, 0), ref dummy))
             {
                 return;
@@ -337,7 +348,7 @@ namespace Moria.Core.Methods
                 abort = false;
                 if (dir == 5)
                 {
-                    for (int i = 1; i <= 4; i++)
+                    for (var i = 1; i <= 4; i++)
                     {
                         los_fxx = los_dir_set_fxx[i];
                         los_fyx = los_dir_set_fyx[i];
@@ -361,7 +372,7 @@ namespace Moria.Core.Methods
                 {
                     // Straight directions
 
-                    int i = dir >> 1;
+                    var i = dir >> 1;
                     los_fxx = los_dir_set_fxx[i];
                     los_fyx = los_dir_set_fyx[i];
                     los_fxy = los_dir_set_fxy[i];
@@ -379,7 +390,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    int i = los_map_diagonals1[dir >> 1];
+                    var i = los_map_diagonals1[dir >> 1];
                     los_fxx = los_dir_set_fxx[i];
                     los_fyx = los_dir_set_fyx[i];
                     los_fxy = -los_dir_set_fxy[i];
@@ -445,7 +456,7 @@ namespace Moria.Core.Methods
         //     @-------------------->   direction in which you are looking. (x axis)
         //     |
         //     |
-        public static bool lookRay(int y, int from, int to)
+        private static bool lookRay(int y, int from, int to)
         {
             // from is the larger angle of the ray, since we scan towards the
             // center line. If from is smaller, then the ray does not exist.
@@ -560,14 +571,14 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool lookSee(Coord_t coord, ref bool transparent)
+        private static bool lookSee(Coord_t coord, ref bool transparent)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
             if (coord.x < 0 || coord.y < 0 || coord.y > coord.x)
             {
-                string error_message = string.Empty;
+                var error_message = string.Empty;
                 error_message = $"Illegal call to lookSee({coord.y}, {coord.x})";
                 //(void)sprintf(error_message, "Illegal call to lookSee(%d, %d)", coord.y, coord.x);
                 printMessage(error_message);
@@ -584,7 +595,7 @@ namespace Moria.Core.Methods
                 description = "You see";
             }
 
-            int j = py.pos.x + los_fxx * coord.x + los_fxy * coord.y;
+            var j = py.pos.x + los_fxx * coord.x + los_fxy * coord.y;
             coord.y = py.pos.y + los_fyx * coord.x + los_fyy * coord.y;
             coord.x = j;
 
@@ -604,9 +615,9 @@ namespace Moria.Core.Methods
 
             // This was uninitialized but the `query == ESCAPE` below was causing
             // a warning. Perhaps we can set it to `ESCAPE` here as default. -MRC-
-            char query = ESCAPE;
+            var query = ESCAPE;
 
-            string msg = string.Empty;
+            var msg = string.Empty;
             var monsters = State.Instance.monsters;
 
             if (los_rocks_and_objects == 0 && tile.creature_id > 1 && monsters[tile.creature_id].lit)
@@ -631,7 +642,7 @@ namespace Moria.Core.Methods
             }
 
             var game = State.Instance.game;
-            bool skipForGraniteGoto = false;
+            var skipForGraniteGoto = false;
             if (tile.temporary_light || tile.permanent_light || tile.field_mark)
             {
                 string wall_description;
@@ -646,7 +657,7 @@ namespace Moria.Core.Methods
 
                     if (los_rocks_and_objects == 0 && game.treasure.list[tile.treasure_id].category_id != TV_INVIS_TRAP)
                     {
-                        string obj_string = string.Empty;
+                        var obj_string = string.Empty;
                         itemDescription(ref obj_string, game.treasure.list[tile.treasure_id], true);
 
                         msg = $"{description} {obj_string} ---pause---";

@@ -5,8 +5,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
@@ -15,12 +13,29 @@ using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Mage_spells_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Mage_spells_m.dice = dice;
+            Mage_spells_m.game = game;
+            Mage_spells_m.rnd = rnd;
+            Mage_spells_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         public static bool canReadSpells()
         {
             var py = State.Instance.py;
@@ -55,14 +70,14 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int dir = 0;
+            var dir = 0;
 
             switch ((MageSpellId)spell_id)
             {
                 case MageSpellId.MagicMissile:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, Library.Instance.Player.spell_names[0]);
+                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, Library.Instance.Player.spell_names[0]);
                     }
                     break;
                 case MageSpellId.DetectMonsters:
@@ -75,35 +90,35 @@ namespace Moria.Core.Methods
                     spellLightArea(py.pos);
                     break;
                 case MageSpellId.CureLightWounds:
-                    spellChangePlayerHitPoints(diceRoll(new Dice_t(4, 4)));
+                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
                     break;
                 case MageSpellId.FindHiddenTrapsDoors:
                     spellDetectSecretDoorssWithinVicinity();
                     spellDetectTrapsWithinVicinity();
                     break;
                 case MageSpellId.StinkingCloud:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBall(py.pos, dir, 12, (int)MagicSpellFlags.PoisonGas, Library.Instance.Player.spell_names[6]);
                     }
                     break;
                 case MageSpellId.Confusion:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellConfuseMonster(py.pos, dir);
                     }
                     break;
                 case MageSpellId.LightningBolt:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, Library.Instance.Player.spell_names[8]);
+                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, Library.Instance.Player.spell_names[8]);
                     }
                     break;
                 case MageSpellId.TrapDoorDestruction:
                     spellDestroyAdjacentDoorsTraps();
                     break;
                 case MageSpellId.Sleep1:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellSleepMonster(py.pos, dir);
                     }
@@ -115,19 +130,19 @@ namespace Moria.Core.Methods
                     playerTeleport(((int)py.misc.level * 5));
                     break;
                 case MageSpellId.RemoveCurse:
-                    for (int id = 22; id < PLAYER_INVENTORY_SIZE; id++)
+                    for (var id = 22; id < PLAYER_INVENTORY_SIZE; id++)
                     {
                         py.inventory[id].flags = py.inventory[id].flags & ~Config.treasure_flags.TR_CURSED;
                     }
                     break;
                 case MageSpellId.FrostBolt:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[14]);
+                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[14]);
                     }
                     break;
                 case MageSpellId.WallToMud:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellWallToMud(py.pos, dir);
                     }
@@ -142,7 +157,7 @@ namespace Moria.Core.Methods
                     monsterSleep(py.pos);
                     break;
                 case MageSpellId.PolymorphOther:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellPolymorphMonster(py.pos, dir);
                     }
@@ -154,19 +169,19 @@ namespace Moria.Core.Methods
                     spellSleepAllMonsters();
                     break;
                 case MageSpellId.FireBolt:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[22]);
+                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[22]);
                     }
                     break;
                 case MageSpellId.SpeedMonster:
-                    if (getDirectionWithMemory(/*CNIL*/ null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/ null, ref dir))
                     {
                         spellSpeedMonster(py.pos, dir, -1);
                     }
                     break;
                 case MageSpellId.FrostBall:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBall(py.pos, dir, 48, (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[24]);
                     }
@@ -175,16 +190,16 @@ namespace Moria.Core.Methods
                     spellRechargeItem(60);
                     break;
                 case MageSpellId.TeleportOther:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellTeleportAwayMonsterInDirection(py.pos, dir);
                     }
                     break;
                 case MageSpellId.HasteSelf:
-                    py.flags.fast += randomNumber(20) + (int)py.misc.level;
+                    py.flags.fast += rnd.randomNumber(20) + (int)py.misc.level;
                     break;
                 case MageSpellId.FireBall:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellFireBall(py.pos, dir, 72, (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[28]);
                     }
@@ -221,14 +236,14 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_val = 0;
-            if (!inventoryGetInputForItemId(ref item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
+            var item_val = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
             {
                 return;
             }
 
             int choice = 0, chance = 0;
-            int result = castSpellGetId("Cast which spell?", item_val, ref choice, ref chance);
+            var result = castSpellGetId("Cast which spell?", item_val, ref choice, ref chance);
             if (result < 0)
             {
                 printMessage("You don't know any spells in that book.");
@@ -241,9 +256,9 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = false;
 
-            Spell_t magic_spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][choice];
+            var magic_spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][choice];
 
-            if (randomNumber(100) < chance)
+            if (rnd.randomNumber(100) < chance)
             {
                 printMessage("You failed to get the spell off!");
             }
@@ -264,11 +279,11 @@ namespace Moria.Core.Methods
             {
                 printMessage("You faint from the effort!");
 
-                py.flags.paralysis = randomNumber((5 * ((int)magic_spell.mana_required - py.misc.current_mana)));
+                py.flags.paralysis = rnd.randomNumber((5 * ((int)magic_spell.mana_required - py.misc.current_mana)));
                 py.misc.current_mana = 0;
                 py.misc.current_mana_fraction = 0;
 
-                if (randomNumber(3) == 1)
+                if (rnd.randomNumber(3) == 1)
                 {
                     printMessage("You have damaged your health!");
                     playerStatRandomDecrease((int)PlayerAttr.CON);
@@ -287,9 +302,9 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            Spell_t spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
+            var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
 
-            int chance = (int)(spell.failure_chance - 3 * (py.misc.level - spell.level_required));
+            var chance = (int)(spell.failure_chance - 3 * (py.misc.level - spell.level_required));
 
             int stat;
             if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)

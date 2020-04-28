@@ -5,13 +5,12 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_c;
+using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
@@ -27,6 +26,21 @@ namespace Moria.Core.Methods
 {
     public static class Player_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd
+        )
+        {
+            Player_m.dice = dice;
+            Player_m.game = game;
+            Player_m.rnd = rnd;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+
         static void playerResetFlags()
         {
             var py = State.Instance.py;
@@ -74,7 +88,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            Coord_t new_coord = new Coord_t(0, 0);
+            var new_coord = new Coord_t(0, 0);
 
             switch (dir)
             {
@@ -120,7 +134,7 @@ namespace Moria.Core.Methods
                     break;
             }
 
-            bool can_move = false;
+            var can_move = false;
 
             if (new_coord.y >= 0 && new_coord.y < dg.height && new_coord.x >= 0 && new_coord.x < dg.width)
             {
@@ -137,12 +151,12 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var py = State.Instance.py;
 
-            Coord_t location = new Coord_t(0, 0);
+            var location = new Coord_t(0, 0);
 
             do
             {
-                location.y = randomNumber(dg.height) - 1;
-                location.x = randomNumber(dg.width) - 1;
+                location.y = rnd.randomNumber(dg.height) - 1;
+                location.x = rnd.randomNumber(dg.width) - 1;
 
                 while (coordDistanceBetween(location, py.pos) > new_distance)
                 {
@@ -153,7 +167,7 @@ namespace Moria.Core.Methods
 
             dungeonMoveCreatureRecord(py.pos, location);
 
-            Coord_t spot = new Coord_t(0, 0);
+            var spot = new Coord_t(0, 0);
             for (spot.y = py.pos.y - 1; spot.y <= py.pos.y + 1; spot.y++)
             {
                 for (spot.x = py.pos.x - 1; spot.x <= py.pos.x + 1; spot.x++)
@@ -345,7 +359,7 @@ namespace Moria.Core.Methods
         public static bool playerTestAttackHits(int attack_id, uint level)
         {
             var py = State.Instance.py;
-            bool success = false;
+            var success = false;
 
             switch (attack_id)
             {
@@ -475,7 +489,7 @@ namespace Moria.Core.Methods
             py.flags.speed += speed;
             py.flags.status |= Config.player_status.PY_SPEED;
 
-            for (int i = State.Instance.next_free_monster_id - 1; i >= Config.monsters.MON_MIN_INDEX_ID; i--)
+            for (var i = State.Instance.next_free_monster_id - 1; i >= Config.monsters.MON_MIN_INDEX_ID; i--)
             {
                 State.Instance.monsters[i].speed += speed;
             }
@@ -493,11 +507,11 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int amount = item.misc_use * factor;
+            var amount = item.misc_use * factor;
 
             if ((item.flags & Config.treasure_flags.TR_STATS) != 0u)
             {
-                for (int i = 0; i < 6; i++)
+                for (var i = 0; i < 6; i++)
                 {
                     if (((1 << i) & item.flags) != 0u)
                     {
@@ -541,7 +555,7 @@ namespace Moria.Core.Methods
         public static void playerRecalculateBonusesFromInventory()
         {
             var py = State.Instance.py;
-            for (int i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
+            for (var i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
             {
                 var item = py.inventory[i];
 
@@ -585,7 +599,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            for (int i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
+            for (var i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
             {
                 if ((py.inventory[i].flags & Config.treasure_flags.TR_SUST_STAT) == 0u)
                 {
@@ -633,7 +647,7 @@ namespace Moria.Core.Methods
                 py.flags.food_digested -= 3;
             }
 
-            int saved_display_ac = py.misc.display_ac;
+            var saved_display_ac = py.misc.display_ac;
 
             playerResetFlags();
 
@@ -682,7 +696,7 @@ namespace Moria.Core.Methods
                 py.flags.status |= Config.player_status.PY_ARMOR;
             }
 
-            uint item_flags = inventoryCollectAllItemFlags();
+            var item_flags = inventoryCollectAllItemFlags();
 
             if ((item_flags & Config.treasure_flags.TR_SLOW_DIGEST) != 0u)
             {
@@ -801,13 +815,13 @@ namespace Moria.Core.Methods
             playerDisturb(1, 0);
 
             // `plus_to_hit` could be less than 0 if player wielding weapon too heavy for them
-            int hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id]);
+            var hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id]);
 
             // always miss 1 out of 20, always hit 1 out of 20
-            int die = randomNumber(20);
+            var die = rnd.randomNumber(20);
 
             // normal hit
-            return (die != 1 && (die == 20 || (hit_chance > 0 && randomNumber(hit_chance) > armor_class)));
+            return (die != 1 && (die == 20 || (hit_chance > 0 && rnd.randomNumber(hit_chance) > armor_class)));
         }
 
         // Decreases players hit points and sets game.character_is_dead flag if necessary -RAK-
@@ -862,13 +876,13 @@ namespace Moria.Core.Methods
                 chance = chance / 10;
             }
 
-            Coord_t spot = new Coord_t(0, 0);
+            var spot = new Coord_t(0, 0);
             for (spot.y = coord.y - 1; spot.y <= coord.y + 1; spot.y++)
             {
                 for (spot.x = coord.x - 1; spot.x <= coord.x + 1; spot.x++)
                 {
                     // always coordInBounds() here
-                    if (randomNumber(100) >= chance)
+                    if (rnd.randomNumber(100) >= chance)
                     {
                         continue;
                     }
@@ -933,7 +947,7 @@ namespace Moria.Core.Methods
         public static int playerCarryingLoadLimit()
         {
             var py = State.Instance.py;
-            int weight_cap = (int)(py.stats.used[(int)PlayerAttr.STR] * Config.player.PLAYER_WEIGHT_CAP + py.misc.weight);
+            var weight_cap = (int)(py.stats.used[(int)PlayerAttr.STR] * Config.player.PLAYER_WEIGHT_CAP + py.misc.weight);
 
             if (weight_cap > 3000)
             {
@@ -968,7 +982,7 @@ namespace Moria.Core.Methods
                 playerRecalculateBonuses();
             }
 
-            int limit = playerCarryingLoadLimit();
+            var limit = playerCarryingLoadLimit();
 
             if (limit < py.pack.weight)
             {
@@ -1017,7 +1031,7 @@ namespace Moria.Core.Methods
         public static int lastKnownSpell()
         {
             var py = State.Instance.py;
-            for (int last_known = 0; last_known < 32; last_known++)
+            for (var last_known = 0; last_known < 32; last_known++)
             {
                 if (py.flags.spells_learned_order[last_known] == 99)
                 {
@@ -1035,7 +1049,7 @@ namespace Moria.Core.Methods
 
             uint spell_flag = 0;
 
-            for (int i = 0; i < py.pack.unique_items; i++)
+            for (var i = 0; i < py.pack.unique_items; i++)
             {
                 if (py.inventory[i].category_id == TV_MAGIC_BOOK)
                 {
@@ -1058,8 +1072,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int new_spells = (int)py.flags.new_spells_to_learn;
-            int diff_spells = 0;
+            var new_spells = (int)py.flags.new_spells_to_learn;
+            var diff_spells = 0;
 
             // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
             var spells = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1];
@@ -1082,7 +1096,7 @@ namespace Moria.Core.Methods
                 offset = (int)Config.spells.NAME_OFFSET_PRAYERS;
             }
 
-            int last_known = lastKnownSpell();
+            var last_known = lastKnownSpell();
 
             if (new_spells == 0)
             {
@@ -1111,11 +1125,11 @@ namespace Moria.Core.Methods
             // clear bits for spells already learned
             spell_flag &= ~py.flags.spells_learnt;
 
-            int spell_id = 0;
-            int[] spell_bank = new int[31];
+            var spell_id = 0;
+            var spell_bank = new int[31];
             uint mask = 0x1;
 
-            for (int i = 0; spell_flag != 0u; mask <<= 1, i++)
+            for (var i = 0; spell_flag != 0u; mask <<= 1, i++)
             {
                 if ((spell_flag & mask) != 0u)
                 {
@@ -1146,10 +1160,10 @@ namespace Moria.Core.Methods
                 terminalSaveScreen();
                 displaySpellsList(spell_bank, spell_id, false, -1);
 
-                char query = '\0';
+                var query = '\0';
                 while ((new_spells != 0) && getCommand("Learn which spell?", out query))
                 {
-                    int c = query - 'a';
+                    var c = query - 'a';
 
                     // test j < 23 in case i is greater than 22, only 22 spells
                     // are actually shown on the screen, so limit choice to those
@@ -1184,7 +1198,7 @@ namespace Moria.Core.Methods
                 // pick a prayer at random
                 while (new_spells != 0)
                 {
-                    int id = randomNumber(spell_id) - 1;
+                    var id = rnd.randomNumber(spell_id) - 1;
                     py.flags.spells_learnt |= 1u << spell_bank[id];
                     py.flags.spells_learned_order[last_known] = (uint)spell_bank[id];
                     last_known++;
@@ -1221,7 +1235,7 @@ namespace Moria.Core.Methods
         public static int newMana(int stat)
         {
             var py = State.Instance.py;
-            int levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
+            var levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
 
             switch (playerStatAdjustmentWisdomIntelligence(stat))
             {
@@ -1249,7 +1263,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.flags.spells_learnt != 0)
             {
-                int new_mana = newMana(stat);
+                var new_mana = newMana(stat);
 
                 // increment mana by one, so that first level chars have 2 mana
                 if (new_mana > 0)
@@ -1264,7 +1278,7 @@ namespace Moria.Core.Methods
                     {
                         // change current mana proportionately to change of max mana,
                         // divide first to avoid overflow, little loss of accuracy
-                        int value = (((int)py.misc.current_mana << 16) + (int)py.misc.current_mana_fraction) / py.misc.mana * new_mana;
+                        var value = (((int)py.misc.current_mana << 16) + (int)py.misc.current_mana_fraction) / py.misc.mana * new_mana;
                         py.misc.current_mana = (int)(value >> 16);
                         py.misc.current_mana_fraction = (uint)(value & 0xFFFF);
                     }
@@ -1294,13 +1308,13 @@ namespace Moria.Core.Methods
         public static int playerWeaponCriticalBlow(int weapon_weight, int plus_to_hit, int damage, int attack_type_id)
         {
             var py = State.Instance.py;
-            int critical = damage;
+            var critical = damage;
 
             // Weight of weapon, plusses to hit, and character level all
             // contribute to the chance of a critical
-            if (randomNumber(5000) <= weapon_weight + 5 * plus_to_hit + (Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id] * py.misc.level))
+            if (rnd.randomNumber(5000) <= weapon_weight + 5 * plus_to_hit + (Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id] * py.misc.level))
             {
-                weapon_weight += randomNumber(650);
+                weapon_weight += rnd.randomNumber(650);
 
                 if (weapon_weight < 400)
                 {
@@ -1331,20 +1345,20 @@ namespace Moria.Core.Methods
         public static bool playerSavingThrow()
         {
             var py = State.Instance.py;
-            int class_level_adjustment = Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3;
+            var class_level_adjustment = Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3;
 
-            int saving = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + class_level_adjustment;
+            var saving = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + class_level_adjustment;
 
-            return randomNumber(100) <= saving;
+            return rnd.randomNumber(100) <= saving;
         }
 
         public static void playerGainKillExperience(Creature_t creature)
         {
             var py = State.Instance.py;
-            int exp = (int)(creature.kill_exp_value * creature.level);
+            var exp = (int)(creature.kill_exp_value * creature.level);
 
-            int quotient = (int)(exp / py.misc.level);
-            int remainder = (int)(exp % py.misc.level);
+            var quotient = (int)(exp / py.misc.level);
+            var remainder = (int)(exp % py.misc.level);
 
             remainder *= 0x10000;
             remainder /= (int)py.misc.level;
@@ -1410,7 +1424,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
-            int creature_id = (int)dg.floor[coord.y][coord.x].creature_id;
+            var creature_id = (int)dg.floor[coord.y][coord.x].creature_id;
 
             var monster = State.Instance.monsters[creature_id];
             var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
@@ -1435,15 +1449,15 @@ namespace Moria.Core.Methods
             int blows = 0, total_to_hit = 0;
             playerCalculateToHitBlows((int)item.category_id, (int)item.weight, ref blows, ref total_to_hit);
 
-            int base_to_hit = playerCalculateBaseToHit(monster.lit, total_to_hit);
+            var base_to_hit = playerCalculateBaseToHit(monster.lit, total_to_hit);
 
             int damage;
-            string msg = string.Empty;
+            var msg = string.Empty;
             //vtype_t msg = { '\0' };
 
             // Loop for number of blows, trying to hit the critter.
             // Note: blows will always be greater than 0 at the start of the loop -MRC-
-            for (int i = blows; i > 0; i--)
+            for (var i = blows; i > 0; i--)
             {
                 if (!playerTestBeingHit(base_to_hit, (int)py.misc.level, total_to_hit, (int)creature.ac, (int)PlayerClassLevelAdj.BTH))
                 {
@@ -1459,14 +1473,14 @@ namespace Moria.Core.Methods
 
                 if (item.category_id != TV_NOTHING)
                 {
-                    damage = diceRoll(item.damage);
+                    damage = dice.diceRoll(item.damage);
                     damage = itemMagicAbilityDamage(item, damage, (int)monster.creature_id);
                     damage = playerWeaponCriticalBlow((int)item.weight, total_to_hit, damage, (int)PlayerClassLevelAdj.BTH);
                 }
                 else
                 {
                     // Bare hands!?
-                    damage = diceRoll(new Dice_t(1, 1));
+                    damage = dice.diceRoll(new Dice_t(1, 1));
                     damage = playerWeaponCriticalBlow(1, 0, damage, (int)PlayerClassLevelAdj.BTH);
                 }
 
@@ -1482,7 +1496,7 @@ namespace Moria.Core.Methods
 
                     printMessage("Your hands stop glowing.");
 
-                    if (((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0) || randomNumber(MON_MAX_LEVELS) < creature.level)
+                    if (((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0) || rnd.randomNumber(MON_MAX_LEVELS) < creature.level)
                     {
                         msg = $"{name} is unaffected.";
                         //(void)sprintf(msg, "%s is unaffected.", name);
@@ -1497,12 +1511,12 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            monster.confused_amount = (uint)(2 + randomNumber(16));
+                            monster.confused_amount = (uint)(2 + rnd.randomNumber(16));
                         }
                     }
                     printMessage(msg);
 
-                    if (monster.lit && randomNumber(4) == 1)
+                    if (monster.lit && rnd.randomNumber(4) == 1)
                     {
                         State.Instance.creature_recall[monster.creature_id].defenses |= creature.defenses & Config.monsters_defense.CD_NO_SLEEP;
                     }
@@ -1541,7 +1555,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int skill = py.misc.disarm;
+            var skill = py.misc.disarm;
 
             skill += 2;
             skill *= playerDisarmAdjustment();
@@ -1568,7 +1582,7 @@ namespace Moria.Core.Methods
                 {
                     printMessage("You are too confused to pick the lock.");
                 }
-                else if (playerLockPickingSkill() - item.misc_use > randomNumber(100))
+                else if (playerLockPickingSkill() - item.misc_use > rnd.randomNumber(100))
                 {
                     printMessage("You have picked the lock.");
                     py.misc.exp++;
@@ -1605,7 +1619,7 @@ namespace Moria.Core.Methods
             var tile = dg.floor[coord.y][coord.x];
             var item = game.treasure.list[tile.treasure_id];
 
-            bool success = false;
+            var success = false;
 
             if ((item.flags & Config.treasure_chests.CH_LOCKED) != 0u)
             {
@@ -1613,7 +1627,7 @@ namespace Moria.Core.Methods
                 {
                     printMessage("You are too confused to pick the lock.");
                 }
-                else if (playerLockPickingSkill() - item.depth_first_found > randomNumber(100))
+                else if (playerLockPickingSkill() - item.depth_first_found > rnd.randomNumber(100))
                 {
                     printMessage("You have picked the lock.");
 
@@ -1669,16 +1683,16 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int dir = 0;
-            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
+            var dir = 0;
+            if (!Player_m.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
             playerMovePosition(dir, ref coord);
 
-            bool no_object = false;
+            var no_object = false;
 
             var tile = dg.floor[coord.y][coord.x];
             var item = game.treasure.list[tile.treasure_id];
@@ -1721,20 +1735,20 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
-            int dir = 0;
+            var dir = 0;
 
-            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
+            if (!Player_m.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
             playerMovePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
             var item = game.treasure.list[tile.treasure_id];
 
-            bool no_object = false;
+            var no_object = false;
 
             if (tile.treasure_id != 0)
             {
@@ -1792,11 +1806,11 @@ namespace Moria.Core.Methods
             {
                 // Should become a room space, check to see whether
                 // it should be TILE_LIGHT_FLOOR or TILE_DARK_FLOOR.
-                bool found = false;
+                var found = false;
 
-                for (int y = coord.y - 1; y <= coord.y + 1 && y < MAX_HEIGHT; y++)
+                for (var y = coord.y - 1; y <= coord.y + 1 && y < MAX_HEIGHT; y++)
                 {
-                    for (int x = coord.x - 1; x <= coord.x + 1 && x < MAX_WIDTH; x++)
+                    for (var x = coord.x - 1; x <= coord.x + 1 && x < MAX_WIDTH; x++)
                     {
                         if (dg.floor[y][x].feature_id <= MAX_CAVE_ROOM)
                         {
@@ -1852,9 +1866,9 @@ namespace Moria.Core.Methods
         public static void eliminateKnownSpellsGreaterThanLevel(IReadOnlyList<Spell_t> msp_ptr, string p, int offset)
         {
             var py = State.Instance.py;
-            uint mask = 0x80000000;
+            var mask = 0x80000000;
 
-            for (int i = 31; mask != 0u; mask >>= 1, i--)
+            for (var i = 31; mask != 0u; mask >>= 1, i--)
             {
                 if ((mask & py.flags.spells_learnt) != 0u)
                 {
@@ -1879,7 +1893,7 @@ namespace Moria.Core.Methods
         public static int numberOfSpellsAllowed(int stat)
         {
             var py = State.Instance.py;
-            int levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
+            var levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
 
             int allowed;
 
@@ -1911,7 +1925,7 @@ namespace Moria.Core.Methods
         public static int numberOfSpellsKnown()
         {
             var py = State.Instance.py;
-            int known = 0;
+            var known = 0;
 
             for (uint mask = 0x1; mask != 0u; mask <<= 1)
             {
@@ -1931,10 +1945,10 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             uint mask;
 
-            for (int n = 0; ((py.flags.spells_forgotten != 0u) && (new_spells != 0) && (n < allowed_spells) && (n < 32)); n++)
+            for (var n = 0; ((py.flags.spells_forgotten != 0u) && (new_spells != 0) && (n < allowed_spells) && (n < 32)); n++)
             {
                 // order ID is (i+1)th spell learned
-                int order_id = (int)py.flags.spells_learned_order[n];
+                var order_id = (int)py.flags.spells_learned_order[n];
 
                 // shifting by amounts greater than number of bits in long gives
                 // an undefined result, so don't shift for unknown spells
@@ -1977,10 +1991,10 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var spell_flag = (uint)(0x7FFFFFFFL & ~py.flags.spells_learnt);
 
-            int id = 0;
+            var id = 0;
             uint mask = 0x1;
 
-            for (int i = 0; spell_flag != 0u; mask <<= 1, i++)
+            for (var i = 0; spell_flag != 0u; mask <<= 1, i++)
             {
                 if ((spell_flag & mask) != 0u)
                 {
@@ -2008,10 +2022,10 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             uint mask;
 
-            for (int i = 31; (new_spells != 0) && (py.flags.spells_learnt != 0u); i--)
+            for (var i = 31; (new_spells != 0) && (py.flags.spells_learnt != 0u); i--)
             {
                 // orderID is the (i+1)th spell learned
-                int order_id = (int)py.flags.spells_learned_order[i];
+                var order_id = (int)py.flags.spells_learned_order[i];
 
                 // shifting by amounts greater than number of bits in long gives
                 // an undefined result, so don't shift for unknown spells
@@ -2064,9 +2078,9 @@ namespace Moria.Core.Methods
             eliminateKnownSpellsGreaterThanLevel(spell, magic_type_str, offset);
 
             // calc number of spells allowed
-            int num_allowed = numberOfSpellsAllowed(stat);
-            int num_known = numberOfSpellsKnown();
-            int new_spells = num_allowed - num_known;
+            var num_allowed = numberOfSpellsAllowed(stat);
+            var num_known = numberOfSpellsKnown();
+            var new_spells = num_allowed - num_known;
 
             if (new_spells > 0)
             {

@@ -61,7 +61,7 @@ namespace Moria.Core.Utils
         public void restoreTerminal()
         {
             this.currentState = this.savedStates.Pop();
-            for (int i = 0; i < this.currentState.state.Length; i++)
+            for (var i = 0; i < this.currentState.state.Length; i++)
             {
                 move(i,0);
                 addstr(new string(this.currentState.state[i]));

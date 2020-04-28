@@ -170,8 +170,8 @@ namespace Moria.Core.Methods
             putQIO();
 
             // this moves curses to bottom right corner
-            int y = 0;
-            int x = 0;
+            var y = 0;
+            var x = 0;
             getyx(out y, out x);
             //getyx(stdscr, y, x);
             //mvcur(y, x, Console.WindowHeight - 1, 0);
@@ -333,8 +333,8 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
 
             // Real coords convert to screen positions
-            int y = coord.y - dg.panel.row_prt;
-            int x = coord.x - dg.panel.col_prt;
+            var y = coord.y - dg.panel.row_prt;
+            var x = coord.x - dg.panel.col_prt;
 
             move(y, x);
             //if (move(coord.y, coord.x) == ERR)
@@ -373,7 +373,7 @@ namespace Moria.Core.Methods
         public static void messageLinePrintMessage(string message)
         {
             // save current cursor position
-            Coord_t coord = currentCursorPosition();
+            var coord = currentCursorPosition();
 
             // move to beginning of message line, and clear it
             clrtoeol(0, 0);
@@ -396,7 +396,7 @@ namespace Moria.Core.Methods
         public static void messageLineClear()
         {
             // save current cursor position
-            Coord_t coord = currentCursorPosition();
+            var coord = currentCursorPosition();
 
             // move to beginning of message line, and clear it
             clrtoeol(0, 0);
@@ -409,9 +409,9 @@ namespace Moria.Core.Methods
         // These messages are kept for later reference.
         public static void printMessage(string msg)
         {
-            int new_len = 0;
-            int old_len = 0;
-            bool combine_messages = false;
+            var new_len = 0;
+            var old_len = 0;
+            var combine_messages = false;
 
             if (State.Instance.message_ready_to_print)
             {
@@ -509,7 +509,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
 
             // Save command count value
-            int i = game.command_count;
+            var i = game.command_count;
 
             printMessage(msg);
 
@@ -529,7 +529,7 @@ namespace Moria.Core.Methods
 
             while (true)
             {
-                getch(out char ch);
+                getch(out var ch);
                 //int ch = getch();
 
                 // some machines may not sign extend.
@@ -601,7 +601,7 @@ namespace Moria.Core.Methods
             move(coord.y, coord.x);
             //(void)move(coord.y, coord.x);
 
-            for (int i = slen; i > 0; i--)
+            for (var i = slen; i > 0; i--)
             {
                 addch(' ');
             }
@@ -609,19 +609,19 @@ namespace Moria.Core.Methods
             move(coord.y, coord.x);
             //(void)move(coord.y, coord.x);
 
-            int start_col = coord.x;
-            int end_col = coord.x + slen - 1;
+            var start_col = coord.x;
+            var end_col = coord.x + slen - 1;
 
             if (end_col > 79)
             {
                 end_col = 79;
             }
 
-            int p = 0; // index
+            var p = 0; // index
             //char* p = in_str;
 
-            bool flag = false;
-            bool aborted = false;
+            var flag = false;
+            var aborted = false;
 
             while (!flag && !aborted)
             {
@@ -702,7 +702,7 @@ namespace Moria.Core.Methods
 
             addstr(" [y/n]");
 
-            char input = ' ';
+            var input = ' ';
             while (input == ' ')
             {
                 input = getKeyInput();

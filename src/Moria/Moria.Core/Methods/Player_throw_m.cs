@@ -6,24 +6,38 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_magic_m;
-using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Player_throw_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Player_throw_m.dice = dice;
+            Player_throw_m.game = game;
+            Player_throw_m.rnd = rnd;
+            Player_throw_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         public static void inventoryThrow(int item_id, out Inventory_t treasure)
         {
             var py = State.Instance.py;
@@ -51,14 +65,14 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int weight = (int)item.weight;
+            var weight = (int)item.weight;
             if (weight < 1)
             {
                 weight = 1;
             }
 
             // Throwing objects
-            damage = diceRoll(item.damage) + item.to_damage;
+            damage = dice.diceRoll(item.damage) + item.to_damage;
             base_to_hit = py.misc.bth_with_bows * 75 / 100;
             plus_to_hit = py.misc.plusses_to_hit + item.to_hit;
 
@@ -155,13 +169,13 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
-            Coord_t position = new Coord_t(coord.y, coord.x);
+            var position = new Coord_t(coord.y, coord.x);
 
-            bool flag = false;
+            var flag = false;
 
-            if (randomNumber(10) > 1)
+            if (rnd.randomNumber(10) > 1)
             {
-                for (int k = 0; !flag && k <= 9;)
+                for (var k = 0; !flag && k <= 9;)
                 {
                     if (coordInBounds(position))
                     {
@@ -173,8 +187,8 @@ namespace Moria.Core.Methods
 
                     if (!flag)
                     {
-                        position.y = coord.y + randomNumber(3) - 2;
-                        position.x = coord.x + randomNumber(3) - 2;
+                        position.y = coord.y + rnd.randomNumber(3) - 2;
+                        position.x = coord.x + rnd.randomNumber(3) - 2;
                         k++;
                     }
                 }
@@ -182,7 +196,7 @@ namespace Moria.Core.Methods
 
             if (flag)
             {
-                int cur_pos = popt();
+                var cur_pos = popt();
                 dg.floor[position.y][position.x].treasure_id = (uint)cur_pos;
                 game.treasure.list[cur_pos] = item;
                 dungeonLiteSpot(position);
@@ -216,14 +230,14 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
 
-            int dir = 0;
-            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
+            var dir = 0;
+            if (!Player_throw_m.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
@@ -233,7 +247,7 @@ namespace Moria.Core.Methods
             if (py.flags.confused > 0)
             {
                 printMessage("You are confused.");
-                dir = getRandomDirection();
+                dir = rnd.getRandomDirection();
             }
 
             Inventory_t thrown_item;
@@ -242,14 +256,14 @@ namespace Moria.Core.Methods
             int tbth = 0, tpth = 0, tdam = 0, tdis = 0;
             weaponMissileFacts(thrown_item, ref tbth, ref tpth, ref tdam, ref tdis);
 
-            char tile_char = (char)thrown_item.sprite;
+            var tile_char = (char)thrown_item.sprite;
             bool visible;
-            int current_distance = 0;
+            var current_distance = 0;
 
-            Coord_t coord = py.pos.Clone();
-            Coord_t old_coord = py.pos.Clone();
+            var coord = py.pos.Clone();
+            var old_coord = py.pos.Clone();
 
-            bool flag = false;
+            var flag = false;
 
             while (!flag)
             {
@@ -286,7 +300,7 @@ namespace Moria.Core.Methods
 
                         if (playerTestBeingHit(tbth, (int)py.misc.level, tpth, (int)Library.Instance.Creatures.creatures_list[(int)m_ptr.creature_id].ac, (int)PlayerClassLevelAdj.BTHB))
                         {
-                            int damage = (int)m_ptr.creature_id;
+                            var damage = (int)m_ptr.creature_id;
 
                             var description = string.Empty;
                             string msg;

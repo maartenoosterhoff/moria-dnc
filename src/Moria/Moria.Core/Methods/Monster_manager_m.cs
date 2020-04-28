@@ -5,16 +5,28 @@ using System;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
     public static class Monster_manager_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd,
+            IStd std
+        )
+        {
+            Monster_manager_m.dice = dice;
+            Monster_manager_m.rnd = rnd;
+            Monster_manager_m.std = std;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+        private static IStd std;
+
         // Returns a pointer to next free space -RAK-
         // Returns -1 if could not allocate a monster.
         public static int popm()
@@ -37,7 +49,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            int monster_id = popm();
+            var monster_id = popm();
 
             // Check for case where could not allocate space for the monster
             if (monster_id == -1)
@@ -54,11 +66,11 @@ namespace Moria.Core.Methods
 
             if ((creatures_list[creature_id].defenses & Config.monsters_defense.CD_MAX_HP) != 0)
             {
-                monster.hp = maxDiceRoll(creatures_list[creature_id].hit_die);
+                monster.hp = dice.maxDiceRoll(creatures_list[creature_id].hit_die);
             }
             else
             {
-                monster.hp = diceRoll(creatures_list[creature_id].hit_die);
+                monster.hp = dice.diceRoll(creatures_list[creature_id].hit_die);
             }
 
             // the creatures_list[] speed value is 10 greater, so that it can be a uint8_t
@@ -77,7 +89,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    monster.sleep_count = (int)((creatures_list[creature_id].sleep_counter * 2) + randomNumber((int)creatures_list[creature_id].sleep_counter * 10));
+                    monster.sleep_count = (int)((creatures_list[creature_id].sleep_counter * 2) + rnd.randomNumber((int)creatures_list[creature_id].sleep_counter * 10));
                 }
             }
             else
@@ -100,19 +112,19 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
 
             do
             {
-                coord.y = randomNumber(dg.height - 2);
-                coord.x = randomNumber(dg.width - 2);
+                coord.y = rnd.randomNumber(dg.height - 2);
+                coord.x = rnd.randomNumber(dg.width - 2);
             } while (dg.floor[coord.y][coord.x].feature_id >= MIN_CLOSED_SPACE ||           //
                      dg.floor[coord.y][coord.x].creature_id != 0 ||                         //
                      dg.floor[coord.y][coord.x].treasure_id != 0 ||                         //
                      coordDistanceBetween(coord, py.pos) <= Config.monsters.MON_MAX_SIGHT //
             );
 
-            int creature_id = randomNumber(Config.monsters.MON_ENDGAME_MONSTERS) - 1 + State.Instance.monster_levels[MON_MAX_LEVELS];
+            var creature_id = rnd.randomNumber(Config.monsters.MON_ENDGAME_MONSTERS) - 1 + State.Instance.monster_levels[MON_MAX_LEVELS];
 
             // TODO: duplicate code -MRC-
             // The following code is now exactly the same as monsterPlaceNew() except here
@@ -120,7 +132,7 @@ namespace Moria.Core.Methods
             // Perhaps we can find a way to call `monsterPlaceNew()` instead of
             // duplicating everything here.
 
-            int monster_id = popm();
+            var monster_id = popm();
 
             // Check for case where could not allocate space for the win monster, this should never happen.
             if (monster_id == -1)
@@ -139,11 +151,11 @@ namespace Moria.Core.Methods
 
             if ((creatures_list[creature_id].defenses & Config.monsters_defense.CD_MAX_HP) != 0)
             {
-                monster.hp = maxDiceRoll(creatures_list[creature_id].hit_die);
+                monster.hp = dice.maxDiceRoll(creatures_list[creature_id].hit_die);
             }
             else
             {
-                monster.hp = diceRoll(creatures_list[creature_id].hit_die);
+                monster.hp = dice.diceRoll(creatures_list[creature_id].hit_die);
             }
 
             // the creatures_list speed value is 10 greater, so that it can be a uint8_t
@@ -164,7 +176,7 @@ namespace Moria.Core.Methods
             var monster_levels = State.Instance.monster_levels;
             if (level == 0)
             {
-                return randomNumber(monster_levels[0]) - 1;
+                return rnd.randomNumber(monster_levels[0]) - 1;
             }
 
             if (level > MON_MAX_LEVELS)
@@ -172,9 +184,9 @@ namespace Moria.Core.Methods
                 level = (int)MON_MAX_LEVELS;
             }
 
-            if (randomNumber(Config.monsters.MON_CHANCE_OF_NASTY) == 1)
+            if (rnd.randomNumber(Config.monsters.MON_CHANCE_OF_NASTY) == 1)
             {
-                var abs_distribution = std_abs(std_intmax_t(randomNumberNormalDistribution(0, 4)));
+                var abs_distribution = std.std_abs(std.std_intmax_t(rnd.randomNumberNormalDistribution(0, 4)));
                 level += abs_distribution + 1;
                 if (level > MON_MAX_LEVELS)
                 {
@@ -188,9 +200,9 @@ namespace Moria.Core.Methods
                 // all monsters of level less than or equal to the dungeon level.
                 // This distribution makes a level n monster occur approx 2/n% of the
                 // time on level n, and 1/n*n% are 1st level.
-                int num = monster_levels[level] - monster_levels[0];
-                int i = randomNumber(num) - 1;
-                int j = randomNumber(num) - 1;
+                var num = monster_levels[level] - monster_levels[0];
+                var i = rnd.randomNumber(num) - 1;
+                var j = rnd.randomNumber(num) - 1;
                 if (j > i)
                 {
                     i = j;
@@ -199,7 +211,7 @@ namespace Moria.Core.Methods
                 level = (int)Library.Instance.Creatures.creatures_list[i + monster_levels[0]].level;
             }
 
-            return randomNumber(monster_levels[level] - monster_levels[level - 1]) - 1 + monster_levels[level - 1];
+            return rnd.randomNumber(monster_levels[level] - monster_levels[level - 1]) - 1 + monster_levels[level - 1];
         }
 
         // Allocates a random monster -RAK-
@@ -209,20 +221,20 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var creatures_list = Library.Instance.Creatures.creatures_list;
 
-            Coord_t position = new Coord_t(0, 0);
+            var position = new Coord_t(0, 0);
 
-            for (int i = 0; i < number; i++)
+            for (var i = 0; i < number; i++)
             {
                 do
                 {
-                    position.y = randomNumber(dg.height - 2);
-                    position.x = randomNumber(dg.width - 2);
+                    position.y = rnd.randomNumber(dg.height - 2);
+                    position.x = rnd.randomNumber(dg.width - 2);
                 } while (dg.floor[position.y][position.x].feature_id >= MIN_CLOSED_SPACE || //
                          dg.floor[position.y][position.x].creature_id != 0 ||               //
                          coordDistanceBetween(position, py.pos) <= distance_from_source     //
                 );
 
-                int l = monsterGetOneSuitableForLevel(dg.current_level);
+                var l = monsterGetOneSuitableForLevel(dg.current_level);
 
                 // Dragons are always created sleeping here,
                 // so as to give the player a sporting chance.
@@ -240,14 +252,14 @@ namespace Moria.Core.Methods
         public static bool placeMonsterAdjacentTo(int monster_id, Coord_t coord, bool slp)
         {
             var dg = State.Instance.dg;
-            bool placed = false;
+            var placed = false;
 
-            Coord_t position = new Coord_t(0, 0);
+            var position = new Coord_t(0, 0);
 
-            for (int i = 0; i <= 9; i++)
+            for (var i = 0; i <= 9; i++)
             {
-                position.y = coord.y - 2 + randomNumber(3);
-                position.x = coord.x - 2 + randomNumber(3);
+                position.y = coord.y - 2 + rnd.randomNumber(3);
+                position.x = coord.x - 2 + rnd.randomNumber(3);
 
                 if (coordInBounds(position))
                 {
@@ -277,7 +289,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            int monster_id = monsterGetOneSuitableForLevel(dg.current_level + (int)Config.monsters.MON_SUMMONED_LEVEL_ADJUST);
+            var monster_id = monsterGetOneSuitableForLevel(dg.current_level + (int)Config.monsters.MON_SUMMONED_LEVEL_ADJUST);
             return placeMonsterAdjacentTo(monster_id, coord, sleeping);
         }
 
@@ -285,12 +297,12 @@ namespace Moria.Core.Methods
         public static bool monsterSummonUndead(Coord_t coord)
         {
             int monster_id;
-            int max_levels = State.Instance.monster_levels[MON_MAX_LEVELS];
+            var max_levels = State.Instance.monster_levels[MON_MAX_LEVELS];
 
             do
             {
-                monster_id = randomNumber(max_levels) - 1;
-                for (int i = 0; i <= 19;)
+                monster_id = rnd.randomNumber(max_levels) - 1;
+                for (var i = 0; i <= 19;)
                 {
                     if ((Library.Instance.Creatures.creatures_list[monster_id].defenses & Config.monsters_defense.CD_UNDEAD) != 0)
                     {
@@ -321,14 +333,14 @@ namespace Moria.Core.Methods
         {
             printMessage("Compacting monsters...");
 
-            int cur_dis = 66;
+            var cur_dis = 66;
 
-            bool delete_any = false;
+            var delete_any = false;
             while (!delete_any)
             {
-                for (int i = State.Instance.next_free_monster_id - 1; i >= Config.monsters.MON_MIN_INDEX_ID; i--)
+                for (var i = State.Instance.next_free_monster_id - 1; i >= Config.monsters.MON_MIN_INDEX_ID; i--)
                 {
-                    if (cur_dis < State.Instance.monsters[i].distance_from_player && randomNumber(3) == 1)
+                    if (cur_dis < State.Instance.monsters[i].distance_from_player && rnd.randomNumber(3) == 1)
                     {
                         if ((Library.Instance.Creatures.creatures_list[(int)State.Instance.monsters[i].creature_id].movement & Config.monsters_move.CM_WIN) != 0u)
                         {

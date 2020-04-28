@@ -4,10 +4,8 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
 
@@ -15,10 +13,25 @@ namespace Moria.Core.Methods
 {
     public static class Player_tunnel_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd
+        )
+        {
+            Player_tunnel_m.dice = dice;
+            Player_tunnel_m.game = game;
+            Player_tunnel_m.rnd = rnd;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+
         // Don't let the player tunnel somewhere illegal, this is necessary to
         // prevent the player from getting a free attack by trying to tunnel
         // somewhere where it has no effect.
-        public static bool playerCanTunnel(int treasure_id, int tile_id)
+        private static bool playerCanTunnel(int treasure_id, int tile_id)
         {
             var game = State.Instance.game;
             if (tile_id < MIN_CAVE_WALL &&
@@ -42,10 +55,10 @@ namespace Moria.Core.Methods
         }
 
         // Compute the digging ability of player; based on strength, and type of tool used
-        static int playerDiggingAbility(Inventory_t weapon)
+        private static int playerDiggingAbility(Inventory_t weapon)
         {
             var py = State.Instance.py;
-            int digging_ability = (int)py.stats.used[(int)PlayerAttr.STR];
+            var digging_ability = (int)py.stats.used[(int)PlayerAttr.STR];
 
             if ((weapon.flags & Config.treasure_flags.TR_TUNNEL) != 0u)
             {
@@ -53,7 +66,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                digging_ability += maxDiceRoll(weapon.damage) + weapon.to_hit + weapon.to_damage;
+                digging_ability += dice.maxDiceRoll(weapon.damage) + weapon.to_hit + weapon.to_damage;
 
                 // divide by two so that digging without shovel isn't too easy
                 digging_ability >>= 1;
@@ -74,9 +87,9 @@ namespace Moria.Core.Methods
             return digging_ability;
         }
 
-        static void dungeonDigGraniteWall(Coord_t coord, int digging_ability)
+        private static void dungeonDigGraniteWall(Coord_t coord, int digging_ability)
         {
-            int i = randomNumber(1200) + 80;
+            var i = rnd.randomNumber(1200) + 80;
 
             if (playerTunnelWall(coord, digging_ability, i))
             {
@@ -88,9 +101,9 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void dungeonDigMagmaWall(Coord_t coord, int digging_ability)
+        private static void dungeonDigMagmaWall(Coord_t coord, int digging_ability)
         {
-            int i = randomNumber(600) + 10;
+            var i = rnd.randomNumber(600) + 10;
 
             if (playerTunnelWall(coord, digging_ability, i))
             {
@@ -102,9 +115,9 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void dungeonDigQuartzWall(Coord_t coord, int digging_ability)
+        private static void dungeonDigQuartzWall(Coord_t coord, int digging_ability)
         {
-            int i = randomNumber(400) + 10;
+            var i = rnd.randomNumber(400) + 10;
 
             if (playerTunnelWall(coord, digging_ability, i))
             {
@@ -116,14 +129,14 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void dungeonDigRubble(Coord_t coord, int digging_ability)
+        private static void dungeonDigRubble(Coord_t coord, int digging_ability)
         {
-            if (digging_ability > randomNumber(180))
+            if (digging_ability > rnd.randomNumber(180))
             {
                 dungeonDeleteObject(coord);
                 printMessage("You have removed the rubble.");
 
-                if (randomNumber(10) == 1)
+                if (rnd.randomNumber(10) == 1)
                 {
                     dungeonPlaceRandomObjectAt(coord, false);
 
@@ -144,7 +157,7 @@ namespace Moria.Core.Methods
         // Dig regular walls; Granite, magma intrusion, quartz vein
         // Don't forget the boundary walls, made of titanium (255)
         // Return `true` if a wall was dug at
-        static bool dungeonDigAtLocation(Coord_t coord, uint wall_type, int digging_ability)
+        private static bool dungeonDigAtLocation(Coord_t coord, uint wall_type, int digging_ability)
         {
             switch (wall_type)
             {
@@ -174,12 +187,12 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
             // Confused?                    75% random movement
-            if (py.flags.confused > 0 && randomNumber(4) > 1)
+            if (py.flags.confused > 0 && rnd.randomNumber(4) > 1)
             {
-                direction = randomNumber(9);
+                direction = rnd.randomNumber(9);
             }
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
             playerMovePosition(direction, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
@@ -199,7 +212,7 @@ namespace Moria.Core.Methods
 
             if (item.category_id != TV_NOTHING)
             {
-                int digging_ability = playerDiggingAbility(item);
+                var digging_ability = playerDiggingAbility(item);
 
                 if (!dungeonDigAtLocation(coord, tile.feature_id, digging_ability))
                 {
@@ -218,13 +231,13 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            exitProgram();
+                            Player_tunnel_m.game.exitProgram();
                             //abort();
                         }
                     }
                     else
                     {
-                        exitProgram();
+                        Player_tunnel_m.game.exitProgram();
                         //abort();
                     }
                 }

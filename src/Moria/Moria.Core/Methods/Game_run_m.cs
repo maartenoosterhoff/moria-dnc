@@ -8,16 +8,15 @@ using System;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Game_c;
+using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Dungeon_generate_m;
 using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
@@ -42,16 +41,37 @@ using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Staffs_m;
 using static Moria.Core.Methods.Store_inventory_m;
 using static Moria.Core.Methods.Store_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Wizard_m;
 
 namespace Moria.Core.Methods
 {
     public static class Game_run_m
     {
-        public static Character_m character = new Character_m();
+        public static void SetDependencies(
+            ICharacter character,
+            IDungeonGenerate dungeonGenerate,
+            IGame game,
+            IRnd rnd,
+            IUiInventory uiInventory,
+            IWizard wizard
+        )
+        {
+            Game_run_m.character = character;
+            Game_run_m.dungeonGenerate = dungeonGenerate;
+            Game_run_m.game = game;
+            Game_run_m.rnd = rnd;
+            Game_run_m.wizard = wizard;
+            Game_run_m.uiInventory = uiInventory;
+        }
+
+
+        private static ICharacter character;
+        private static IDungeonGenerate dungeonGenerate;
+        private static IGame game;
+        private static IRnd rnd;
+        private static IWizard wizard;
+        private static IUiInventory uiInventory;
 
         public static void startMoria(int seed, bool start_new_game, bool use_roguelike_keys)
         {
@@ -64,7 +84,7 @@ namespace Moria.Core.Methods
             displaySplashScreen();
 
             // Grab a random seed from the clock
-            seedsInitialize((uint)seed);
+            rnd.seedsInitialize((uint)seed);
 
             // Init monster and treasure levels for allocate
             initializeMonsterLevels();
@@ -89,10 +109,10 @@ namespace Moria.Core.Methods
             // (if you are the wizard). In this case, it returns true, but also sets the
             // parameter "generate" to true, as it does not recover any cave details.
 
-            bool result = false;
-            bool generate = false;
+            var result = false;
+            var generate = false;
 
-            if (!start_new_game && 
+            if (!start_new_game &&
                 //(access(Config.files.save_game, 0) == 0) && 
                 loadGame(ref generate))
             {
@@ -112,7 +132,7 @@ namespace Moria.Core.Methods
             // until after loadGame() in case it was just a resurrection
             if (game.to_be_wizard)
             {
-                if (!enterWizardMode())
+                if (!wizard.enterWizardMode())
                 {
                     endGame();
                 }
@@ -175,7 +195,7 @@ namespace Moria.Core.Methods
 
             if (generate)
             {
-                generateCave();
+                dungeonGenerate.generateCave();
             }
 
             // Loop till dead, or exit
@@ -203,7 +223,7 @@ namespace Moria.Core.Methods
                 // New level if not dead
                 if (!game.character_is_dead)
                 {
-                    generateCave();
+                    dungeonGenerate.generateCave();
                 }
             }
 
@@ -216,7 +236,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            Inventory_t item = new Inventory_t();
+            var item = new Inventory_t();
 
             // this is needed for bash to work right, it can't hurt anyway
             foreach (var entry in py.inventory)
@@ -241,7 +261,7 @@ namespace Moria.Core.Methods
             }
 
             // weird place for it, but why not?
-            for (int i = 0; i < py.flags.spells_learned_order.Length; i++)//.spell uint8_t & id : py.flags.spells_learned_order)
+            for (var i = 0; i < py.flags.spells_learned_order.Length; i++)//.spell uint8_t & id : py.flags.spells_learned_order)
             {
                 py.flags.spells_learned_order[i] = 99;
                 //id = 99;
@@ -252,7 +272,7 @@ namespace Moria.Core.Methods
         static void initializeMonsterLevels()
         {
             var monster_levels = State.Instance.monster_levels;
-            for (int i = 0; i < monster_levels.Length; i++)
+            for (var i = 0; i < monster_levels.Length; i++)
             {
                 monster_levels[i] = 0;
             }
@@ -261,12 +281,12 @@ namespace Moria.Core.Methods
             //    level = 0;
             //}
 
-            for (int i = 0; i < MON_MAX_CREATURES - Config.monsters.MON_ENDGAME_MONSTERS; i++)
+            for (var i = 0; i < MON_MAX_CREATURES - Config.monsters.MON_ENDGAME_MONSTERS; i++)
             {
                 monster_levels[Library.Instance.Creatures.creatures_list[i].level]++;
             }
 
-            for (int i = 1; i <= MON_MAX_LEVELS; i++)
+            for (var i = 1; i <= MON_MAX_LEVELS; i++)
             {
                 monster_levels[i] += monster_levels[i - 1];
             }
@@ -276,7 +296,7 @@ namespace Moria.Core.Methods
         static void initializeTreasureLevels()
         {
             var treasure_levels = State.Instance.treasure_levels;
-            for (int i = 0; i < treasure_levels.Length; i++)
+            for (var i = 0; i < treasure_levels.Length; i++)
             {
                 treasure_levels[i] = 0;
             }
@@ -285,12 +305,12 @@ namespace Moria.Core.Methods
             //    level = 0;
             //}
 
-            for (int i = 0; i < MAX_DUNGEON_OBJECTS; i++)
+            for (var i = 0; i < MAX_DUNGEON_OBJECTS; i++)
             {
                 treasure_levels[Library.Instance.Treasure.game_objects[i].depth_first_found]++;
             }
 
-            for (int i = 1; i <= TREASURE_MAX_LEVELS; i++)
+            for (var i = 1; i <= TREASURE_MAX_LEVELS; i++)
             {
                 treasure_levels[i] += treasure_levels[i - 1];
             }
@@ -305,10 +325,10 @@ namespace Moria.Core.Methods
             //    i = 1;
             //}
 
-            for (int i = 0; i < MAX_DUNGEON_OBJECTS; i++)
+            for (var i = 0; i < MAX_DUNGEON_OBJECTS; i++)
             {
-                int level = (int)Library.Instance.Treasure.game_objects[i].depth_first_found;
-                int object_id = treasure_levels[level] - indexes[level];
+                var level = (int)Library.Instance.Treasure.game_objects[i].depth_first_found;
+                var object_id = treasure_levels[level] - indexes[level];
 
                 State.Instance.sorted_objects[object_id] = (int)i;
 
@@ -365,7 +385,7 @@ namespace Moria.Core.Methods
         static void playerUpdateLightStatus()
         {
             var py = State.Instance.py;
-            Inventory_t item = py.inventory[(int)PlayerEquipment.Light];
+            var item = py.inventory[(int)PlayerEquipment.Light];
 
             if (py.carrying_light)
             {
@@ -382,7 +402,7 @@ namespace Moria.Core.Methods
                         // unlight creatures
                         updateMonsters(false);
                     }
-                    else if (item.misc_use < 40 && randomNumber(5) == 1 && py.flags.blind < 1)
+                    else if (item.misc_use < 40 && rnd.randomNumber(5) == 1 && py.flags.blind < 1)
                     {
                         playerDisturb(0, 0);
                         printMessage("Your light is growing faint.");
@@ -526,7 +546,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             // Regenerate hp and mana
-            int regen_amount = (int)Config.player.PLAYER_REGEN_NORMAL;
+            var regen_amount = (int)Config.player.PLAYER_REGEN_NORMAL;
 
             if (py.flags.food < Config.player.PLAYER_FOOD_ALERT)
             {
@@ -553,9 +573,9 @@ namespace Moria.Core.Methods
                         printCharacterHungerStatus();
                     }
 
-                    if (py.flags.food < Config.player.PLAYER_FOOD_FAINT && randomNumber(8) == 1)
+                    if (py.flags.food < Config.player.PLAYER_FOOD_FAINT && rnd.randomNumber(8) == 1)
                     {
-                        py.flags.paralysis += randomNumber(5);
+                        py.flags.paralysis += rnd.randomNumber(5);
                         printMessage("You faint from the lack of food.");
                         playerDisturb(1, 0);
                     }
@@ -1175,7 +1195,7 @@ namespace Moria.Core.Methods
 
             if ((py.flags.status & Config.player_status.PY_STATS) != 0)
             {
-                for (int n = 0; n < 6; n++)
+                for (var n = 0; n < 6; n++)
                 {
                     if (((Config.player_status.PY_STR << n) & py.flags.status) != 0u)
                     {
@@ -1205,22 +1225,22 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            for (int i = 0; i < PLAYER_INVENTORY_SIZE; i++)
+            for (var i = 0; i < PLAYER_INVENTORY_SIZE; i++)
             {
                 if (i == py.pack.unique_items)
                 {
                     i = 22;
                 }
 
-                Inventory_t item = py.inventory[i];
+                var item = py.inventory[i];
 
                 // if in inventory, succeed 1 out of 50 times,
                 // if in equipment list, success 1 out of 10 times
-                int chance = (i < 22 ? 50 : 10);
+                var chance = (i < 22 ? 50 : 10);
 
-                if (item.category_id != TV_NOTHING && itemEnchanted(item) && randomNumber(chance) == 1)
+                if (item.category_id != TV_NOTHING && itemEnchanted(item) && rnd.randomNumber(chance) == 1)
                 {
-                    var tmp_str = $"There's something about what you {playerItemWearingDescription(i)}...";
+                    var tmp_str = $"There's something about what you {uiInventory.playerItemWearingDescription(i)}...";
                     //vtype_t tmp_str = { '\0' };
                     //(void)sprintf(tmp_str, "There's something about what you are %s...", playerItemWearingDescription(i));
                     playerDisturb(0, 0);
@@ -1240,7 +1260,7 @@ namespace Moria.Core.Methods
             }
 
             string text_buffer;
-            int repeat_count = 0;
+            var repeat_count = 0;
 
             while (true)
             {
@@ -1328,7 +1348,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var game = State.Instance.game;
 
-            char last_input_command = command;
+            var last_input_command = command;
 
             // Accept a command and execute it
             do
@@ -1357,7 +1377,7 @@ namespace Moria.Core.Methods
 
                 if (game.doing_inventory_command != 0)
                 {
-                    inventoryExecuteCommand((char)game.doing_inventory_command);
+                    uiInventory.inventoryExecuteCommand((char)game.doing_inventory_command);
                     continue;
                 }
 
@@ -1375,7 +1395,7 @@ namespace Moria.Core.Methods
                     last_input_command = getKeyInput();
 
                     // Get a count for a command.
-                    int repeat_count = 0;
+                    var repeat_count = 0;
                     if ((Config.options.use_roguelike_keys && last_input_command >= '0' && last_input_command <= '9') || (!Config.options.use_roguelike_keys && last_input_command == '#'))
                     {
                         repeat_count = getCommandRepeatCount(ref last_input_command);
@@ -1440,7 +1460,7 @@ namespace Moria.Core.Methods
 
         static char originalCommands(char command)
         {
-            int direction = 0;
+            var direction = 0;
 
             switch (command)
             {
@@ -1460,7 +1480,7 @@ namespace Moria.Core.Methods
                 case '$':
                     break;
                 case '.':
-                    if (getDirectionWithMemory(/*CNIL*/ null, ref direction))
+                    if (game.getDirectionWithMemory(/*CNIL*/ null, ref direction))
                     {
                         switch (direction)
                         {
@@ -1553,7 +1573,7 @@ namespace Moria.Core.Methods
                     command = '#';
                     break;
                 case 'T':
-                    if (getDirectionWithMemory(/*CNIL*/ null, ref direction))
+                    if (game.getDirectionWithMemory(/*CNIL*/ null, ref direction))
                     {
                         switch (direction)
                         {
@@ -1676,7 +1696,7 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
 
-            char cmd = command;
+            var cmd = command;
 
             // hack for move without pickup.  Map '-' to a movement command.
             if (cmd != '-')
@@ -1684,12 +1704,12 @@ namespace Moria.Core.Methods
                 return true;
             }
 
-            int direction = 0;
+            var direction = 0;
 
             // Save current game.command_count as getDirectionWithMemory() may change it
-            int count_save = game.command_count;
+            var count_save = game.command_count;
 
-            if (getDirectionWithMemory(/*CNIL*/null, ref direction))
+            if (Game_run_m.game.getDirectionWithMemory(/*CNIL*/null, ref direction))
             {
                 // Restore game.command_count
                 game.command_count = count_save;
@@ -1756,7 +1776,7 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
 
-            uint max_messages = MESSAGE_HISTORY_SIZE;
+            var max_messages = MESSAGE_HISTORY_SIZE;
 
             if (game.command_count > 0)
             {
@@ -1776,7 +1796,7 @@ namespace Moria.Core.Methods
 
         public static void commandPreviousMessage()
         {
-            uint max_messages = calculateMaxMessageCount();
+            var max_messages = calculateMaxMessageCount();
 
             if (max_messages <= 1)
             {
@@ -1788,8 +1808,8 @@ namespace Moria.Core.Methods
 
             terminalSaveScreen();
 
-            uint line_number = max_messages;
-            int msg_id = State.Instance.last_message_id;
+            var line_number = max_messages;
+            var msg_id = State.Instance.last_message_id;
 
             while (max_messages > 0)
             {
@@ -1820,7 +1840,7 @@ namespace Moria.Core.Methods
                 game.wizard_mode = false;
                 printMessage("Wizard mode off.");
             }
-            else if (enterWizardMode())
+            else if (wizard.enterWizardMode())
             {
                 printMessage("Wizard mode on.");
             }
@@ -1871,20 +1891,20 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            Coord_t player_coord = py.pos;
+            var player_coord = py.pos;
             if (coordOutsidePanel(player_coord, true))
             {
                 drawDungeonPanel();
             }
 
-            int dir_val = 0;
+            var dir_val = 0;
             var out_val = string.Empty;
             var tmp_str = string.Empty;
             //vtype_t out_val = { '\0' };
             //vtype_t tmp_str = { '\0' };
 
-            Coord_t old_panel = new Coord_t(dg.panel.row, dg.panel.col);
-            Coord_t panel = new Coord_t(0, 0);
+            var old_panel = new Coord_t(dg.panel.row, dg.panel.col);
+            var panel = new Coord_t(0, 0);
 
             while (true)
             {
@@ -1911,7 +1931,7 @@ namespace Moria.Core.Methods
                 out_val = $"Map sector [{panel.y:d},{panel.x:d}], which is{tmp_str} your sector. Look which direction?";
                 //(void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", panel.y, panel.x, tmp_str);
 
-                if (!getDirectionWithMemory(out_val, ref dir_val))
+                if (!game.getDirectionWithMemory(out_val, ref dir_val))
                 {
                     break;
                 }
@@ -1970,11 +1990,11 @@ namespace Moria.Core.Methods
             {
                 case CTRL_KEY_A:
                     // Cure all!
-                    wizardCureAll();
+                    wizard.wizardCureAll();
                     break;
                 case CTRL_KEY_E:
                     // Edit Character
-                    wizardCharacterAdjustment();
+                    wizard.wizardCharacterAdjustment();
                     messageLineClear();
                     break;
                 case CTRL_KEY_F:
@@ -1983,11 +2003,11 @@ namespace Moria.Core.Methods
                     break;
                 case CTRL_KEY_G:
                     // Generate random items
-                    wizardDropRandomItems();
+                    wizard.wizardDropRandomItems();
                     break;
                 case CTRL_KEY_D:
                     // Go up/down to specified depth
-                    wizardJumpLevel();
+                    wizard.wizardJumpLevel();
                     break;
                 case CTRL_KEY_O:
                     // Print random level object to a file
@@ -2012,7 +2032,7 @@ namespace Moria.Core.Methods
                     break;
                 case '*':
                     // Light up entire dungeon
-                    wizardLightUpDungeon();
+                    wizard.wizardLightUpDungeon();
                     break;
                 case ':':
                     // Light up current panel
@@ -2024,21 +2044,21 @@ namespace Moria.Core.Methods
                     break;
                 case '%':
                     // Generate a dungeon item!
-                    wizardGenerateObject();
+                    wizard.wizardGenerateObject();
                     drawDungeonPanel();
                     break;
                 case '+':
                     // Increase Experience
-                    wizardGainExperience();
+                    wizard.wizardGainExperience();
                     break;
                 case '&':
                     // Summon a random monster
-                    wizardSummonMonster();
+                    wizard.wizardSummonMonster();
                     break;
                 case '@':
                     // Generate an object
                     // NOTE: every field from the struct needs to be filled correctly
-                    wizardCreateObjects();
+                    wizard.wizardCreateObjects();
                     break;
                 default:
                     if (Config.options.use_roguelike_keys)
@@ -2061,7 +2081,7 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
 
-            bool do_pickup = moveWithoutPickup(ref command);
+            var do_pickup = moveWithoutPickup(ref command);
 
             switch (command)
             {
@@ -2260,16 +2280,16 @@ namespace Moria.Core.Methods
                     playerCloseDoor();
                     break;
                 case 'd': // (d)rop something
-                    inventoryExecuteCommand('d');
+                    uiInventory.inventoryExecuteCommand('d');
                     break;
                 case 'e': // (e)quipment list
-                    inventoryExecuteCommand('e');
+                    uiInventory.inventoryExecuteCommand('e');
                     break;
                 case 't': // (t)hrow something  (f)ire something
                     playerThrowItem();
                     break;
                 case 'i': // (i)nventory list
-                    inventoryExecuteCommand('i');
+                    uiInventory.inventoryExecuteCommand('i');
                     break;
                 case 'S': // (S)pike a door  (j)am a door
                     dungeonJamDoor();
@@ -2297,7 +2317,7 @@ namespace Moria.Core.Methods
                     playerSearch(State.Instance.py.pos, State.Instance.py.misc.chance_in_search);
                     break;
                 case 'T': // (T)ake off something  (t)ake off
-                    inventoryExecuteCommand('t');
+                    uiInventory.inventoryExecuteCommand('t');
                     break;
                 case 'Z': // (Z)ap a staff  (u)se a staff
                     staffUse();
@@ -2308,10 +2328,10 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case 'w': // (w)ear or wield
-                    inventoryExecuteCommand('w');
+                    uiInventory.inventoryExecuteCommand('w');
                     break;
                 case 'X': // e(X)change weapons  e(x)change
-                    inventoryExecuteCommand('x');
+                    uiInventory.inventoryExecuteCommand('x');
                     break;
                 default:
                     // Wizard commands are free moves
@@ -2428,8 +2448,8 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int old_chp = py.misc.current_hp;
-            int new_chp = (int)py.misc.max_hp * percent + (int)Config.player.PLAYER_REGEN_HPBASE;
+            var old_chp = py.misc.current_hp;
+            var new_chp = (int)py.misc.max_hp * percent + (int)Config.player.PLAYER_REGEN_HPBASE;
 
             // div 65536
             py.misc.current_hp += new_chp >> 16;
@@ -2441,7 +2461,7 @@ namespace Moria.Core.Methods
             }
 
             // mod 65536
-            int new_chp_fraction = (new_chp & 0xFFFF) + (int)py.misc.current_hp_fraction;
+            var new_chp_fraction = (new_chp & 0xFFFF) + (int)py.misc.current_hp_fraction;
 
             if (new_chp_fraction >= 0x10000L)
             {
@@ -2471,8 +2491,8 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int old_cmana = py.misc.current_mana;
-            int new_mana = (int)py.misc.mana * percent + (int)Config.player.PLAYER_REGEN_MNBASE;
+            var old_cmana = py.misc.current_mana;
+            var new_mana = (int)py.misc.mana * percent + (int)Config.player.PLAYER_REGEN_MNBASE;
 
             // div 65536
             py.misc.current_mana += new_mana >> 16;
@@ -2484,7 +2504,7 @@ namespace Moria.Core.Methods
             }
 
             // mod 65536
-            int new_mana_fraction = (new_mana & 0xFFFF) + (int)py.misc.current_mana_fraction;
+            var new_mana_fraction = (new_mana & 0xFFFF) + (int)py.misc.current_mana_fraction;
 
             if (new_mana_fraction >= 0x10000L)
             {
@@ -2571,13 +2591,13 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (inventoryGetInputForItemId(ref item_id, "Which Book?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            var item_id = 0;
+            if (uiInventory.inventoryGetInputForItemId(ref item_id, "Which Book?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 var spell_index = new int[31];
-                bool can_read = true;
+                var can_read = true;
 
-                uint treasure_type = py.inventory[item_id].category_id;
+                var treasure_type = py.inventory[item_id].category_id;
 
                 if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
@@ -2604,9 +2624,9 @@ namespace Moria.Core.Methods
                     return;
                 }
 
-                uint item_flags = py.inventory[item_id].flags;
+                var item_flags = py.inventory[item_id].flags;
 
-                int spell_id = 0;
+                var spell_id = 0;
                 while (item_flags != 0u)
                 {
                     item_pos_end = getAndClearFirstBit(ref item_flags);
@@ -2632,7 +2652,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
-            uint tile_id = dg.floor[py.pos.y][py.pos.x].treasure_id;
+            var tile_id = dg.floor[py.pos.y][py.pos.x].treasure_id;
 
             if (tile_id != 0 && game.treasure.list[tile_id].category_id == TV_UP_STAIR)
             {
@@ -2657,7 +2677,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
-            uint tile_id = dg.floor[py.pos.y][py.pos.x].treasure_id;
+            var tile_id = dg.floor[py.pos.y][py.pos.x].treasure_id;
 
             if (tile_id != 0 && game.treasure.list[tile_id].category_id == TV_DOWN_STAIR)
             {
@@ -2684,16 +2704,16 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = true;
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
 
-            int direction = 0;
-            if (!getDirectionWithMemory(/*CNIL*/ null, ref direction))
+            var direction = 0;
+            if (!Game_run_m.game.getDirectionWithMemory(/*CNIL*/ null, ref direction))
             {
                 return;
             }
             playerMovePosition(direction, ref coord);
 
-            Tile_t tile = dg.floor[coord.y][coord.x];
+            var tile = dg.floor[coord.y][coord.x];
 
             if (tile.treasure_id == 0)
             {
@@ -2701,9 +2721,9 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            Inventory_t item = game.treasure.list[tile.treasure_id];
+            var item = game.treasure.list[tile.treasure_id];
 
-            uint item_id = item.category_id;
+            var item_id = item.category_id;
             if (item_id != TV_CLOSED_DOOR && item_id != TV_OPEN_DOOR)
             {
                 printMessage("That isn't a door!");
@@ -2787,7 +2807,7 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = false;
 
-            Inventory_t item = py.inventory[(int)PlayerEquipment.Light];
+            var item = py.inventory[(int)PlayerEquipment.Light];
             item.misc_use += py.inventory[item_pos_start].misc_use;
 
             if (item.misc_use > Config.treasure.OBJECT_LAMP_MAX_CAPACITY)
@@ -2826,7 +2846,7 @@ namespace Moria.Core.Methods
             resetDungeonFlags();
 
             // Initialize find counter to `0`
-            int find_count = 0;
+            var find_count = 0;
 
             // Ensure we display the panel. Used to do this with a global var. -CJS-
             dg.panel.row = dg.panel.col = -1;
@@ -2850,7 +2870,7 @@ namespace Moria.Core.Methods
 
             // Note: yes, this last input command needs to be persisted
             // over different iterations of the main loop below -MRC-
-            char last_input_command = '\0';
+            var last_input_command = '\0';
 
             // Loop until dead,  or new level
             // Exit when `dg.generate_new_level` and `eof_flag` are both set
@@ -2866,7 +2886,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Check for creature generation
-                if (randomNumber(Config.monsters.MON_CHANCE_OF_NEW) == 1)
+                if (rnd.randomNumber(Config.monsters.MON_CHANCE_OF_NEW) == 1)
                 {
                     monsterPlaceNewWithinDistance(1, (int)Config.monsters.MON_MAX_SIGHT, false);
                 }
@@ -2880,7 +2900,7 @@ namespace Moria.Core.Methods
                 // Heroism and Super Heroism must precede anything that can damage player
                 playerUpdateHeroStatus();
 
-                int regen_amount = playerFoodConsumption();
+                var regen_amount = playerFoodConsumption();
                 playerUpdateRegeneration(regen_amount);
 
                 playerUpdateBlindness();
@@ -2891,7 +2911,7 @@ namespace Moria.Core.Methods
                 playerUpdateRestingState();
 
                 // Check for interrupts to find or rest.
-                int microseconds = (py.running_tracker != 0 ? 0 : 10000);
+                var microseconds = (py.running_tracker != 0 ? 0 : 10000);
                 if ((game.command_count > 0 || (py.running_tracker != 0) || py.flags.rest != 0) && checkForNonBlockingKeyPress(microseconds))
                 {
                     playerDisturb(0, 0);
@@ -2909,7 +2929,7 @@ namespace Moria.Core.Methods
                 playerUpdateWordOfRecall();
 
                 // Random teleportation
-                if (py.flags.teleport && randomNumber(100) == 1)
+                if (py.flags.teleport && rnd.randomNumber(100) == 1)
                 {
                     playerDisturb(0, 0);
                     playerTeleport(40);
@@ -2931,8 +2951,8 @@ namespace Moria.Core.Methods
                 // Allow for a slim chance of detect enchantment -CJS-
                 // for 1st level char, check once every 2160 turns
                 // for 40th level char, check once every 416 turns
-                int chance = 10 + 750 / (5 + (int)py.misc.level);
-                if ((dg.game_turn & 0xF) == 0 && py.flags.confused == 0 && randomNumber(chance) == 1)
+                var chance = 10 + 750 / (5 + (int)py.misc.level);
+                if ((dg.game_turn & 0xF) == 0 && py.flags.confused == 0 && rnd.randomNumber(chance) == 1)
                 {
                     playerDetectEnchantment();
                 }

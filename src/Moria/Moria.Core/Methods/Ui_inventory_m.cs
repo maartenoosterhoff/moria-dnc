@@ -2,48 +2,35 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
-using System;
-using System.Resources;
-using static Moria.Core.Constants.Dungeon_c;
-using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Constants.Store_c;
-using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Game_objects_m;
-using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Player_magic_m;
-using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Store_inventory_m;
-using static Moria.Core.Methods.Std_m;
-using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
-using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Ui_inventory_m
+    public interface IUiInventory
     {
-        public static void inventoryItemWeightText(ref string text, int item_id)
+        int displayEquipment(bool weighted, int column);
+        int displayInventory(int item_id_start, int item_id_end, bool weighted, int column, int[] mask);
+
+        bool inventoryGetInputForItemId(ref int command_key_id, string prompt, int item_id_start, int item_id_end,
+            int[] mask, string message);
+        void inventoryExecuteCommand(char command);
+        string playerItemWearingDescription(int body_location);
+    }
+
+    public class Ui_inventory_m : IUiInventory
+    {
+        private void inventoryItemWeightText(ref string text, int item_id)
         {
             var py = State.Instance.py;
-            int total_weight = (int)(py.inventory[item_id].weight * py.inventory[item_id].items_count);
-            int quotient = total_weight / 10;
-            int remainder = total_weight % 10;
+            var total_weight = (int)(py.inventory[item_id].weight * py.inventory[item_id].items_count);
+            var quotient = total_weight / 10;
+            var remainder = total_weight % 10;
 
             text = $"{quotient:d3}.{remainder:d} lb";
             //(void)sprintf(text, "%3d.%d lb", quotient, remainder);
@@ -55,12 +42,12 @@ namespace Moria.Core.Methods
         // does not fit, it may be moved left.  The return value is the left edge
         // used. If mask is non-zero, then only display those items which have a
         // non-zero entry in the mask array.
-        public static int displayInventory(int item_id_start, int item_id_end, bool weighted, int column, int[] mask)
+        public int displayInventory(int item_id_start, int item_id_end, bool weighted, int column, int[] mask)
         {
             var py = State.Instance.py;
-            string[] descriptions = new string[23];
+            var descriptions = new string[23];
 
-            int len = 79 - column;
+            var len = 79 - column;
 
             int lim;
             if (weighted)
@@ -73,7 +60,7 @@ namespace Moria.Core.Methods
             }
 
             // Generate the descriptions text
-            for (int i = item_id_start; i <= item_id_end; i++)
+            for (var i = item_id_start; i <= item_id_end; i++)
             {
                 if (mask != null && (mask[i] == 0))
                 {
@@ -94,7 +81,7 @@ namespace Moria.Core.Methods
                 descriptions[i] = $"{(char)('a' + i):c}) {description}";
                 //(void)sprintf(descriptions[i], "%c) %s", 'a' + i, description);
 
-                int l = descriptions[i].Length + 2;
+                var l = descriptions[i].Length + 2;
                 //                int l = (int)strlen(descriptions[i]) + 2;
 
                 if (weighted)
@@ -114,10 +101,10 @@ namespace Moria.Core.Methods
                 column = 0;
             }
 
-            int current_line = 1;
+            var current_line = 1;
 
             // Print the descriptions
-            for (int i = item_id_start; i <= item_id_end; i++)
+            for (var i = item_id_start; i <= item_id_end; i++)
             {
                 if (mask != null && (mask[i] == 0))
                 {
@@ -150,7 +137,7 @@ namespace Moria.Core.Methods
         }
 
         // Return a string describing how a given equipment item is carried. -CJS-
-        public static string playerItemWearingDescription(int body_location)
+        public string playerItemWearingDescription(int body_location)
         {
             switch ((PlayerEquipment)body_location)
             {
@@ -183,7 +170,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static string itemPositionDescription(int position_id, uint weight)
+        private string itemPositionDescription(int position_id, uint weight)
         {
             var py = State.Instance.py;
 
@@ -225,14 +212,14 @@ namespace Moria.Core.Methods
 
         // Displays equipment items from r1 to end -RAK-
         // Keep display as far right as possible. -CJS-
-        public static int displayEquipment(bool weighted, int column)
+        public int displayEquipment(bool weighted, int column)
         {
             var py = State.Instance.py;
 
             var descriptions = new string[PLAYER_INVENTORY_SIZE - (int)PlayerEquipment.Wield];
             //vtype_t descriptions[PLAYER_INVENTORY_SIZE - PlayerEquipment.Wield];
 
-            int len = 79 - column;
+            var len = 79 - column;
 
             int lim;
             if (weighted)
@@ -245,8 +232,8 @@ namespace Moria.Core.Methods
             }
 
             // Range of equipment
-            int line = 0;
-            for (int i = (int)PlayerEquipment.Wield; i < PLAYER_INVENTORY_SIZE; i++)
+            var line = 0;
+            for (var i = (int)PlayerEquipment.Wield; i < PLAYER_INVENTORY_SIZE; i++)
             {
                 if (py.inventory[i].category_id == TV_NOTHING)
                 {
@@ -254,7 +241,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Get position
-                string position_description = itemPositionDescription(i, (uint)py.inventory[i].weight);
+                var position_description = itemPositionDescription(i, (uint)py.inventory[i].weight);
 
                 var description = string.Empty;
                 //obj_desc_t description = { '\0' };
@@ -267,7 +254,7 @@ namespace Moria.Core.Methods
                 descriptions[line] = $"{(char)(line + 'a')}) {position_description:s-14}: {description}";
                 //(void)sprintf(descriptions[line], "%c) %-14s: %s", line + 'a', position_description, description);
 
-                int l = descriptions[line].Length + 2;
+                var l = descriptions[line].Length + 2;
                 //int l = (int)strlen(descriptions[line]) + 2;
 
                 if (weighted)
@@ -291,7 +278,7 @@ namespace Moria.Core.Methods
 
             // Range of equipment
             line = 0;
-            for (int i = (int)PlayerEquipment.Wield; i < PLAYER_INVENTORY_SIZE; i++)
+            for (var i = (int)PlayerEquipment.Wield; i < PLAYER_INVENTORY_SIZE; i++)
             {
                 if (py.inventory[i].category_id == TV_NOTHING)
                 {
@@ -362,10 +349,10 @@ namespace Moria.Core.Methods
         const int WRONG_SCR = 5;
 
         // Keep track of the state of the inventory screen.
-        static int screen_state, screen_left, screen_base;
-        static int wear_low, wear_high;
+        private int screen_state, screen_left, screen_base;
+        private int wear_low, wear_high;
 
-        public static void uiCommandDisplayInventoryScreen(int new_screen)
+        private void uiCommandDisplayInventoryScreen(int new_screen)
         {
             var py = State.Instance.py;
 
@@ -433,7 +420,7 @@ namespace Moria.Core.Methods
 
         // Used to verify if this really is the item we wish to -CJS-
         // wear or read.
-        public static bool verify(string prompt, int item)
+        private bool verify(string prompt, int item)
         {
             var py = State.Instance.py;
             var description = string.Empty;
@@ -451,7 +438,7 @@ namespace Moria.Core.Methods
             return getInputConfirmation(msg);
         }
 
-        public static void setInventoryCommandScreenState(char command)
+        private void setInventoryCommandScreenState(char command)
         {
             var game = State.Instance.game;
             // Take up where we left off after a previous inventory command. -CJS-
@@ -471,7 +458,7 @@ namespace Moria.Core.Methods
                     screen_base = 0;
                 }
 
-                int saved_state = screen_state;
+                var saved_state = screen_state;
                 screen_state = WRONG_SCR;
                 uiCommandDisplayInventoryScreen(saved_state);
 
@@ -485,7 +472,7 @@ namespace Moria.Core.Methods
             screen_state = BLANK_SCR;
         }
 
-        public static bool uiCommandInventoryTakeOffItem(bool selecting)
+        private bool uiCommandInventoryTakeOffItem(bool selecting)
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -511,7 +498,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool uiCommandInventoryDropItem(ref char command, bool selecting)
+        private bool uiCommandInventoryDropItem(ref char command, bool selecting)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -545,7 +532,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool uiCommandInventoryWearWieldItem(bool selecting)
+        private bool uiCommandInventoryWearWieldItem(bool selecting)
         {
             var py = State.Instance.py;
 
@@ -573,7 +560,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static void uiCommandInventoryUnwieldItem()
+        private void uiCommandInventoryUnwieldItem()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -600,7 +587,7 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = false;
 
-            Inventory_t saved_item = py.inventory[(int)PlayerEquipment.Auxiliary];
+            var saved_item = py.inventory[(int)PlayerEquipment.Auxiliary];
             py.inventory[(int)PlayerEquipment.Auxiliary] = py.inventory[(int)PlayerEquipment.Wield];
             py.inventory[(int)PlayerEquipment.Wield] = saved_item;
 
@@ -635,7 +622,7 @@ namespace Moria.Core.Methods
         }
 
         // look for item whose inscription matches "which"
-        public static int inventoryGetItemMatchingInscription(char which, char command, int from, int to)
+        private int inventoryGetItemMatchingInscription(char which, char command, int from, int to)
         {
             var py = State.Instance.py;
             int item;
@@ -669,18 +656,18 @@ namespace Moria.Core.Methods
             return item;
         }
 
-        public static void buildCommandHeading(ref string str, int from, int to, string swap, char command, string prompt)
+        private void buildCommandHeading(ref string str, int from, int to, string swap, char command, string prompt)
         {
             from = from + 'a';
             to = to + 'a';
 
-            string list_items = string.Empty;
+            var list_items = string.Empty;
             if (screen_state == BLANK_SCR)
             {
                 list_items = ", * to list";
             }
 
-            string digits = "";
+            var digits = "";
             if (command == 'w' || command == 'd')
             {
                 digits = ", 0-9";
@@ -690,7 +677,7 @@ namespace Moria.Core.Methods
             //(void)sprintf(str, "(%c-%c%s%s%s, space to break, ESC to exit) %s which one?", from, to, list_items, swap, digits, prompt);
         }
 
-        static void drawInventoryScreenForCommand(char command)
+        private void drawInventoryScreenForCommand(char command)
         {
             if (command == 't' || command == 'r')
             {
@@ -706,7 +693,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void swapInventoryScreenForDrop()
+        private void swapInventoryScreenForDrop()
         {
             if (screen_state == EQUIP_SCR)
             {
@@ -718,7 +705,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static int inventoryGetSlotToWearEquipment(int item)
+        private int inventoryGetSlotToWearEquipment(int item)
         {
             var py = State.Instance.py;
             int slot;
@@ -778,7 +765,7 @@ namespace Moria.Core.Methods
                         // Rings. Give choice over where they go.
                         do
                         {
-                            char query = '\0';
+                            var query = '\0';
                             if (!getCommand("Put ring on which hand (l/r/L/R)?", out query))
                             {
                                 slot = -1;
@@ -822,7 +809,7 @@ namespace Moria.Core.Methods
             return slot;
         }
 
-        static void inventoryItemIsCursedMessage(int item_id)
+        private void inventoryItemIsCursedMessage(int item_id)
         {
             var py = State.Instance.py;
 
@@ -849,14 +836,14 @@ namespace Moria.Core.Methods
             //printMessage(strcat(item_text, "appears to be cursed."));
         }
 
-        static bool selectItemCommands(ref char command, ref char which, bool selecting)
+        private bool selectItemCommands(ref char command, ref char which, bool selecting)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
             int item_to_take_off;
-            int slot = 0;
+            var slot = 0;
 
             int from, to;
             string prompt = null;
@@ -953,7 +940,7 @@ namespace Moria.Core.Methods
                 }
 
                 // look for item whose inscription matches "which"
-                int item_id = inventoryGetItemMatchingInscription(which, command, from, to);
+                var item_id = inventoryGetItemMatchingInscription(which, command, from, to);
 
                 if (item_id < from || item_id > to)
                 {
@@ -1071,8 +1058,8 @@ namespace Moria.Core.Methods
                         game.player_free_turn = false;
 
                         // first remove new item from inventory
-                        Inventory_t saved_item = py.inventory[item_id];
-                        Inventory_t item = saved_item;
+                        var saved_item = py.inventory[item_id];
+                        var item = saved_item;
 
                         wear_high--;
 
@@ -1093,7 +1080,7 @@ namespace Moria.Core.Methods
                         item = py.inventory[slot];
                         if (item.category_id != TV_NOTHING)
                         {
-                            int saved_counter = py.pack.unique_items;
+                            var saved_counter = py.pack.unique_items;
 
                             item_to_take_off = inventoryCarryItem(item);
 
@@ -1172,7 +1159,7 @@ namespace Moria.Core.Methods
                     // command == 'd'
 
                     // NOTE: initializing to `ESCAPE` as warnings were being given. -MRC-
-                    char query = ESCAPE;
+                    var query = ESCAPE;
 
                     if (py.inventory[item_id].items_count > 1)
                     {
@@ -1239,15 +1226,15 @@ namespace Moria.Core.Methods
         }
 
         // Put an appropriate header.
-        static void inventoryDisplayAppropriateHeader()
+        private void inventoryDisplayAppropriateHeader()
         {
             var py = State.Instance.py;
             if (screen_state == INVEN_SCR)
             {
                 var msg = string.Empty;
                 //obj_desc_t msg = { '\0' };
-                int w_quotient = py.pack.weight / 10;
-                int w_remainder = py.pack.weight % 10;
+                var w_quotient = py.pack.weight / 10;
+                var w_remainder = py.pack.weight % 10;
 
                 if (!Config.options.show_inventory_weights || py.pack.unique_items == 0)
                 {
@@ -1256,8 +1243,8 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    int l_quotient = playerCarryingLoadLimit() / 10;
-                    int l_remainder = playerCarryingLoadLimit() % 10;
+                    var l_quotient = playerCarryingLoadLimit() / 10;
+                    var l_remainder = playerCarryingLoadLimit() % 10;
 
                     msg = $"You are carrying {w_quotient:d}.{w_remainder:d} pounds. Your capacity is {l_quotient:d}.{l_remainder:d} pounds. In your pack is -";
                     //(void)sprintf(msg, "You are carrying %d.%d pounds. Your capacity is %d.%d pounds. In your pack is -", w_quotient, w_remainder, l_quotient, l_remainder);
@@ -1295,7 +1282,7 @@ namespace Moria.Core.Methods
             eraseLine(new Coord_t(screen_base, screen_left));
         }
 
-        static void uiCommandDisplayInventory()
+        public void uiCommandDisplayInventory()
         {
             if (State.Instance.py.pack.unique_items == 0)
             {
@@ -1307,7 +1294,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void uiCommandDisplayEquipment()
+        private void uiCommandDisplayEquipment()
         {
             var py = State.Instance.py;
             if (py.equipment_count == 0)
@@ -1321,7 +1308,7 @@ namespace Moria.Core.Methods
         }
 
         // This does all the work.
-        public static void inventoryExecuteCommand(char command)
+        public void inventoryExecuteCommand(char command)
         {
             var game = State.Instance.game;
 
@@ -1338,7 +1325,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Simple command getting and screen selection.
-                bool selecting = false;
+                var selecting = false;
                 switch (command)
                 {
                     case 'i':
@@ -1376,7 +1363,7 @@ namespace Moria.Core.Methods
                 game.doing_inventory_command = 0;
 
                 // Keep looking for objects to drop/wear/take off/throw off
-                char which = 'z';
+                var which = 'z';
 
                 selecting = selectItemCommands(ref command, ref which, selecting);
 
@@ -1425,11 +1412,11 @@ namespace Moria.Core.Methods
         }
 
         // Get the ID of an item and return the CTR value of it -RAK-
-        public static bool inventoryGetInputForItemId(ref int command_key_id, string prompt, int item_id_start, int item_id_end, int[] mask, string message)
+        public bool inventoryGetInputForItemId(ref int command_key_id, string prompt, int item_id_start, int item_id_end, int[] mask, string message)
         {
             var py = State.Instance.py;
-            int screen_id = 1;
-            bool full = false;
+            var screen_id = 1;
+            var full = false;
 
             if (item_id_end > (int)PlayerEquipment.Wield)
             {
@@ -1454,8 +1441,8 @@ namespace Moria.Core.Methods
 
             command_key_id = 0;
 
-            bool item_found = false;
-            bool redraw_screen = false;
+            var item_found = false;
+            var redraw_screen = false;
 
             do
             {
@@ -1471,7 +1458,7 @@ namespace Moria.Core.Methods
                     }
                 }
 
-                string description = string.Empty;
+                var description = string.Empty;
                 //vtype_t description = { '\0' };
 
                 if (full)
@@ -1519,11 +1506,11 @@ namespace Moria.Core.Methods
 
                 putStringClearToEOL(description, new Coord_t(0, 0));
 
-                bool command_finished = false;
+                var command_finished = false;
 
                 while (!command_finished)
                 {
-                    char which = getKeyInput();
+                    var which = getKeyInput();
 
                     switch (which)
                     {

@@ -7,7 +7,6 @@ using Moria.Core.Data;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Game_objects_m;
@@ -17,12 +16,21 @@ namespace Moria.Core.Methods
 {
     public static class Inventory_m
     {
+        public static void SetDependencies(
+            IRnd rnd
+        )
+        {
+            Inventory_m.rnd = rnd;
+        }
+
+        private static IRnd rnd;
+
         public static uint inventoryCollectAllItemFlags()
         {
             var py = State.Instance.py;
             uint flags = 0;
 
-            for (int i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
+            for (var i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
             {
                 flags |= py.inventory[i].flags;
             }
@@ -46,7 +54,7 @@ namespace Moria.Core.Methods
             {
                 py.pack.weight -= (int)item.weight * (int)item.items_count;
 
-                for (int i = item_id; i < py.pack.unique_items - 1; i++)
+                for (var i = item_id; i < py.pack.unique_items - 1; i++)
                 {
                     py.inventory[i] = py.inventory[i + 1];
                 }
@@ -84,9 +92,9 @@ namespace Moria.Core.Methods
                 dungeonDeleteObject(py.pos);
             }
 
-            int treasure_id = popt();
+            var treasure_id = popt();
 
-            Inventory_t item = py.inventory[item_id];
+            var item = py.inventory[item_id];
             game.treasure.list[treasure_id] = item;
 
             dg.floor[py.pos.y][py.pos.x].treasure_id = (uint)treasure_id;
@@ -133,13 +141,13 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int damage = 0;
+            var damage = 0;
 
-            for (int i = 0; i < py.pack.unique_items; i++)
+            for (var i = 0; i < py.pack.unique_items; i++)
             {
                 if (item_type(py.inventory[i]) &&
-                    randomNumber(100) < chance_percentage)
-                //if ((*item_type)(&py.inventory[i]) && randomNumber(100) < chance_percentage)
+                    rnd.randomNumber(100) < chance_percentage)
+                //if ((*item_type)(&py.inventory[i]) && rnd.randomNumber(100) < chance_percentage)
                 {
                     inventoryDestroyItem(i);
                     damage++;
@@ -156,7 +164,7 @@ namespace Moria.Core.Methods
 
             if (item.misc_use > 0)
             {
-                item.misc_use -= (250 + randomNumber(250));
+                item.misc_use -= (250 + rnd.randomNumber(250));
 
                 if (item.misc_use < 1)
                 {
@@ -183,9 +191,9 @@ namespace Moria.Core.Methods
         public static bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed)
         {
             var py = State.Instance.py;
-            var item = py.inventory[randomNumber(py.pack.unique_items) - 1];
+            var item = py.inventory[rnd.randomNumber(py.pack.unique_items) - 1];
 
-            bool has_charges = item.category_id == TV_STAFF || item.category_id == TV_WAND;
+            var has_charges = item.category_id == TV_STAFF || item.category_id == TV_WAND;
 
             if (has_charges && item.misc_use > 0)
             {
@@ -209,7 +217,7 @@ namespace Moria.Core.Methods
         {
             int item_id;
 
-            switch (randomNumber(7))
+            switch (rnd.randomNumber(7))
             {
                 case 1:
                     item_id = (int)PlayerEquipment.Wield;
@@ -236,13 +244,13 @@ namespace Moria.Core.Methods
                     return false;
             }
 
-            bool success = false;
+            var success = false;
             var py = State.Instance.py;
             var item = py.inventory[item_id];
 
             if (item.to_hit > 0)
             {
-                item.to_hit -= randomNumber(2);
+                item.to_hit -= rnd.randomNumber(2);
 
                 // don't send it below zero
                 if (item.to_hit < 0)
@@ -253,7 +261,7 @@ namespace Moria.Core.Methods
             }
             if (item.to_damage > 0)
             {
-                item.to_damage -= randomNumber(2);
+                item.to_damage -= rnd.randomNumber(2);
 
                 // don't send it below zero
                 if (item.to_damage < 0)
@@ -264,7 +272,7 @@ namespace Moria.Core.Methods
             }
             if (item.to_ac > 0)
             {
-                item.to_ac -= randomNumber(2);
+                item.to_ac -= rnd.randomNumber(2);
 
                 // don't send it below zero
                 if (item.to_ac < 0)
@@ -291,23 +299,23 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            for (int i = 0; i < py.pack.unique_items; i++)
+            for (var i = 0; i < py.pack.unique_items; i++)
             {
-                bool same_character = py.inventory[i].category_id == item.category_id;
-                bool same_category = py.inventory[i].sub_category_id == item.sub_category_id;
+                var same_character = py.inventory[i].category_id == item.category_id;
+                var same_category = py.inventory[i].sub_category_id == item.sub_category_id;
 
                 // make sure the number field doesn't overflow
                 // NOTE: convert to bigger types before addition -MRC-
-                bool same_number = ((uint)(py.inventory[i].items_count) + (uint)(item.items_count)) < 256;
+                var same_number = ((uint)(py.inventory[i].items_count) + (uint)(item.items_count)) < 256;
 
                 // they always stack (sub_category_id < 192), or else they have same `misc_use`
-                bool same_group = item.sub_category_id < ITEM_GROUP_MIN || py.inventory[i].misc_use == item.misc_use;
+                var same_group = item.sub_category_id < ITEM_GROUP_MIN || py.inventory[i].misc_use == item.misc_use;
 
                 // only stack if both or neither are identified
                 // TODO(cook): is it correct that they should be equal to each other, regardless of true/false value?
-                bool inventory_item_is_colorless = itemSetColorlessAsIdentified((int)py.inventory[i].category_id, (int)py.inventory[i].sub_category_id, (int)py.inventory[i].identification);
-                bool item_is_colorless = itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
-                bool identification = inventory_item_is_colorless == item_is_colorless;
+                var inventory_item_is_colorless = itemSetColorlessAsIdentified((int)py.inventory[i].category_id, (int)py.inventory[i].sub_category_id, (int)py.inventory[i].identification);
+                var item_is_colorless = itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
+                var identification = inventory_item_is_colorless == item_is_colorless;
 
                 if (same_character && same_category && same_number && same_group && identification)
                 {
@@ -323,8 +331,8 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int limit = playerCarryingLoadLimit();
-            int new_weight = (int)item.items_count * (int)item.weight + py.pack.weight;
+            var limit = playerCarryingLoadLimit();
+            var new_weight = (int)item.items_count * (int)item.weight + py.pack.weight;
 
             if (limit < new_weight)
             {
@@ -344,8 +352,8 @@ namespace Moria.Core.Methods
         public static int inventoryCarryItem(Inventory_t new_item)
         {
             var py = State.Instance.py;
-            bool is_known = itemSetColorlessAsIdentified((int)new_item.category_id, (int)new_item.sub_category_id, (int)new_item.identification);
-            bool is_always_known = objectPositionOffset((int)new_item.category_id, (int)new_item.sub_category_id) == -1;
+            var is_known = itemSetColorlessAsIdentified((int)new_item.category_id, (int)new_item.sub_category_id, (int)new_item.identification);
+            var is_always_known = objectPositionOffset((int)new_item.category_id, (int)new_item.sub_category_id) == -1;
 
             int slot_id;
 
@@ -354,11 +362,11 @@ namespace Moria.Core.Methods
             {
                 var item = py.inventory[slot_id];
 
-                bool is_same_category = new_item.category_id == item.category_id && new_item.sub_category_id == item.sub_category_id;
-                bool not_too_many_items = (int)(item.items_count + new_item.items_count) < 256;
+                var is_same_category = new_item.category_id == item.category_id && new_item.sub_category_id == item.sub_category_id;
+                var not_too_many_items = (int)(item.items_count + new_item.items_count) < 256;
 
                 // only stack if both or neither are identified
-                bool same_known_status = itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification) == is_known;
+                var same_known_status = itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification) == is_known;
 
                 if (is_same_category && new_item.sub_category_id >= ITEM_SINGLE_STACK_MIN && not_too_many_items &&
                     (new_item.sub_category_id < ITEM_GROUP_MIN || item.misc_use == new_item.misc_use) && same_known_status)
@@ -371,7 +379,7 @@ namespace Moria.Core.Methods
                 {
                     // For items which are always `is_known`, i.e. never have a 'color',
                     // insert them into the inventory in sorted order.
-                    for (int i = py.pack.unique_items - 1; i >= slot_id; i--)
+                    for (var i = py.pack.unique_items - 1; i >= slot_id; i--)
                     {
                         py.inventory[i + 1] = py.inventory[i];
                     }
@@ -395,9 +403,9 @@ namespace Moria.Core.Methods
             j = -1;
             k = -1;
 
-            bool at_end_of_range = false;
+            var at_end_of_range = false;
 
-            for (int i = 0; i < py.pack.unique_items; i++)
+            for (var i = 0; i < py.pack.unique_items; i++)
             {
                 var item_id = (int)py.inventory[i].category_id;
 
@@ -429,7 +437,7 @@ namespace Moria.Core.Methods
 
         public static void inventoryItemCopyTo(int from_item_id, Inventory_t to_item)
         {
-            DungeonObject_t from = Library.Instance.Treasure.game_objects[from_item_id];
+            var from = Library.Instance.Treasure.game_objects[from_item_id];
 
             to_item.id = (uint)from_item_id;
             to_item.special_name_id = (int)SpecialNameIds.SN_NULL;
@@ -458,8 +466,8 @@ namespace Moria.Core.Methods
         public static bool damageMinusAC(uint typ_dam)
         {
             var py = State.Instance.py;
-            int items_count = 0;
-            uint[] items = new uint[6];
+            var items_count = 0;
+            var items = new uint[6];
             //uint8_t items[6];
 
             if (py.inventory[(int)PlayerEquipment.Body].category_id != TV_NOTHING)
@@ -499,14 +507,14 @@ namespace Moria.Core.Methods
                 items_count++;
             }
 
-            bool minus = false;
+            var minus = false;
 
             if (items_count == 0)
             {
                 return minus;
             }
 
-            uint item_id = items[randomNumber(items_count) - 1];
+            var item_id = items[rnd.randomNumber(items_count) - 1];
 
             var description = string.Empty;
             var msg = string.Empty;
@@ -676,7 +684,7 @@ namespace Moria.Core.Methods
         {
             if (!damageMinusAC(Config.treasure_flags.TR_RES_ACID))
             {
-                playerTakesHit(randomNumber(8), creature_name);
+                playerTakesHit(rnd.randomNumber(8), creature_name);
             }
 
             if (inventoryDamageItem(setCorrodableItems, 5) > 0)
@@ -692,7 +700,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            py.flags.poisoned += 12 + randomNumber(damage);
+            py.flags.poisoned += 12 + rnd.randomNumber(damage);
         }
 
         // Burn the fool up. -RAK-
@@ -764,7 +772,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int flag = 0;
+            var flag = 0;
 
             if (damageMinusAC(Config.treasure_flags.TR_RES_ACID))
             {

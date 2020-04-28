@@ -4,8 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_magic_m;
@@ -14,12 +12,29 @@ using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Player_pray_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Player_pray_m.dice = dice;
+            Player_pray_m.game = game;
+            Player_pray_m.rnd = rnd;
+            Player_pray_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         static bool playerCanPray(ref int item_pos_begin, ref int item_pos_end)
         {
             var py = State.Instance.py;
@@ -68,7 +83,7 @@ namespace Moria.Core.Methods
         static void playerRecitePrayer(int prayer_type)
         {
             var py = State.Instance.py;
-            int dir = 0;
+            var dir = 0;
 
             switch ((PriestSpellTypes)(prayer_type + 1))
             {
@@ -76,10 +91,10 @@ namespace Moria.Core.Methods
                     spellDetectEvil();
                     break;
                 case PriestSpellTypes.CureLightWounds:
-                    spellChangePlayerHitPoints(diceRoll(new Dice_t(3, 3)));
+                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 3)));
                     break;
                 case PriestSpellTypes.Bless:
-                    playerBless(randomNumber(12) + 12);
+                    playerBless(rnd.randomNumber(12) + 12);
                     break;
                 case PriestSpellTypes.RemoveFear:
                     playerRemoveFear();
@@ -97,7 +112,7 @@ namespace Moria.Core.Methods
                     spellSlowPoison();
                     break;
                 case PriestSpellTypes.BlindCreature:
-                    if (getDirectionWithMemory(/*CNIL*/null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
                         spellConfuseMonster(py.pos, dir);
                     }
@@ -106,10 +121,10 @@ namespace Moria.Core.Methods
                     playerTeleport(((int)py.misc.level * 3));
                     break;
                 case PriestSpellTypes.CureMediumWounds:
-                    spellChangePlayerHitPoints(diceRoll(new Dice_t(4, 4)));
+                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
                     break;
                 case PriestSpellTypes.Chant:
-                    playerBless(randomNumber(24) + 24);
+                    playerBless(rnd.randomNumber(24) + 24);
                     break;
                 case PriestSpellTypes.Sanctuary:
                     monsterSleep(py.pos);
@@ -128,23 +143,23 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case PriestSpellTypes.ResistHeadCold:
-                    py.flags.heat_resistance += randomNumber(10) + 10;
-                    py.flags.cold_resistance += randomNumber(10) + 10;
+                    py.flags.heat_resistance += rnd.randomNumber(10) + 10;
+                    py.flags.cold_resistance += rnd.randomNumber(10) + 10;
                     break;
                 case PriestSpellTypes.NeutralizePoison:
                     playerCurePoison();
                     break;
                 case PriestSpellTypes.OrbOfDraining:
-                    if (getDirectionWithMemory(/*CNIL*/ null, ref dir))
+                    if (game.getDirectionWithMemory(/*CNIL*/ null, ref dir))
                     {
-                        spellFireBall(py.pos, dir, (int)(diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere");
+                        spellFireBall(py.pos, dir, (int)(dice.diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere");
                     }
                     break;
                 case PriestSpellTypes.CureSeriousWounds:
-                    spellChangePlayerHitPoints(diceRoll(new Dice_t(8, 4)));
+                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(8, 4)));
                     break;
                 case PriestSpellTypes.SenseInvisible:
-                    playerDetectInvisible(randomNumber(24) + 24);
+                    playerDetectInvisible(rnd.randomNumber(24) + 24);
                     break;
                 case PriestSpellTypes.ProtectFromEvil:
                     playerProtectEvil();
@@ -156,13 +171,13 @@ namespace Moria.Core.Methods
                     spellMapCurrentArea();
                     break;
                 case PriestSpellTypes.CureCriticalWounds:
-                    spellChangePlayerHitPoints(diceRoll(new Dice_t(16, 4)));
+                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(16, 4)));
                     break;
                 case PriestSpellTypes.TurnUndead:
                     spellTurnUndead();
                     break;
                 case PriestSpellTypes.Prayer:
-                    playerBless(randomNumber(48) + 48);
+                    playerBless(rnd.randomNumber(48) + 48);
                     break;
                 case PriestSpellTypes.DispelUndead:
                     spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level));
@@ -181,7 +196,7 @@ namespace Moria.Core.Methods
                     playerCurePoison();
                     spellChangePlayerHitPoints(1000);
 
-                    for (int i = (int)PlayerAttr.STR; i <= (int)PlayerAttr.CHR; i++)
+                    for (var i = (int)PlayerAttr.STR; i <= (int)PlayerAttr.CHR; i++)
                     {
                         playerStatRestore(i);
                     }
@@ -217,14 +232,14 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }
 
             int choice = 0, chance = 0;
-            int result = castSpellGetId("Recite which prayer?", item_id, ref choice, ref chance);
+            var result = castSpellGetId("Recite which prayer?", item_id, ref choice, ref chance);
             if (result < 0)
             {
                 printMessage("You don't know any prayers in that book.");
@@ -235,7 +250,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (randomNumber(100) < chance)
+            if (rnd.randomNumber(100) < chance)
             {
                 printMessage("You lost your concentration!");
                 return;
@@ -263,10 +278,10 @@ namespace Moria.Core.Methods
                 if (spell.mana_required > py.misc.current_mana)
                 {
                     printMessage("You faint from fatigue!");
-                    py.flags.paralysis = (int)randomNumber((5 * (int)(spell.mana_required - py.misc.current_mana)));
+                    py.flags.paralysis = (int)rnd.randomNumber((5 * (int)(spell.mana_required - py.misc.current_mana)));
                     py.misc.current_mana = 0;
                     py.misc.current_mana_fraction = 0;
-                    if (randomNumber(3) == 1)
+                    if (rnd.randomNumber(3) == 1)
                     {
                         printMessage("You have damaged your health!");
                         playerStatRandomDecrease((int)PlayerAttr.CON);

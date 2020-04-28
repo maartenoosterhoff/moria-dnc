@@ -129,7 +129,7 @@ namespace Moria.Core.Methods
                 return true;
             }
 
-            char c = caveGetTileSymbol(coord);
+            var c = caveGetTileSymbol(coord);
 
             return c == '#' || c == '%';
         }
@@ -144,12 +144,12 @@ namespace Moria.Core.Methods
         static void findRunningBreak(int dir, Coord_t coord)
         {
             var py = State.Instance.py;
-            bool deep_left = false;
-            bool deep_right = false;
-            bool short_left = false;
-            bool short_right = false;
+            var deep_left = false;
+            var deep_right = false;
+            var short_left = false;
+            var short_right = false;
 
-            int cycle_index = chome[dir];
+            var cycle_index = chome[dir];
 
             if (playerCanSeeDungeonWall(cycle[cycle_index + 1], py.pos))
             {
@@ -215,7 +215,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
 
             if (!playerMovePosition(direction, ref coord))
             {
@@ -260,7 +260,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            uint tracker = py.running_tracker;
+            var tracker = py.running_tracker;
 
             py.running_tracker++;
 
@@ -298,13 +298,13 @@ namespace Moria.Core.Methods
             var tile = dg.floor[coord.y][coord.x];
 
             // Default: Square unseen. Treat as open.
-            bool invisible = true;
+            var invisible = true;
 
             if (py.carrying_light || tile.temporary_light || tile.permanent_light || tile.field_mark)
             {
                 if (tile.treasure_id != 0)
                 {
-                    int tile_id = (int)game.treasure.list[tile.treasure_id].category_id;
+                    var tile_id = (int)game.treasure.list[tile.treasure_id].category_id;
 
                     if (tile_id != TV_INVIS_TRAP && tile_id != TV_SECRET_DOOR && (tile_id != TV_OPEN_DOOR || !Config.options.run_ignore_doors))
                     {
@@ -416,20 +416,20 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int check_dir = 0;
-            int dir_a = 0;
-            int dir_b = 0;
+            var check_dir = 0;
+            var dir_a = 0;
+            var dir_b = 0;
 
             direction = find_prevdir;
 
-            int max = (direction & 1) + 1;
+            var max = (direction & 1) + 1;
 
-            Coord_t spot = new Coord_t(0, 0);
+            var spot = new Coord_t(0, 0);
 
             // Look at every newly adjacent square.
-            for (int i = -max; i <= max; i++)
+            for (var i = -max; i <= max; i++)
             {
-                int new_dir = cycle[chome[direction] + i];
+                var new_dir = cycle[chome[direction] + i];
 
                 spot.y = coord.y;
                 spot.x = coord.x;
@@ -472,7 +472,7 @@ namespace Moria.Core.Methods
 
             // Two options!
 
-            Coord_t location = new Coord_t(coord.y, coord.x);
+            var location = new Coord_t(coord.y, coord.x);
             playerMovePosition(dir_a, ref location);
 
             if (!playerCanSeeDungeonWall(dir_a, location) || !playerCanSeeDungeonWall(check_dir, location))

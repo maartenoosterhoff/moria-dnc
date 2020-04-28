@@ -6,18 +6,30 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Recall_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Identification_m
     {
+        public static void SetDependencies(
+            IRnd rnd,
+            IStd std,
+            IUiInventory uiInventory
+        )
+        {
+            Identification_m.rnd = rnd;
+            Identification_m.std = std;
+            Identification_m.uiInventory = uiInventory;
+        }
+
+        private static IRnd rnd;
+        private static IStd std;
+        private static IUiInventory uiInventory;
+
         public static string objectDescription(char command)
         {
             // every printing ASCII character is listed here, in the
@@ -225,7 +237,7 @@ namespace Moria.Core.Methods
 
         public static void identifyGameObject()
         {
-            char command = '\0';
+            var command = '\0';
             if (!getCommand("Enter character to be identified :", out command))
             {
                 return;
@@ -241,11 +253,11 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
 
-            seedSet(game.magic_seed);
+            rnd.seedSet(game.magic_seed);
 
-            Library.Instance.Tables.initializeItemNames();
+            Library.Instance.Tables.initializeItemNames(rnd);
 
-            seedResetToOldSeed();
+            rnd.seedResetToOldSeed();
         }
 
         public static int objectPositionOffset(int category_id, int sub_category_id)
@@ -295,7 +307,7 @@ namespace Moria.Core.Methods
         // Remove "Secret" symbol for identity of object
         public static void itemSetAsIdentified(int category_id, int sub_category_id)
         {
-            int id = objectPositionOffset(category_id, sub_category_id);
+            var id = objectPositionOffset(category_id, sub_category_id);
 
             if (id < 0)
             {
@@ -317,7 +329,7 @@ namespace Moria.Core.Methods
             // this also used to clear config::identification::ID_DAMD flag, but I think it should remain set
             item.identification &= ~(Config.identification.ID_MAGIK | Config.identification.ID_EMPTY);
 
-            int id = objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
+            var id = objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
 
             if (id < 0)
             {
@@ -368,7 +380,7 @@ namespace Moria.Core.Methods
         // so that they can be carried in order in the inventory.
         public static bool itemSetColorlessAsIdentified(int category_id, int sub_category_id, int identification)
         {
-            int id = objectPositionOffset(category_id, sub_category_id);
+            var id = objectPositionOffset(category_id, sub_category_id);
 
             if (id < 0)
             {
@@ -388,7 +400,7 @@ namespace Moria.Core.Methods
         // Somethings been sampled -CJS-
         public static void itemSetAsTried(Inventory_t item)
         {
-            int id = objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
+            var id = objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
 
             if (id < 0)
             {
@@ -417,8 +429,8 @@ namespace Moria.Core.Methods
 
             itemSetAsIdentified((int)item.category_id, (int)item.sub_category_id);
 
-            int cat_id = (int)item.category_id;
-            int sub_cat_id = (int)item.sub_category_id;
+            var cat_id = (int)item.category_id;
+            var sub_cat_id = (int)item.sub_category_id;
 
             // no merging possible
             if (sub_cat_id < ITEM_SINGLE_STACK_MIN || sub_cat_id >= ITEM_GROUP_MIN)
@@ -429,7 +441,7 @@ namespace Moria.Core.Methods
             int j;
             var py = State.Instance.py;
 
-            for (int i = 0; i < py.pack.unique_items; i++)
+            for (var i = 0; i < py.pack.unique_items; i++)
             {
                 var t_ptr = py.inventory[i];
 
@@ -491,17 +503,17 @@ namespace Moria.Core.Methods
         // must always be called with a obj_desc_t as the first parameter.
         public static void itemDescription(ref string description, Inventory_t item, bool add_prefix)
         {
-            int indexx = (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
+            var indexx = (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             // base name, modifier string
-            string basenm = Library.Instance.Treasure.game_objects[(int)item.id].name;
+            var basenm = Library.Instance.Treasure.game_objects[(int)item.id].name;
             string modstr = null;
 
-            string damstr = string.Empty;
+            var damstr = string.Empty;
 
-            bool append_name = false;
-            bool modify = !itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
-            ItemMiscUse misc_type = ItemMiscUse.Ignored;
+            var append_name = false;
+            var modify = !itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
+            var misc_type = ItemMiscUse.Ignored;
 
             switch (item.category_id)
             {
@@ -690,7 +702,7 @@ namespace Moria.Core.Methods
                     return;
             }
 
-            string tmp_val = string.Empty;
+            var tmp_val = string.Empty;
 
             if (!string.IsNullOrEmpty(modstr))
             {
@@ -774,8 +786,8 @@ namespace Moria.Core.Methods
 
             if (spellItemIdentified(item))
             {
-                var abs_to_hit = (int)std_abs(std_intmax_t(item.to_hit));
-                var abs_to_damage = (int)std_abs(std_intmax_t(item.to_damage));
+                var abs_to_hit = (int)std.std_abs(std.std_intmax_t(item.to_hit));
+                var abs_to_damage = (int)std.std_abs(std.std_intmax_t(item.to_damage));
 
                 if ((item.identification & Config.identification.ID_SHOW_HIT_DAM) != 0)
                 {
@@ -811,7 +823,7 @@ namespace Moria.Core.Methods
             }
 
             // Crowns have a zero base AC, so make a special test for them.
-            var abs_to_ac = (int)std_abs(std_intmax_t(item.to_ac));
+            var abs_to_ac = (int)std.std_abs(std.std_intmax_t(item.to_ac));
             if (item.ac != 0 || item.category_id == TV_HELM)
             {
                 tmp_str = $" [{item.ac}";
@@ -868,7 +880,7 @@ namespace Moria.Core.Methods
             }
             else if (spellItemIdentified(item))
             {
-                var abs_misc_use = (int)std_abs(std_intmax_t(item.misc_use));
+                var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
 
                 if (misc_type == ItemMiscUse.ZPlusses)
                 {
@@ -1033,9 +1045,9 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int rem_num = py.inventory[item_id].misc_use;
+            var rem_num = py.inventory[item_id].misc_use;
 
-            string out_val = string.Empty;
+            var out_val = string.Empty;
             //vtype_t out_val = { '\0' };
             out_val = $"You have {rem_num} charges remaining.";
             //(void)sprintf(out_val, "You have %d charges remaining.", rem_num);
@@ -1051,14 +1063,14 @@ namespace Moria.Core.Methods
 
             item.items_count--;
 
-            string tmp_str = string.Empty;
+            var tmp_str = string.Empty;
             //obj_desc_t tmp_str = { '\0' };
             itemDescription(ref tmp_str, item, true);
 
             item.items_count++;
 
             // the string already has a dot at the end.
-            string out_val = string.Empty;
+            var out_val = string.Empty;
             //obj_desc_t out_val = { '\0' };
             out_val = $"You have {tmp_str}";
             //(void)sprintf(out_val, "You have %s", tmp_str);
@@ -1075,13 +1087,13 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
             {
                 return;
             }
 
-            string msg = string.Empty;
+            var msg = string.Empty;
             //obj_desc_t msg = { '\0' };
             itemDescription(ref msg, py.inventory[item_id], true);
 
@@ -1104,7 +1116,7 @@ namespace Moria.Core.Methods
                 //(void)strcpy(inscription, "Inscription: ");
             }
 
-            int msg_len = 78 - msg.Length;//(int)strlen(msg);
+            var msg_len = 78 - msg.Length;//(int)strlen(msg);
             if (msg_len > 12)
             {
                 msg_len = 12;
@@ -1133,11 +1145,11 @@ namespace Moria.Core.Methods
 
         public static void objectBlockedByMonster(int monster_id)
         {
-            string description = string.Empty;
-            string msg = string.Empty;
+            var description = string.Empty;
+            var msg = string.Empty;
 
-            Monster_t monster = State.Instance.monsters[monster_id];
-            string name = Library.Instance.Creatures.creatures_list[(int)monster.creature_id].name;
+            var monster = State.Instance.monsters[monster_id];
+            var name = Library.Instance.Creatures.creatures_list[(int)monster.creature_id].name;
 
             if (monster.lit)
             {

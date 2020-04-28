@@ -48,7 +48,7 @@ namespace Moria.Core.Methods
         public static bool coordOutsidePanel(Coord_t coord, bool force)
         {
             var dg = State.Instance.dg;
-            Coord_t panel = new Coord_t(dg.panel.row, dg.panel.col);
+            var panel = new Coord_t(dg.panel.row, dg.panel.col);
 
             if (force || coord.y < dg.panel.top + 2 || coord.y > dg.panel.bottom - 2)
             {
@@ -111,9 +111,9 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            int line = 1;
+            var line = 1;
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
 
             // Top to bottom
             for (coord.y = dg.panel.top; coord.y <= dg.panel.bottom; coord.y++)
@@ -124,7 +124,7 @@ namespace Moria.Core.Methods
                 // Left to right
                 for (coord.x = dg.panel.left; coord.x <= dg.panel.right; coord.x++)
                 {
-                    char ch = caveGetTileSymbol(coord);
+                    var ch = caveGetTileSymbol(coord);
                     if (ch != ' ')
                     {
                         panelPutTile(ch, coord);
@@ -172,9 +172,9 @@ namespace Moria.Core.Methods
             // In doorway of light-room?
             if (tile.perma_lit_room && py.flags.blind < 1)
             {
-                for (int i = py.pos.y - 1; i <= py.pos.y + 1; i++)
+                for (var i = py.pos.y - 1; i <= py.pos.y + 1; i++)
                 {
-                    for (int j = py.pos.x - 1; j <= py.pos.x + 1; j++)
+                    for (var j = py.pos.x - 1; j <= py.pos.x + 1; j++)
                     {
                         if (dg.floor[i][j].feature_id == TILE_LIGHT_FLOOR && !dg.floor[i][j].permanent_light)
                         {
@@ -188,7 +188,7 @@ namespace Moria.Core.Methods
         // Converts stat num into string
         public static void statsAsString(uint stat, ref string stat_string)
         {
-            int percentile = (int)stat - 18;
+            var percentile = (int)stat - 18;
 
             if (stat <= 18)
             {
@@ -328,7 +328,7 @@ namespace Moria.Core.Methods
             string depths;
             //vtype_t depths = { '\0' };
 
-            int depth = dg.current_level * 50;
+            var depth = dg.current_level * 50;
 
             if (depth == 0)
             {
@@ -505,7 +505,7 @@ namespace Moria.Core.Methods
         public static void printCharacterSpeed()
         {
             var py = State.Instance.py;
-            int speed = py.flags.speed;
+            var speed = py.flags.speed;
 
             // Search mode.
             if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u)
@@ -591,7 +591,7 @@ namespace Moria.Core.Methods
             printCharacterInfoInField(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(3, (int)STAT_COLUMN));
             printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
 
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
                 displayCharacterStats(i);
             }
@@ -605,7 +605,7 @@ namespace Moria.Core.Methods
             printHeaderLongNumber("GOLD", py.misc.au, new Coord_t(20, (int)STAT_COLUMN));
             printCharacterWinner();
 
-            uint status = py.flags.status;
+            var status = py.flags.status;
 
             if (((Config.player_status.PY_HUNGRY | Config.player_status.PY_WEAK) & status) != 0u)
             {
@@ -638,7 +638,7 @@ namespace Moria.Core.Methods
             }
 
             // if speed non zero, print it, modify speed if Searching
-            int speed = py.flags.speed - (int)((status & Config.player_status.PY_SEARCH) >> 8);
+            var speed = py.flags.speed - (int)((status & Config.player_status.PY_SEARCH) >> 8);
             if (speed != 0)
             {
                 printCharacterSpeed();
@@ -676,7 +676,7 @@ namespace Moria.Core.Methods
         public static void printCharacterStats()
         {
             var py = State.Instance.py;
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
                 var buf = string.Empty;
 
@@ -767,25 +767,25 @@ namespace Moria.Core.Methods
             var class_level_adj = Library.Instance.Player.class_level_adj;
             clearToBottom(14);
 
-            int xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level);
-            int xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level);
+            var xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level);
+            var xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level);
 
             // this results in a range from 0 to 29
-            int xfos = 40 - py.misc.fos;
+            var xfos = 40 - py.misc.fos;
             if (xfos < 0)
             {
                 xfos = 0;
             }
 
-            int xsrh = py.misc.chance_in_search;
+            var xsrh = py.misc.chance_in_search;
 
             // this results in a range from 0 to 9
-            int xstl = py.misc.stealth_factor + 1;
-            int xdis = py.misc.disarm + 2 * playerDisarmAdjustment() + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) +
+            var xstl = py.misc.stealth_factor + 1;
+            var xdis = py.misc.disarm + 2 * playerDisarmAdjustment() + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) +
                        (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3);
-            int xsave =
+            var xsave =
                 py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3);
-            int xdev =
+            var xdev =
                 py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3);
 
             var xinfra = $"{py.flags.see_infra * 10} feet";
@@ -851,7 +851,7 @@ namespace Moria.Core.Methods
         {
             var temp = string.Empty;
             //vtype_t temp = { '\0' };
-            bool flag = false;
+            var flag = false;
 
             printCharacter();
 
@@ -925,12 +925,12 @@ namespace Moria.Core.Methods
                 number_of_choices = 22;
             }
 
-            for (int i = 0; i < number_of_choices; i++)
+            for (var i = 0; i < number_of_choices; i++)
             {
-                int spell_id = spell_ids[i];
+                var spell_id = spell_ids[i];
                 var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
 
-                string p = string.Empty;
+                var p = string.Empty;
                 if (!comment)
                 {
                     p = "";
@@ -991,12 +991,12 @@ namespace Moria.Core.Methods
 
             playerCalculateHitPoints();
 
-            int new_exp = (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100);
+            var new_exp = (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100);
 
             if (py.misc.exp > new_exp)
             {
                 // lose some of the 'extra' exp when gaining several levels at once
-                int dif_exp = py.misc.exp - new_exp;
+                var dif_exp = py.misc.exp - new_exp;
                 py.misc.exp = new_exp + (dif_exp / 2);
             }
 

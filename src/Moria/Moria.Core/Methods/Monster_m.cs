@@ -7,17 +7,15 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
+using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_manager_m;
-using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -25,16 +23,31 @@ namespace Moria.Core.Methods
 {
     public static class Monster_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd,
+            IStd std
+        )
+        {
+            Monster_m.dice = dice;
+            Monster_m.rnd = rnd;
+            Monster_m.std = std;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+        private static IStd std;
+
         public static bool monsterIsVisible(Monster_t monster)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
             var creatures_list = Library.Instance.Creatures.creatures_list;
 
-            bool visible = false;
+            var visible = false;
 
-            Tile_t tile = dg.floor[monster.pos.y][monster.pos.x];
-            Creature_t creature = creatures_list[(int)monster.creature_id];
+            var tile = dg.floor[monster.pos.y][monster.pos.x];
+            var creature = creatures_list[(int)monster.creature_id];
 
             if (tile.permanent_light || tile.temporary_light || ((py.running_tracker != 0) && monster.distance_from_player < 2 && py.carrying_light))
             {
@@ -65,8 +78,8 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var game = State.Instance.game;
 
-            bool visible = false;
-            Monster_t monster = State.Instance.monsters[monster_id];
+            var visible = false;
+            var monster = State.Instance.monsters[monster_id];
 
             if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT &&
                 ((py.flags.status & Config.player_status.PY_BLIND) == 0u) &&
@@ -124,7 +137,7 @@ namespace Moria.Core.Methods
             }
 
             // speed must be negative here
-            int rate = 0;
+            var rate = 0;
             if ((dg.game_turn % (2 - speed)) == 0)
             {
                 rate = 1;
@@ -138,7 +151,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            int monster_id = (int)dg.floor[coord.y][coord.x].creature_id;
+            var monster_id = (int)dg.floor[coord.y][coord.x].creature_id;
             if (monster_id <= 1)
             {
                 return false;
@@ -156,8 +169,8 @@ namespace Moria.Core.Methods
 
             int ay, ax, movement;
 
-            int y = monsters[monster_id].pos.y - py.pos.y;
-            int x = monsters[monster_id].pos.x - py.pos.x;
+            var y = monsters[monster_id].pos.y - py.pos.y;
+            var x = monsters[monster_id].pos.x - py.pos.x;
 
             if (y < 0)
             {
@@ -396,7 +409,7 @@ namespace Moria.Core.Methods
                     printMessage(msg + "drools on you.");
                     break;
                 case 19:
-                    switch (randomNumber(9))
+                    switch (rnd.randomNumber(9))
                     {
                         case 1:
                             printMessage(msg + "insults you!");
@@ -446,9 +459,9 @@ namespace Moria.Core.Methods
                 printMessage("Your hands stop glowing.");
                 py.flags.confuse_monster = false;
 
-                string msg = string.Empty;
+                var msg = string.Empty;
 
-                if (randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
                 {
                     msg = $"{monster_name}is unaffected.";
                     //(void)sprintf(msg, "%sis unaffected.", monster_name);
@@ -463,13 +476,13 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        monster.confused_amount = (uint)(2 + randomNumber(16));
+                        monster.confused_amount = (uint)(2 + rnd.randomNumber(16));
                     }
                 }
 
                 printMessage(msg);
 
-                if (visible && !State.Instance.game.character_is_dead && randomNumber(4) == 1)
+                if (visible && !State.Instance.game.character_is_dead && rnd.randomNumber(4) == 1)
                 {
                     State.Instance.creature_recall[monster.creature_id].defenses |= creature.defenses & Config.monsters_defense.CD_NO_SLEEP;
                 }
@@ -506,7 +519,7 @@ namespace Moria.Core.Methods
             //vtype_t death_description = { '\0' };
             playerDiedFromString(ref death_description, creature.name, creature.movement);
 
-            int attack_counter = 0;
+            var attack_counter = 0;
 
             var py = State.Instance.py;
             var monster_attacks = Library.Instance.Creatures.monster_attacks;
@@ -518,9 +531,9 @@ namespace Moria.Core.Methods
                     break;
                 }
 
-                uint attack_type = monster_attacks[(int)damage_type_id].type_id;
-                uint attack_desc = monster_attacks[(int)damage_type_id].description_id;
-                Dice_t dice = monster_attacks[(int)damage_type_id].dice;
+                var attack_type = monster_attacks[(int)damage_type_id].type_id;
+                var attack_desc = monster_attacks[(int)damage_type_id].description_id;
+                var dice = monster_attacks[(int)damage_type_id].dice;
 
                 if (py.flags.protect_evil > 0 &&
                     ((creature.defenses & Config.monsters_defense.CD_EVIL) != 0) && py.misc.level + 1 > creature.level)
@@ -538,22 +551,22 @@ namespace Moria.Core.Methods
                     playerDisturb(1, 0);
 
                     // can not strcat to name because the creature may have multiple attacks.
-                    string description = name;
+                    var description = name;
                     //(void)strcpy(description, name);
                     monsterPrintAttackDescription(ref description, (int)attack_desc);
 
                     // always fail to notice attack if creature invisible, set notice
                     // and visible here since creature may be visible when attacking
                     // and then teleport afterwards (becoming effectively invisible)
-                    bool notice = true;
-                    bool visible = true;
+                    var notice = true;
+                    var visible = true;
                     if (!monster.lit)
                     {
                         visible = false;
                         notice = false;
                     }
 
-                    int damage = diceRoll(dice);
+                    var damage = Monster_m.dice.diceRoll(dice);
                     var monsterhp = monster.hp;
                     notice = executeAttackOnPlayer(creature.level, ref monsterhp, monster_id, (int)attack_type, damage, death_description, notice);
                     monster.hp = monsterhp;
@@ -610,7 +623,7 @@ namespace Moria.Core.Methods
             // Creature can open doors.
             if ((move_bits & Config.monsters_move.CM_OPEN_DOOR) != 0u)
             {
-                bool door_is_stuck = false;
+                var door_is_stuck = false;
 
                 if (item.category_id == TV_CLOSED_DOOR)
                 {
@@ -626,7 +639,7 @@ namespace Moria.Core.Methods
                     {
                         // Locked doors
 
-                        if (randomNumber((monster_hp + 1) * (50 + item.misc_use)) < 40 * (monster_hp - 10 - item.misc_use))
+                        if (rnd.randomNumber((monster_hp + 1) * (50 + item.misc_use)) < 40 * (monster_hp - 10 - item.misc_use))
                         {
                             item.misc_use = 0;
                         }
@@ -635,7 +648,7 @@ namespace Moria.Core.Methods
                     {
                         // Stuck doors
 
-                        if (randomNumber((monster_hp + 1) * (50 - item.misc_use)) < 40 * (monster_hp - 10 + item.misc_use))
+                        if (rnd.randomNumber((monster_hp + 1) * (50 - item.misc_use)) < 40 * (monster_hp - 10 + item.misc_use))
                         {
                             printMessage("You hear a door burst open!");
                             playerDisturb(1, 0);
@@ -657,7 +670,7 @@ namespace Moria.Core.Methods
                     // 50% chance of breaking door
                     if (door_is_stuck)
                     {
-                        item.misc_use = (1 - randomNumber(2));
+                        item.misc_use = (1 - rnd.randomNumber(2));
                     }
                     tile.feature_id = TILE_CORR_FLOOR;
                     dungeonLiteSpot(coord);
@@ -670,13 +683,13 @@ namespace Moria.Core.Methods
                 // Creature can not open doors, must bash them
                 do_turn = true;
 
-                var abs_misc_use = (int)std_abs(std_intmax_t(item.misc_use));
-                if (randomNumber((monster_hp + 1) * (80 + abs_misc_use)) < 40 * (monster_hp - 20 - abs_misc_use))
+                var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
+                if (rnd.randomNumber((monster_hp + 1) * (80 + abs_misc_use)) < 40 * (monster_hp - 20 - abs_misc_use))
                 {
                     inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
 
                     // 50% chance of breaking door
-                    item.misc_use = (1 - randomNumber(2));
+                    item.misc_use = (1 - rnd.randomNumber(2));
                     tile.feature_id = TILE_CORR_FLOOR;
                     dungeonLiteSpot(coord);
                     printMessage("You hear a door burst open!");
@@ -689,7 +702,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            if (randomNumber(Config.treasure.OBJECTS_RUNE_PROTECTION) < Library.Instance.Creatures.creatures_list[(int)creature_id].level)
+            if (rnd.randomNumber(Config.treasure.OBJECTS_RUNE_PROTECTION) < Library.Instance.Creatures.creatures_list[(int)creature_id].level)
             {
                 if (coord.y == py.pos.y && coord.x == py.pos.x)
                 {
@@ -802,15 +815,15 @@ namespace Moria.Core.Methods
             var monsters = State.Instance.monsters;
             var creatures_list = Library.Instance.Creatures.creatures_list;
 
-            bool do_turn = false;
-            bool do_move = false;
+            var do_turn = false;
+            var do_move = false;
 
             var monster = monsters[monster_id];
-            uint move_bits = creatures_list[(int)monster.creature_id].movement;
+            var move_bits = creatures_list[(int)monster.creature_id].movement;
 
             // Up to 5 attempts at moving, give up.
-            Coord_t coord = new Coord_t(0, 0);
-            for (int i = 0; !do_turn && i < 5; i++)
+            var coord = new Coord_t(0, 0);
+            for (var i = 0; !do_turn && i < 5; i++)
             {
                 // Get new position
                 coord.y = monster.pos.y;
@@ -866,16 +879,16 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             // 1 in x chance of casting spell
-            if (randomNumber((int)(spells & Config.monsters_spells.CS_FREQ)) != 1)
+            if (rnd.randomNumber((int)(spells & Config.monsters_spells.CS_FREQ)) != 1)
             {
                 return false;
             }
 
             // Must be within certain range
-            bool within_range = monster.distance_from_player <= Config.monsters.MON_MAX_SPELL_CAST_DISTANCE;
+            var within_range = monster.distance_from_player <= Config.monsters.MON_MAX_SPELL_CAST_DISTANCE;
 
             // Must have unobstructed Line-Of-Sight
-            bool unobstructed = los(py.pos, monster.pos);
+            var unobstructed = los(py.pos, monster.pos);
 
             return within_range && unobstructed;
         }
@@ -885,7 +898,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            Coord_t coord = py.pos; //  only used for cases 14 and 15.
+            var coord = py.pos; //  only used for cases 14 and 15.
 
             // Cast the spell.
             switch (spell_id)
@@ -906,7 +919,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        playerTakesHit(diceRoll(new Dice_t(3, 8)), death_description);
+                        playerTakesHit(dice.diceRoll(new Dice_t(3, 8)), death_description);
                     }
                     break;
                 case 9: // Serious Wound
@@ -916,7 +929,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        playerTakesHit(diceRoll(new Dice_t(8, 8)), death_description);
+                        playerTakesHit(dice.diceRoll(new Dice_t(8, 8)), death_description);
                     }
                     break;
                 case 10: // Hold Person
@@ -934,7 +947,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.paralysis = (randomNumber(5) + 4);
+                        py.flags.paralysis = (rnd.randomNumber(5) + 4);
                     }
                     break;
                 case 11: // Cause Blindness
@@ -948,7 +961,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.blind += 12 + randomNumber(3);
+                        py.flags.blind += 12 + rnd.randomNumber(3);
                     }
                     break;
                 case 12: // Cause Confuse
@@ -962,7 +975,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.confused = (randomNumber(5) + 3);
+                        py.flags.confused = (rnd.randomNumber(5) + 3);
                     }
                     break;
                 case 13: // Cause Fear
@@ -976,7 +989,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.afraid = (randomNumber(5) + 3);
+                        py.flags.afraid = (rnd.randomNumber(5) + 3);
                     }
                     break;
                 case 14: // Summon Monster
@@ -1020,7 +1033,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.slow = (randomNumber(5) + 3);
+                        py.flags.slow = (rnd.randomNumber(5) + 3);
                     }
                     break;
                 case 17: // Drain Mana
@@ -1040,7 +1053,7 @@ namespace Moria.Core.Methods
                             printMessage(msg);
                         }
 
-                        int num = (randomNumber((int)level) >> 1) + 1;
+                        var num = (rnd.randomNumber((int)level) >> 1) + 1;
                         if (num > py.misc.current_mana)
                         {
                             num = py.misc.current_mana;
@@ -1134,7 +1147,7 @@ namespace Moria.Core.Methods
                 //(void)strcpy(name, "It ");
             }
 
-            string death_description = string.Empty;
+            var death_description = string.Empty;
             //vtype_t death_description = { '\0' };
             playerDiedFromString(ref death_description, creature.name, creature.movement);
 
@@ -1143,7 +1156,7 @@ namespace Moria.Core.Methods
             //int spell_choice[30];
             var spell_flags = (uint)(creature.spells & ~Config.monsters_spells.CS_FREQ);
 
-            int id = 0;
+            var id = 0;
             while (spell_flags != 0)
             {
                 spell_choice[id] = getAndClearFirstBit(ref spell_flags);
@@ -1151,7 +1164,7 @@ namespace Moria.Core.Methods
             }
 
             // Choose a spell to cast
-            int thrown_spell = spell_choice[randomNumber(id) - 1];
+            var thrown_spell = spell_choice[rnd.randomNumber(id) - 1];
             thrown_spell++;
 
             // all except spellTeleportAwayMonster() and drain mana spells always disturb
@@ -1194,12 +1207,12 @@ namespace Moria.Core.Methods
             var creatures_list = Library.Instance.Creatures.creatures_list;
             var monsters = State.Instance.monsters;
 
-            Coord_t position = new Coord_t(0, 0);
+            var position = new Coord_t(0, 0);
 
-            for (int i = 0; i <= 18; i++)
+            for (var i = 0; i <= 18; i++)
             {
-                position.y = coord.y - 2 + randomNumber(3);
-                position.x = coord.x - 2 + randomNumber(3);
+                position.y = coord.y - 2 + rnd.randomNumber(3);
+                position.x = coord.x - 2 + rnd.randomNumber(3);
 
                 // don't create a new creature on top of the old one, that
                 // causes invincible/invisible creatures to appear.
@@ -1213,10 +1226,10 @@ namespace Moria.Core.Methods
                         if (tile.creature_id > 1)
                         {
                             // Some critters are cannibalistic!
-                            bool cannibalistic = (creatures_list[creature_id].movement & Config.monsters_move.CM_EATS_OTHER) != 0;
+                            var cannibalistic = (creatures_list[creature_id].movement & Config.monsters_move.CM_EATS_OTHER) != 0;
 
                             // Check the experience level -CJS-
-                            bool experienced = creatures_list[creature_id].kill_exp_value >= creatures_list[(int)monsters[tile.creature_id].creature_id].kill_exp_value;
+                            var experienced = creatures_list[creature_id].kill_exp_value >= creatures_list[(int)monsters[tile.creature_id].creature_id].kill_exp_value;
 
                             if (cannibalistic && experienced)
                             {
@@ -1236,7 +1249,7 @@ namespace Moria.Core.Methods
                                 // in case compact_monster() is called, it needs monster_id.
                                 State.Instance.hack_monptr = monster_id;
                                 // Place_monster() may fail if monster list full.
-                                bool result = monsterPlaceNew(position, creature_id, false);
+                                var result = monsterPlaceNew(position, creature_id, false);
                                 State.Instance.hack_monptr = -1;
                                 if (!result)
                                 {
@@ -1254,7 +1267,7 @@ namespace Moria.Core.Methods
                             // in case compact_monster() is called,it needs monster_id
                             State.Instance.hack_monptr = monster_id;
                             // Place_monster() may fail if monster list full.
-                            bool result = monsterPlaceNew(position, creature_id, false);
+                            var result = monsterPlaceNew(position, creature_id, false);
                             State.Instance.hack_monptr = -1;
                             if (!result)
                             {
@@ -1274,9 +1287,9 @@ namespace Moria.Core.Methods
         public static void monsterMultiplyCritter(Monster_t monster, int monster_id, ref uint rcmove)
         {
             var dg = State.Instance.dg;
-            int counter = 0;
+            var counter = 0;
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
 
             for (coord.y = monster.pos.y - 1; coord.y <= monster.pos.y + 1; coord.y++)
             {
@@ -1289,14 +1302,14 @@ namespace Moria.Core.Methods
                 }
             }
 
-            // can't call randomNumber with a value of zero, increment
+            // can't call rnd.randomNumber with a value of zero, increment
             // counter to allow creature multiplication.
             if (counter == 0)
             {
                 counter++;
             }
 
-            if (counter < 4 && randomNumber(counter * (int)Config.monsters.MON_MULTIPLY_ADJUST) == 1)
+            if (counter < 4 && rnd.randomNumber(counter * (int)Config.monsters.MON_MULTIPLY_ADJUST) == 1)
             {
                 if (monsterMultiply(new Coord_t(monster.pos.y, monster.pos.x), (int)monster.creature_id, monster_id))
                 {
@@ -1318,17 +1331,17 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int id = 0;
-            int dir = 1;
+            var id = 0;
+            var dir = 1;
             var directions = new int[9];
 
             // Note direction of for loops matches direction of keypad from 1 to 9
             // Do not allow attack against the player.
             // Must cast y-1 to signed int, so that a negative value
             // of i will fail the comparison.
-            for (int y = monster.pos.y + 1; y >= (monster.pos.y - 1); y--)
+            for (var y = monster.pos.y + 1; y >= (monster.pos.y - 1); y--)
             {
-                for (int x = monster.pos.x - 1; x <= monster.pos.x + 1; x++)
+                for (var x = monster.pos.x - 1; x <= monster.pos.x + 1; x++)
                 {
                     if (dir != 5 && dg.floor[y][x].feature_id <= MAX_OPEN_SPACE && dg.floor[y][x].creature_id != 1)
                     {
@@ -1342,9 +1355,9 @@ namespace Moria.Core.Methods
             if (id != 0)
             {
                 // put a random direction first
-                dir = randomNumber(id) - 1;
+                dir = rnd.randomNumber(id) - 1;
 
-                int saved_id = directions[0];
+                var saved_id = directions[0];
 
                 directions[0] = directions[dir];
                 directions[dir] = saved_id;
@@ -1359,7 +1372,7 @@ namespace Moria.Core.Methods
                 // in case the monster dies, may need to callfix1_delete_monster()
                 // instead of delete_monsters()
                 State.Instance.hack_monptr = monster_id;
-                int i = monsterTakeHit(monster_id, diceRoll(new Dice_t(8, 8)));
+                var i = monsterTakeHit(monster_id, dice.diceRoll(new Dice_t(8, 8)));
                 State.Instance.hack_monptr = -1;
 
                 if (i >= 0)
@@ -1384,8 +1397,8 @@ namespace Moria.Core.Methods
             directions[0] = 10 - directions[0];
             directions[1] = 10 - directions[1];
             directions[2] = 10 - directions[2];
-            directions[3] = randomNumber(9); // May attack only if cornered
-            directions[4] = randomNumber(9);
+            directions[3] = rnd.randomNumber(9); // May attack only if cornered
+            directions[4] = rnd.randomNumber(9);
 
             // don't move if it's is not supposed to move!
             if ((creature.movement & Config.monsters_move.CM_ATTACK_ONLY) == 0u)
@@ -1398,11 +1411,11 @@ namespace Moria.Core.Methods
         {
             var directions = new int[9];
 
-            directions[0] = randomNumber(9);
-            directions[1] = randomNumber(9);
-            directions[2] = randomNumber(9);
-            directions[3] = randomNumber(9);
-            directions[4] = randomNumber(9);
+            directions[0] = rnd.randomNumber(9);
+            directions[1] = rnd.randomNumber(9);
+            directions[2] = rnd.randomNumber(9);
+            directions[3] = rnd.randomNumber(9);
+            directions[4] = rnd.randomNumber(9);
 
             // don't move if it's is not supposed to move!
             if ((creature.movement & Config.monsters_move.CM_ATTACK_ONLY) == 0u)
@@ -1441,11 +1454,11 @@ namespace Moria.Core.Methods
         {
             var directions = new int[9];
 
-            directions[0] = randomNumber(9);
-            directions[1] = randomNumber(9);
-            directions[2] = randomNumber(9);
-            directions[3] = randomNumber(9);
-            directions[4] = randomNumber(9);
+            directions[0] = rnd.randomNumber(9);
+            directions[1] = rnd.randomNumber(9);
+            directions[2] = rnd.randomNumber(9);
+            directions[3] = rnd.randomNumber(9);
+            directions[4] = rnd.randomNumber(9);
 
             rcmove |= (uint)randomness;
 
@@ -1456,13 +1469,13 @@ namespace Moria.Core.Methods
         {
             var directions = new int[9];
 
-            if (randomNumber(200) == 1)
+            if (rnd.randomNumber(200) == 1)
             {
-                directions[0] = randomNumber(9);
-                directions[1] = randomNumber(9);
-                directions[2] = randomNumber(9);
-                directions[3] = randomNumber(9);
-                directions[4] = randomNumber(9);
+                directions[0] = rnd.randomNumber(9);
+                directions[1] = rnd.randomNumber(9);
+                directions[2] = rnd.randomNumber(9);
+                directions[3] = rnd.randomNumber(9);
+                directions[4] = rnd.randomNumber(9);
             }
             else
             {
@@ -1505,7 +1518,7 @@ namespace Moria.Core.Methods
 
             // Does the critter multiply?
             // rest could be negative, to be safe, only use mod with positive values.
-            var abs_rest_period = (int)std_abs(std_intmax_t(py.flags.rest));
+            var abs_rest_period = (int)std.std_abs(std.std_intmax_t(py.flags.rest));
             if (((creature.movement & Config.monsters_move.CM_MULTIPLY) != 0u) && Config.monsters.MON_MAX_MULTIPLY_PER_LEVEL >= State.Instance.monster_multiply_total &&
                 (abs_rest_period % Config.monsters.MON_MULTIPLY_ADJUST) == 0)
             {
@@ -1526,21 +1539,21 @@ namespace Moria.Core.Methods
             }
 
             // 75% random movement
-            if (((creature.movement & Config.monsters_move.CM_75_RANDOM) != 0u) && randomNumber(100) < 75)
+            if (((creature.movement & Config.monsters_move.CM_75_RANDOM) != 0u) && rnd.randomNumber(100) < 75)
             {
                 monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_75_RANDOM);
                 return;
             }
 
             // 40% random movement
-            if (((creature.movement & Config.monsters_move.CM_40_RANDOM) != 0u) && randomNumber(100) < 40)
+            if (((creature.movement & Config.monsters_move.CM_40_RANDOM) != 0u) && rnd.randomNumber(100) < 40)
             {
                 monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_40_RANDOM);
                 return;
             }
 
             // 20% random movement
-            if (((creature.movement & Config.monsters_move.CM_20_RANDOM) != 0u) && randomNumber(100) < 20)
+            if (((creature.movement & Config.monsters_move.CM_20_RANDOM) != 0u) && rnd.randomNumber(100) < 20)
             {
                 monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_20_RANDOM);
                 return;
@@ -1613,10 +1626,10 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            for (int i = moves; i > 0; i--)
+            for (var i = moves; i > 0; i--)
             {
-                bool wake = false;
-                bool ignore = false;
+                var wake = false;
+                var ignore = false;
 
                 uint rcmove = 0;
 
@@ -1631,9 +1644,9 @@ namespace Moria.Core.Methods
                         {
                             monster.sleep_count = 0;
                         }
-                        else if ((py.flags.rest == 0 && py.flags.paralysis < 1) || (randomNumber(50) == 1))
+                        else if ((py.flags.rest == 0 && py.flags.paralysis < 1) || (rnd.randomNumber(50) == 1))
                         {
-                            int notice = randomNumber(1024);
+                            var notice = rnd.randomNumber(1024);
 
                             if (notice * notice * notice <= (1L << (29 - py.misc.stealth_factor)))
                             {
@@ -1656,7 +1669,7 @@ namespace Moria.Core.Methods
                     if (monster.stunned_amount != 0)
                     {
                         // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
-                        if (randomNumber(5000) < creatures_list[(int)monster.creature_id].level * creatures_list[(int)monster.creature_id].level)
+                        if (rnd.randomNumber(5000) < creatures_list[(int)monster.creature_id].level * creatures_list[(int)monster.creature_id].level)
                         {
                             monster.stunned_amount = 0;
                         }
@@ -1695,7 +1708,7 @@ namespace Moria.Core.Methods
             var monsters = State.Instance.monsters;
 
             // Process the monsters
-            for (int id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID && !game.character_is_dead; id--)
+            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID && !game.character_is_dead; id--)
             {
                 var monster = monsters[id];
 
@@ -1713,7 +1726,7 @@ namespace Moria.Core.Methods
                 // Attack is argument passed to CREATURE
                 if (attack)
                 {
-                    int moves = monsterMovementRate(monster.speed);
+                    var moves = monsterMovementRate(monster.speed);
 
                     if (moves <= 0)
                     {
@@ -1759,7 +1772,7 @@ namespace Moria.Core.Methods
                 return -1;
             }
 
-            uint treasure_flags = monsterDeath(new Coord_t(monster.pos.y, monster.pos.x), creature.movement);
+            var treasure_flags = monsterDeath(new Coord_t(monster.pos.y, monster.pos.x), creature.movement);
 
             var memory = State.Instance.creature_recall[monster.creature_id];
 
@@ -1784,7 +1797,7 @@ namespace Moria.Core.Methods
 
             // can't call displayCharacterExperience() here, as that would result in "new level"
             // message appearing before "monster dies" message.
-            int m_take_hit = (int)monster.creature_id;
+            var m_take_hit = (int)monster.creature_id;
 
             // in case this is called from within updateMonsters(), this is a horrible
             // hack, the monsters/updateMonsters() code needs to be rewritten.
@@ -1828,31 +1841,31 @@ namespace Moria.Core.Methods
 
         public static int monsterDeathItemDropCount(uint flags)
         {
-            int count = 0;
+            var count = 0;
 
-            if (((flags & Config.monsters_move.CM_60_RANDOM) != 0u) && randomNumber(100) < 60)
+            if (((flags & Config.monsters_move.CM_60_RANDOM) != 0u) && rnd.randomNumber(100) < 60)
             {
                 count++;
             }
 
-            if (((flags & Config.monsters_move.CM_90_RANDOM) != 0u) && randomNumber(100) < 90)
+            if (((flags & Config.monsters_move.CM_90_RANDOM) != 0u) && rnd.randomNumber(100) < 90)
             {
                 count++;
             }
 
             if ((flags & Config.monsters_move.CM_1D2_OBJ) != 0u)
             {
-                count += randomNumber(2);
+                count += rnd.randomNumber(2);
             }
 
             if ((flags & Config.monsters_move.CM_2D2_OBJ) != 0u)
             {
-                count += diceRoll(new Dice_t(2, 2));
+                count += dice.diceRoll(new Dice_t(2, 2));
             }
 
             if ((flags & Config.monsters_move.CM_4D2_OBJ) != 0u)
             {
-                count += diceRoll(new Dice_t(4, 2));
+                count += dice.diceRoll(new Dice_t(4, 2));
             }
 
             return count;
@@ -1866,8 +1879,8 @@ namespace Moria.Core.Methods
         // monster is seen to have dropped.  This may be added to monster memory.
         public static uint monsterDeath(Coord_t coord, uint flags)
         {
-            int item_type = monsterDeathItemDropType(flags);
-            int item_count = monsterDeathItemDropCount(flags);
+            var item_type = monsterDeathItemDropType(flags);
+            var item_count = monsterDeathItemDropCount(flags);
 
             uint dropped_item_id = 0;
 
@@ -1911,7 +1924,7 @@ namespace Moria.Core.Methods
                 return_flags |= Config.monsters_move.CM_CARRY_GOLD;
             }
 
-            int number_of_items = (int)((dropped_item_id % 256) + (dropped_item_id / 256));
+            var number_of_items = (int)((dropped_item_id % 256) + (dropped_item_id / 256));
             number_of_items = number_of_items << (int)Config.monsters_move.CM_TR_SHIFT;
 
             return return_flags | (uint)number_of_items;
@@ -1938,13 +1951,13 @@ namespace Moria.Core.Methods
             var monsters = State.Instance.monsters;
             var creatures_list = Library.Instance.Creatures.creatures_list;
 
-            bool asleep = false;
+            var asleep = false;
 
-            for (int y = coord.y - 1; y <= coord.y + 1 && y < MAX_HEIGHT; y++)
+            for (var y = coord.y - 1; y <= coord.y + 1 && y < MAX_HEIGHT; y++)
             {
-                for (int x = coord.x - 1; x <= coord.x + 1 && x < MAX_WIDTH; x++)
+                for (var x = coord.x - 1; x <= coord.x + 1 && x < MAX_WIDTH; x++)
                 {
-                    uint monster_id = dg.floor[y][x].creature_id;
+                    var monster_id = dg.floor[y][x].creature_id;
 
                     if (monster_id <= 1)
                     {
@@ -1956,7 +1969,7 @@ namespace Moria.Core.Methods
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
-                    if (randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
                     {
                         if (monster.lit && ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
                         {
@@ -1981,8 +1994,8 @@ namespace Moria.Core.Methods
         public static bool executeAttackOnPlayer(uint creature_level, ref int monster_hp, int monster_id, int attack_type, int damage, string death_description, bool noticed)
         {
             var py = State.Instance.py;
-            int item_pos_start = 0;
-            int item_pos_end = 0;
+            var item_pos_start = 0;
+            var item_pos_end = 0;
             int gold;
 
             switch (attack_type)
@@ -1998,7 +2011,7 @@ namespace Moria.Core.Methods
                     {
                         printMessage("You feel weaker for a moment, but it passes.");
                     }
-                    else if (randomNumber(2) == 1)
+                    else if (rnd.randomNumber(2) == 1)
                     {
                         printMessage("You feel weaker.");
                         playerStatRandomDecrease((int)PlayerAttr.STR);
@@ -2010,12 +2023,12 @@ namespace Moria.Core.Methods
                     break;
                 case 3: // Confusion attack
                     playerTakesHit(damage, death_description);
-                    if (randomNumber(2) == 1)
+                    if (rnd.randomNumber(2) == 1)
                     {
                         if (py.flags.confused < 1)
                         {
                             printMessage("You feel confused.");
-                            py.flags.confused += randomNumber((int)creature_level);
+                            py.flags.confused += rnd.randomNumber((int)creature_level);
                         }
                         else
                         {
@@ -2037,7 +2050,7 @@ namespace Moria.Core.Methods
                     else if (py.flags.afraid < 1)
                     {
                         printMessage("You are suddenly afraid!");
-                        py.flags.afraid += 3 + randomNumber((int)creature_level);
+                        py.flags.afraid += 3 + rnd.randomNumber((int)creature_level);
                     }
                     else
                     {
@@ -2070,7 +2083,7 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.blind < 1)
                     {
-                        py.flags.blind += 10 + randomNumber((int)creature_level);
+                        py.flags.blind += 10 + rnd.randomNumber((int)creature_level);
                         printMessage("Your eyes begin to sting.");
                     }
                     else
@@ -2093,7 +2106,7 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            py.flags.paralysis = (int)(randomNumber((int)creature_level) + 3);
+                            py.flags.paralysis = (int)(rnd.randomNumber((int)creature_level) + 3);
                             printMessage("You are paralyzed.");
                         }
                     }
@@ -2103,13 +2116,13 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 12: // Steal Money
-                    if (py.flags.paralysis < 1 && randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
+                    if (py.flags.paralysis < 1 && rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
                     {
                         printMessage("You quickly protect your money pouch!");
                     }
                     else
                     {
-                        gold = (py.misc.au / 10) + randomNumber(25);
+                        gold = (py.misc.au / 10) + rnd.randomNumber(25);
                         if (gold > py.misc.au)
                         {
                             py.misc.au = 0;
@@ -2121,23 +2134,23 @@ namespace Moria.Core.Methods
                         printMessage("Your purse feels lighter.");
                         printCharacterGoldValue();
                     }
-                    if (randomNumber(2) == 1)
+                    if (rnd.randomNumber(2) == 1)
                     {
                         printMessage("There is a puff of smoke!");
                         spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 13: // Steal Object
-                    if (py.flags.paralysis < 1 && randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
+                    if (py.flags.paralysis < 1 && rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
                     {
                         printMessage("You grab hold of your backpack!");
                     }
                     else
                     {
-                        inventoryDestroyItem(randomNumber(py.pack.unique_items) - 1);
+                        inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
                         printMessage("Your backpack feels lighter.");
                     }
-                    if (randomNumber(2) == 1)
+                    if (rnd.randomNumber(2) == 1)
                     {
                         printMessage("There is a puff of smoke!");
                         spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
@@ -2146,7 +2159,7 @@ namespace Moria.Core.Methods
                 case 14: // Poison
                     playerTakesHit(damage, death_description);
                     printMessage("You feel very sick.");
-                    py.flags.poisoned += randomNumber((int)creature_level) + 5;
+                    py.flags.poisoned += rnd.randomNumber((int)creature_level) + 5;
                     break;
                 case 15: // Lose dexterity
                     playerTakesHit(damage, death_description);

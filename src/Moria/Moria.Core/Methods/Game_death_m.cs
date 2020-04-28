@@ -1,19 +1,16 @@
-﻿using Moria.Core.Configs;
-using Moria.Core.Data;
+﻿using Moria.Core.Data;
 using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -21,6 +18,18 @@ namespace Moria.Core.Methods
 {
     public static class Game_death_m
     {
+        public static void SetDependencies(
+            IGame game,
+            IUiInventory uiInventory
+        )
+        {
+            Game_death_m.game = game;
+            Game_death_m.uiInventory = uiInventory;
+        }
+
+        private static IGame game;
+        private static IUiInventory uiInventory;
+
         // Prints the gravestone of the character -RAK-
         static void printTomb()
         {
@@ -73,7 +82,7 @@ namespace Moria.Core.Methods
             text = game.character_died_from;
             putString(text, new Coord_t(16, (int)(26 - text.Length / 2)));
 
-            string day = string.Empty;
+            var day = string.Empty;
             humanDateString(out day);
             text = day;
             putString(text, new Coord_t(17, (int)(26 - text.Length / 2)));
@@ -112,11 +121,11 @@ namespace Moria.Core.Methods
                     {
                         clearScreen();
                         printMessage("You are using:");
-                        displayEquipment(true, 0);
+                        uiInventory.displayEquipment(true, 0);
                         printMessage(/*CNIL*/null);
                         printMessage("You are carrying:");
                         clearToBottom(1);
-                        displayInventory(0, py.pack.unique_items - 1, true, 0, /*CNIL*/null);
+                        uiInventory.displayInventory(0, py.pack.unique_items - 1, true, 0, /*CNIL*/null);
                         printMessage(/*CNIL*/null);
                     }
                 }
@@ -200,7 +209,7 @@ namespace Moria.Core.Methods
             }
             eraseLine(new Coord_t(23, 0));
 
-            exitProgram();
+            Game_death_m.game.exitProgram();
         }
 
     }

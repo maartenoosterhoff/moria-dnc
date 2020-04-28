@@ -3,12 +3,20 @@ using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Game_m;
 
 namespace Moria.Core.Methods
 {
     public static class Player_magic_m
     {
+        public static void SetDependencies(
+            IRnd rnd
+        )
+        {
+            Player_magic_m.rnd = rnd;
+        }
+
+        private static IRnd rnd;
+
         // Cure players confusion -RAK-
         public static bool playerCureConfusion()
         {
@@ -61,9 +69,9 @@ namespace Moria.Core.Methods
         public static bool playerProtectEvil()
         {
             var py = State.Instance.py;
-            bool is_protected = py.flags.protect_evil == 0;
+            var is_protected = py.flags.protect_evil == 0;
 
-            py.flags.protect_evil += randomNumber(25) + 3 * (int)py.misc.level;
+            py.flags.protect_evil += rnd.randomNumber(25) + 3 * (int)py.misc.level;
 
             return is_protected;
         }
@@ -85,10 +93,10 @@ namespace Moria.Core.Methods
         // Special damage due to magical abilities of object -RAK-
         public static int itemMagicAbilityDamage(Inventory_t item, int total_damage, int monster_id)
         {
-            bool is_ego_weapon = (item.flags & Config.treasure_flags.TR_EGO_WEAPON) != 0;
-            bool is_projectile = item.category_id >= TV_SLING_AMMO && item.category_id <= TV_ARROW;
-            bool is_hafted_sword = item.category_id >= TV_HAFTED && item.category_id <= TV_SWORD;
-            bool is_flask = item.category_id == TV_FLASK;
+            var is_ego_weapon = (item.flags & Config.treasure_flags.TR_EGO_WEAPON) != 0;
+            var is_projectile = item.category_id >= TV_SLING_AMMO && item.category_id <= TV_ARROW;
+            var is_hafted_sword = item.category_id >= TV_HAFTED && item.category_id <= TV_SWORD;
+            var is_flask = item.category_id == TV_FLASK;
 
             if (is_ego_weapon && (is_projectile || is_hafted_sword || is_flask))
             {

@@ -3,15 +3,12 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
@@ -21,6 +18,21 @@ namespace Moria.Core.Methods
 {
     public static class Scrolls_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Scrolls_m.dice = dice;
+            Scrolls_m.rnd = rnd;
+            Scrolls_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         // Note: naming of all the scroll functions needs verifying -MRC-
 
         public static bool playerCanReadScroll(ref int item_pos_start, ref int item_pos_end)
@@ -63,7 +75,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int item_count = 0;
+            var item_count = 0;
             var items = new int[6];
 
             if (py.inventory[(int)PlayerEquipment.Body].category_id != TV_NOTHING)
@@ -98,11 +110,11 @@ namespace Moria.Core.Methods
                 item_count++;
             }
 
-            int item_id = 0;
+            var item_id = 0;
 
             if (item_count > 0)
             {
-                item_id = items[randomNumber(item_count) - 1];
+                item_id = items[rnd.randomNumber(item_count) - 1];
             }
 
             if ((py.inventory[(int)PlayerEquipment.Body].flags & Config.treasure_flags.TR_CURSED) != 0u)
@@ -193,7 +205,7 @@ namespace Moria.Core.Methods
 
             if (item.category_id >= TV_HAFTED && item.category_id <= TV_DIGGING)
             {
-                scroll_type = maxDiceRoll(item.damage);
+                scroll_type = dice.maxDiceRoll(item.damage);
             }
             else
             {
@@ -221,7 +233,7 @@ namespace Moria.Core.Methods
         public static bool scrollEnchantItemToAC()
         {
             var py = State.Instance.py;
-            int item_id = inventoryItemIdOfCursedEquipment();
+            var item_id = inventoryItemIdOfCursedEquipment();
 
             if (item_id <= 0)
             {
@@ -267,7 +279,7 @@ namespace Moria.Core.Methods
             // to move to a different place.  Check for that here.  It can
             // move arbitrarily far if an identify scroll was used on
             // another identify scroll, but it always moves down.
-            Inventory_t item = py.inventory[item_id];
+            var item = py.inventory[item_id];
             while (item_id > 0 && (item.category_id != TV_SCROLL1 || item.flags != 0x00000008))
             {
                 item_id--;
@@ -290,10 +302,10 @@ namespace Moria.Core.Methods
         public static bool scrollSummonMonster()
         {
             var py = State.Instance.py;
-            bool identified = false;
-            Coord_t coord = new Coord_t(0, 0);
+            var identified = false;
+            var coord = new Coord_t(0, 0);
 
-            for (int i = 0; i < randomNumber(3); i++)
+            for (var i = 0; i < rnd.randomNumber(3); i++)
             {
                 coord.y = py.pos.y;
                 coord.x = py.pos.x;
@@ -307,7 +319,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            dg.current_level += (-3) + 2 * randomNumber(2);
+            dg.current_level += (-3) + 2 * rnd.randomNumber(2);
             if (dg.current_level < 1)
             {
                 dg.current_level = 1;
@@ -348,9 +360,9 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
             printMessage(msg);
 
-            bool enchanted = false;
+            var enchanted = false;
 
-            for (int i = 0; i < randomNumber(2); i++)
+            for (var i = 0; i < rnd.randomNumber(2); i++)
             {
                 var toHit = item.to_hit;
                 var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
@@ -365,7 +377,7 @@ namespace Moria.Core.Methods
 
             if (item.category_id >= TV_HAFTED && item.category_id <= TV_DIGGING)
             {
-                scroll_type = maxDiceRoll(item.damage);
+                scroll_type = dice.maxDiceRoll(item.damage);
             }
             else
             {
@@ -374,7 +386,7 @@ namespace Moria.Core.Methods
                 scroll_type = 10;
             }
 
-            for (int i = 0; i < randomNumber(2); i++)
+            for (var i = 0; i < rnd.randomNumber(2); i++)
             {
                 var toDamage = item.to_damage;
                 var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
@@ -420,8 +432,8 @@ namespace Moria.Core.Methods
 
             itemRemoveMagicNaming(item);
 
-            item.to_hit = (int)(-randomNumber(5) - randomNumber(5));
-            item.to_damage = (int)(-randomNumber(5) - randomNumber(5));
+            item.to_hit = (int)(-rnd.randomNumber(5) - rnd.randomNumber(5));
+            item.to_damage = (int)(-rnd.randomNumber(5) - rnd.randomNumber(5));
             item.to_ac = 0;
 
             // Must call playerAdjustBonusesForItem() before set (clear) flags, and
@@ -438,7 +450,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int item_id = inventoryItemIdOfCursedEquipment();
+            var item_id = inventoryItemIdOfCursedEquipment();
 
             if (item_id <= 0)
             {
@@ -457,9 +469,9 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
             printMessage(msg);
 
-            bool enchanted = false;
+            var enchanted = false;
 
-            for (int i = 0; i < randomNumber(2) + 1; i++)
+            for (var i = 0; i < rnd.randomNumber(2) + 1; i++)
             {
                 var toAc = item.to_ac;
                 var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
@@ -488,27 +500,27 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             int item_id;
 
-            if (py.inventory[(int)PlayerEquipment.Body].category_id != TV_NOTHING && randomNumber(4) == 1)
+            if (py.inventory[(int)PlayerEquipment.Body].category_id != TV_NOTHING && rnd.randomNumber(4) == 1)
             {
                 item_id = (int)PlayerEquipment.Body;
             }
-            else if (py.inventory[(int)PlayerEquipment.Arm].category_id != TV_NOTHING && randomNumber(3) == 1)
+            else if (py.inventory[(int)PlayerEquipment.Arm].category_id != TV_NOTHING && rnd.randomNumber(3) == 1)
             {
                 item_id = (int)PlayerEquipment.Arm;
             }
-            else if (py.inventory[(int)PlayerEquipment.Outer].category_id != TV_NOTHING && randomNumber(3) == 1)
+            else if (py.inventory[(int)PlayerEquipment.Outer].category_id != TV_NOTHING && rnd.randomNumber(3) == 1)
             {
                 item_id = (int)PlayerEquipment.Outer;
             }
-            else if (py.inventory[(int)PlayerEquipment.Head].category_id != TV_NOTHING && randomNumber(3) == 1)
+            else if (py.inventory[(int)PlayerEquipment.Head].category_id != TV_NOTHING && rnd.randomNumber(3) == 1)
             {
                 item_id = (int)PlayerEquipment.Head;
             }
-            else if (py.inventory[(int)PlayerEquipment.Hands].category_id != TV_NOTHING && randomNumber(3) == 1)
+            else if (py.inventory[(int)PlayerEquipment.Hands].category_id != TV_NOTHING && rnd.randomNumber(3) == 1)
             {
                 item_id = (int)PlayerEquipment.Hands;
             }
-            else if (py.inventory[(int)PlayerEquipment.Feet].category_id != TV_NOTHING && randomNumber(3) == 1)
+            else if (py.inventory[(int)PlayerEquipment.Feet].category_id != TV_NOTHING && rnd.randomNumber(3) == 1)
             {
                 item_id = (int)PlayerEquipment.Feet;
             }
@@ -563,7 +575,7 @@ namespace Moria.Core.Methods
             item.flags = Config.treasure_flags.TR_CURSED;
             item.to_hit = 0;
             item.to_damage = 0;
-            item.to_ac = (-randomNumber(5) - randomNumber(5));
+            item.to_ac = (-rnd.randomNumber(5) - rnd.randomNumber(5));
 
             playerRecalculateBonuses();
 
@@ -573,10 +585,10 @@ namespace Moria.Core.Methods
         public static bool scrollSummonUndead()
         {
             var py = State.Instance.py;
-            bool identified = false;
-            Coord_t coord = new Coord_t(0, 0);
+            var identified = false;
+            var coord = new Coord_t(0, 0);
 
-            for (int i = 0; i < randomNumber(3); i++)
+            for (var i = 0; i < rnd.randomNumber(3); i++)
             {
                 coord.y = py.pos.y;
                 coord.x = py.pos.x;
@@ -591,7 +603,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.flags.word_of_recall == 0)
             {
-                py.flags.word_of_recall = (25 + randomNumber(30));
+                py.flags.word_of_recall = (25 + rnd.randomNumber(30));
             }
             printMessage("The air about you becomes charged.");
         }
@@ -610,8 +622,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Read which scroll?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Read which scroll?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
@@ -619,15 +631,15 @@ namespace Moria.Core.Methods
             // From here on, no free turn for the player
             game.player_free_turn = false;
 
-            bool used_up = true;
-            bool identified = false;
+            var used_up = true;
+            var identified = false;
 
             var item = py.inventory[item_id];
-            uint item_flags = item.flags;
+            var item_flags = item.flags;
 
             while (item_flags != 0)
             {
-                int scroll_type = getAndClearFirstBit(ref item_flags) + 1;
+                var scroll_type = getAndClearFirstBit(ref item_flags) + 1;
 
                 if (item.category_id == TV_SCROLL2)
                 {
@@ -757,15 +769,15 @@ namespace Moria.Core.Methods
                         identified = scrollSummonUndead();
                         break;
                     case 38:
-                        playerBless(randomNumber(12) + 6);
+                        playerBless(rnd.randomNumber(12) + 6);
                         identified = true;
                         break;
                     case 39:
-                        playerBless(randomNumber(24) + 12);
+                        playerBless(rnd.randomNumber(24) + 12);
                         identified = true;
                         break;
                     case 40:
-                        playerBless(randomNumber(48) + 24);
+                        playerBless(rnd.randomNumber(48) + 24);
                         identified = true;
                         break;
                     case 41:

@@ -5,9 +5,7 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
@@ -22,6 +20,18 @@ namespace Moria.Core.Methods
 {
     public static class Player_move_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd
+        )
+        {
+            Player_move_m.dice = dice;
+            Player_move_m.rnd = rnd;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+
         public static void trapOpenPit(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
@@ -121,7 +131,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            py.flags.paralysis += randomNumber(10) + 4;
+            py.flags.paralysis += rnd.randomNumber(10) + 4;
             printMessage("You fall asleep.");
         }
 
@@ -195,11 +205,11 @@ namespace Moria.Core.Methods
             // Rune disappears.
             dungeonDeleteObject(coord);
 
-            int num = 2 + randomNumber(3);
+            var num = 2 + rnd.randomNumber(3);
 
-            Coord_t location = new Coord_t(0, 0);
+            var location = new Coord_t(0, 0);
 
-            for (int i = 0; i < num; i++)
+            for (var i = 0; i < num; i++)
             {
                 location.y = coord.y;
                 location.x = coord.x;
@@ -233,7 +243,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             printMessage("A black gas surrounds you!");
 
-            py.flags.blind += randomNumber(50) + 50;
+            py.flags.blind += rnd.randomNumber(50) + 50;
         }
 
         static void trapConfuseGas()
@@ -241,7 +251,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             printMessage("A gas of scintillating colors surrounds you!");
 
-            py.flags.confused += randomNumber(15) + 15;
+            py.flags.confused += rnd.randomNumber(15) + 15;
         }
 
         static void trapSlowDart(Inventory_t item, int dam)
@@ -263,7 +273,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    py.flags.slow += randomNumber(20) + 10;
+                    py.flags.slow += rnd.randomNumber(20) + 10;
                 }
             }
             else
@@ -313,7 +323,7 @@ namespace Moria.Core.Methods
 
             var item = game.treasure.list[dg.floor[coord.y][coord.x].treasure_id];
 
-            int damage = diceRoll(item.damage);
+            var damage = dice.diceRoll(item.damage);
 
             switch ((TrapTypes)item.sub_category_id)
             {
@@ -412,9 +422,9 @@ namespace Moria.Core.Methods
             }
 
             // 75% random movement
-            bool player_random_move = randomNumber(4) > 1;
+            var player_random_move = rnd.randomNumber(4) > 1;
 
-            bool player_is_confused = py.flags.confused > 0;
+            var player_is_confused = py.flags.confused > 0;
 
             return player_is_confused && player_random_move;
         }
@@ -430,7 +440,7 @@ namespace Moria.Core.Methods
 
             var item = game.treasure.list[dg.floor[coord.y][coord.x].treasure_id];
 
-            int tile_flags = (int)game.treasure.list[dg.floor[coord.y][coord.x].treasure_id].category_id;
+            var tile_flags = (int)game.treasure.list[dg.floor[coord.y][coord.x].treasure_id].category_id;
 
             if (tile_flags > TV_MAX_PICK_UP)
             {
@@ -494,7 +504,7 @@ namespace Moria.Core.Methods
                 // Attempt to pick up an object.
                 if (pickup)
                 {
-                    int locn = inventoryCarryItem(item);
+                    var locn = inventoryCarryItem(item);
 
                     itemDescription(ref description, py.inventory[locn], true);
                     msg = $"You have {description} ({(char)(locn + 'a')})";
@@ -520,11 +530,11 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             if (playerRandomMovement(direction))
             {
-                direction = randomNumber(9);
+                direction = rnd.randomNumber(9);
                 playerEndRunning();
             }
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
 
             // Legal move?
             if (!playerMovePosition(direction, ref coord))
@@ -546,7 +556,7 @@ namespace Moria.Core.Methods
                 if (tile.feature_id <= MAX_OPEN_SPACE)
                 {
                     // Make final assignments of char coords
-                    Coord_t old_coord = py.pos;
+                    var old_coord = py.pos;
 
                     //py.pos.y = coord.y;
                     //py.pos.x = coord.x;
@@ -569,7 +579,7 @@ namespace Moria.Core.Methods
 
                     // Check to see if they've noticed something
                     // fos may be negative if have good rings of searching
-                    if (py.misc.fos <= 1 || randomNumber(py.misc.fos) == 1 || ((py.flags.status & Config.player_status.PY_SEARCH) != 0u))
+                    if (py.misc.fos <= 1 || rnd.randomNumber(py.misc.fos) == 1 || ((py.flags.status & Config.player_status.PY_SEARCH) != 0u))
                     {
                         playerSearch(py.pos, py.misc.chance_in_search);
                     }
@@ -587,9 +597,9 @@ namespace Moria.Core.Methods
                     {
                         // In doorway of light-room?
 
-                        for (int row = (py.pos.y - 1); row <= (py.pos.y + 1); row++)
+                        for (var row = (py.pos.y - 1); row <= (py.pos.y + 1); row++)
                         {
-                            for (int col = (py.pos.x - 1); col <= (py.pos.x + 1); col++)
+                            for (var col = (py.pos.x - 1); col <= (py.pos.x + 1); col++)
                             {
                                 if (dg.floor[row][col].feature_id == TILE_LIGHT_FLOOR && !dg.floor[row][col].permanent_light)
                                 {
@@ -619,10 +629,10 @@ namespace Moria.Core.Methods
                             py.pos = old_coord;
 
                             // check to see if we have stepped back onto another trap, if so, set it off
-                            uint id = dg.floor[py.pos.y][py.pos.x].treasure_id;
+                            var id = dg.floor[py.pos.y][py.pos.x].treasure_id;
                             if (id != 0)
                             {
-                                int val = (int)game.treasure.list[id].category_id;
+                                var val = (int)game.treasure.list[id].category_id;
                                 if (val == TV_INVIS_TRAP || val == TV_VIS_TRAP || val == TV_STORE_DOOR)
                                 {
                                     playerStepsOnTrap(py.pos);
@@ -657,7 +667,7 @@ namespace Moria.Core.Methods
             {
                 // Attacking a creature!
 
-                int old_find_flag = (int)py.running_tracker;
+                var old_find_flag = (int)py.running_tracker;
 
                 playerEndRunning();
 

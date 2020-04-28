@@ -35,7 +35,7 @@ namespace Moria.Core.Methods
         {
             clearScreen();
             var lines = DataFilesResource.splash.Split(new[] { Environment.NewLine, "\r", "\n" }, StringSplitOptions.None);
-            int i = 0;
+            var i = 0;
             foreach (var line in lines)
             {
                 putString(line, new Coord_t(i, 0));
@@ -146,7 +146,7 @@ namespace Moria.Core.Methods
                 .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
                 .ToArray();
 
-            for (int i = 0; i < 23 && i < lines.Length; i++)
+            for (var i = 0; i < 23 && i < lines.Length; i++)
             {
                 putString(lines[i], new Coord_t(i, 0));
             }
@@ -222,7 +222,7 @@ namespace Moria.Core.Methods
                 count = 10000;
             }
 
-            bool small_objects = getInputConfirmation("Small objects only?");
+            var small_objects = getInputConfirmation("Small objects only?");
 
             putStringClearToEOL("File name: ", new Coord_t(0, 0));
 
@@ -257,17 +257,17 @@ namespace Moria.Core.Methods
             //(void)fprintf(file_ptr, "\n");
             //(void)fprintf(file_ptr, "\n");
 
-            int treasure_id = popt();
+            var treasure_id = popt();
             var game = State.Instance.game;
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
-                int object_id = itemGetRandomObjectId(level, small_objects);
+                var object_id = itemGetRandomObjectId(level, small_objects);
                 inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
 
                 magicTreasureMagicalAbility(treasure_id, level);
 
-                Inventory_t item = game.treasure.list[treasure_id];
+                var item = game.treasure.list[treasure_id];
                 itemIdentifyAsStoreBought(item);
 
                 if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)

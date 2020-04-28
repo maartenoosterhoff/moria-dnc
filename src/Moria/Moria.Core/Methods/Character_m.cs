@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
@@ -14,8 +13,25 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public class Character_m
+    public interface ICharacter
     {
+        void characterCreate();
+    }
+
+    public class Character_m : ICharacter
+    {
+        private readonly IGame game;
+        private readonly IRnd rnd;
+
+        public Character_m(
+            IGame game,
+            IRnd rnd
+        )
+        {
+            this.game = game;
+            this.rnd = rnd;
+        }
+
         // Generates character's stats -JWT-
         private void characterGenerateStats()
         {
@@ -29,7 +45,7 @@ namespace Moria.Core.Methods
                 for (var i = 0; i < 18; i++)
                 {
                     // Roll 3,4,5 sided dice once each
-                    dice[i] = randomNumber(3 + i % 3);
+                    dice[i] = this.rnd.randomNumber(3 + i % 3);
                     total += dice[i];
                 }
             } while (total <= 42 || total >= 54);
@@ -51,11 +67,11 @@ namespace Moria.Core.Methods
                 }
                 else if (stat > 88)
                 {
-                    stat = stat - (uint)randomNumber(6) - 2;
+                    stat = stat - (uint)this.rnd.randomNumber(6) - 2;
                 }
                 else if (stat > 18)
                 {
-                    stat = stat - (uint)randomNumber(15) - 5;
+                    stat = stat - (uint)this.rnd.randomNumber(15) - 5;
                     if (stat < 18)
                     {
                         stat = 18;
@@ -80,11 +96,11 @@ namespace Moria.Core.Methods
                 }
                 else if (stat < 88)
                 {
-                    stat += (uint)randomNumber(15) + 5;
+                    stat += (uint)this.rnd.randomNumber(15) + 5;
                 }
                 else if (stat < 108)
                 {
-                    stat += (uint)randomNumber(6) + 2;
+                    stat += (uint)this.rnd.randomNumber(6) + 2;
                 }
                 else if (stat < 118)
                 {
@@ -172,7 +188,7 @@ namespace Moria.Core.Methods
         {
             displayCharacterRaces();
 
-            var race_id = 0;
+            int race_id;
 
             while (true)
             {
@@ -231,13 +247,13 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             var history_id = py.misc.race_id * 3 + 1;
-            var social_class = randomNumber(4);
+            var social_class = this.rnd.randomNumber(4);
 
             var history_block = string.Empty;
 
             var background_id = 0;
 
-            var flag = false;
+            bool flag;
 
 
             // Get a block of history text
@@ -248,7 +264,7 @@ namespace Moria.Core.Methods
                 {
                     if (Library.Instance.Player.character_backgrounds[background_id].chart == history_id)
                     {
-                        var test_roll = randomNumber(100);
+                        var test_roll = this.rnd.randomNumber(100);
 
                         while (test_roll > Library.Instance.Player.character_backgrounds[background_id].roll)
                         {
@@ -288,7 +304,6 @@ namespace Moria.Core.Methods
 
             var line_number = 0;
             var new_cursor_start = 0;
-            var current_cursor_position = 0;
 
             flag = false;
             while (!flag)
@@ -298,7 +313,7 @@ namespace Moria.Core.Methods
                     cursor_start++;
                 }
 
-                current_cursor_position = cursor_end - cursor_start + 1;
+                var current_cursor_position = cursor_end - cursor_start + 1;
 
                 if (current_cursor_position > 60)
                 {
@@ -387,7 +402,7 @@ namespace Moria.Core.Methods
 
             var race = Library.Instance.Player.character_races[(int)py.misc.race_id];
 
-            py.misc.age = (uint)(race.base_age + randomNumber(race.max_age));
+            py.misc.age = (uint)(race.base_age + this.rnd.randomNumber(race.max_age));
 
             int height_base, height_mod, weight_base, weight_mod;
             if (playerIsMale())
@@ -405,8 +420,8 @@ namespace Moria.Core.Methods
                 weight_mod = (int)race.female_weight_mod;
             }
 
-            py.misc.height = (uint)randomNumberNormalDistribution(height_base, height_mod);
-            py.misc.weight = (uint)randomNumberNormalDistribution(weight_base, weight_mod);
+            py.misc.height = (uint)this.rnd.randomNumberNormalDistribution(height_base, height_mod);
+            py.misc.weight = (uint)this.rnd.randomNumberNormalDistribution(weight_base, weight_mod);
             py.misc.disarm = race.disarm_chance_base + playerDisarmAdjustment();
         }
 
@@ -499,7 +514,7 @@ namespace Moria.Core.Methods
             {
                 for (var i = 1; i < PLAYER_MAX_LEVEL; i++)
                 {
-                    py.base_hp_levels[i] = (uint)randomNumber(py.misc.hit_die);
+                    py.base_hp_levels[i] = (uint)this.rnd.randomNumber(py.misc.hit_die);
                     py.base_hp_levels[i] += py.base_hp_levels[i - 1];
                 }
             } while (py.base_hp_levels[PLAYER_MAX_LEVEL - 1] < min_value || py.base_hp_levels[PLAYER_MAX_LEVEL - 1] > max_value);
@@ -567,7 +582,7 @@ namespace Moria.Core.Methods
             value += monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.DEX]);
 
             // Social Class adjustment
-            var new_gold = py.misc.social_class * 6 + randomNumber(25) + 325;
+            var new_gold = py.misc.social_class * 6 + this.rnd.randomNumber(25) + 325;
 
             // Stat adjustment
             new_gold -= value;
@@ -619,14 +634,12 @@ namespace Moria.Core.Methods
                         done = true;
                         break;
                     }
-                    else if (input == ' ')
+
+                    if (input == ' ')
                     {
                         break;
                     }
-                    else
-                    {
-                        terminalBellSound();
-                    }
+                    terminalBellSound();
                 }
             }
 
@@ -640,10 +653,9 @@ namespace Moria.Core.Methods
             putStringClearToEOL("[ press any key to continue, or Q to exit ]", new Coord_t(23, 17));
             if (getKeyInput() == 'Q')
             {
-                exitProgram();
+                this.game.exitProgram();
             }
             eraseLine(new Coord_t(23, 0));
         }
-
     }
 }

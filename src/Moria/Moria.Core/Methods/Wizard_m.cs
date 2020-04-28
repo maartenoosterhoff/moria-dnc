@@ -3,9 +3,9 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
@@ -22,14 +22,35 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Wizard_m
+    public interface IWizard
     {
+        bool enterWizardMode();
+        void wizardCureAll();
+        void wizardDropRandomItems();
+        void wizardJumpLevel();
+        void wizardSummonMonster();
+        void wizardCreateObjects();
+        void wizardGainExperience();
+        void wizardGenerateObject();
+        void wizardLightUpDungeon();
+        void wizardCharacterAdjustment();
+    }
+
+    public class Wizard_m : IWizard
+    {
+        private readonly IRnd rnd;
+
+        public Wizard_m(IRnd rnd)
+        {
+            this.rnd = rnd;
+        }
+
         // lets anyone enter wizard mode after a disclaimer... -JEW-
-        public static bool enterWizardMode()
+        public bool enterWizardMode()
         {
             var game = State.Instance.game;
 
-            bool answer = false;
+            var answer = false;
 
             if (game.noscore == 0)
             {
@@ -47,7 +68,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static void wizardCureAll()
+        public void wizardCureAll()
         {
             var py = State.Instance.py;
 
@@ -74,7 +95,7 @@ namespace Moria.Core.Methods
         }
 
         // Generate random items
-        public static void wizardDropRandomItems()
+        public void wizardDropRandomItems()
         {
             var game = State.Instance.game;
             int i;
@@ -94,7 +115,7 @@ namespace Moria.Core.Methods
         }
 
         // Go up/down to specified depth
-        public static void wizardJumpLevel()
+        public void wizardJumpLevel()
         {
             var game = State.Instance.game;
             var dg = State.Instance.dg;
@@ -142,7 +163,7 @@ namespace Moria.Core.Methods
         }
 
         // Increase Experience
-        public static void wizardGainExperience()
+        public void wizardGainExperience()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -164,10 +185,10 @@ namespace Moria.Core.Methods
         }
 
         // Summon a random monster
-        public static void wizardSummonMonster()
+        public void wizardSummonMonster()
         {
             var py = State.Instance.py;
-            Coord_t coord = new Coord_t(py.pos.y, py.pos.x);
+            var coord = new Coord_t(py.pos.y, py.pos.x);
 
             monsterSummon(coord, true);
 
@@ -175,7 +196,7 @@ namespace Moria.Core.Methods
         }
 
         // Light up the dungeon -RAK-
-        public static void wizardLightUpDungeon()
+        public void wizardLightUpDungeon()
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -184,15 +205,15 @@ namespace Moria.Core.Methods
 
             flag = !dg.floor[py.pos.y][py.pos.x].permanent_light;
 
-            for (int y = 0; y < dg.height; y++)
+            for (var y = 0; y < dg.height; y++)
             {
-                for (int x = 0; x < dg.width; x++)
+                for (var x = 0; x < dg.width; x++)
                 {
                     if (dg.floor[y][x].feature_id <= MAX_CAVE_FLOOR)
                     {
-                        for (int yy = y - 1; yy <= y + 1; yy++)
+                        for (var yy = y - 1; yy <= y + 1; yy++)
                         {
-                            for (int xx = x - 1; xx <= x + 1; xx++)
+                            for (var xx = x - 1; xx <= x + 1; xx++)
                             {
                                 dg.floor[yy][xx].permanent_light = flag;
                                 if (!flag)
@@ -209,7 +230,7 @@ namespace Moria.Core.Methods
         }
 
         // Wizard routine for gaining on stats -RAK-
-        public static void wizardCharacterAdjustment()
+        public void wizardCharacterAdjustment()
         {
             var py = State.Instance.py;
             int number;
@@ -219,7 +240,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Strength     = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.STR] = (uint)number;
@@ -234,7 +255,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Intelligence = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.INT] = (uint)number;
@@ -249,7 +270,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Wisdom       = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.WIS] = (uint)number;
@@ -264,7 +285,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Dexterity    = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.DEX] = (uint)number;
@@ -279,7 +300,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Constitution = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.CON] = (uint)number;
@@ -294,7 +315,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(3 - 118) Charisma     = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
                 {
                     py.stats.max[(int)PlayerAttr.CHR] = (uint)number;
@@ -309,7 +330,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(1 - 32767) Hit points = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 5))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > 0 && number <= SHRT_MAX)
                 {
                     py.misc.max_hp = (int)number;
@@ -327,7 +348,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL("(0 - 32767) Mana       = ", new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, 25), 5))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -1 && number <= SHRT_MAX)
                 {
                     py.misc.mana = (int)number;
@@ -349,7 +370,7 @@ namespace Moria.Core.Methods
             if (getStringInput(out input, new Coord_t(0, number), 7))
             {
                 int new_gold;
-                bool valid_number = stringToNumber(input, out new_gold);
+                var valid_number = stringToNumber(input, out new_gold);
                 if (valid_number && new_gold > -1)
                 {
                     py.misc.au = new_gold;
@@ -369,7 +390,7 @@ namespace Moria.Core.Methods
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
                 int new_gold;
-                bool valid_number = stringToNumber(input, out new_gold);
+                var valid_number = stringToNumber(input, out new_gold);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.chance_in_search = (int)number;
@@ -387,7 +408,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -2 && number < 19)
                 {
                     py.misc.stealth_factor = (int)number;
@@ -405,7 +426,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.disarm = (int)number;
@@ -423,7 +444,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.saving_throw = (int)number;
@@ -441,7 +462,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.bth = (int)number;
@@ -459,7 +480,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.bth_with_bows = (int)number;
@@ -477,7 +498,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                bool valid_number = stringToNumber(input, out number);
+                var valid_number = stringToNumber(input, out number);
                 if (valid_number && number > -1)
                 {
                     py.misc.weight = (uint)number;
@@ -508,7 +529,7 @@ namespace Moria.Core.Methods
         }
 
         // Request user input to get the array index of the `game_objects[]`
-        public static bool wizardRequestObjectId(out int id, string label, int start_id, int end_id)
+        public bool wizardRequestObjectId(out int id, string label, int start_id, int end_id)
         {
             id = 0;
 
@@ -544,7 +565,7 @@ namespace Moria.Core.Methods
         }
 
         // Simplified wizard routine for creating an object
-        public static void wizardGenerateObject()
+        public void wizardGenerateObject()
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -556,12 +577,12 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                coord.y = py.pos.y - 3 + randomNumber(5);
-                coord.x = py.pos.x - 4 + randomNumber(7);
+                coord.y = py.pos.y - 3 + this.rnd.randomNumber(5);
+                coord.x = py.pos.x - 4 + this.rnd.randomNumber(7);
 
                 if (coordInBounds(coord) && dg.floor[coord.y][coord.x].feature_id <= MAX_CAVE_FLOOR && dg.floor[coord.y][coord.x].treasure_id == 0)
                 {
@@ -572,7 +593,7 @@ namespace Moria.Core.Methods
                     }
 
                     // place the object
-                    int free_treasure_id = popt();
+                    var free_treasure_id = popt();
                     dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
                     inventoryItemCopyTo(id, game.treasure.list[free_treasure_id]);
                     magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
@@ -586,7 +607,7 @@ namespace Moria.Core.Methods
         }
 
         // Wizard routine for creating objects -RAK-
-        public static void wizardCreateObjects()
+        public void wizardCreateObjects()
         {
             int number;
             string input;
@@ -594,8 +615,8 @@ namespace Moria.Core.Methods
 
             printMessage("Warning: This routine can cause a fatal error.");
 
-            Inventory_t forge = new Inventory_t();
-            Inventory_t item = forge;
+            var forge = new Inventory_t();
+            var item = forge;
 
             item.id = Config.dungeon_objects.OBJ_WIZARD;
             item.special_name_id = 0;
@@ -767,7 +788,7 @@ namespace Moria.Core.Methods
                 var py = State.Instance.py;
 
                 // delete object first if any, before call popt()
-                Tile_t tile = dg.floor[py.pos.y][py.pos.x];
+                var tile = dg.floor[py.pos.y][py.pos.x];
 
                 if (tile.treasure_id != 0)
                 {

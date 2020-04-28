@@ -3,24 +3,37 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
-using static Moria.Core.Methods.Std_m;
+using static Moria.Core.Constants.Std_c;
 
 namespace Moria.Core.Methods
 {
     public static class Treasure_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd,
+            IStd std
+        )
+        {
+            Treasure_m.dice = dice;
+            Treasure_m.rnd = rnd;
+            Treasure_m.std = std;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+        private static IStd std;
+
         // Should the object be enchanted -RAK-
         public static bool magicShouldBeEnchanted(int chance)
         {
-            return randomNumber(100) <= chance;
+            return rnd.randomNumber(100) <= chance;
         }
 
         // Enchant a bonus based on degree desired -RAK-
         public static int magicEnchantmentBonus(int @base, int max_standard, int level)
         {
-            int stand_deviation = ((int)Config.treasure.LEVEL_STD_OBJECT_ADJUST * level / 100) + (int)Config.treasure.LEVEL_MIN_OBJECT_STD;
+            var stand_deviation = ((int)Config.treasure.LEVEL_STD_OBJECT_ADJUST * level / 100) + (int)Config.treasure.LEVEL_MIN_OBJECT_STD;
 
             // Check for level > max_standard since that may have generated an overflow.
             if (stand_deviation > max_standard || level > max_standard)
@@ -28,9 +41,9 @@ namespace Moria.Core.Methods
                 stand_deviation = max_standard;
             }
 
-            // abs may be a macro, don't call it with randomNumberNormalDistribution() as a parameter
-            var abs_distribution = (int)std_abs(std_intmax_t(randomNumberNormalDistribution(0, stand_deviation)));
-            int bonus = (abs_distribution / 10) + @base;
+            // abs may be a macro, don't call it with rnd.randomNumberNormalDistribution() as a parameter
+            var abs_distribution = (int)std.std_abs(std.std_intmax_t(rnd.randomNumberNormalDistribution(0, stand_deviation)));
+            var bonus = (abs_distribution / 10) + @base;
 
             if (bonus < @base)
             {
@@ -49,7 +62,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            switch (randomNumber(9))
+            switch (rnd.randomNumber(9))
             {
                 case 1:
                     item.flags |=
@@ -100,7 +113,7 @@ namespace Moria.Core.Methods
             item.to_hit += magicEnchantmentBonus(0, 40, level);
 
             // Magical damage bonus now proportional to weapon base damage
-            int damage_bonus = maxDiceRoll(item.damage);
+            var damage_bonus = dice.maxDiceRoll(item.damage);
 
             item.to_damage += magicEnchantmentBonus(0, 4 * damage_bonus, damage_bonus * level / 10);
 
@@ -109,18 +122,18 @@ namespace Moria.Core.Methods
             // number of ego weapons same as before, see also missiles
             if (magicShouldBeEnchanted(3 * special / 2))
             {
-                switch (randomNumber(16))
+                switch (rnd.randomNumber(16))
                 {
                     case 1: // Holy Avenger
                         item.flags |= (Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SUST_STAT | Config.treasure_flags.TR_SLAY_UNDEAD |
                                        Config.treasure_flags.TR_SLAY_EVIL | Config.treasure_flags.TR_STR);
                         item.to_hit += 5;
                         item.to_damage += 5;
-                        item.to_ac += randomNumber(4);
+                        item.to_ac += rnd.randomNumber(4);
 
                         // the value in `misc_use` is used for strength increase
                         // `misc_use` is also used for sustain stat
-                        item.misc_use = randomNumber(4);
+                        item.misc_use = rnd.randomNumber(4);
                         item.special_name_id = (int)SpecialNameIds.SN_HA;
                         item.cost += item.misc_use * 500;
                         item.cost += 10000;
@@ -131,11 +144,11 @@ namespace Moria.Core.Methods
                                        Config.treasure_flags.TR_RES_FIRE | Config.treasure_flags.TR_REGEN | Config.treasure_flags.TR_STEALTH);
                         item.to_hit += 3;
                         item.to_damage += 3;
-                        item.to_ac += 5 + randomNumber(5);
+                        item.to_ac += 5 + rnd.randomNumber(5);
                         item.special_name_id = (int)SpecialNameIds.SN_DF;
 
                         // the value in `misc_use` is used for stealth
-                        item.misc_use = randomNumber(3);
+                        item.misc_use = rnd.randomNumber(3);
                         item.cost += item.misc_use * 500;
                         item.cost += 7500;
                         break;
@@ -200,7 +213,7 @@ namespace Moria.Core.Methods
             item.to_hit -= magicEnchantmentBonus(1, 55, level);
 
             // Magical damage bonus now proportional to weapon base damage
-            int damage_bonus = maxDiceRoll(item.damage);
+            var damage_bonus = dice.maxDiceRoll(item.damage);
 
             item.to_damage -= magicEnchantmentBonus(1, 11 * damage_bonus / 2, damage_bonus * level / 10);
             item.flags |= Config.treasure_flags.TR_CURSED;
@@ -247,7 +260,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (randomNumber(2) == 1)
+            if (rnd.randomNumber(2) == 1)
             {
                 item.flags |= Config.treasure_flags.TR_FREE_ACT;
                 item.special_name_id = (int)SpecialNameIds.SN_FREE_ACTION;
@@ -256,8 +269,8 @@ namespace Moria.Core.Methods
             else
             {
                 item.identification |= Config.identification.ID_SHOW_HIT_DAM;
-                item.to_hit += 1 + randomNumber(3);
-                item.to_damage += 1 + randomNumber(3);
+                item.to_hit += 1 + rnd.randomNumber(3);
+                item.to_damage += 1 + rnd.randomNumber(3);
                 item.special_name_id = (int)SpecialNameIds.SN_SLAYING;
                 item.cost += (item.to_hit + item.to_damage) * 250;
             }
@@ -267,7 +280,7 @@ namespace Moria.Core.Methods
         {
             if (magicShouldBeEnchanted(special))
             {
-                if (randomNumber(2) == 1)
+                if (rnd.randomNumber(2) == 1)
                 {
                     item.flags |= Config.treasure_flags.TR_DEX;
                     item.special_name_id = (int)SpecialNameIds.SN_CLUMSINESS;
@@ -295,7 +308,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int magic_type = randomNumber(12);
+            var magic_type = rnd.randomNumber(12);
 
             if (magic_type > 5)
             {
@@ -316,7 +329,7 @@ namespace Moria.Core.Methods
                 // 2 - 5
                 item.flags |= Config.treasure_flags.TR_STEALTH;
                 item.identification |= Config.identification.ID_SHOW_P1;
-                item.misc_use = randomNumber(3);
+                item.misc_use = rnd.randomNumber(3);
                 item.special_name_id = (int)SpecialNameIds.SN_STEALTH;
                 item.cost += 500;
             }
@@ -324,7 +337,7 @@ namespace Moria.Core.Methods
 
         public static void cursedBoots(Inventory_t item, int level)
         {
-            int magic_type = randomNumber(3);
+            var magic_type = rnd.randomNumber(3);
 
             switch (magic_type)
             {
@@ -362,24 +375,24 @@ namespace Moria.Core.Methods
             {
                 item.identification |= Config.identification.ID_SHOW_P1;
 
-                int magic_type = randomNumber(3);
+                var magic_type = rnd.randomNumber(3);
 
                 switch (magic_type)
                 {
                     case 1:
-                        item.misc_use = randomNumber(2);
+                        item.misc_use = rnd.randomNumber(2);
                         item.flags |= Config.treasure_flags.TR_INT;
                         item.special_name_id = (int)SpecialNameIds.SN_INTELLIGENCE;
                         item.cost += item.misc_use * 500;
                         break;
                     case 2:
-                        item.misc_use = randomNumber(2);
+                        item.misc_use = rnd.randomNumber(2);
                         item.flags |= Config.treasure_flags.TR_WIS;
                         item.special_name_id = (int)SpecialNameIds.SN_WISDOM;
                         item.cost += item.misc_use * 500;
                         break;
                     default:
-                        item.misc_use = (1 + randomNumber(4));
+                        item.misc_use = (1 + rnd.randomNumber(4));
                         item.flags |= Config.treasure_flags.TR_INFRA;
                         item.special_name_id = (int)SpecialNameIds.SN_INFRAVISION;
                         item.cost += item.misc_use * 250;
@@ -388,25 +401,25 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            switch (randomNumber(6))
+            switch (rnd.randomNumber(6))
             {
                 case 1:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = randomNumber(3);
+                    item.misc_use = rnd.randomNumber(3);
                     item.flags |= (Config.treasure_flags.TR_FREE_ACT | Config.treasure_flags.TR_CON | Config.treasure_flags.TR_DEX | Config.treasure_flags.TR_STR);
                     item.special_name_id = (int)SpecialNameIds.SN_MIGHT;
                     item.cost += 1000 + item.misc_use * 500;
                     break;
                 case 2:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = randomNumber(3);
+                    item.misc_use = rnd.randomNumber(3);
                     item.flags |= (Config.treasure_flags.TR_CHR | Config.treasure_flags.TR_WIS);
                     item.special_name_id = (int)SpecialNameIds.SN_LORDLINESS;
                     item.cost += 1000 + item.misc_use * 500;
                     break;
                 case 3:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = randomNumber(3);
+                    item.misc_use = rnd.randomNumber(3);
                     item.flags |= (Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID |
                                    Config.treasure_flags.TR_RES_FIRE | Config.treasure_flags.TR_INT);
                     item.special_name_id = (int)SpecialNameIds.SN_MAGI;
@@ -414,14 +427,14 @@ namespace Moria.Core.Methods
                     break;
                 case 4:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = randomNumber(3);
+                    item.misc_use = rnd.randomNumber(3);
                     item.flags |= Config.treasure_flags.TR_CHR;
                     item.special_name_id = (int)SpecialNameIds.SN_BEAUTY;
                     item.cost += 750;
                     break;
                 case 5:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = (5 * (1 + randomNumber(4)));
+                    item.misc_use = (5 * (1 + rnd.randomNumber(4)));
                     item.flags |= (Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SEARCH);
                     item.special_name_id = (int)SpecialNameIds.SN_SEEING;
                     item.cost += 1000 + item.misc_use * 100;
@@ -447,17 +460,17 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            switch (randomNumber(7))
+            switch (rnd.randomNumber(7))
             {
                 case 1:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = -randomNumber(5);
+                    item.misc_use = -rnd.randomNumber(5);
                     item.flags |= Config.treasure_flags.TR_INT;
                     item.special_name_id = (int)SpecialNameIds.SN_STUPIDITY;
                     break;
                 case 2:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = -randomNumber(5);
+                    item.misc_use = -rnd.randomNumber(5);
                     item.flags |= Config.treasure_flags.TR_WIS;
                     item.special_name_id = (int)SpecialNameIds.SN_DULLNESS;
                     break;
@@ -471,7 +484,7 @@ namespace Moria.Core.Methods
                     break;
                 case 5:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = -randomNumber(5);
+                    item.misc_use = -rnd.randomNumber(5);
                     item.flags |= Config.treasure_flags.TR_STR;
                     item.special_name_id = (int)SpecialNameIds.SN_WEAKNESS;
                     break;
@@ -481,7 +494,7 @@ namespace Moria.Core.Methods
                     break;
                 case 7:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = -randomNumber(5);
+                    item.misc_use = -rnd.randomNumber(5);
                     item.flags |= Config.treasure_flags.TR_CHR;
                     item.special_name_id = (int)SpecialNameIds.SN_UGLINESS;
                     break;
@@ -513,7 +526,7 @@ namespace Moria.Core.Methods
                 case 4:
                     if (magicShouldBeEnchanted(cursed))
                     {
-                        item.misc_use = -randomNumber(3);
+                        item.misc_use = -rnd.randomNumber(3);
                         item.flags |= Config.treasure_flags.TR_CURSED;
                         item.cost = -item.cost;
                     }
@@ -631,51 +644,51 @@ namespace Moria.Core.Methods
             switch (id)
             {
                 case 0:
-                    return randomNumber(10) + 6;
+                    return rnd.randomNumber(10) + 6;
                 case 1:
-                    return randomNumber(8) + 6;
+                    return rnd.randomNumber(8) + 6;
                 case 2:
-                    return randomNumber(5) + 6;
+                    return rnd.randomNumber(5) + 6;
                 case 3:
-                    return randomNumber(8) + 6;
+                    return rnd.randomNumber(8) + 6;
                 case 4:
-                    return randomNumber(4) + 3;
+                    return rnd.randomNumber(4) + 3;
                 case 5:
-                    return randomNumber(8) + 6;
+                    return rnd.randomNumber(8) + 6;
                 case 6:
                 case 7:
-                    return randomNumber(20) + 12;
+                    return rnd.randomNumber(20) + 12;
                 case 8:
-                    return randomNumber(10) + 6;
+                    return rnd.randomNumber(10) + 6;
                 case 9:
-                    return randomNumber(12) + 6;
+                    return rnd.randomNumber(12) + 6;
                 case 10:
-                    return randomNumber(10) + 12;
+                    return rnd.randomNumber(10) + 12;
                 case 11:
-                    return randomNumber(3) + 3;
+                    return rnd.randomNumber(3) + 3;
                 case 12:
-                    return randomNumber(8) + 6;
+                    return rnd.randomNumber(8) + 6;
                 case 13:
-                    return randomNumber(10) + 6;
+                    return rnd.randomNumber(10) + 6;
                 case 14:
                 case 15:
-                    return randomNumber(5) + 3;
+                    return rnd.randomNumber(5) + 3;
                 case 16:
-                    return randomNumber(5) + 6;
+                    return rnd.randomNumber(5) + 6;
                 case 17:
-                    return randomNumber(5) + 4;
+                    return rnd.randomNumber(5) + 4;
                 case 18:
-                    return randomNumber(8) + 4;
+                    return rnd.randomNumber(8) + 4;
                 case 19:
-                    return randomNumber(6) + 2;
+                    return rnd.randomNumber(6) + 2;
                 case 20:
-                    return randomNumber(4) + 2;
+                    return rnd.randomNumber(4) + 2;
                 case 21:
-                    return randomNumber(8) + 6;
+                    return rnd.randomNumber(8) + 6;
                 case 22:
-                    return randomNumber(5) + 2;
+                    return rnd.randomNumber(5) + 2;
                 case 23:
-                    return randomNumber(12) + 12;
+                    return rnd.randomNumber(12) + 12;
                 default:
                     return -1;
             }
@@ -686,46 +699,46 @@ namespace Moria.Core.Methods
             switch (id)
             {
                 case 0:
-                    return randomNumber(20) + 12;
+                    return rnd.randomNumber(20) + 12;
                 case 1:
-                    return randomNumber(8) + 6;
+                    return rnd.randomNumber(8) + 6;
                 case 2:
-                    return randomNumber(5) + 6;
+                    return rnd.randomNumber(5) + 6;
                 case 3:
-                    return randomNumber(20) + 12;
+                    return rnd.randomNumber(20) + 12;
                 case 4:
-                    return randomNumber(15) + 6;
+                    return rnd.randomNumber(15) + 6;
                 case 5:
-                    return randomNumber(4) + 5;
+                    return rnd.randomNumber(4) + 5;
                 case 6:
-                    return randomNumber(5) + 3;
+                    return rnd.randomNumber(5) + 3;
                 case 7:
                 case 8:
-                    return randomNumber(3) + 1;
+                    return rnd.randomNumber(3) + 1;
                 case 9:
-                    return randomNumber(5) + 6;
+                    return rnd.randomNumber(5) + 6;
                 case 10:
-                    return randomNumber(10) + 12;
+                    return rnd.randomNumber(10) + 12;
                 case 11:
                 case 12:
                 case 13:
-                    return randomNumber(5) + 6;
+                    return rnd.randomNumber(5) + 6;
                 case 14:
-                    return randomNumber(10) + 12;
+                    return rnd.randomNumber(10) + 12;
                 case 15:
-                    return randomNumber(3) + 4;
+                    return rnd.randomNumber(3) + 4;
                 case 16:
                 case 17:
-                    return randomNumber(5) + 6;
+                    return rnd.randomNumber(5) + 6;
                 case 18:
-                    return randomNumber(3) + 4;
+                    return rnd.randomNumber(3) + 4;
                 case 19:
-                    return randomNumber(10) + 12;
+                    return rnd.randomNumber(10) + 12;
                 case 20:
                 case 21:
-                    return randomNumber(3) + 4;
+                    return rnd.randomNumber(3) + 4;
                 case 22:
-                    return randomNumber(10) + 6;
+                    return rnd.randomNumber(10) + 6;
                 default:
                     return -1;
             }
@@ -739,7 +752,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (randomNumber(2) == 1)
+            if (rnd.randomNumber(2) == 1)
             {
                 item.special_name_id = (int)SpecialNameIds.SN_PROTECTION;
                 item.to_ac += magicEnchantmentBonus(2, 40, level);
@@ -749,7 +762,7 @@ namespace Moria.Core.Methods
 
             item.to_ac += magicEnchantmentBonus(1, 20, level);
             item.identification |= Config.identification.ID_SHOW_P1;
-            item.misc_use = randomNumber(3);
+            item.misc_use = rnd.randomNumber(3);
             item.flags |= Config.treasure_flags.TR_STEALTH;
             item.special_name_id = (int)SpecialNameIds.SN_STEALTH;
             item.cost += 500;
@@ -757,7 +770,7 @@ namespace Moria.Core.Methods
 
         public static void cursedCloak(Inventory_t item, int level)
         {
-            int magic_type = randomNumber(3);
+            var magic_type = rnd.randomNumber(3);
 
             switch (magic_type)
             {
@@ -790,7 +803,7 @@ namespace Moria.Core.Methods
 
         public static void magicalChests(Inventory_t item, int level)
         {
-            int magic_type = randomNumber(level + 4);
+            var magic_type = rnd.randomNumber(level + 4);
 
             switch (magic_type)
             {
@@ -851,7 +864,7 @@ namespace Moria.Core.Methods
             // see comment for weapons
             if (magicShouldBeEnchanted(3 * special / 2))
             {
-                switch (randomNumber(10))
+                switch (rnd.randomNumber(10))
                 {
                     case 1:
                     case 2:
@@ -925,9 +938,9 @@ namespace Moria.Core.Methods
 
             item.items_count = 0;
 
-            for (int i = 0; i < 7; i++)
+            for (var i = 0; i < 7; i++)
             {
-                item.items_count += (uint) randomNumber(6);
+                item.items_count += (uint) rnd.randomNumber(6);
             }
 
             if (State.Instance.missiles_counter == SHRT_MAX)
@@ -948,14 +961,14 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
 
-            int chance = (int)Config.treasure.OBJECT_BASE_MAGIC + level;
+            var chance = (int)Config.treasure.OBJECT_BASE_MAGIC + level;
             if (chance > Config.treasure.OBJECT_MAX_BASE_MAGIC)
             {
                 chance = (int)Config.treasure.OBJECT_MAX_BASE_MAGIC;
             }
 
-            int special = chance / (int)Config.treasure.OBJECT_CHANCE_SPECIAL;
-            int cursed = (10 * chance) / (int)Config.treasure.OBJECT_CHANCE_CURSED;
+            var special = chance / (int)Config.treasure.OBJECT_CHANCE_SPECIAL;
+            var cursed = (10 * chance) / (int)Config.treasure.OBJECT_CHANCE_CURSED;
 
             int magic_amount;
 
@@ -1015,7 +1028,7 @@ namespace Moria.Core.Methods
 
                     if (magicShouldBeEnchanted(chance))
                     {
-                        if (randomNumber(3) < 3)
+                        if (rnd.randomNumber(3) < 3)
                         {
                             magicalDiggingTool(item, level);
                         }
@@ -1073,7 +1086,7 @@ namespace Moria.Core.Methods
                     // Dungeon found ones will be partially charged
                     if ((item.sub_category_id % 2) == 1)
                     {
-                        item.misc_use = randomNumber(item.misc_use);
+                        item.misc_use = rnd.randomNumber(item.misc_use);
                         item.sub_category_id -= 1;
                     }
                     break;

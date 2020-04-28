@@ -1,8 +1,14 @@
 ﻿namespace Moria.Core.Methods
 {
-    public static class Std_m
+    public interface IStd
     {
-        public static int std_abs(int value)
+        int std_abs(int value);
+        int std_intmax_t(int value);
+    }
+
+    public class Std_m : IStd
+    {
+        public int std_abs(int value)
         {
             if (value >= 0)
             {
@@ -12,7 +18,7 @@
             return -1 * value;
         }
 
-        public static int std_intmax_t(int value)
+        public int std_intmax_t(int value)
         {
             return value;
         }

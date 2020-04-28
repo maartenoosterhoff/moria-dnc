@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Moria.Core.Methods;
 using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Methods.Game_m;
 
@@ -20,7 +21,7 @@ namespace Moria.Core.Data
             this.normal_table = CreateNormalTable().AsReadOnly();
         }
 
-        public void initializeItemNames()
+        public void initializeItemNames(IRnd rnd)
         {
             int id;
 
@@ -28,7 +29,7 @@ namespace Moria.Core.Data
             var colorsArray = Library.Instance.Tables.colors.ToArray();
             for (var i = 3; i < MAX_COLORS; i++)
             {
-                id = randomNumber(MAX_COLORS - 3) + 2;
+                id = rnd.randomNumber(MAX_COLORS - 3) + 2;
                 var color = colorsArray[i];
                 colorsArray[i] = colorsArray[id];
                 colorsArray[id] = color;
@@ -39,7 +40,7 @@ namespace Moria.Core.Data
             var woodsArray = Library.Instance.Tables.woods.ToArray();
             for (var i = 0; i < woodsArray.Length; i++)
             {
-                id = randomNumber(MAX_WOODS) - 1;
+                id = rnd.randomNumber(MAX_WOODS) - 1;
                 var wood = woodsArray[i];
                 woodsArray[i] = woodsArray[id];
                 woodsArray[id] = wood;
@@ -50,7 +51,7 @@ namespace Moria.Core.Data
             var metalsArray = Library.Instance.Tables.metals.ToArray();
             for (var i = 0; i < metalsArray.Length; i++)
             {
-                id = randomNumber(MAX_METALS) - 1;
+                id = rnd.randomNumber(MAX_METALS) - 1;
                 var metal = metalsArray[i];
                 metalsArray[i] = metalsArray[id];
                 metalsArray[id] = metal;
@@ -61,7 +62,7 @@ namespace Moria.Core.Data
             var rocksArray = Library.Instance.Tables.rocks.ToArray();
             for (var i = 0; i < rocksArray.Length; i++)
             {
-                id = randomNumber(MAX_ROCKS) - 1;
+                id = rnd.randomNumber(MAX_ROCKS) - 1;
                 var rock = rocksArray[i];
                 rocksArray[i] = rocksArray[id];
                 rocksArray[id] = rock;
@@ -72,7 +73,7 @@ namespace Moria.Core.Data
             var amuletsToArray = Library.Instance.Tables.amulets.ToArray();
             for (var i = 0; i < amuletsToArray.Length; i++)
             {
-                id = randomNumber(MAX_AMULETS) - 1;
+                id = rnd.randomNumber(MAX_AMULETS) - 1;
                 var amulet = amuletsToArray[i];
                 amuletsToArray[i] = amuletsToArray[id];
                 amuletsToArray[id] = amulet;
@@ -83,7 +84,7 @@ namespace Moria.Core.Data
             var mushroomsArray = Library.Instance.Tables.mushrooms.ToArray();
             for (var i = 0; i < mushroomsArray.Length; i++)
             {
-                id = randomNumber(MAX_MUSHROOMS) - 1;
+                id = rnd.randomNumber(MAX_MUSHROOMS) - 1;
                 var mushroom = mushroomsArray[i];
                 mushroomsArray[i] = mushroomsArray[id];
                 mushroomsArray[id] = mushroom;
@@ -95,14 +96,14 @@ namespace Moria.Core.Data
             for (var mit = 0; mit < magicItemTitlesArray.Length; mit++)
             {
                 var title = string.Empty;
-                var k = randomNumber(2) + 1;
+                var k = rnd.randomNumber(2) + 1;
 
 
                 for (var i = 0; i < k; i++)
                 {
-                    for (var s = randomNumber(2); s > 0; s--)
+                    for (var s = rnd.randomNumber(2); s > 0; s--)
                     {
-                        title += Library.Instance.Tables.syllables[randomNumber(MAX_SYLLABLES) - 1];
+                        title += Library.Instance.Tables.syllables[rnd.randomNumber(MAX_SYLLABLES) - 1];
                     }
                     if (i < k - 1)
                     {

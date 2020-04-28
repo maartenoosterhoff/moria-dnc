@@ -1,8 +1,20 @@
 ﻿namespace Moria.Core.Data
 {
-    public class Library
+
+    public interface ILibrary
     {
-        public static readonly Library Instance = new Library();
+        Creature_d Creatures { get; }
+        Treasure_d Treasure { get; }
+        Tables_d Tables { get; }
+        Stores_d Stores { get; }
+        Store_owners_d StoreOwners { get; }
+        Recall_d Recall { get; }
+        Player_d Player { get; }
+    }
+
+    public class Library : ILibrary
+    {
+        public static readonly ILibrary Instance = new Library();
 
         public Creature_d Creatures { get; } = new Creature_d();
 

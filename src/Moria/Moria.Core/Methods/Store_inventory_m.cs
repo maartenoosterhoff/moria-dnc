@@ -10,13 +10,21 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Treasure_m;
 
 namespace Moria.Core.Methods
 {
     public static class Store_inventory_m
     {
+        public static void SetDependencies(
+            IRnd rnd
+        )
+        {
+            Store_inventory_m.rnd = rnd;
+        }
+
+        private static IRnd rnd;
+
         // Initialize and up-keep the store's inventory. -RAK-
         public static void storeMaintenance()
         {
@@ -27,7 +35,7 @@ namespace Moria.Core.Methods
                 store.insults_counter = 0;
                 if (store.unique_items_counter >= Config.stores.STORE_MIN_AUTO_SELL_ITEMS)
                 {
-                    var turnaround = randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
+                    var turnaround = rnd.randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
                     if (store.unique_items_counter >= Config.stores.STORE_MAX_AUTO_BUY_ITEMS)
                     {
                         turnaround += 1 + (int)store.unique_items_counter - (int)Config.stores.STORE_MAX_AUTO_BUY_ITEMS;
@@ -35,20 +43,20 @@ namespace Moria.Core.Methods
                     turnaround--;
                     while (turnaround >= 0)
                     {
-                        storeDestroyItem(store_id, randomNumber(store.unique_items_counter) - 1, false);
+                        storeDestroyItem(store_id, rnd.randomNumber(store.unique_items_counter) - 1, false);
                         turnaround--;
                     }
                 }
 
                 if (store.unique_items_counter <= Config.stores.STORE_MAX_AUTO_BUY_ITEMS)
                 {
-                    var turnaround = randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
+                    var turnaround = rnd.randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
                     if (store.unique_items_counter < Config.stores.STORE_MIN_AUTO_SELL_ITEMS)
                     {
                         turnaround += (int)Config.stores.STORE_MIN_AUTO_SELL_ITEMS - (int)store.unique_items_counter;
                     }
 
-                    int max_cost = Library.Instance.StoreOwners.store_owners[(int)store.owner_id].max_cost;
+                    var max_cost = Library.Instance.StoreOwners.store_owners[(int)store.owner_id].max_cost;
 
                     turnaround--;
                     while (turnaround >= 0)
@@ -406,7 +414,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    number = (uint)randomNumber((int)store_item.items_count);
+                    number = (uint)rnd.randomNumber((int)store_item.items_count);
                 }
             }
             else
@@ -438,7 +446,7 @@ namespace Moria.Core.Methods
 
             for (var tries = 0; tries <= 3; tries++)
             {
-                var id = (int)Library.Instance.Stores.store_choices[store_id][randomNumber(STORE_MAX_ITEM_TYPES) - 1];
+                var id = (int)Library.Instance.Stores.store_choices[store_id][rnd.randomNumber(STORE_MAX_ITEM_TYPES) - 1];
                 inventoryItemCopyTo(id, game.treasure.list[free_id]);
                 magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
 

@@ -4,8 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
@@ -16,12 +14,29 @@ using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 
 namespace Moria.Core.Methods
 {
     public static class Staffs_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Staffs_m.dice = dice;
+            Staffs_m.game = game;
+            Staffs_m.rnd = rnd;
+            Staffs_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         public static bool staffPlayerIsCarrying(ref int item_pos_start, ref int item_pos_end)
         {
             var py = State.Instance.py;
@@ -44,7 +59,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            int chance = py.misc.saving_throw;
+            var chance = py.misc.saving_throw;
             chance += playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT);
             chance -= (int)item.depth_first_found - 5;
             chance += Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
@@ -55,7 +70,7 @@ namespace Moria.Core.Methods
             }
 
             // Give everyone a slight chance
-            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
+            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && rnd.randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
             {
                 chance = (int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY;
             }
@@ -65,7 +80,7 @@ namespace Moria.Core.Methods
                 chance = 1;
             }
 
-            if (randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
+            if (rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
             {
                 printMessage("You failed to use the staff properly.");
                 return false;
@@ -88,11 +103,11 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            bool identified = false;
+            var identified = false;
 
             item.misc_use--;
 
-            uint flags = item.flags;
+            var flags = item.flags;
             while (flags != 0)
             {
                 switch ((StaffSpellTypes)(getAndClearFirstBit(ref flags) + 1))
@@ -123,9 +138,9 @@ namespace Moria.Core.Methods
                     case StaffSpellTypes.Summoning:
                         identified = false;
 
-                        for (int i = 0; i < randomNumber(4); i++)
+                        for (var i = 0; i < rnd.randomNumber(4); i++)
                         {
-                            Coord_t coord = py.pos;
+                            var coord = py.pos;
                             identified |= monsterSummon(coord, false);
                         }
                         break;
@@ -147,7 +162,7 @@ namespace Moria.Core.Methods
                         identified = spellSleepAllMonsters();
                         break;
                     case StaffSpellTypes.CureLightWounds:
-                        identified = spellChangePlayerHitPoints(randomNumber(8));
+                        identified = spellChangePlayerHitPoints(rnd.randomNumber(8));
                         break;
                     case StaffSpellTypes.DetectInvisible:
                         identified = spellDetectInvisibleCreaturesWithinVicinity();
@@ -157,14 +172,14 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        py.flags.fast += randomNumber(30) + 15;
+                        py.flags.fast += rnd.randomNumber(30) + 15;
                         break;
                     case StaffSpellTypes.Slowness:
                         if (py.flags.slow == 0)
                         {
                             identified = true;
                         }
-                        py.flags.slow += randomNumber(30) + 15;
+                        py.flags.slow += rnd.randomNumber(30) + 15;
                         break;
                     case StaffSpellTypes.MassPolymorph:
                         identified = spellMassPolymorph();
@@ -221,8 +236,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }
@@ -237,7 +252,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            bool identified = staffDischarge(item);
+            var identified = staffDischarge(item);
 
             if (identified)
             {
@@ -267,10 +282,10 @@ namespace Moria.Core.Methods
             // decrement "use" variable
             item.misc_use--;
 
-            bool identified = false;
-            uint flags = item.flags;
+            var identified = false;
+            var flags = item.flags;
 
-            Coord_t coord = new Coord_t(0, 0);
+            var coord = new Coord_t(0, 0);
 
             while (flags != 0)
             {
@@ -286,15 +301,15 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.LightningBolt:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, spell_names[8]);
+                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, spell_names[8]);
                         identified = true;
                         break;
                     case WandSpellTypes.FrostBolt:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, spell_names[14]);
+                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, spell_names[14]);
                         identified = true;
                         break;
                     case WandSpellTypes.FireBolt:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, spell_names[22]);
+                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, spell_names[22]);
                         identified = true;
                         break;
                     case WandSpellTypes.StoneToMud:
@@ -304,7 +319,7 @@ namespace Moria.Core.Methods
                         identified = spellPolymorphMonster(coord, direction);
                         break;
                     case WandSpellTypes.HealMonster:
-                        identified = spellChangeMonsterHitPoints(coord, direction, -diceRoll(new Dice_t(4, 6)));
+                        identified = spellChangeMonsterHitPoints(coord, direction, -dice.diceRoll(new Dice_t(4, 6)));
                         break;
                     case WandSpellTypes.HasteMonster:
                         identified = spellSpeedMonster(coord, direction, 1);
@@ -325,7 +340,7 @@ namespace Moria.Core.Methods
                         identified = spellDestroyDoorsTrapsInDirection(coord, direction);
                         break;
                     case WandSpellTypes.WandMagicMissile:
-                        spellFireBolt(coord, direction, diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, spell_names[0]);
+                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, spell_names[0]);
                         identified = true;
                         break;
                     case WandSpellTypes.WallBuilding:
@@ -361,7 +376,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.Wonder:
-                        flags = (uint)(1L << (randomNumber(23) - 1));
+                        flags = (uint)(1L << (rnd.randomNumber(23) - 1));
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
@@ -394,16 +409,16 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
             {
                 return;
             }
 
             game.player_free_turn = false;
 
-            int direction = 0;
-            if (!getDirectionWithMemory(/*CNIL*/null, ref direction))
+            var direction = 0;
+            if (!Staffs_m.game.getDirectionWithMemory(/*CNIL*/null, ref direction))
             {
                 return;
             }
@@ -411,20 +426,20 @@ namespace Moria.Core.Methods
             if (py.flags.confused > 0)
             {
                 printMessage("You are confused.");
-                direction = getRandomDirection();
+                direction = rnd.getRandomDirection();
             }
 
             var item = py.inventory[item_id];
 
-            int player_class_lev_adj = Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
-            int chance = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) - (int)item.depth_first_found + player_class_lev_adj;
+            var player_class_lev_adj = Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
+            var chance = py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) - (int)item.depth_first_found + player_class_lev_adj;
 
             if (py.flags.confused > 0)
             {
                 chance = chance / 2;
             }
 
-            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
+            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && rnd.randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
             {
                 chance = (int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY; // Give everyone a slight chance
             }
@@ -434,7 +449,7 @@ namespace Moria.Core.Methods
                 chance = 1;
             }
 
-            if (randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
+            if (rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
             {
                 printMessage("You failed to use the wand properly.");
                 return;
@@ -450,7 +465,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            bool identified = wandDischarge(item, direction);
+            var identified = wandDischarge(item, direction);
 
             if (identified)
             {

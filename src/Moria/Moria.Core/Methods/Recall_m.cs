@@ -2,9 +2,9 @@
 using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
+using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_io_m;
 
@@ -122,7 +122,7 @@ namespace Moria.Core.Methods
             memory.kills = (uint)SHRT_MAX;
             memory.wake = memory.ignore = UCHAR_MAX;
 
-            uint move = (uint)((creature.movement & Config.monsters_move.CM_4D2_OBJ) != 0 ? 1 : 0) * 8;
+            var move = (uint)((creature.movement & Config.monsters_move.CM_4D2_OBJ) != 0 ? 1 : 0) * 8;
             move += (uint)((creature.movement & Config.monsters_move.CM_2D2_OBJ) != 0 ? 1 : 0) * 4;
             move += (uint)((creature.movement & Config.monsters_move.CM_1D2_OBJ) != 0 ? 1 : 0) * 2;
             move += (uint)((creature.movement & Config.monsters_move.CM_90_RANDOM) != 0 ? 1 : 0);
@@ -141,7 +141,7 @@ namespace Moria.Core.Methods
                 memory.spells = creature.spells;
             }
 
-            for (int i = 0; i < MON_MAX_ATTACKS; i++)
+            for (var i = 0; i < MON_MAX_ATTACKS; i++)
             {
                 if (creature.damage[i] == 0)
                     break;
@@ -194,7 +194,7 @@ namespace Moria.Core.Methods
         // Immediately obvious.
         public static bool memoryDepthFoundAt(uint level, uint kills)
         {
-            bool known = false;
+            var known = false;
 
             if (level == 0)
             {
@@ -345,11 +345,11 @@ namespace Moria.Core.Methods
 
             // calculate the integer exp part, can be larger than 64K when first
             // level character looks at Balrog info, so must store in long
-            int quotient = (int)monster_exp * (int)level / (int)py.misc.level;
+            var quotient = (int)monster_exp * (int)level / (int)py.misc.level;
 
             // calculate the fractional exp part scaled by 100,
             // must use long arithmetic to avoid overflow
-            int remainder =
+            var remainder =
                 (int)((((int)monster_exp * (int)level % (int)py.misc.level) * (int)1000 / (int)py.misc.level +
                         5) / 10);
 
@@ -376,7 +376,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                int ord = (int)py.misc.level % 10;
+                var ord = (int)py.misc.level % 10;
                 if (ord == 1)
                 {
                     p = "st";
@@ -414,11 +414,11 @@ namespace Moria.Core.Methods
         public static void memoryMagicSkills(uint memory_spell_flags, uint monster_spell_flags,
             uint creature_spell_flags)
         {
-            bool known = true;
+            var known = true;
 
-            uint spell_flags = memory_spell_flags;
+            var spell_flags = memory_spell_flags;
 
-            for (int i = 0; (spell_flags & Config.monsters_spells.CS_BREATHE) != 0u; i++)
+            for (var i = 0; (spell_flags & Config.monsters_spells.CS_BREATHE) != 0u; i++)
             {
                 if ((spell_flags & (Config.monsters_spells.CS_BR_LIGHT << i)) != 0u)
                 {
@@ -452,7 +452,7 @@ namespace Moria.Core.Methods
 
             known = true;
 
-            for (int i = 0; (spell_flags & Config.monsters_spells.CS_SPELLS) != 0u; i++)
+            for (var i = 0; (spell_flags & Config.monsters_spells.CS_SPELLS) != 0u; i++)
             {
                 if ((spell_flags & (Config.monsters_spells.CS_TEL_SHORT << i)) != 0u)
                 {
@@ -531,9 +531,9 @@ namespace Moria.Core.Methods
         // Do we know how clever they are? Special abilities.
         public static void memorySpecialAbilities(uint move)
         {
-            bool known = true;
+            var known = true;
 
-            for (int i = 0; (move & Config.monsters_move.CM_SPECIAL) != 0u; i++)
+            for (var i = 0; (move & Config.monsters_move.CM_SPECIAL) != 0u; i++)
             {
                 if ((move & (Config.monsters_move.CM_INVISIBLE << i)) != 0u)
                 {
@@ -566,9 +566,9 @@ namespace Moria.Core.Methods
         // Do we know its special weaknesses? Most defenses flags.
         public static void memoryWeaknesses(uint defense)
         {
-            bool known = true;
+            var known = true;
 
-            for (int i = 0; (defense & Config.monsters_defense.CD_WEAKNESS) != 0u; i++)
+            for (var i = 0; (defense & Config.monsters_defense.CD_WEAKNESS) != 0u; i++)
             {
                 if ((defense & (Config.monsters_defense.CD_FROST << i)) != 0u)
                 {
@@ -752,9 +752,9 @@ namespace Moria.Core.Methods
         {
             // We know about attacks it has used on us, and maybe the damage they do.
             // known_attacks is the total number of known attacks, used for punctuation
-            int known_attacks = 0;
+            var known_attacks = 0;
 
-            foreach (uint attack in memory.attacks)
+            foreach (var attack in memory.attacks)
             {
                 if (attack != 0u)
                 {
@@ -763,10 +763,10 @@ namespace Moria.Core.Methods
             }
 
             // attack_count counts the attacks as printed, used for punctuation
-            int attack_count = 0;
-            for (int i = 0; i < MON_MAX_ATTACKS; i++)
+            var attack_count = 0;
+            for (var i = 0; i < MON_MAX_ATTACKS; i++)
             {
-                int attack_id = (int)creature.damage[i];
+                var attack_id = (int)creature.damage[i];
                 if (attack_id == 0)
                 {
                     break;
@@ -778,9 +778,9 @@ namespace Moria.Core.Methods
                     continue;
                 }
 
-                uint attack_type = Library.Instance.Creatures.monster_attacks[attack_id].type_id;
-                uint attack_description_id = Library.Instance.Creatures.monster_attacks[attack_id].description_id;
-                Dice_t dice = Library.Instance.Creatures.monster_attacks[attack_id].dice;
+                var attack_type = Library.Instance.Creatures.monster_attacks[attack_id].type_id;
+                var attack_description_id = Library.Instance.Creatures.monster_attacks[attack_id].description_id;
+                var dice = Library.Instance.Creatures.monster_attacks[attack_id].dice;
 
                 attack_count++;
 
@@ -858,9 +858,9 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
 
             var memory = State.Instance.creature_recall[monster_id];
-            Creature_t creature = Library.Instance.Creatures.creatures_list[monster_id];
+            var creature = Library.Instance.Creatures.creatures_list[monster_id];
 
-            Recall_t saved_memory = new Recall_t();
+            var saved_memory = new Recall_t();
 
             if (game.wizard_mode)
             {
@@ -876,7 +876,7 @@ namespace Moria.Core.Methods
             // the Config.monsters_move.CM_WIN property is always known, set it if a win monster
             var move = (uint)(memory.movement | (creature.movement & Config.monsters_move.CM_WIN));
 
-            uint defense = memory.defenses & creature.defenses;
+            var defense = memory.defenses & creature.defenses;
 
             bool known;
 
@@ -959,10 +959,10 @@ namespace Moria.Core.Methods
         // Allow access to monster memory. -CJS-
         public static void recallMonsterAttributes(char command)
         {
-            int n = 0;
+            var n = 0;
             char query;
 
-            for (int i = (int)MON_MAX_CREATURES - 1; i >= 0; i--)
+            for (var i = (int)MON_MAX_CREATURES - 1; i >= 0; i--)
             {
                 if (Library.Instance.Creatures.creatures_list[i].sprite == command &&
                     memoryMonsterKnown(State.Instance.creature_recall[i]))

@@ -9,7 +9,7 @@ namespace Moria.Core.Methods
         {
             uint mask = 0x1;
 
-            for (int i = 0; i < 32 /* sizeof(int) */; i++)
+            for (var i = 0; i < 32 /* sizeof(int) */; i++)
             {
                 if ((flag & mask) != 0u)
                 {

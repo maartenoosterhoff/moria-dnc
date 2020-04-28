@@ -6,14 +6,11 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
 using static Moria.Core.Methods.Dungeon_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Std_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -21,6 +18,24 @@ namespace Moria.Core.Methods
 {
     public static class Player_bash_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IGame game,
+            IRnd rnd,
+            IStd std
+        )
+        {
+            Player_bash_m.dice = dice;
+            Player_bash_m.game = game;
+            Player_bash_m.rnd = rnd;
+            Player_bash_m.std = std;
+        }
+
+        private static IDice dice;
+        private static IGame game;
+        private static IRnd rnd;
+        private static IStd std;
+
         // Bash open a door or chest -RAK-
         // Note: Affected by strength and weight of character
         //
@@ -46,8 +61,8 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int dir = 0;
-            if (!getDirectionWithMemory(/*CNIL*/null, ref dir))
+            var dir = 0;
+            if (!Player_bash_m.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
@@ -55,10 +70,10 @@ namespace Moria.Core.Methods
             if (py.flags.confused > 0)
             {
                 printMessage("You are confused.");
-                dir = getRandomDirection();
+                dir = rnd.getRandomDirection();
             }
 
-            Coord_t coord = py.pos.Clone();
+            var coord = py.pos.Clone();
             playerMovePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
@@ -107,7 +122,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var py = State.Instance.py;
 
-            int monster_id = (int)dg.floor[coord.y][coord.x].creature_id;
+            var monster_id = (int)dg.floor[coord.y][coord.x].creature_id;
 
             var monster = State.Instance.monsters[monster_id];
             var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
@@ -128,7 +143,7 @@ namespace Moria.Core.Methods
                 //(void)sprintf(name, "the %s", creature.name);
             }
 
-            int base_to_hit = (int)py.stats.used[(int)PlayerAttr.STR];
+            var base_to_hit = (int)py.stats.used[(int)PlayerAttr.STR];
             base_to_hit += (int)py.inventory[(int)PlayerEquipment.Arm].weight / 2;
             base_to_hit += (int)py.misc.weight / 10;
 
@@ -146,7 +161,7 @@ namespace Moria.Core.Methods
                 //(void)sprintf(msg, "You hit %s.", name);
                 printMessage(msg);
 
-                int damage = diceRoll(py.inventory[(int)PlayerEquipment.Arm].damage);
+                var damage = dice.diceRoll(py.inventory[(int)PlayerEquipment.Arm].damage);
                 damage = playerWeaponCriticalBlow((int)(py.inventory[(int)PlayerEquipment.Arm].weight / 4 + py.stats.used[(int)PlayerAttr.STR]), 0, damage, (int)PlayerClassLevelAdj.BTH);
                 damage += (int)py.misc.weight / 60;
                 damage += 3;
@@ -173,7 +188,7 @@ namespace Moria.Core.Methods
                     int avg_max_hp;
                     if ((creature.defenses & Config.monsters_defense.CD_MAX_HP) != 0)
                     {
-                        avg_max_hp = maxDiceRoll(creature.hit_die);
+                        avg_max_hp = dice.maxDiceRoll(creature.hit_die);
                     }
                     else
                     {
@@ -181,9 +196,9 @@ namespace Moria.Core.Methods
                         avg_max_hp = (int)((creature.hit_die.dice * (creature.hit_die.sides + 1)) >> 1);
                     }
 
-                    if (100 + randomNumber(400) + randomNumber(400) > monster.hp + avg_max_hp)
+                    if (100 + rnd.randomNumber(400) + rnd.randomNumber(400) > monster.hp + avg_max_hp)
                     {
-                        monster.stunned_amount += (uint)randomNumber(3) + 1;
+                        monster.stunned_amount += (uint)rnd.randomNumber(3) + 1;
                         if (monster.stunned_amount > 24)
                         {
                             monster.stunned_amount = 24;
@@ -208,10 +223,10 @@ namespace Moria.Core.Methods
                 printMessage(msg);
             }
 
-            if (randomNumber(150) > py.stats.used[(int)PlayerAttr.DEX])
+            if (rnd.randomNumber(150) > py.stats.used[(int)PlayerAttr.DEX])
             {
                 printMessage("You are off balance.");
-                py.flags.paralysis = (int)(1 + randomNumber(2));
+                py.flags.paralysis = (int)(1 + rnd.randomNumber(2));
             }
         }
 
@@ -235,18 +250,18 @@ namespace Moria.Core.Methods
 
             printMessageNoCommandInterrupt("You smash into the door!");
 
-            int chance = (int)(py.stats.used[(int)PlayerAttr.STR] + py.misc.weight / 2);
+            var chance = (int)(py.stats.used[(int)PlayerAttr.STR] + py.misc.weight / 2);
 
             // Use (roughly) similar method as for monsters.
-            var abs_misc_use = (int)std_abs(std_intmax_t(item.misc_use));
-            if (randomNumber(chance * (20 + abs_misc_use)) < 10 * (chance - abs_misc_use))
+            var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
+            if (rnd.randomNumber(chance * (20 + abs_misc_use)) < 10 * (chance - abs_misc_use))
             {
                 printMessage("The door crashes open!");
 
                 inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
 
                 // 50% chance of breaking door
-                item.misc_use = (int)(uint)(1 - randomNumber(2));
+                item.misc_use = (int)(uint)(1 - rnd.randomNumber(2));
 
                 tile.feature_id = TILE_CORR_FLOOR;
 
@@ -262,10 +277,10 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (randomNumber(150) > py.stats.used[(int)PlayerAttr.DEX])
+            if (rnd.randomNumber(150) > py.stats.used[(int)PlayerAttr.DEX])
             {
                 printMessage("You are off-balance.");
-                py.flags.paralysis = (int)(1 + randomNumber(2));
+                py.flags.paralysis = (int)(1 + rnd.randomNumber(2));
                 return;
             }
 
@@ -277,7 +292,7 @@ namespace Moria.Core.Methods
 
         public static void playerBashClosedChest(Inventory_t item)
         {
-            if (randomNumber(10) == 1)
+            if (rnd.randomNumber(10) == 1)
             {
                 printMessage("You have destroyed the chest.");
                 printMessage("and its contents!");
@@ -288,7 +303,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (((item.flags & Config.treasure_chests.CH_LOCKED) != 0u) && randomNumber(10) == 1)
+            if (((item.flags & Config.treasure_chests.CH_LOCKED) != 0u) && rnd.randomNumber(10) == 1)
             {
                 printMessage("The lock breaks open!");
 

@@ -3,15 +3,12 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dice_m;
-using static Moria.Core.Methods.Game_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Ui_inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -20,6 +17,21 @@ namespace Moria.Core.Methods
 {
     public static class Player_eat_m
     {
+        public static void SetDependencies(
+            IDice dice,
+            IRnd rnd,
+            IUiInventory uiInventory
+        )
+        {
+            Player_eat_m.dice = dice;
+            Player_eat_m.rnd = rnd;
+            Player_eat_m.uiInventory = uiInventory;
+        }
+
+        private static IDice dice;
+        private static IRnd rnd;
+        private static IUiInventory uiInventory;
+
         // Eat some food. -RAK-
         public static void playerEat()
         {
@@ -41,45 +53,45 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_id = 0;
-            if (!inventoryGetInputForItemId(ref item_id, "Eat what?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            var item_id = 0;
+            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Eat what?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
 
             game.player_free_turn = false;
 
-            bool identified = false;
+            var identified = false;
 
             var item = py.inventory[item_id];
-            uint item_flags = item.flags;
+            var item_flags = item.flags;
 
             while (item_flags != 0)
             {
                 switch ((FoodMagicTypes)(getAndClearFirstBit(ref item_flags) + 1))
                 {
                     case FoodMagicTypes.Poison:
-                        py.flags.poisoned += randomNumber(10) + (int)item.depth_first_found;
+                        py.flags.poisoned += rnd.randomNumber(10) + (int)item.depth_first_found;
                         identified = true;
                         break;
                     case FoodMagicTypes.Blindness:
-                        py.flags.blind += randomNumber(250) + 10 * (int)item.depth_first_found + 100;
+                        py.flags.blind += rnd.randomNumber(250) + 10 * (int)item.depth_first_found + 100;
                         drawCavePanel();
                         printMessage("A veil of darkness surrounds you.");
                         identified = true;
                         break;
                     case FoodMagicTypes.Paranoia:
-                        py.flags.afraid += randomNumber(10) + (int)item.depth_first_found;
+                        py.flags.afraid += rnd.randomNumber(10) + (int)item.depth_first_found;
                         printMessage("You feel terrified!");
                         identified = true;
                         break;
                     case FoodMagicTypes.Confusion:
-                        py.flags.confused += randomNumber(10) + (int)item.depth_first_found;
+                        py.flags.confused += rnd.randomNumber(10) + (int)item.depth_first_found;
                         printMessage("You feel drugged.");
                         identified = true;
                         break;
                     case FoodMagicTypes.Hallucination:
-                        py.flags.image += randomNumber(200) + 25 * (int)item.depth_first_found + 200;
+                        py.flags.image += rnd.randomNumber(200) + 25 * (int)item.depth_first_found + 200;
                         printMessage("You feel drugged.");
                         identified = true;
                         break;
@@ -170,13 +182,13 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case FoodMagicTypes.FirstAid:
-                        identified = spellChangePlayerHitPoints(randomNumber(6));
+                        identified = spellChangePlayerHitPoints(rnd.randomNumber(6));
                         break;
                     case FoodMagicTypes.MinorCures:
-                        identified = spellChangePlayerHitPoints(randomNumber(12));
+                        identified = spellChangePlayerHitPoints(rnd.randomNumber(12));
                         break;
                     case FoodMagicTypes.LightCures:
-                        identified = spellChangePlayerHitPoints(randomNumber(18));
+                        identified = spellChangePlayerHitPoints(rnd.randomNumber(18));
                         break;
                     /*
 #if 0 // 25 is no longer used
@@ -186,10 +198,10 @@ namespace Moria.Core.Methods
 #endif
 */
                     case FoodMagicTypes.MajorCures:
-                        identified = spellChangePlayerHitPoints(diceRoll(new Dice_t(3, 12)));
+                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 12)));
                         break;
                     case FoodMagicTypes.PoisonousFood:
-                        playerTakesHit(randomNumber(18), "poisonous food.");
+                        playerTakesHit(rnd.randomNumber(18), "poisonous food.");
                         identified = true;
                         break;
                     /*
@@ -261,12 +273,12 @@ namespace Moria.Core.Methods
 
                 // Calculate how much of amount is responsible for the bloating. Give the
                 // player food credit for 1/50, and also slow them for that many turns.
-                int extra = py.flags.food - (int)Config.player.PLAYER_FOOD_MAX;
+                var extra = py.flags.food - (int)Config.player.PLAYER_FOOD_MAX;
                 if (extra > amount)
                 {
                     extra = amount;
                 }
-                int penalty = extra / 50;
+                var penalty = extra / 50;
 
                 py.flags.slow += penalty;
 
