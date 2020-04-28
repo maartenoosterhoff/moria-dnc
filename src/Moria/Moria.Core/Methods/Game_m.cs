@@ -14,13 +14,6 @@ namespace Moria.Core.Methods
     
     public class Game_m : IGame
     {
-        public Game_m(IRng rng)
-        {
-            this.rng = rng;
-        }
-
-        private IRng rng;
-
         // map roguelike direction commands into numbers
         private char mapRoguelikeKeysToKeypad(char command)
         {

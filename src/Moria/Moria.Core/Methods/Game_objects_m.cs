@@ -10,25 +10,30 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public class Game_objects_m
+
+
+    public interface IGameObjects
     {
-        public static void SetDependencies(
+        int popt();
+        int itemGetRandomObjectId(int level, bool must_be_small);
+    }
+
+    public class Game_objects_m : IGameObjects
+    {
+        public Game_objects_m(
             IDungeon dungeon,
-            IInventoryManager inventoryManager,
-                IRnd rnd
+            IRnd rnd
         )
         {
-            Game_objects_m.dungeon = dungeon;
-            Game_objects_m.inventoryManager = inventoryManager;
-            Game_objects_m.rnd = rnd;
+            this.dungeon = dungeon;
+            this.rnd = rnd;
         }
 
-        private static IDungeon dungeon;
-        private static IInventoryManager inventoryManager;
-        private static IRnd rnd;
+        private readonly IDungeon dungeon;
+        private readonly IRnd rnd;
 
         // If too many objects on floor level, delete some of them-RAK-
-        public static void compactObjects()
+        private void compactObjects()
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -98,7 +103,7 @@ namespace Moria.Core.Methods
         }
 
         // Gives pointer to next free space -RAK-
-        public static int popt()
+        public int popt()
         {
             var game = State.Instance.game;
             if (game.treasure.current_id == Game_c.LEVEL_MAX_OBJECTS)
@@ -109,38 +114,9 @@ namespace Moria.Core.Methods
             return game.treasure.current_id++;
         }
 
-        // Pushes a record back onto free space list -RAK-
-        // `dungeonDeleteObject()` should always be called instead, unless the object
-        // in question is not in the dungeon, e.g. in store1.c and files.c
-        public static void pusht(uint treasure_id)
-        {
-            var game = State.Instance.game;
-            var dg = State.Instance.dg;
-
-            if (treasure_id != game.treasure.current_id - 1)
-            {
-                game.treasure.list[treasure_id] = game.treasure.list[game.treasure.current_id - 1];
-
-                // must change the treasure_id in the cave of the object just moved
-                for (var y = 0; y < dg.height; y++)
-                {
-                    for (var x = 0; x < dg.width; x++)
-                    {
-                        if (dg.floor[y][x].treasure_id == game.treasure.current_id - 1)
-                        {
-                            dg.floor[y][x].treasure_id = treasure_id;
-                        }
-                    }
-                }
-            }
-            game.treasure.current_id--;
-
-            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, game.treasure.list[game.treasure.current_id]);
-        }
-
         // Item too large to fit in chest? -DJG-
         // Use a DungeonObject_t since the item has not yet been created
-        public static bool itemBiggerThanChest(DungeonObject_t obj)
+        private bool itemBiggerThanChest(DungeonObject_t obj)
         {
             switch (obj.category_id)
             {
@@ -161,7 +137,7 @@ namespace Moria.Core.Methods
         }
 
         // Returns the array number of a random object -RAK-
-        public static int itemGetRandomObjectId(int level, bool must_be_small)
+        public int itemGetRandomObjectId(int level, bool must_be_small)
         {
             var treasure_levels = State.Instance.treasure_levels;
             if (level == 0)

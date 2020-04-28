@@ -15,18 +15,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IDungeonPlacer dungeonPlacer,
             IGame game,
             IRnd rnd
         )
         {
             Player_tunnel_m.dice = dice;
             Player_tunnel_m.dungeon = dungeon;
+            Player_tunnel_m.dungeonPlacer = dungeonPlacer;
             Player_tunnel_m.game = game;
             Player_tunnel_m.rnd = rnd;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IDungeonPlacer dungeonPlacer;
         private static IGame game;
         private static IRnd rnd;
 
@@ -140,7 +143,7 @@ namespace Moria.Core.Methods
 
                 if (rnd.randomNumber(10) == 1)
                 {
-                    dungeon.dungeonPlaceRandomObjectAt(coord, false);
+                    dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
 
                     if (dungeon.caveTileVisible(coord))
                     {

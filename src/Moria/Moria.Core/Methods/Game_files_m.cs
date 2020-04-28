@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using Moria.Core.Resources;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -16,14 +15,20 @@ namespace Moria.Core.Methods
     public static class Game_files_m
     {
         public static void SetDependencies(
+            IGameObjects gameObjects,
+            IGameObjectsPush gameObjectsPush,
             IInventoryManager inventoryManager,
             ITreasure treasure
         )
         {
+            Game_files_m.gameObjects = gameObjects;
+            Game_files_m.gameObjectsPush = gameObjectsPush;
             Game_files_m.inventoryManager = inventoryManager;
             Game_files_m.treasure = treasure;
         }
 
+        private static IGameObjects gameObjects;
+        private static IGameObjectsPush gameObjectsPush;
         private static IInventoryManager inventoryManager;
         private static ITreasure treasure;
 
@@ -267,12 +272,12 @@ namespace Moria.Core.Methods
             //(void)fprintf(file_ptr, "\n");
             //(void)fprintf(file_ptr, "\n");
 
-            var treasure_id = popt();
+            var treasure_id = gameObjects.popt();
             var game = State.Instance.game;
 
             for (var i = 0; i < count; i++)
             {
-                var object_id = itemGetRandomObjectId(level, small_objects);
+                var object_id = gameObjects.itemGetRandomObjectId(level, small_objects);
                 inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
 
                 treasure.magicTreasureMagicalAbility(treasure_id, level);
@@ -289,7 +294,7 @@ namespace Moria.Core.Methods
                 //(void)fprintf(file_ptr, "%d %s\n", item.depth_first_found, input);
             }
 
-            pusht((uint)treasure_id);
+            gameObjectsPush.pusht((uint)treasure_id);
 
             //(void)fclose(file_ptr);
 

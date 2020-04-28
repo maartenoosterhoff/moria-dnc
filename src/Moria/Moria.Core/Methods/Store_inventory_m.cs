@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Identification_m;
 
 namespace Moria.Core.Methods
@@ -24,16 +23,22 @@ namespace Moria.Core.Methods
     public class Store_inventory_m : IStoreInventory
     {
         public Store_inventory_m(
+            IGameObjects gameObjects,
+            IGameObjectsPush gameObjectsPush,
             IInventoryManager inventoryManager,
             IRnd rnd,
             ITreasure treasure
         )
         {
+            this.gameObjects = gameObjects;
+            this.gameObjectsPush = gameObjectsPush;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
             this.treasure = treasure;
         }
 
+        private readonly IGameObjects gameObjects;
+        private readonly IGameObjectsPush gameObjectsPush;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
@@ -455,7 +460,7 @@ namespace Moria.Core.Methods
         private void storeItemCreate(int store_id, int max_cost)
         {
             var game = State.Instance.game;
-            var free_id = popt();
+            var free_id = this.gameObjects.popt();
 
             for (var tries = 0; tries <= 3; tries++)
             {
@@ -482,7 +487,7 @@ namespace Moria.Core.Methods
                 }
             }
 
-            pusht((uint)free_id);
+            this.gameObjectsPush.pusht((uint)free_id);
         }
     }
 }

@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Recall_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Ui_io_m;
 

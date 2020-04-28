@@ -20,6 +20,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IDungeonPlacer dungeonPlacer,
             IInventory inventory,
             IMonsterManager monsterManager,
             IRnd rnd
@@ -27,6 +28,7 @@ namespace Moria.Core.Methods
         {
             Player_move_m.dice = dice;
             Player_move_m.dungeon = dungeon;
+            Player_move_m.dungeonPlacer = dungeonPlacer;
             Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
@@ -34,6 +36,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IDungeonPlacer dungeonPlacer;
         private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -91,7 +94,7 @@ namespace Moria.Core.Methods
                 playerTakesHit(dam, description);
             }
 
-            dungeon.dungeonSetTrap(coord, 0);
+            dungeonPlacer.dungeonSetTrap(coord, 0);
         }
 
         public static void trapDoor(Inventory_t item, int dam)
@@ -145,7 +148,7 @@ namespace Moria.Core.Methods
         {
             dungeon.dungeonDeleteObject(coord);
 
-            dungeon.dungeonPlaceRandomObjectAt(coord, false);
+            dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
 
             printMessage("Hmmm, there was something under this rock.");
         }
@@ -194,7 +197,7 @@ namespace Moria.Core.Methods
             playerTakesHit(dam, "a falling rock");
 
             dungeon.dungeonDeleteObject(coord);
-            dungeon.dungeonPlaceRubble(coord);
+            dungeonPlacer.dungeonPlaceRubble(coord);
 
             printMessage("You are hit by falling rock.");
         }

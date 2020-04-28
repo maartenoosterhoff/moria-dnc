@@ -2,12 +2,10 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
-using System;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -36,16 +34,19 @@ namespace Moria.Core.Methods
     public class Inventory_m : IInventory
     {
         public Inventory_m(
+            IGameObjects gameObjects,
             IDungeon dungeon,
             IInventoryManager inventoryManager,
             IRnd rnd
         )
         {
+            this.gameObjects = gameObjects;
             this.dungeon = dungeon;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
         }
 
+        private readonly IGameObjects gameObjects;
         private readonly IDungeon dungeon;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
@@ -62,7 +63,7 @@ namespace Moria.Core.Methods
                 dungeon.dungeonDeleteObject(py.pos);
             }
 
-            var treasure_id = popt();
+            var treasure_id = this.gameObjects.popt();
 
             var item = py.inventory[item_id];
             game.treasure.list[treasure_id] = item;

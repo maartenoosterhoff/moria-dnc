@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Dungeon_los_m;
-using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
@@ -27,6 +26,8 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IDungeonPlacer dungeonPlacer,
+            IGameObjects gameObjects,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
@@ -36,6 +37,8 @@ namespace Moria.Core.Methods
         {
             Spells_m.dice = dice;
             Spells_m.dungeon = dungeon;
+            Spells_m.dungeonPlacer = dungeonPlacer;
+            Spells_m.gameObjects = gameObjects;
             Spells_m.inventory = inventory;
             Spells_m.inventoryManager = inventoryManager;
             Spells_m.monsterManager = monsterManager;
@@ -45,6 +48,8 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IDungeonPlacer dungeonPlacer;
+        private static IGameObjects gameObjects;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
@@ -658,7 +663,7 @@ namespace Moria.Core.Methods
                             dungeon.dungeonDeleteObject(coord);
                         }
 
-                        dungeon.dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
+                        dungeonPlacer.dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
 
                         // don't let player gain exp from the newly created traps
                         game.treasure.list[tile.treasure_id].misc_use = 0;
@@ -703,7 +708,7 @@ namespace Moria.Core.Methods
                             dungeon.dungeonDeleteObject(coord);
                         }
 
-                        var free_id = popt();
+                        var free_id = gameObjects.popt();
                         tile.feature_id = TILE_BLOCKED_FLOOR;
                         tile.treasure_id = (uint)free_id;
 
@@ -1829,7 +1834,7 @@ namespace Moria.Core.Methods
                         dungeon.dungeonDeleteObject(coord);
                         if (rnd.randomNumber(10) == 1)
                         {
-                            dungeon.dungeonPlaceRandomObjectAt(coord, false);
+                            dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
                             if (dungeon.caveTileVisible(coord))
                             {
                                 printMessage("You have found something!");
@@ -2582,7 +2587,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            dungeon.dungeonPlaceRandomObjectAt(py.pos, false);
+            dungeonPlacer.dungeonPlaceRandomObjectAt(py.pos, false);
             inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_MUSH, game.treasure.list[tile.treasure_id]);
         }
 
@@ -2678,7 +2683,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[py.pos.y][py.pos.x].treasure_id == 0)
             {
-                var free_id = popt();
+                var free_id = gameObjects.popt();
                 dg.floor[py.pos.y][py.pos.x].treasure_id = (uint)free_id;
                 inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_SCARE_MON, game.treasure.list[free_id]);
             }

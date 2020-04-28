@@ -23,6 +23,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IDungeonPlacer dungeonPlacer,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
@@ -32,6 +33,7 @@ namespace Moria.Core.Methods
         {
             Monster_m.dice = dice;
             Monster_m.dungeon = dungeon;
+            Monster_m.dungeonPlacer = dungeonPlacer;
             Monster_m.inventory = inventory;
             Monster_m.inventoryManager = inventoryManager;
             Monster_m.monsterManager = monsterManager;
@@ -41,6 +43,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IDungeonPlacer dungeonPlacer;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
@@ -1902,7 +1905,7 @@ namespace Moria.Core.Methods
 
             if (item_count > 0)
             {
-                dropped_item_id = (uint)dungeon.dungeonSummonObject(coord, item_count, item_type);
+                dropped_item_id = (uint)dungeonPlacer.dungeonSummonObject(coord, item_count, item_type);
             }
 
             // maybe the player died in mid-turn

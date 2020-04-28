@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using System;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
@@ -34,6 +33,8 @@ namespace Moria.Core.Methods
     public class Wizard_m : IWizard
     {
         private readonly IDungeon dungeon;
+        private readonly IDungeonPlacer dungeonPlacer;
+        private readonly IGameObjects gameObjects;
         private readonly IInventoryManager inventoryManager;
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
@@ -42,6 +43,8 @@ namespace Moria.Core.Methods
 
         public Wizard_m(
             IDungeon dungeon,
+            IDungeonPlacer dungeonPlacer,
+            IGameObjects gameObjects,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -50,6 +53,8 @@ namespace Moria.Core.Methods
         )
         {
             this.dungeon = dungeon;
+            this.dungeonPlacer = dungeonPlacer;
+            this.gameObjects = gameObjects;
             this.inventoryManager = inventoryManager;
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
@@ -121,7 +126,7 @@ namespace Moria.Core.Methods
             {
                 i = 1;
             }
-            this.dungeon.dungeonPlaceRandomObjectNear(State.Instance.py.pos, i);
+            this.dungeonPlacer.dungeonPlaceRandomObjectNear(State.Instance.py.pos, i);
 
             drawDungeonPanel();
         }
@@ -605,7 +610,7 @@ namespace Moria.Core.Methods
                     }
 
                     // place the object
-                    var free_treasure_id = popt();
+                    var free_treasure_id = this.gameObjects.popt();
                     dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
                     this.inventoryManager.inventoryItemCopyTo(id, game.treasure.list[free_treasure_id]);
                     treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
@@ -807,7 +812,7 @@ namespace Moria.Core.Methods
                     this.dungeon.dungeonDeleteObject(py.pos);
                 }
 
-                number = popt();
+                number = this.gameObjects.popt();
 
                 game.treasure.list[number] = forge;
                 tile.treasure_id = (uint)number;
