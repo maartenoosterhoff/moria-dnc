@@ -1036,7 +1036,7 @@ namespace Moria.Core.Methods
             item_id = item_id + current_top_item_id; // true item_id
 
             var sell_item = new Inventory_t();
-            inventory.inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
+            inventoryManager.inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
 
             if (!inventory.inventoryCanCarryItemCount(sell_item))
             {
@@ -1292,7 +1292,7 @@ namespace Moria.Core.Methods
             }
 
             var sold_item = new Inventory_t();
-            inventory.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
+            inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
             var description = string.Empty;
             itemDescription(ref description, sold_item, true);
@@ -1334,11 +1334,11 @@ namespace Moria.Core.Methods
                 itemIdentify(py.inventory[item_id], ref item_id);
 
                 // retake sold_item so that it will be identified
-                inventory.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
+                inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
                 // call spellItemIdentifyAndRemoveRandomInscription for store item, so charges/pluses are known
                 spellItemIdentifyAndRemoveRandomInscription(sold_item);
-                inventory.inventoryDestroyItem(item_id);
+                inventoryManager.inventoryDestroyItem(item_id);
 
                 itemDescription(ref description, sold_item, true);
                 msg = $"You've sold {description:s}";

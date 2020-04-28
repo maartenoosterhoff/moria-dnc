@@ -18,6 +18,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IInventory inventory,
+            IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -25,6 +26,7 @@ namespace Moria.Core.Methods
         {
             Player_eat_m.dice = dice;
             Player_eat_m.inventory = inventory;
+            Player_eat_m.inventoryManager = inventoryManager;
             Player_eat_m.playerMagic = playerMagic;
             Player_eat_m.rnd = rnd;
             Player_eat_m.uiInventory = uiInventory;
@@ -32,6 +34,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IInventory inventory;
+        private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -257,7 +260,7 @@ namespace Moria.Core.Methods
             printCharacterHungerStatus();
 
             itemTypeRemainingCountDescription(item_id);
-            inventory.inventoryDestroyItem(item_id);
+            inventoryManager.inventoryDestroyItem(item_id);
         }
 
         // Add to the players food time -RAK-

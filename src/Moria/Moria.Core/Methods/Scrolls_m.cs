@@ -18,6 +18,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IInventory inventory,
+            IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -26,6 +27,7 @@ namespace Moria.Core.Methods
         {
             Scrolls_m.dice = dice;
             Scrolls_m.inventory = inventory;
+            Scrolls_m.inventoryManager = inventoryManager;
             Scrolls_m.monsterManager = monsterManager;
             Scrolls_m.playerMagic = playerMagic;
             Scrolls_m.rnd = rnd;
@@ -34,6 +36,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IInventory inventory;
+        private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -821,7 +824,7 @@ namespace Moria.Core.Methods
             if (used_up)
             {
                 itemTypeRemainingCountDescription(item_id);
-                inventory.inventoryDestroyItem(item_id);
+                inventoryManager.inventoryDestroyItem(item_id);
             }
         }
 

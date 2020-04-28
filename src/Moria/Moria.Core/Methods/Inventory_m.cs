@@ -18,7 +18,6 @@ namespace Moria.Core.Methods
         void inventoryDropItem(int item_id, bool drop_all);
         int inventoryCarryItem(Inventory_t new_item);
         bool inventoryCanCarryItem(Inventory_t item);
-        void inventoryDestroyItem(int item_id);
         bool setNull(Inventory_t item);
         bool setLightningDestroyableItems(Inventory_t item);
         bool setAcidDestroyableItems(Inventory_t item);
@@ -31,11 +30,8 @@ namespace Moria.Core.Methods
         void damageFire(int damage, string creature_name);
         void damageCorrodingGas(string creature_name);
         bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k);
-        bool executeDisenchantAttack();
         bool inventoryDiminishLightAttack(bool noticed);
         bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed);
-        void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item);
-        uint inventoryCollectAllItemFlags();
     }
 
     public class Inventory_m : IInventory
@@ -54,61 +50,6 @@ namespace Moria.Core.Methods
         private readonly IDungeon dungeon;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
-
-        public uint inventoryCollectAllItemFlags()
-        {
-            var py = State.Instance.py;
-            uint flags = 0;
-
-            for (var i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
-            {
-                flags |= py.inventory[i].flags;
-            }
-
-            return flags;
-        }
-
-        // Destroy an item in the inventory -RAK-
-        public void inventoryDestroyItem(int item_id)
-        {
-            var py = State.Instance.py;
-
-            var item = py.inventory[item_id];
-
-            if (item.items_count > 1 && item.sub_category_id <= ITEM_SINGLE_STACK_MAX)
-            {
-                item.items_count--;
-                py.pack.weight -= (int)item.weight;
-            }
-            else
-            {
-                py.pack.weight -= (int)item.weight * (int)item.items_count;
-
-                for (var i = item_id; i < py.pack.unique_items - 1; i++)
-                {
-                    py.inventory[i] = py.inventory[i + 1];
-                }
-
-                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items - 1]);
-                py.pack.unique_items--;
-            }
-
-            py.flags.status |= Config.player_status.PY_STR_WGT;
-        }
-
-        // Copies the object in the second argument over the first argument.
-        // However, the second always gets a number of one except for ammo etc.
-        public void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item)
-        {
-            to_item = from_item;
-
-            if (to_item.items_count > 1 &&
-                to_item.sub_category_id >= ITEM_SINGLE_STACK_MIN &&
-                to_item.sub_category_id <= ITEM_SINGLE_STACK_MAX)
-            {
-                to_item.items_count = 1;
-            }
-        }
 
         // Drops an item from inventory to given location -RAK-
         public void inventoryDropItem(int item_id, bool drop_all)
@@ -166,27 +107,6 @@ namespace Moria.Core.Methods
             py.flags.status |= Config.player_status.PY_STR_WGT;
         }
 
-        // Destroys a type of item on a given percent chance -RAK-
-        private int inventoryDamageItem(Func<Inventory_t, bool> item_type, int chance_percentage)
-        {
-            var py = State.Instance.py;
-
-            var damage = 0;
-
-            for (var i = 0; i < py.pack.unique_items; i++)
-            {
-                if (item_type(py.inventory[i]) &&
-                    rnd.randomNumber(100) < chance_percentage)
-                //if ((*item_type)(&py.inventory[i]) && rnd.randomNumber(100) < chance_percentage)
-                {
-                    inventoryDestroyItem(i);
-                    damage++;
-                }
-            }
-
-            return damage;
-        }
-
         public bool inventoryDiminishLightAttack(bool noticed)
         {
             var py = State.Instance.py;
@@ -241,78 +161,6 @@ namespace Moria.Core.Methods
             }
 
             return noticed;
-        }
-
-        public bool executeDisenchantAttack()
-        {
-            int item_id;
-
-            switch (rnd.randomNumber(7))
-            {
-                case 1:
-                    item_id = (int)PlayerEquipment.Wield;
-                    break;
-                case 2:
-                    item_id = (int)PlayerEquipment.Body;
-                    break;
-                case 3:
-                    item_id = (int)PlayerEquipment.Arm;
-                    break;
-                case 4:
-                    item_id = (int)PlayerEquipment.Outer;
-                    break;
-                case 5:
-                    item_id = (int)PlayerEquipment.Hands;
-                    break;
-                case 6:
-                    item_id = (int)PlayerEquipment.Head;
-                    break;
-                case 7:
-                    item_id = (int)PlayerEquipment.Feet;
-                    break;
-                default:
-                    return false;
-            }
-
-            var success = false;
-            var py = State.Instance.py;
-            var item = py.inventory[item_id];
-
-            if (item.to_hit > 0)
-            {
-                item.to_hit -= rnd.randomNumber(2);
-
-                // don't send it below zero
-                if (item.to_hit < 0)
-                {
-                    item.to_hit = 0;
-                }
-                success = true;
-            }
-            if (item.to_damage > 0)
-            {
-                item.to_damage -= rnd.randomNumber(2);
-
-                // don't send it below zero
-                if (item.to_damage < 0)
-                {
-                    item.to_damage = 0;
-                }
-                success = true;
-            }
-            if (item.to_ac > 0)
-            {
-                item.to_ac -= rnd.randomNumber(2);
-
-                // don't send it below zero
-                if (item.to_ac < 0)
-                {
-                    item.to_ac = 0;
-                }
-                success = true;
-            }
-
-            return success;
         }
 
         // this code must be identical to the inventoryCarryItem() code below
@@ -694,7 +542,7 @@ namespace Moria.Core.Methods
                 playerTakesHit(rnd.randomNumber(8), creature_name);
             }
 
-            if (inventoryDamageItem(setCorrodableItems, 5) > 0)
+            if (inventoryManager.inventoryDamageItem(setCorrodableItems, 5) > 0)
             {
                 printMessage("There is an acrid smell coming from your pack.");
             }
@@ -727,7 +575,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            if (inventoryDamageItem(setFlammableItems, 3) > 0)
+            if (inventoryManager.inventoryDamageItem(setFlammableItems, 3) > 0)
             {
                 printMessage("There is smoke coming from your pack!");
             }
@@ -750,7 +598,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            if (inventoryDamageItem(setFrostDestroyableItems, 5) > 0)
+            if (inventoryManager.inventoryDamageItem(setFrostDestroyableItems, 5) > 0)
             {
                 printMessage("Something shatters inside your pack!");
             }
@@ -768,7 +616,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            if (inventoryDamageItem(setLightningDestroyableItems, 3) > 0)
+            if (inventoryManager.inventoryDamageItem(setLightningDestroyableItems, 3) > 0)
             {
                 printMessage("There are sparks coming from your pack!");
             }
@@ -793,7 +641,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage / (flag + 1), creature_name);
 
-            if (inventoryDamageItem(setAcidAffectedItems, 3) > 0)
+            if (inventoryManager.inventoryDamageItem(setAcidAffectedItems, 3) > 0)
             {
                 printMessage("There is an acrid smell coming from your pack!");
             }

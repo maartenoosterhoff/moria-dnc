@@ -22,6 +22,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IGame game,
             IInventory inventory,
+            IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -31,6 +32,7 @@ namespace Moria.Core.Methods
             Player_throw_m.dungeon = dungeon;
             Player_throw_m.game = game;
             Player_throw_m.inventory = inventory;
+            Player_throw_m.inventoryManager = inventoryManager;
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
             Player_throw_m.uiInventory = uiInventory;
@@ -40,6 +42,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IGame game;
         private static IInventory inventory;
+        private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -62,7 +65,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                inventory.inventoryDestroyItem(item_id);
+                inventoryManager.inventoryDestroyItem(item_id);
             }
         }
 

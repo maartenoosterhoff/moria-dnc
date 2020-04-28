@@ -19,6 +19,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IInventory inventory,
+            IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
@@ -26,6 +27,7 @@ namespace Moria.Core.Methods
         {
             Player_quaff_m.dice = dice;
             Player_quaff_m.inventory = inventory;
+            Player_quaff_m.inventoryManager = inventoryManager;
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
             Player_quaff_m.uiInventory = uiInventory;
@@ -33,6 +35,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IInventory inventory;
+        private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
@@ -413,7 +416,7 @@ namespace Moria.Core.Methods
 
             playerIngestFood(item.misc_use);
             itemTypeRemainingCountDescription(item_id);
-            inventory.inventoryDestroyItem(item_id);
+            inventoryManager.inventoryDestroyItem(item_id);
         }
     }
 }

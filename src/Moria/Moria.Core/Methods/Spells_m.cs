@@ -1470,7 +1470,7 @@ namespace Moria.Core.Methods
             if (fail_chance == 1)
             {
                 printMessage("There is a bright flash of light.");
-                inventory.inventoryDestroyItem(item_id);
+                inventoryManager.inventoryDestroyItem(item_id);
             }
             else
             {

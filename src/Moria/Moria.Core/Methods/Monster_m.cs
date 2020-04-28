@@ -2156,7 +2156,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        inventory.inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
+                        inventoryManager.inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
                         printMessage("Your backpack feels lighter.");
                     }
                     if (rnd.randomNumber(2) == 1)
@@ -2226,7 +2226,7 @@ namespace Moria.Core.Methods
                     spellAggravateMonsters(20);
                     break;
                 case 21: // Disenchant
-                    if (inventory.executeDisenchantAttack())
+                    if (inventoryManager.executeDisenchantAttack())
                     {
                         printMessage("There is a static feeling in the air.");
                         playerRecalculateBonuses();
@@ -2239,7 +2239,7 @@ namespace Moria.Core.Methods
                 case 22: // Eat food
                     if (inventory.inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
                     {
-                        inventory.inventoryDestroyItem(item_pos_start);
+                        inventoryManager.inventoryDestroyItem(item_pos_start);
                         printMessage("It got at your rations!");
                     }
                     else

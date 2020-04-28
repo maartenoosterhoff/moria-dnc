@@ -25,12 +25,15 @@ namespace Moria.Core.Methods
     public class Ui_inventory_m : IUiInventory
     {
         private readonly IInventory inventory;
+        private readonly IInventoryManager inventoryManager;
 
         public Ui_inventory_m(
-            IInventory inventory
+            IInventory inventory,
+            IInventoryManager inventoryManager
         )
         {
             this.inventory = inventory;
+            this.inventoryManager = inventoryManager;
         }
 
         private void inventoryItemWeightText(ref string text, int item_id)
@@ -1083,7 +1086,7 @@ namespace Moria.Core.Methods
                         py.pack.weight += (int)(item.weight * item.items_count);
 
                         // Subtracts weight
-                        this.inventory.inventoryDestroyItem(item_id);
+                        this.inventoryManager.inventoryDestroyItem(item_id);
 
                         // Second, add old item to inv and remove
                         // from equipment list, if necessary.

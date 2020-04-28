@@ -2775,7 +2775,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        inventory.inventoryDestroyItem(item_pos_start);
+                        inventoryManager.inventoryDestroyItem(item_pos_start);
                     }
                 }
                 else
@@ -2841,7 +2841,7 @@ namespace Moria.Core.Methods
             }
 
             itemTypeRemainingCountDescription(item_pos_start);
-            inventory.inventoryDestroyItem(item_pos_start);
+            inventoryManager.inventoryDestroyItem(item_pos_start);
         }
 
         // Main procedure for dungeon. -RAK-
