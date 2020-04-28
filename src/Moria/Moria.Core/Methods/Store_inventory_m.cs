@@ -1,5 +1,4 @@
 ﻿using Moria.Core.Configs;
-using Moria.Core.Constants;
 using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -14,21 +13,31 @@ using static Moria.Core.Methods.Treasure_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Store_inventory_m
+    public interface IStoreInventory
     {
-        public static void SetDependencies(
+        int storeItemSellPrice(Store_t store, ref int min_price, ref int max_price, Inventory_t item);
+        void storeCarryItem(int store_id, ref int index_id, Inventory_t item);
+        void storeDestroyItem(int store_id, int item_id, bool only_one_of);
+        bool storeCheckPlayerItemsCount(Store_t store, Inventory_t item);
+        int storeItemValue(Inventory_t item);
+        void storeMaintenance();
+    }
+
+    public class Store_inventory_m : IStoreInventory
+    {
+        public Store_inventory_m(
             IRnd rnd
         )
         {
-            Store_inventory_m.rnd = rnd;
+            this.rnd = rnd;
         }
 
-        private static IRnd rnd;
+        private readonly IRnd rnd;
 
         // Initialize and up-keep the store's inventory. -RAK-
-        public static void storeMaintenance()
+        public void storeMaintenance()
         {
-            for (var store_id = 0; store_id < Store_c.MAX_STORES; store_id++)
+            for (var store_id = 0; store_id < MAX_STORES; store_id++)
             {
                 var store = State.Instance.stores[store_id];
 
@@ -69,7 +78,7 @@ namespace Moria.Core.Methods
         }
 
         // Returns the value for any given object -RAK-
-        public static int storeItemValue(Inventory_t item)
+        public int storeItemValue(Inventory_t item)
         {
             int value;
 
@@ -113,7 +122,7 @@ namespace Moria.Core.Methods
 
             // Multiply value by number of items if it is a group stack item.
             // Do not include torches here.
-            if (item.sub_category_id > Inventory_c.ITEM_GROUP_MIN)
+            if (item.sub_category_id > ITEM_GROUP_MIN)
             {
                 value = value * (int)item.items_count;
             }
@@ -121,7 +130,7 @@ namespace Moria.Core.Methods
             return value;
         }
 
-        public static int getWeaponArmorBuyPrice(Inventory_t item)
+        private int getWeaponArmorBuyPrice(Inventory_t item)
         {
             if (!spellItemIdentified(item))
             {
@@ -146,7 +155,7 @@ namespace Moria.Core.Methods
             return item.cost + item.to_ac * 100;
         }
 
-        public static int getAmmoBuyPrice(Inventory_t item)
+        private int getAmmoBuyPrice(Inventory_t item)
         {
             if (!spellItemIdentified(item))
             {
@@ -163,7 +172,7 @@ namespace Moria.Core.Methods
             return item.cost + (item.to_hit + item.to_damage + item.to_ac) * 5;
         }
 
-        public static int getPotionScrollBuyPrice(Inventory_t item)
+        private int getPotionScrollBuyPrice(Inventory_t item)
         {
             if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
@@ -173,7 +182,7 @@ namespace Moria.Core.Methods
             return item.cost;
         }
 
-        public static int getFoodBuyPrice(Inventory_t item)
+        private int getFoodBuyPrice(Inventory_t item)
         {
             if (item.sub_category_id < ITEM_SINGLE_STACK_MIN + MAX_MUSHROOMS &&
                 !itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
@@ -184,7 +193,7 @@ namespace Moria.Core.Methods
             return item.cost;
         }
 
-        public static int getRingAmuletBuyPrice(Inventory_t item)
+        private int getRingAmuletBuyPrice(Inventory_t item)
         {
             // player does not know what type of ring/amulet this is
             if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
@@ -203,7 +212,7 @@ namespace Moria.Core.Methods
             return item.cost;
         }
 
-        public static int getWandStaffBuyPrice(Inventory_t item)
+        private int getWandStaffBuyPrice(Inventory_t item)
         {
             if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
@@ -223,7 +232,7 @@ namespace Moria.Core.Methods
             return item.cost;
         }
 
-        public static int getPickShovelBuyPrice(Inventory_t item)
+        private int getPickShovelBuyPrice(Inventory_t item)
         {
             if (!spellItemIdentified(item))
             {
@@ -248,7 +257,7 @@ namespace Moria.Core.Methods
         }
 
         // Asking price for an item -RAK-
-        public static int storeItemSellPrice(Store_t store, ref int min_price, ref int max_price, Inventory_t item)
+        public int storeItemSellPrice(Store_t store, ref int min_price, ref int max_price, Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -281,7 +290,7 @@ namespace Moria.Core.Methods
         }
 
         // Check to see if they will be carrying too many objects -RAK-
-        public static bool storeCheckPlayerItemsCount(Store_t store, Inventory_t item)
+        public bool storeCheckPlayerItemsCount(Store_t store, Inventory_t item)
         {
             if (store.unique_items_counter < STORE_MAX_DISCRETE_ITEMS)
             {
@@ -314,7 +323,7 @@ namespace Moria.Core.Methods
         }
 
         // Insert INVEN_MAX at given location
-        public static void storeItemInsert(int store_id, int pos, int i_cost, Inventory_t item)
+        private void storeItemInsert(int store_id, int pos, int i_cost, Inventory_t item)
         {
             var store = State.Instance.stores[store_id];
 
@@ -329,7 +338,7 @@ namespace Moria.Core.Methods
         }
 
         // Add the item in INVEN_MAX to stores inventory. -RAK-
-        public static void storeCarryItem(int store_id, ref int index_id, Inventory_t item)
+        public void storeCarryItem(int store_id, ref int index_id, Inventory_t item)
         {
             index_id = -1;
 
@@ -396,7 +405,7 @@ namespace Moria.Core.Methods
 
         // Destroy an item in the stores inventory.  Note that if
         // `only_one_of` is false, an entire slot is destroyed -RAK-
-        public static void storeDestroyItem(int store_id, int item_id, bool only_one_of)
+        public void storeDestroyItem(int store_id, int item_id, bool only_one_of)
         {
             var store = State.Instance.stores[store_id];
             var store_item = store.inventory[item_id].item;
@@ -439,7 +448,7 @@ namespace Moria.Core.Methods
         }
 
         // Creates an item and inserts it into store's inven -RAK-
-        public static void storeItemCreate(int store_id, int max_cost)
+        private void storeItemCreate(int store_id, int max_cost)
         {
             var game = State.Instance.game;
             var free_id = popt();

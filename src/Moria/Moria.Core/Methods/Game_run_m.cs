@@ -39,7 +39,6 @@ using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Scrolls_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Staffs_m;
-using static Moria.Core.Methods.Store_inventory_m;
 using static Moria.Core.Methods.Store_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -53,6 +52,7 @@ namespace Moria.Core.Methods
             IDungeonGenerate dungeonGenerate,
             IGame game,
             IRnd rnd,
+            IStoreInventory storeInventory,
             IUiInventory uiInventory,
             IWizard wizard
         )
@@ -61,6 +61,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
             Game_run_m.rnd = rnd;
+            Game_run_m.storeInventory = storeInventory;
             Game_run_m.wizard = wizard;
             Game_run_m.uiInventory = uiInventory;
         }
@@ -70,6 +71,7 @@ namespace Moria.Core.Methods
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
         private static IRnd rnd;
+        private static IStoreInventory storeInventory;
         private static IWizard wizard;
         private static IUiInventory uiInventory;
 
@@ -2882,7 +2884,7 @@ namespace Moria.Core.Methods
                 // turn over the store contents every, say, 1000 turns
                 if (dg.current_level != 0 && dg.game_turn % 1000 == 0)
                 {
-                    storeMaintenance();
+                    storeInventory.storeMaintenance();
                 }
 
                 // Check for creature generation

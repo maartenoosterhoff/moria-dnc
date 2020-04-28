@@ -11,7 +11,6 @@ using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Store_inventory_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -24,16 +23,19 @@ namespace Moria.Core.Methods
         public static void SetDependencies
         (
             IStd std,
+            IStoreInventory storeInventory,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Store_m.std = std;
+            Store_m.storeInventory = storeInventory;
             Store_m.rnd = rnd;
             Store_m.uiInventory = uiInventory;
         }
 
         private static IStd std;
+        private static IStoreInventory storeInventory;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -530,7 +532,7 @@ namespace Moria.Core.Methods
             var owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
             int max_sell = 0, min_sell = 0;
-            var cost = storeItemSellPrice(store, ref min_sell, ref max_sell, item);
+            var cost = storeInventory.storeItemSellPrice(store, ref min_sell, ref max_sell, item);
 
             storePurchaseCustomerAdjustment(ref min_sell, ref max_sell);
 
@@ -753,7 +755,7 @@ namespace Moria.Core.Methods
             var new_price = 0;
 
             var store = State.Instance.stores[store_id];
-            var cost = storeItemValue(item);
+            var cost = storeInventory.storeItemValue(item);
 
             var rejected = false;
 
@@ -1064,7 +1066,7 @@ namespace Moria.Core.Methods
                     var new_item_id = inventoryCarryItem(sell_item);
                     var saved_store_counter = (int)store.unique_items_counter;
 
-                    storeDestroyItem(store_id, item_id, true);
+                    storeInventory.storeDestroyItem(store_id, item_id, true);
 
                     var description = string.Empty;
                     //obj_desc_t description = { '\0' };
@@ -1295,7 +1297,7 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "Selling %s (%c)", description, item_id + 'a');
             printMessage(msg);
 
-            if (!storeCheckPlayerItemsCount(State.Instance.stores[store_id], sold_item))
+            if (!storeInventory.storeCheckPlayerItemsCount(State.Instance.stores[store_id], sold_item))
             {
                 printMessage("I have not the room in my store to keep it.");
                 return false;
@@ -1339,7 +1341,7 @@ namespace Moria.Core.Methods
                 printMessage(msg);
 
                 var item_pos_id = 0;
-                storeCarryItem(store_id, ref item_pos_id, sold_item);
+                storeInventory.storeCarryItem(store_id, ref item_pos_id, sold_item);
 
                 playerStrength();
 

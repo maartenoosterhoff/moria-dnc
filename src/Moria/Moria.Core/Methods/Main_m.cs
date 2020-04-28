@@ -5,7 +5,6 @@ using System.Linq;
 using SimpleInjector;
 using static Moria.Core.Constants.Version_c;
 using static Moria.Core.Methods.Helpers_m;
-using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -70,7 +69,7 @@ Options:
                         roguelike_keys = false;
                         break;
                     case 'd':
-                        showScoresScreen();
+                        Scores_m.showScoresScreen();
                         container.GetInstance<IGame>().exitProgram();
                         break;
                     case 's':
@@ -159,6 +158,7 @@ Options:
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
             container.RegisterSingleton<IStd, Std_m>();
+            container.RegisterSingleton<IStoreInventory, Store_inventory_m>();
             container.RegisterSingleton<IUiInventory, Ui_inventory_m>();
             container.RegisterSingleton<IWizard, Wizard_m>();
 
@@ -177,6 +177,7 @@ Options:
                 container.GetInstance<IDungeonGenerate>(),
                 container.GetInstance<IGame>(),
                 container.GetInstance<IRnd>(),
+                container.GetInstance<IStoreInventory>(),
                 container.GetInstance<IUiInventory>(),
                 container.GetInstance<IWizard>()
             );
@@ -283,6 +284,10 @@ Options:
                 container.GetInstance<IRnd>()
             );
 
+            Scores_m.SetDependencies(
+                container.GetInstance<IStoreInventory>()
+            );
+
             Scrolls_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IRnd>(),
@@ -304,12 +309,9 @@ Options:
 
             Store_m.SetDependencies(
                 container.GetInstance<IStd>(),
+                container.GetInstance<IStoreInventory>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
-            );
-
-            Store_inventory_m.SetDependencies(
-                container.GetInstance<IRnd>()
             );
 
             Treasure_m.SetDependencies(

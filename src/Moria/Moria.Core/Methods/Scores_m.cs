@@ -1,11 +1,19 @@
 ﻿using Moria.Core.States;
-using static Moria.Core.Methods.Store_inventory_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
     public static class Scores_m
     {
+        public static void SetDependencies(
+            IStoreInventory storeInventory
+        )
+        {
+            Scores_m.storeInventory = storeInventory;
+        }
+
+        private static IStoreInventory storeInventory;
+
         public static char highScoreGenderLabel()
         {
             if (playerIsMale())
@@ -291,7 +299,7 @@ namespace Moria.Core.Methods
 
             foreach (var item in py.inventory)
             {
-                total += storeItemValue(item);
+                total += storeInventory.storeItemValue(item);
             }
 
             total += dg.current_level * 50;

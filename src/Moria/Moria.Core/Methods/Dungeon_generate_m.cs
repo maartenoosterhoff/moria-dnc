@@ -11,7 +11,6 @@ using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_manager_m;
-using static Moria.Core.Methods.Store_inventory_m;
 
 namespace Moria.Core.Methods
 {
@@ -23,10 +22,15 @@ namespace Moria.Core.Methods
     public class Dungeon_generate_m : IDungeonGenerate
     {
         private readonly IRnd rnd;
+        private readonly IStoreInventory storeInventory;
 
-        public Dungeon_generate_m(IRnd rnd)
+        public Dungeon_generate_m(
+            IRnd rnd,
+            IStoreInventory storeInventory
+        )
         {
             this.rnd = rnd;
+            this.storeInventory = storeInventory;
         }
 
         // Returns a Dark/Light floor tile based on dg.current_level, and random number
@@ -1572,7 +1576,7 @@ namespace Moria.Core.Methods
 
             lightTown();
 
-            storeMaintenance();
+            storeInventory.storeMaintenance();
         }
 
         // Generates a random dungeon level -RAK-
