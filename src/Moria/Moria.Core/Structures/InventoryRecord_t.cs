@@ -2,6 +2,14 @@
 {
     public class InventoryRecord_t
     {
+        public InventoryRecord_t Clone()
+        {
+            return new InventoryRecord_t
+            {
+                cost = cost,
+                item = item.Clone()
+            };
+        }
         public int cost { get; set; }
         public Inventory_t item { get; set; } = new Inventory_t();
     }

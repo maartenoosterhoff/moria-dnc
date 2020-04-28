@@ -106,11 +106,11 @@ Options:
             }
 
             // Auto-restart of saved file
-            if (args.Length > 0 && !string.IsNullOrEmpty(args[0]))
+            if (argsList.Count > 0 && !string.IsNullOrEmpty(argsList[0]))
             {
                 // (void) strcpy(config::files::save_game, argv[0]);
                 //config::files::save_game = argv[0];
-                Config.files.save_game = args[0];
+                Config.files.save_game = argsList[0];
             }
 
             try

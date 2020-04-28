@@ -448,7 +448,7 @@ namespace Moria.Core.Methods
             {
                 for (var i = item_id; i < store.unique_items_counter - 1; i++)
                 {
-                    store.inventory[i] = store.inventory[i + 1];
+                    store.inventory[i] = store.inventory[i + 1].Clone();
                 }
                 this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, store.inventory[store.unique_items_counter - 1].item);
                 store.inventory[store.unique_items_counter - 1].cost = 0;
@@ -468,7 +468,7 @@ namespace Moria.Core.Methods
                 this.inventoryManager.inventoryItemCopyTo(id, game.treasure.list[free_id]);
                 treasure.magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
 
-                var item = game.treasure.list[free_id];
+                var item = game.treasure.list[free_id].Clone();
 
                 if (storeCheckPlayerItemsCount(State.Instance.stores[store_id], item))
                 {

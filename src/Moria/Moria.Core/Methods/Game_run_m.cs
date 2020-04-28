@@ -155,7 +155,7 @@ namespace Moria.Core.Methods
 
             if (result)
             {
-                changeCharacterName();
+                //changeCharacterName();
 
                 // could be restoring a dead character after a signal or HANGUP
                 if (py.misc.current_hp < 0)
