@@ -21,6 +21,7 @@ namespace Moria.Core.Methods
     {
         public Dungeon_placer_m(
             IDungeon dungeon,
+            IDungeonLos dungeonLos,
             IGameObjects gameObjects,
             IInventoryManager inventoryManager,
             IRnd rnd,
@@ -28,6 +29,7 @@ namespace Moria.Core.Methods
         )
         {
             this.dungeon = dungeon;
+            this.dungeonLos = dungeonLos;
             this.gameObjects = gameObjects;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
@@ -35,6 +37,7 @@ namespace Moria.Core.Methods
         }
 
         private readonly IDungeon dungeon;
+        private readonly IDungeonLos dungeonLos;
         private readonly IGameObjects gameObjects;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
@@ -213,7 +216,7 @@ namespace Moria.Core.Methods
                         coord.y - 3 + rnd.randomNumber(5),
                         coord.x - 3 + rnd.randomNumber(5));
 
-                    if (dungeon.coordInBounds(at) && Dungeon_los_m.los(coord, at))
+                    if (dungeon.coordInBounds(at) && dungeonLos.los(coord, at))
                     {
                         if (dg.floor[at.y][at.x].feature_id <= Dungeon_tile_c.MAX_OPEN_SPACE && dg.floor[at.y][at.x].treasure_id == 0)
                         {

@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
-using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -23,6 +22,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IDungeonLos dungeonLos,
             IDungeonPlacer dungeonPlacer,
             IInventory inventory,
             IInventoryManager inventoryManager,
@@ -33,6 +33,7 @@ namespace Moria.Core.Methods
         {
             Monster_m.dice = dice;
             Monster_m.dungeon = dungeon;
+            Monster_m.dungeonLos = dungeonLos;
             Monster_m.dungeonPlacer = dungeonPlacer;
             Monster_m.inventory = inventory;
             Monster_m.inventoryManager = inventoryManager;
@@ -43,6 +44,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IDungeonLos dungeonLos;
         private static IDungeonPlacer dungeonPlacer;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
@@ -102,7 +104,7 @@ namespace Moria.Core.Methods
                     // Wizard sight.
                     visible = true;
                 }
-                else if (los(py.pos, monster.pos))
+                else if (dungeonLos.los(py.pos, monster.pos))
                 {
                     visible = monsterIsVisible(monster);
                 }
@@ -900,7 +902,7 @@ namespace Moria.Core.Methods
             var within_range = monster.distance_from_player <= Config.monsters.MON_MAX_SPELL_CAST_DISTANCE;
 
             // Must have unobstructed Line-Of-Sight
-            var unobstructed = los(py.pos, monster.pos);
+            var unobstructed = dungeonLos.los(py.pos, monster.pos);
 
             return within_range && unobstructed;
         }

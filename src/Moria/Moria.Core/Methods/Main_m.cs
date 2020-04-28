@@ -155,6 +155,7 @@ Options:
             container.RegisterSingleton<IDice, Dice_m>();
             container.RegisterSingleton<IDungeon, Dungeon_m>();
             container.RegisterSingleton<IDungeonGenerate, Dungeon_generate_m>();
+            container.RegisterSingleton<IDungeonLos, Dungeon_los_m>();
             container.RegisterSingleton<IDungeonPlacer, Dungeon_placer_m>();
             container.RegisterSingleton<IGame, Game_m>();
             container.RegisterSingleton<IGameObjects, Game_objects_m>();
@@ -175,15 +176,10 @@ Options:
             container.Verify();
 
             // Set static dependencies (goal is to have none)
-            Dungeon_los_m.SetDependencies(
-                container.GetInstance<IGame>(),
-                container.GetInstance<IRecall>(),
-                container.GetInstance<IStd>()
-            );
-
             Game_run_m.SetDependencies(
                 container.GetInstance<ICharacter>(),
                 container.GetInstance<IDungeon>(),
+                container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonGenerate>(),
                 container.GetInstance<IGame>(),
                 container.GetInstance<IInventory>(),
@@ -227,6 +223,7 @@ Options:
             Monster_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
+                container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonPlacer>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
@@ -339,6 +336,7 @@ Options:
             Spells_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
+                container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonPlacer>(),
                 container.GetInstance<IGameObjects>(),
                 container.GetInstance<IInventory>(),

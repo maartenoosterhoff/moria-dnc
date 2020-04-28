@@ -13,7 +13,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Game_save_m;
@@ -47,6 +46,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             ICharacter character,
             IDungeon dungeon,
+            IDungeonLos dungeonLos,
             IDungeonGenerate dungeonGenerate,
             IGame game,
             IInventory inventory,
@@ -60,6 +60,7 @@ namespace Moria.Core.Methods
         {
             Game_run_m.character = character;
             Game_run_m.dungeon = dungeon;
+            Game_run_m.dungeonLos = dungeonLos;
             Game_run_m.dungeonGenerate = dungeonGenerate;
             Game_run_m.game = game;
             Game_run_m.inventory = inventory;
@@ -74,6 +75,7 @@ namespace Moria.Core.Methods
 
         private static ICharacter character;
         private static IDungeon dungeon;
+        private static IDungeonLos dungeonLos;
         private static IDungeonGenerate dungeonGenerate;
         private static IGame game;
         private static IInventory inventory;
@@ -2305,7 +2307,7 @@ namespace Moria.Core.Methods
                     dungeonJamDoor();
                     break;
                 case 'x': // e(x)amine surrounds  (l)ook about
-                    look();
+                    dungeonLos.look();
                     game.player_free_turn = true;
                     break;
                 case 'm': // (m)agic spells

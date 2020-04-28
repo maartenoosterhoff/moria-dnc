@@ -12,22 +12,28 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Dungeon_los_m
+    public interface IDungeonLos
     {
-        public static void SetDependencies(
+        bool los(Coord_t from, Coord_t to);
+        void look();
+    }
+
+    public class Dungeon_los_m : IDungeonLos
+    {
+        public Dungeon_los_m(
             IGame game,
             IRecall recall,
             IStd std
         )
         {
-            Dungeon_los_m.game = game;
-            Dungeon_los_m.recall = recall;
-            Dungeon_los_m.std = std;
+            this.game = game;
+            this.recall = recall;
+            this.std = std;
         }
 
-        private static IGame game;
-        private static IRecall recall;
-        private static IStd std;
+        private IGame game;
+        private IRecall recall;
+        private IStd std;
 
 
         // A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
@@ -45,7 +51,7 @@ namespace Moria.Core.Methods
 
         // Because this function uses (short) ints for all calculations, overflow may
         // occur if deltaX and deltaY exceed 90.
-        public static bool los(Coord_t from, Coord_t to)
+        public bool los(Coord_t from, Coord_t to)
         {
             from = from.Clone();
             to = to.Clone();
@@ -285,23 +291,23 @@ namespace Moria.Core.Methods
           dungeon y = py.pos.y + los_fyx * (ray x) + los_fyy * (ray y)
           dungeon x = py.pos.x + los_fxx * (ray x) + los_fxy * (ray y)
         */
-        static int los_fxx, los_fxy, los_fyx, los_fyy;
-        static int los_num_places_seen;
-        static bool los_hack_no_query;
-        static int los_rocks_and_objects;
+        int los_fxx, los_fxy, los_fyx, los_fyy;
+        int los_num_places_seen;
+        bool los_hack_no_query;
+        int los_rocks_and_objects;
 
         // Intended to be indexed by dir/2, since is only
         // relevant to horizontal or vertical directions.
-        static int[] los_dir_set_fxy = { 0, 1, 0, 0, -1 };
-        static int[] los_dir_set_fxx = { 0, 0, -1, 1, 0 };
-        static int[] los_dir_set_fyy = { 0, 0, 1, -1, 0 };
-        static int[] los_dir_set_fyx = { 0, 1, 0, 0, -1 };
+        int[] los_dir_set_fxy = { 0, 1, 0, 0, -1 };
+        int[] los_dir_set_fxx = { 0, 0, -1, 1, 0 };
+        int[] los_dir_set_fyy = { 0, 0, 1, -1, 0 };
+        int[] los_dir_set_fyx = { 0, 1, 0, 0, -1 };
 
         // Map diagonal-dir/2 to a normal-dir/2.
-        static int[] los_map_diagonals1 = { 1, 3, 0, 2, 4 };
-        static int[] los_map_diagonals2 = { 2, 1, 0, 4, 3 };
+        int[] los_map_diagonals1 = { 1, 3, 0, 2, 4 };
+        int[] los_map_diagonals2 = { 2, 1, 0, 4, 3 };
 
-        public const int GRADF = 10000;  // Any sufficiently big number will do
+        private const int GRADF = 10000;  // Any sufficiently big number will do
 
         // Look at what we can see. This is a free move.
         //
@@ -313,7 +319,7 @@ namespace Moria.Core.Methods
         // Looks first at real objects and monsters, and looks at rock types only after all
         // other things have been seen.  Only looks at rock types if the config::options::highlight_seams
         // option is set.
-        public static void look()
+        public void look()
         {
             var py = State.Instance.py;
 
@@ -461,7 +467,7 @@ namespace Moria.Core.Methods
         //     @-------------------->   direction in which you are looking. (x axis)
         //     |
         //     |
-        private static bool lookRay(int y, int from, int to)
+        private bool lookRay(int y, int from, int to)
         {
             // from is the larger angle of the ray, since we scan towards the
             // center line. If from is smaller, then the ray does not exist.
@@ -576,7 +582,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static bool lookSee(Coord_t coord, ref bool transparent)
+        private bool lookSee(Coord_t coord, ref bool transparent)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;

@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Dungeon_los_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
+            IDungeonLos dungeonLos,
             IDungeonPlacer dungeonPlacer,
             IGameObjects gameObjects,
             IInventory inventory,
@@ -37,6 +37,7 @@ namespace Moria.Core.Methods
         {
             Spells_m.dice = dice;
             Spells_m.dungeon = dungeon;
+            Spells_m.dungeonLos = dungeonLos;
             Spells_m.dungeonPlacer = dungeonPlacer;
             Spells_m.gameObjects = gameObjects;
             Spells_m.inventory = inventory;
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IDungeon dungeon;
+        private static IDungeonLos dungeonLos;
         private static IDungeonPlacer dungeonPlacer;
         private static IGameObjects gameObjects;
         private static IInventory inventory;
@@ -1183,7 +1185,7 @@ namespace Moria.Core.Methods
                             spot.y = row;
                             spot.x = col;
 
-                            if (dungeon.coordInBounds(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance && los(coord, spot))
+                            if (dungeon.coordInBounds(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance && dungeonLos.los(coord, spot))
                             {
                                 tile = dg.floor[spot.y][spot.x];
 
@@ -1311,7 +1313,7 @@ namespace Moria.Core.Methods
             {
                 for (location.x = coord.x - 2; location.x <= coord.x + 2; location.x++)
                 {
-                    if (dungeon.coordInBounds(location) && dungeon.coordDistanceBetween(coord, location) <= max_distance && los(coord, location))
+                    if (dungeon.coordInBounds(location) && dungeon.coordDistanceBetween(coord, location) <= max_distance && dungeonLos.los(coord, location))
                     {
                         var tile = dg.floor[location.y][location.x];
 
@@ -2283,7 +2285,7 @@ namespace Moria.Core.Methods
 
                 var name = monsterNameDescription(creature.name, monster.lit);
 
-                if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !los(py.pos, monster.pos))
+                if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !dungeonLos.los(py.pos, monster.pos))
                 {
                     continue; // do nothing
                 }
@@ -2334,7 +2336,7 @@ namespace Moria.Core.Methods
 
                 var name = monsterNameDescription(creature.name, monster.lit);
 
-                if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !los(py.pos, monster.pos))
+                if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !dungeonLos.los(py.pos, monster.pos))
                 {
                     continue; // do nothing
                 }
@@ -2604,7 +2606,7 @@ namespace Moria.Core.Methods
                 var monster = State.Instance.monsters[id];
 
                 if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature_defense & creatures_list[(int)monster.creature_id].defenses) != 0) &&
-                    los(py.pos, monster.pos))
+                    dungeonLos.los(py.pos, monster.pos))
                 {
                     var creature = creatures_list[(int)monster.creature_id];
 
@@ -2647,7 +2649,7 @@ namespace Moria.Core.Methods
                 var monster = State.Instance.monsters[id];
                 var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0) && los(py.pos, monster.pos))
+                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0) && dungeonLos.los(py.pos, monster.pos))
                 {
                     var name = monsterNameDescription(creature.name, monster.lit);
 
