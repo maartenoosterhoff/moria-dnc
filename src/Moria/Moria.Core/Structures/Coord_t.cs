@@ -27,7 +27,7 @@ namespace Moria.Core.Structures
             {
                 if (value > 80)
                 {
-                    Debugger.Break();
+                    //Debugger.Break();
                 }
 
                 _x = value;
@@ -43,7 +43,7 @@ namespace Moria.Core.Structures
             {
                 if (value > 23)
                 {
-                    Debugger.Break();
+                    //Debugger.Break();
                 }
 
                 _y = value;
