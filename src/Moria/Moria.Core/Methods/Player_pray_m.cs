@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -20,18 +19,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Player_pray_m.dice = dice;
             Player_pray_m.game = game;
+            Player_pray_m.playerMagic = playerMagic;
             Player_pray_m.rnd = rnd;
             Player_pray_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -94,10 +96,10 @@ namespace Moria.Core.Methods
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 3)));
                     break;
                 case PriestSpellTypes.Bless:
-                    playerBless(rnd.randomNumber(12) + 12);
+                    playerMagic.playerBless(rnd.randomNumber(12) + 12);
                     break;
                 case PriestSpellTypes.RemoveFear:
-                    playerRemoveFear();
+                    playerMagic.playerRemoveFear();
                     break;
                 case PriestSpellTypes.CallLight:
                     spellLightArea(py.pos);
@@ -124,7 +126,7 @@ namespace Moria.Core.Methods
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
                     break;
                 case PriestSpellTypes.Chant:
-                    playerBless(rnd.randomNumber(24) + 24);
+                    playerMagic.playerBless(rnd.randomNumber(24) + 24);
                     break;
                 case PriestSpellTypes.Sanctuary:
                     monsterSleep(py.pos);
@@ -147,7 +149,7 @@ namespace Moria.Core.Methods
                     py.flags.cold_resistance += rnd.randomNumber(10) + 10;
                     break;
                 case PriestSpellTypes.NeutralizePoison:
-                    playerCurePoison();
+                    playerMagic.playerCurePoison();
                     break;
                 case PriestSpellTypes.OrbOfDraining:
                     if (game.getDirectionWithMemory(/*CNIL*/ null, ref dir))
@@ -159,10 +161,10 @@ namespace Moria.Core.Methods
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(8, 4)));
                     break;
                 case PriestSpellTypes.SenseInvisible:
-                    playerDetectInvisible(rnd.randomNumber(24) + 24);
+                    playerMagic.playerDetectInvisible(rnd.randomNumber(24) + 24);
                     break;
                 case PriestSpellTypes.ProtectFromEvil:
-                    playerProtectEvil();
+                    playerMagic.playerProtectEvil();
                     break;
                 case PriestSpellTypes.Earthquake:
                     spellEarthquake();
@@ -177,7 +179,7 @@ namespace Moria.Core.Methods
                     spellTurnUndead();
                     break;
                 case PriestSpellTypes.Prayer:
-                    playerBless(rnd.randomNumber(48) + 48);
+                    playerMagic.playerBless(rnd.randomNumber(48) + 48);
                     break;
                 case PriestSpellTypes.DispelUndead:
                     spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level));
@@ -192,8 +194,8 @@ namespace Moria.Core.Methods
                     spellWardingGlyph();
                     break;
                 case PriestSpellTypes.HolyWord:
-                    playerRemoveFear();
-                    playerCurePoison();
+                    playerMagic.playerRemoveFear();
+                    playerMagic.playerCurePoison();
                     spellChangePlayerHitPoints(1000);
 
                     for (var i = (int)PlayerAttr.STR; i <= (int)PlayerAttr.CHR; i++)

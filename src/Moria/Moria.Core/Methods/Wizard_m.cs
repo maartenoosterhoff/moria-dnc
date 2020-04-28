@@ -13,7 +13,6 @@ using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -37,14 +36,17 @@ namespace Moria.Core.Methods
 
     public class Wizard_m : IWizard
     {
+        private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
 
         public Wizard_m(
+            IPlayerMagic playerMagic,
             IRnd rnd,
             ITreasure treasure
         )
         {
+            this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.treasure = treasure;
         }
@@ -77,10 +79,10 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             spellRemoveCurseFromAllItems();
-            playerCureBlindness();
-            playerCureConfusion();
-            playerCurePoison();
-            playerRemoveFear();
+            this.playerMagic.playerCureBlindness();
+            this.playerMagic.playerCureConfusion();
+            this.playerMagic.playerCurePoison();
+            this.playerMagic.playerRemoveFear();
             playerStatRestore((int)PlayerAttr.STR);
             playerStatRestore((int)PlayerAttr.INT);
             playerStatRestore((int)PlayerAttr.WIS);

@@ -8,7 +8,6 @@ using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -20,16 +19,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Player_quaff_m.dice = dice;
+            Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
             Player_quaff_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -225,13 +227,13 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.CureBlindness:
-                        identified = playerCureBlindness();
+                        identified = playerMagic.playerCureBlindness();
                         break;
                     case PotionSpellTypes.CureConfusion:
-                        identified = playerCureConfusion();
+                        identified = playerMagic.playerCureConfusion();
                         break;
                     case PotionSpellTypes.CurePoison:
-                        identified = playerCurePoison();
+                        identified = playerMagic.playerCurePoison();
                         break;
                     // case 33: break; // this is no longer useful, now that there is a 'G'ain magic spells command
                     case PotionSpellTypes.LoseExperience:
@@ -257,7 +259,7 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.SaltWater:
-                        playerCurePoison();
+                        playerMagic.playerCurePoison();
                         if (py.flags.food > 150)
                         {
                             py.flags.food = 150;
@@ -289,7 +291,7 @@ namespace Moria.Core.Methods
                         py.flags.super_heroism += rnd.randomNumber(25) + 25;
                         break;
                     case PotionSpellTypes.Boldness:
-                        identified = playerRemoveFear();
+                        identified = playerMagic.playerRemoveFear();
                         break;
                     case PotionSpellTypes.RestoreLifeLevels:
                         identified = spellRestorePlayerLevels();
@@ -313,13 +315,13 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        playerDetectInvisible(rnd.randomNumber(12) + 12);
+                        playerMagic.playerDetectInvisible(rnd.randomNumber(12) + 12);
                         break;
                     case PotionSpellTypes.SlowPoison:
                         identified = spellSlowPoison();
                         break;
                     case PotionSpellTypes.NeutralizePoison:
-                        identified = playerCurePoison();
+                        identified = playerMagic.playerCurePoison();
                         break;
                     case PotionSpellTypes.RestoreMana:
                         if (py.misc.current_mana < py.misc.mana)

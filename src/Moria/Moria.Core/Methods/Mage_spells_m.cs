@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Inventory_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -21,18 +20,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Mage_spells_m.dice = dice;
             Mage_spells_m.game = game;
+            Mage_spells_m.playerMagic = playerMagic;
             Mage_spells_m.rnd = rnd;
             Mage_spells_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -124,7 +126,7 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.CurePoison:
-                    playerCurePoison();
+                    playerMagic.playerCurePoison();
                     break;
                 case MageSpellId.TeleportSelf:
                     playerTeleport(((int)py.misc.level * 5));

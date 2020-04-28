@@ -14,7 +14,6 @@ using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_traps_m;
@@ -29,16 +28,19 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IPlayerMagic playerMagic,
             IRnd rnd
         )
         {
             Player_m.dice = dice;
             Player_m.game = game;
+            Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
 
         static void playerResetFlags()
@@ -1474,7 +1476,7 @@ namespace Moria.Core.Methods
                 if (item.category_id != TV_NOTHING)
                 {
                     damage = dice.diceRoll(item.damage);
-                    damage = itemMagicAbilityDamage(item, damage, (int)monster.creature_id);
+                    damage = playerMagic.itemMagicAbilityDamage(item, damage, (int)monster.creature_id);
                     damage = playerWeaponCriticalBlow((int)item.weight, total_to_hit, damage, (int)PlayerClassLevelAdj.BTH);
                 }
                 else

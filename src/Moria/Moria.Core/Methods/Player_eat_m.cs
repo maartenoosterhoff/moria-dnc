@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Helpers_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
@@ -19,16 +18,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Player_eat_m.dice = dice;
+            Player_eat_m.playerMagic = playerMagic;
             Player_eat_m.rnd = rnd;
             Player_eat_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -96,10 +98,10 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case FoodMagicTypes.CurePoison:
-                        identified = playerCurePoison();
+                        identified = playerMagic.playerCurePoison();
                         break;
                     case FoodMagicTypes.CureBlindness:
-                        identified = playerCureBlindness();
+                        identified = playerMagic.playerCureBlindness();
                         break;
                     case FoodMagicTypes.CureParanoia:
                         if (py.flags.afraid > 1)
@@ -109,7 +111,7 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case FoodMagicTypes.CureConfusion:
-                        identified = playerCureConfusion();
+                        identified = playerMagic.playerCureConfusion();
                         break;
                     case FoodMagicTypes.Weakness:
                         spellLoseSTR();

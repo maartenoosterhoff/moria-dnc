@@ -12,7 +12,6 @@ using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Player_magic_m;
 
 namespace Moria.Core.Methods
 {
@@ -20,16 +19,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDice dice,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Scrolls_m.dice = dice;
+            Scrolls_m.playerMagic = playerMagic;
             Scrolls_m.rnd = rnd;
             Scrolls_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -744,7 +746,7 @@ namespace Moria.Core.Methods
                         identified = spellDarkenArea(py.pos);
                         break;
                     case 28:
-                        identified = playerProtectEvil();
+                        identified = playerMagic.playerProtectEvil();
                         break;
                     case 29:
                         spellCreateFood();
@@ -769,15 +771,15 @@ namespace Moria.Core.Methods
                         identified = scrollSummonUndead();
                         break;
                     case 38:
-                        playerBless(rnd.randomNumber(12) + 6);
+                        playerMagic.playerBless(rnd.randomNumber(12) + 6);
                         identified = true;
                         break;
                     case 39:
-                        playerBless(rnd.randomNumber(24) + 12);
+                        playerMagic.playerBless(rnd.randomNumber(24) + 12);
                         identified = true;
                         break;
                     case 40:
-                        playerBless(rnd.randomNumber(48) + 24);
+                        playerMagic.playerBless(rnd.randomNumber(48) + 24);
                         identified = true;
                         break;
                     case 41:

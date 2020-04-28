@@ -10,7 +10,6 @@ using static Moria.Core.Methods.Dungeon_m;
 using static Moria.Core.Methods.Game_objects_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Inventory_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -23,18 +22,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Player_throw_m.dice = dice;
             Player_throw_m.game = game;
+            Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
             Player_throw_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -323,7 +325,7 @@ namespace Moria.Core.Methods
                             }
                             printMessage(msg);
 
-                            tdam = itemMagicAbilityDamage(thrown_item, tdam, damage);
+                            tdam = playerMagic.itemMagicAbilityDamage(thrown_item, tdam, damage);
                             tdam = playerWeaponCriticalBlow((int)thrown_item.weight, tpth, tdam, (int)PlayerClassLevelAdj.BTHB);
 
                             if (tdam < 0)

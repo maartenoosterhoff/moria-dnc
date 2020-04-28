@@ -155,6 +155,7 @@ Options:
             container.RegisterSingleton<IDice, Dice_m>();
             container.RegisterSingleton<IGame, Game_m>();
             container.RegisterSingleton<IDungeonGenerate, Dungeon_generate_m>();
+            container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
             container.RegisterSingleton<IStd, Std_m>();
@@ -212,6 +213,7 @@ Options:
             Mage_spells_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
             );
@@ -231,6 +233,7 @@ Options:
             Player_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>()
             );
 
@@ -243,12 +246,9 @@ Options:
 
             Player_eat_m.SetDependencies(
                 container.GetInstance<IDice>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
-            );
-
-            Player_magic_m.SetDependencies(
-                container.GetInstance<IRnd>()
             );
 
             Player_move_m.SetDependencies(
@@ -259,12 +259,14 @@ Options:
             Player_pray_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
             );
 
             Player_quaff_m.SetDependencies(
                 container.GetInstance<IDice>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
             );
@@ -276,6 +278,7 @@ Options:
             Player_throw_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
             );
@@ -298,6 +301,7 @@ Options:
 
             Scrolls_m.SetDependencies(
                 container.GetInstance<IDice>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
             );
@@ -311,6 +315,7 @@ Options:
             Staffs_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IUiInventory>()
             );

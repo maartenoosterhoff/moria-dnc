@@ -11,7 +11,6 @@ using static Moria.Core.Methods.Monster_manager_m;
 using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
-using static Moria.Core.Methods.Player_magic_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
 
@@ -22,18 +21,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IPlayerMagic playerMagic,
             IRnd rnd,
             IUiInventory uiInventory
         )
         {
             Staffs_m.dice = dice;
             Staffs_m.game = game;
+            Staffs_m.playerMagic = playerMagic;
             Staffs_m.rnd = rnd;
             Staffs_m.uiInventory = uiInventory;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
@@ -198,7 +200,9 @@ namespace Moria.Core.Methods
                         identified = spellDetectEvil();
                         break;
                     case StaffSpellTypes.Curing:
-                        if (playerCureBlindness() || playerCurePoison() || playerCureConfusion())
+                        if (playerMagic.playerCureBlindness() ||
+                            playerMagic.playerCurePoison() ||
+                            playerMagic.playerCureConfusion())
                         {
                             identified = true;
                         }

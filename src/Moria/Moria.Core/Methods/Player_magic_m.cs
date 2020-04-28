@@ -6,19 +6,31 @@ using static Moria.Core.Constants.Treasure_c;
 
 namespace Moria.Core.Methods
 {
-    public static class Player_magic_m
+    public interface IPlayerMagic
     {
-        public static void SetDependencies(
+        bool playerCureBlindness();
+        bool playerCureConfusion();
+        bool playerCurePoison();
+        bool playerRemoveFear();
+        void playerDetectInvisible(int adjustment);
+        bool playerProtectEvil();
+        void playerBless(int adjustment);
+        int itemMagicAbilityDamage(Inventory_t item, int total_damage, int monster_id);
+    }
+
+    public class Player_magic_m : IPlayerMagic
+    {
+        public Player_magic_m(
             IRnd rnd
         )
         {
-            Player_magic_m.rnd = rnd;
+            this.rnd = rnd;
         }
 
-        private static IRnd rnd;
+        private IRnd rnd;
 
         // Cure players confusion -RAK-
-        public static bool playerCureConfusion()
+        public bool playerCureConfusion()
         {
             var py = State.Instance.py;
             if (py.flags.confused > 1)
@@ -30,7 +42,7 @@ namespace Moria.Core.Methods
         }
 
         // Cure players blindness -RAK-
-        public static bool playerCureBlindness()
+        public bool playerCureBlindness()
         {
             var py = State.Instance.py;
             if (py.flags.blind > 1)
@@ -42,7 +54,7 @@ namespace Moria.Core.Methods
         }
 
         // Cure poisoning -RAK-
-        public static bool playerCurePoison()
+        public bool playerCurePoison()
         {
             var py = State.Instance.py;
             if (py.flags.poisoned > 1)
@@ -54,7 +66,7 @@ namespace Moria.Core.Methods
         }
 
         // Cure the players fear -RAK-
-        public static bool playerRemoveFear()
+        public bool playerRemoveFear()
         {
             var py = State.Instance.py;
             if (py.flags.afraid > 1)
@@ -66,7 +78,7 @@ namespace Moria.Core.Methods
         }
 
         // Evil creatures don't like this. -RAK-
-        public static bool playerProtectEvil()
+        public bool playerProtectEvil()
         {
             var py = State.Instance.py;
             var is_protected = py.flags.protect_evil == 0;
@@ -77,21 +89,21 @@ namespace Moria.Core.Methods
         }
 
         // Bless -RAK-
-        public static void playerBless(int adjustment)
+        public void playerBless(int adjustment)
         {
             var py = State.Instance.py;
             py.flags.blessed += adjustment;
         }
 
         // Detect Invisible for period of time -RAK-
-        public static void playerDetectInvisible(int adjustment)
+        public void playerDetectInvisible(int adjustment)
         {
             var py = State.Instance.py;
             py.flags.detect_invisible += adjustment;
         }
 
         // Special damage due to magical abilities of object -RAK-
-        public static int itemMagicAbilityDamage(Inventory_t item, int total_damage, int monster_id)
+        public int itemMagicAbilityDamage(Inventory_t item, int total_damage, int monster_id)
         {
             var is_ego_weapon = (item.flags & Config.treasure_flags.TR_EGO_WEAPON) != 0;
             var is_projectile = item.category_id >= TV_SLING_AMMO && item.category_id <= TV_ARROW;
