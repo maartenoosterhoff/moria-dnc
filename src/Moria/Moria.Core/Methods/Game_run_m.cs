@@ -1909,8 +1909,6 @@ namespace Moria.Core.Methods
             }
 
             var dir_val = 0;
-            var out_val = string.Empty;
-            var tmp_str = string.Empty;
             //vtype_t out_val = { '\0' };
             //vtype_t tmp_str = { '\0' };
 
@@ -1922,6 +1920,7 @@ namespace Moria.Core.Methods
                 panel.y = dg.panel.row;
                 panel.x = dg.panel.col;
 
+                string tmp_str;
                 if (panel.y == old_panel.y && panel.x == old_panel.x)
                 {
                     tmp_str = string.Empty;
@@ -1939,7 +1938,7 @@ namespace Moria.Core.Methods
                     //);
                 }
 
-                out_val = $"Map sector [{panel.y:d},{panel.x:d}], which is{tmp_str} your sector. Look which direction?";
+                var out_val = $"Map sector [{panel.y:d},{panel.x:d}], which is{tmp_str} your sector. Look which direction?";
                 //(void)sprintf(out_val, "Map sector [%d,%d], which is%s your sector. Look which direction?", panel.y, panel.x, tmp_str);
 
                 if (!game.getDirectionWithMemory(out_val, ref dir_val))

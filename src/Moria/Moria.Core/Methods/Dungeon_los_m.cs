@@ -674,7 +674,7 @@ namespace Moria.Core.Methods
                 }
 
             granite:
-                if (((los_rocks_and_objects != 0 || msg[0] != 0) &&
+                if (((los_rocks_and_objects != 0 || !string.IsNullOrEmpty(msg)) &&
                     tile.feature_id >= MIN_CLOSED_SPACE) ||
                     skipForGraniteGoto)
                 {
@@ -688,7 +688,8 @@ namespace Moria.Core.Methods
                         case TILE_BOUNDARY_WALL:
                         case TILE_GRANITE_WALL:
                             // Granite is only interesting if it contains something.
-                            if (msg[0] != 0)
+                            //if (msg[0] != 0))
+                            if (!string.IsNullOrEmpty(msg))
                             {
                                 wall_description = "a granite wall";
                             }
@@ -719,7 +720,8 @@ namespace Moria.Core.Methods
                 }
             }
 
-            if (msg[0] != 0)
+            if (!string.IsNullOrEmpty(msg))
+            //if (msg[0] != 0)
             {
                 los_num_places_seen++;
                 if (query == ESCAPE)
