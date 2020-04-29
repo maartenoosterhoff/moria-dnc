@@ -972,7 +972,7 @@ namespace Moria.Core.Methods
                     spell_char = (char)('a' + spell_id - non_consecutive);
                 }
 
-                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset]}{spell.level_required,2:d} {spell.mana_required,4:d} {spellChanceOfSuccess(spell_id),3:d}%{p}";
+                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset].PadRight(30)}{spell.level_required,2:d} {spell.mana_required,4:d} {spellChanceOfSuccess(spell_id),3:d}%{p}";
                 //vtype_t out_val = { '\0' };
                 //(void)sprintf(out_val,
                 //    "  %c) %-30s%2d %4d %3d%%%s",
