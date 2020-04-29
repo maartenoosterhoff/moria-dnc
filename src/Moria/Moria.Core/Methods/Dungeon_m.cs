@@ -558,9 +558,9 @@ namespace Moria.Core.Methods
 
             if (id != last_id)
             {
-                monster = monsters[last_id];
+                monster = monsters[last_id].Clone();
                 dg.floor[monster.pos.y][monster.pos.x].creature_id = (uint)id;
-                monsters[id] = monsters[last_id];
+                monsters[id] = monsters[last_id].Clone();
             }
 
             State.Instance.next_free_monster_id--;
@@ -621,7 +621,7 @@ namespace Moria.Core.Methods
                 var x = monsters[last_id].pos.x;
                 dg.floor[y][x].creature_id = (uint)id;
 
-                monsters[id] = monsters[last_id];
+                monsters[id] = monsters[last_id].Clone();
             }
 
             monsters[last_id] = State.Instance.blank_monster;

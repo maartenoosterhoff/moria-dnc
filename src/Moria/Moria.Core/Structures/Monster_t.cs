@@ -2,6 +2,23 @@
 {
     public class Monster_t
     {
+        public Monster_t Clone()
+        {
+            return new Monster_t
+            {
+                hp = this.hp,
+                sleep_count = this.sleep_count,
+                speed = this.speed,
+                creature_id = this.creature_id,
+
+                pos = this.pos.Clone(),
+                distance_from_player = this.distance_from_player,
+                lit = this.lit,
+                stunned_amount = this.stunned_amount,
+                confused_amount = this.confused_amount
+            };
+        }
+
         public int hp { get; set; }
         public int sleep_count { get; set; }
         public int speed { get; set; }
