@@ -1,4 +1,5 @@
-﻿using Moria.Core.Configs;
+﻿using System;
+using Moria.Core.Configs;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -645,7 +646,13 @@ namespace Moria.Core.Methods
                 int m;
 
                 // Note: simple loop to get id
-                for (m = from; m <= to && m < PLAYER_INVENTORY_SIZE && ((py.inventory[m].inscription[0] != which) || (py.inventory[m].inscription[1] != '\0')); m++)
+                for (m = from; 
+                    m <= to && 
+                    m < PLAYER_INVENTORY_SIZE &&
+                    string.CompareOrdinal(py.inventory[m].inscription, which.ToString()) != 0
+                    //(py.inventory[m].inscription[0] != which || py.inventory[m].inscription[1] != '\0')
+                        ;
+                    m++)
                     ;
 
                 if (m <= to)
