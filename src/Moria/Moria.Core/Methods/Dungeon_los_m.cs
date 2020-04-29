@@ -518,17 +518,14 @@ namespace Moria.Core.Methods
                 los_hack_no_query = false;
             }
 
-            var gotoTransparent = false;
-            if (transparent)
-            {
-                // Old: goto init_transparent;
-                gotoTransparent = true;
-            }
+            // Old: goto init_transparent;
+            var gotoTransparent = transparent;
 
             while (true)
             {
-                if (!gotoTransparent)
+                if (gotoTransparent)
                 {
+                    gotoTransparent = false;
                     goto init_transparent;
                 }
 
@@ -563,7 +560,6 @@ namespace Moria.Core.Methods
                 } while (!transparent);
 
                 init_transparent:
-                gotoTransparent = false;
 
                 // Find the end of this window of visibility.
                 do
