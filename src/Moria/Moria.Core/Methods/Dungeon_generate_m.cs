@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using Moria.Core.Utils;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
@@ -20,6 +19,7 @@ namespace Moria.Core.Methods
         private readonly IDungeon dungeon;
         private readonly IDungeonPlacer dungeonPlacer;
         private readonly IGameObjects gameObjects;
+        private readonly IHelpers helpers;
         private readonly IInventoryManager inventoryManager;
         private readonly IMonsterManager monsterManager;
         private readonly IRnd rnd;
@@ -29,6 +29,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
             IGameObjects gameObjects,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
@@ -38,6 +39,7 @@ namespace Moria.Core.Methods
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
             this.gameObjects = gameObjects;
+            this.helpers = helpers;
             this.inventoryManager = inventoryManager;
             this.monsterManager = monsterManager;
             this.rnd = rnd;
@@ -248,7 +250,7 @@ namespace Moria.Core.Methods
                         }
                     }
                 }
-            } while (playerMovePosition(dir, ref coord));
+            } while (this.helpers.movePosition(dir, ref coord));
         }
 
         private void dungeonPlaceOpenDoor(Coord_t coord)

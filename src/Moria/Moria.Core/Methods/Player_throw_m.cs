@@ -21,6 +21,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IGame game,
             IGameObjects gameObjects,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -31,6 +32,7 @@ namespace Moria.Core.Methods
             Player_throw_m.dungeon = dungeon;
             Player_throw_m.game = game;
             Player_throw_m.gameObjects = gameObjects;
+            Player_throw_m.helpers = helpers;
             Player_throw_m.inventoryManager = inventoryManager;
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
@@ -41,6 +43,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IGame game;
         private static IGameObjects gameObjects;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -275,7 +278,7 @@ namespace Moria.Core.Methods
 
             while (!flag)
             {
-                playerMovePosition(dir, ref coord);
+                helpers.movePosition(dir, ref coord);
 
                 if (current_distance + 1 > tdis)
                 {

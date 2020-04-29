@@ -17,6 +17,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
             IGame game,
+            IHelpers helpers,
             IRnd rnd
         )
         {
@@ -24,6 +25,7 @@ namespace Moria.Core.Methods
             Player_tunnel_m.dungeon = dungeon;
             Player_tunnel_m.dungeonPlacer = dungeonPlacer;
             Player_tunnel_m.game = game;
+            Player_tunnel_m.helpers = helpers;
             Player_tunnel_m.rnd = rnd;
         }
 
@@ -31,6 +33,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IDungeonPlacer dungeonPlacer;
         private static IGame game;
+        private static IHelpers helpers;
         private static IRnd rnd;
 
         // Don't let the player tunnel somewhere illegal, this is necessary to
@@ -198,7 +201,7 @@ namespace Moria.Core.Methods
             }
 
             var coord = py.pos.Clone();
-            playerMovePosition(direction, ref coord);
+            helpers.movePosition(direction, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
             var item = py.inventory[(int)PlayerEquipment.Wield];

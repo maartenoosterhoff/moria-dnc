@@ -251,6 +251,7 @@ Options:
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IStd>()
@@ -269,6 +270,7 @@ Options:
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IDungeonPlacer>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>()
@@ -293,7 +295,8 @@ Options:
             );
 
             Player_run_m.SetDependencies(
-                container.GetInstance<IDungeon>()
+                container.GetInstance<IDungeon>(),
+                container.GetInstance<IHelpers>()
             );
 
             Player_stats_m.SetDependencies(
@@ -305,6 +308,7 @@ Options:
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IGame>(),
                 container.GetInstance<IGameObjects>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
@@ -315,6 +319,7 @@ Options:
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>()
             );
@@ -324,6 +329,7 @@ Options:
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IDungeonPlacer>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IRnd>()
             );
 

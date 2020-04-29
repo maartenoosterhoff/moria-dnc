@@ -91,67 +91,7 @@ namespace Moria.Core.Methods
             return "Female";
         }
 
-        // Given direction "dir", returns new row, column location -RAK-
-        public static bool playerMovePosition(int dir, ref Coord_t coord)
-        {
-            var dg = State.Instance.dg;
-
-            var new_coord = new Coord_t(0, 0);
-
-            switch (dir)
-            {
-                case 1:
-                    new_coord.y = coord.y + 1;
-                    new_coord.x = coord.x - 1;
-                    break;
-                case 2:
-                    new_coord.y = coord.y + 1;
-                    new_coord.x = coord.x;
-                    break;
-                case 3:
-                    new_coord.y = coord.y + 1;
-                    new_coord.x = coord.x + 1;
-                    break;
-                case 4:
-                    new_coord.y = coord.y;
-                    new_coord.x = coord.x - 1;
-                    break;
-                case 5:
-                    new_coord.y = coord.y;
-                    new_coord.x = coord.x;
-                    break;
-                case 6:
-                    new_coord.y = coord.y;
-                    new_coord.x = coord.x + 1;
-                    break;
-                case 7:
-                    new_coord.y = coord.y - 1;
-                    new_coord.x = coord.x - 1;
-                    break;
-                case 8:
-                    new_coord.y = coord.y - 1;
-                    new_coord.x = coord.x;
-                    break;
-                case 9:
-                    new_coord.y = coord.y - 1;
-                    new_coord.x = coord.x + 1;
-                    break;
-                default:
-                    new_coord.y = 0;
-                    new_coord.x = 0;
-                    break;
-            }
-
-            var can_move = false;
-
-            if (new_coord.y >= 0 && new_coord.y < dg.height && new_coord.x >= 0 && new_coord.x < dg.width)
-            {
-                coord = new_coord;
-                can_move = true;
-            }
-
-            return can_move;
-        }
+        
 
         // Teleport the player to a new location -RAK-
         public static void playerTeleport(int new_distance)
@@ -1698,7 +1638,7 @@ namespace Moria.Core.Methods
             }
 
             var coord = py.pos.Clone();
-            playerMovePosition(dir, ref coord);
+            helpers.movePosition(dir, ref coord);
 
             var no_object = false;
 
@@ -1751,7 +1691,7 @@ namespace Moria.Core.Methods
             }
 
             var coord = py.pos.Clone();
-            playerMovePosition(dir, ref coord);
+            helpers.movePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
             var item = game.treasure.list[tile.treasure_id];

@@ -1,5 +1,4 @@
-﻿using System;
-using Moria.Core.Configs;
+﻿using Moria.Core.Configs;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;

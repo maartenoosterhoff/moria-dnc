@@ -20,6 +20,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IRnd rnd,
             IStd std
@@ -28,6 +29,7 @@ namespace Moria.Core.Methods
             Player_bash_m.dice = dice;
             Player_bash_m.dungeon = dungeon;
             Player_bash_m.game = game;
+            Player_bash_m.helpers = helpers;
             Player_bash_m.inventoryManager = inventoryManager;
             Player_bash_m.rnd = rnd;
             Player_bash_m.std = std;
@@ -36,6 +38,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IRnd rnd;
         private static IStd std;
@@ -78,7 +81,7 @@ namespace Moria.Core.Methods
             }
 
             var coord = py.pos.Clone();
-            playerMovePosition(dir, ref coord);
+            helpers.movePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
 

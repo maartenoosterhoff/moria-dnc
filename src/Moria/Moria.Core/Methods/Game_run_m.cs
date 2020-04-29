@@ -2725,7 +2725,7 @@ namespace Moria.Core.Methods
             {
                 return;
             }
-            playerMovePosition(direction, ref coord);
+            helpers.movePosition(direction, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
 

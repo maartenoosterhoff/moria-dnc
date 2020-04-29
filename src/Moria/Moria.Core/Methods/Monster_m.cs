@@ -845,7 +845,7 @@ namespace Moria.Core.Methods
                 coord.y = monster.pos.y;
                 coord.x = monster.pos.x;
 
-                playerMovePosition(directions[i], ref coord);
+                helpers.movePosition(directions[i], ref coord);
 
                 var tile = dg.floor[coord.y][coord.x];
 

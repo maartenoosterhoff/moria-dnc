@@ -1,4 +1,6 @@
 ﻿using System;
+using Moria.Core.States;
+using Moria.Core.Structures;
 
 namespace Moria.Core.Methods
 {
@@ -10,6 +12,8 @@ namespace Moria.Core.Methods
         void insertNumberIntoString(ref string to_string, string from_string, int number, bool show_sign);
         void insertStringIntoString(ref string to_string, string from_string, string str_to_insert);
         void humanDateString(out string day);
+
+        bool movePosition(int dir, ref Coord_t coord);
     }
 
     public class Helpers_m : IHelpers
@@ -95,6 +99,68 @@ namespace Moria.Core.Methods
             // d = writes day of the month as a decimal number (range [01,31])
 
             day = now.ToString("ddd MMM d");
+        }
+
+        // Given direction "dir", returns new row, column location -RAK-
+        public bool movePosition(int dir, ref Coord_t coord)
+        {
+            var dg = State.Instance.dg;
+
+            var new_coord = new Coord_t(0, 0);
+
+            switch (dir)
+            {
+                case 1:
+                    new_coord.y = coord.y + 1;
+                    new_coord.x = coord.x - 1;
+                    break;
+                case 2:
+                    new_coord.y = coord.y + 1;
+                    new_coord.x = coord.x;
+                    break;
+                case 3:
+                    new_coord.y = coord.y + 1;
+                    new_coord.x = coord.x + 1;
+                    break;
+                case 4:
+                    new_coord.y = coord.y;
+                    new_coord.x = coord.x - 1;
+                    break;
+                case 5:
+                    new_coord.y = coord.y;
+                    new_coord.x = coord.x;
+                    break;
+                case 6:
+                    new_coord.y = coord.y;
+                    new_coord.x = coord.x + 1;
+                    break;
+                case 7:
+                    new_coord.y = coord.y - 1;
+                    new_coord.x = coord.x - 1;
+                    break;
+                case 8:
+                    new_coord.y = coord.y - 1;
+                    new_coord.x = coord.x;
+                    break;
+                case 9:
+                    new_coord.y = coord.y - 1;
+                    new_coord.x = coord.x + 1;
+                    break;
+                default:
+                    new_coord.y = 0;
+                    new_coord.x = 0;
+                    break;
+            }
+
+            var can_move = false;
+
+            if (new_coord.y >= 0 && new_coord.y < dg.height && new_coord.x >= 0 && new_coord.x < dg.width)
+            {
+                coord = new_coord;
+                can_move = true;
+            }
+
+            return can_move;
         }
     }
 }

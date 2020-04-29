@@ -4,7 +4,6 @@ using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_move_m;
-using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
@@ -12,13 +11,16 @@ namespace Moria.Core.Methods
     public static class Player_run_m
     {
         public static void SetDependencies(
-            IDungeon dungeon
+            IDungeon dungeon,
+            IHelpers helpers
         )
         {
             Player_run_m.dungeon = dungeon;
+            Player_run_m.helpers = helpers;
         }
 
         private static IDungeon dungeon;
+        private static IHelpers helpers;
 
         // Overview: You keep moving until something interesting happens. If you are in
         // an enclosed space, you follow corners. This is the usual corridor scheme. If
@@ -132,7 +134,7 @@ namespace Moria.Core.Methods
         static bool playerCanSeeDungeonWall(int dir, Coord_t coord)
         {
             // check to see if movement there possible
-            if (!playerMovePosition(dir, ref coord))
+            if (!helpers.movePosition(dir, ref coord))
             {
                 return true;
             }
@@ -146,7 +148,7 @@ namespace Moria.Core.Methods
         static bool playerSeeNothing(int dir, Coord_t coord)
         {
             // check to see if movement there possible
-            return playerMovePosition(dir, ref coord) && dungeon.caveGetTileSymbol(coord) == ' ';
+            return helpers.movePosition(dir, ref coord) && dungeon.caveGetTileSymbol(coord) == ' ';
         }
 
         static void findRunningBreak(int dir, Coord_t coord)
@@ -225,7 +227,7 @@ namespace Moria.Core.Methods
 
             var coord = py.pos.Clone();
 
-            if (!playerMovePosition(direction, ref coord))
+            if (!helpers.movePosition(direction, ref coord))
             {
                 py.running_tracker = 0;
             }
@@ -443,7 +445,7 @@ namespace Moria.Core.Methods
                 spot.x = coord.x;
 
                 // Objects player can see (Including doors?) cause a stop.
-                if (playerMovePosition(new_dir, ref spot))
+                if (helpers.movePosition(new_dir, ref spot))
                 {
                     areaAffectStopLookingAtSquares(i, direction, new_dir, spot, ref check_dir, ref dir_a, ref dir_b);
                 }
@@ -481,7 +483,7 @@ namespace Moria.Core.Methods
             // Two options!
 
             var location = new Coord_t(coord.y, coord.x);
-            playerMovePosition(dir_a, ref location);
+            helpers.movePosition(dir_a, ref location);
 
             if (!playerCanSeeDungeonWall(dir_a, location) || !playerCanSeeDungeonWall(check_dir, location))
             {

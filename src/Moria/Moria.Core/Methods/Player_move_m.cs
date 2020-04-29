@@ -21,6 +21,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
+            IHelpers helpers,
             IInventory inventory,
             IMonsterManager monsterManager,
             IRnd rnd
@@ -29,6 +30,7 @@ namespace Moria.Core.Methods
             Player_move_m.dice = dice;
             Player_move_m.dungeon = dungeon;
             Player_move_m.dungeonPlacer = dungeonPlacer;
+            Player_move_m.helpers = helpers;
             Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
@@ -37,6 +39,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IDungeonPlacer dungeonPlacer;
+        private static IHelpers helpers;
         private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -546,7 +549,7 @@ namespace Moria.Core.Methods
             var coord = py.pos.Clone();
 
             // Legal move?
-            if (!playerMovePosition(direction, ref coord))
+            if (!helpers.movePosition(direction, ref coord))
             {
                 return;
             }

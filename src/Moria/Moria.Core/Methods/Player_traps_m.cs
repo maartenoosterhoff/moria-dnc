@@ -19,6 +19,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IGame game,
+            IHelpers helpers,
             IMonsterManager monsterManager,
             IRnd rnd
         )
@@ -26,6 +27,7 @@ namespace Moria.Core.Methods
             Player_traps_m.dice = dice;
             Player_traps_m.dungeon = dungeon;
             Player_traps_m.game = game;
+            Player_traps_m.helpers = helpers;
             Player_traps_m.monsterManager = monsterManager;
             Player_traps_m.rnd = rnd;
         }
@@ -33,6 +35,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IDungeon dungeon;
         private static IGame game;
+        private static IHelpers helpers;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
 
@@ -168,7 +171,7 @@ namespace Moria.Core.Methods
             }
 
             var coord = py.pos.Clone();
-            playerMovePosition(dir, ref coord);
+            helpers.movePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
 
