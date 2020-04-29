@@ -37,13 +37,18 @@ namespace Moria.Core.Methods
         // Insert a long number into a string (was `insert_lnum()` function)
         public void insertNumberIntoString(ref string to_string, string from_string, int number, bool show_sign)
         {
-            throw new NotImplementedException();
+            var replacement = $"{number:d}";
+            if (show_sign && number >= 0)
+            {
+                replacement = $"+{number:d}";
+            }
+
+            to_string = to_string.Replace(from_string, replacement);
         }
 
         // Inserts a string into a string
         public void insertStringIntoString(ref string to_string, string from_string, string str_to_insert)
         {
-            throw new NotImplementedException();
         }
 
         public bool isVowel(char ch)
