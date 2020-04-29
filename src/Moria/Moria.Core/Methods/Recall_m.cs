@@ -383,7 +383,7 @@ namespace Moria.Core.Methods
                 plural = 's';
             }
 
-            var desc = $" creature is worth {quotient:d}.{remainder:d02} point{plural}";
+            var desc = $" creature is worth {quotient:d}.{remainder,2:d} point{plural}";
             //vtype_t desc = { '\0' };
             //(void)sprintf(desc, " creature is worth %d.%02d point%c", quotient, remainder, plural);
             memoryPrint(desc);

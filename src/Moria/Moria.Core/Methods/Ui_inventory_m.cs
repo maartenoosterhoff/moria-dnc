@@ -43,7 +43,7 @@ namespace Moria.Core.Methods
             var quotient = total_weight / 10;
             var remainder = total_weight % 10;
 
-            text = $"{quotient:d3}.{remainder:d} lb";
+            text = $"{quotient,3:d}.{remainder:d} lb";
             //(void)sprintf(text, "%3d.%d lb", quotient, remainder);
         }
 

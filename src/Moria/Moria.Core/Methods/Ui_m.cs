@@ -200,7 +200,7 @@ namespace Moria.Core.Methods
 
             if (stat <= 18)
             {
-                stat_string = $"{stat:d6}";
+                stat_string = $"{stat,6:d}";
                 //(void)sprintf(stat_string, "%6d", stat);
             }
             else if (percentile == 100)
@@ -210,7 +210,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                stat_string = $" 18/{percentile:d2}";
+                stat_string = $" 18/{percentile,2:d}";
                 //(void)sprintf(stat_string, " 18/%02d", percentile);
             }
         }
@@ -239,7 +239,7 @@ namespace Moria.Core.Methods
         // Print long number with header at given row, column
         public static void printHeaderLongNumber(string header, int num, Coord_t coord)
         {
-            var str = $"{header}: {num:d6}";
+            var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %6d", header, num);
             putString(str, coord);
@@ -248,7 +248,7 @@ namespace Moria.Core.Methods
         // Print long number (7 digits of space) with header at given row, column
         public static void printHeaderLongNumber7Spaces(string header, int num, Coord_t coord)
         {
-            var str = $"{header}: {num:d7}";
+            var str = $"{header}: {num,7:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %7d", header, num);
             putString(str, coord);
@@ -257,7 +257,7 @@ namespace Moria.Core.Methods
         // Print number with header at given row, column -RAK-
         public static void printHeaderNumber(string header, int num, Coord_t coord)
         {
-            var str = $"{header}: {num:d6}";
+            var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %6d", header, num);
             putString(str, coord);
@@ -266,7 +266,7 @@ namespace Moria.Core.Methods
         // Print long number at given row, column
         public static void printLongNumber(int num, Coord_t coord)
         {
-            var str = $"{num:d6}";
+            var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%6d", num);
             putString(str, coord);
@@ -275,7 +275,7 @@ namespace Moria.Core.Methods
         // Print number at given row, column -RAK-
         public static void printNumber(int num, Coord_t coord)
         {
-            var str = $"{num:d6}";
+            var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%6d", num);
             putString(str, coord);
@@ -456,7 +456,7 @@ namespace Moria.Core.Methods
                 }
                 else if (Config.options.display_counts)
                 {
-                    rest_string = $"Rest {py.flags.rest:d-5}";
+                    rest_string = $"Rest {py.flags.rest,-5:d}";
                     //(void)sprintf(rest_string, "Rest %-5d", py.flags.rest);
                 }
                 else
@@ -477,7 +477,7 @@ namespace Moria.Core.Methods
 
                 if (Config.options.display_counts)
                 {
-                    repeat_string = $"Repeat {game.command_count:d-3}";
+                    repeat_string = $"Repeat {game.command_count,-3:d}";
                     //(void)sprintf(repeat_string, "Repeat %-3d", game.command_count);
                 }
                 else
@@ -972,7 +972,7 @@ namespace Moria.Core.Methods
                     spell_char = (char)('a' + spell_id - non_consecutive);
                 }
 
-                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset]}{spell.level_required:d2} {spell.mana_required:d4} {spellChanceOfSuccess(spell_id):d3}%{p}";
+                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset]}{spell.level_required,2:d} {spell.mana_required,4:d} {spellChanceOfSuccess(spell_id),3:d}%{p}";
                 //vtype_t out_val = { '\0' };
                 //(void)sprintf(out_val,
                 //    "  %c) %-30s%2d %4d %3d%%%s",

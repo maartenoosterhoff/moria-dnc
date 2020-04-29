@@ -209,12 +209,12 @@ namespace Moria.Core.Methods
                         value = 1;
                     }
 
-                    msg = $"{value:d9}";
+                    msg = $"{value,9:d}";
                     //(void)sprintf(msg, "%9d", value);
                 }
                 else
                 {
-                    msg = $"{current_item_count:d9} [Fixed]";
+                    msg = $"{current_item_count,9:d} [Fixed]";
                     //(void)sprintf(msg, "%9d [Fixed]", current_item_count);
                 }
 
@@ -257,7 +257,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                msg = $"{cost:d9} [Fixed]";
+                msg = $"{cost,9:d} [Fixed]";
                 //(void)sprintf(msg, "%9d [Fixed]", cost);
             }
             putStringClearToEOL(msg, new Coord_t((item_id % 12) + 5, 59));
