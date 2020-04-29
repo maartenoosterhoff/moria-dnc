@@ -153,7 +153,7 @@ Options:
             container.RegisterSingleton<ICharacter, Character_m>();
             container.RegisterSingleton<IDice, Dice_m>();
             container.RegisterSingleton<IDungeon, Dungeon_m>();
-            container.RegisterSingleton<IDungeonGenerate, Dungeon_generate_m>();
+            container.RegisterSingleton<IDungeonGenerator, DungeonGenerator>();
             container.RegisterSingleton<IDungeonLos, Dungeon_los_m>();
             container.RegisterSingleton<IDungeonPlacer, Dungeon_placer_m>();
             container.RegisterSingleton<IGame, Game_m>();
@@ -180,7 +180,7 @@ Options:
                 container.GetInstance<ICharacter>(),
                 container.GetInstance<IDungeon>(),
                 container.GetInstance<IDungeonLos>(),
-                container.GetInstance<IDungeonGenerate>(),
+                container.GetInstance<IDungeonGenerator>(),
                 container.GetInstance<IGame>(),
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),

@@ -46,7 +46,7 @@ namespace Moria.Core.Methods
             ICharacter character,
             IDungeon dungeon,
             IDungeonLos dungeonLos,
-            IDungeonGenerate dungeonGenerate,
+            IDungeonGenerator dungeonGenerator,
             IGame game,
             IHelpers helpers,
             IInventory inventory,
@@ -61,7 +61,7 @@ namespace Moria.Core.Methods
             Game_run_m.character = character;
             Game_run_m.dungeon = dungeon;
             Game_run_m.dungeonLos = dungeonLos;
-            Game_run_m.dungeonGenerate = dungeonGenerate;
+            Game_run_m.dungeonGenerator = dungeonGenerator;
             Game_run_m.game = game;
             Game_run_m.helpers = helpers;
             Game_run_m.inventory = inventory;
@@ -77,7 +77,7 @@ namespace Moria.Core.Methods
         private static ICharacter character;
         private static IDungeon dungeon;
         private static IDungeonLos dungeonLos;
-        private static IDungeonGenerate dungeonGenerate;
+        private static IDungeonGenerator dungeonGenerator;
         private static IGame game;
         private static IHelpers helpers;
         private static IInventory inventory;
@@ -210,7 +210,7 @@ namespace Moria.Core.Methods
 
             if (generate)
             {
-                dungeonGenerate.generateCave();
+                dungeonGenerator.GenerateCave();
             }
 
             // Loop till dead, or exit
@@ -238,7 +238,7 @@ namespace Moria.Core.Methods
                 // New level if not dead
                 if (!game.character_is_dead)
                 {
-                    dungeonGenerate.generateCave();
+                    dungeonGenerator.GenerateCave();
                 }
             }
 
