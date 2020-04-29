@@ -1092,7 +1092,7 @@ namespace Moria.Core.Methods
 
                         // Second, add old item to inv and remove
                         // from equipment list, if necessary.
-                        item = py.inventory[slot];
+                        item = py.inventory[slot].Clone();
                         if (item.category_id != TV_NOTHING)
                         {
                             var saved_counter = py.pack.unique_items;

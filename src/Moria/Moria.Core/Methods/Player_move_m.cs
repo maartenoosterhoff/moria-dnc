@@ -447,7 +447,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var py = State.Instance.py;
 
-            var item = game.treasure.list[dg.floor[coord.y][coord.x].treasure_id];
+            var item = game.treasure.list[dg.floor[coord.y][coord.x].treasure_id].Clone();
 
             var tile_flags = (int)game.treasure.list[dg.floor[coord.y][coord.x].treasure_id].category_id;
 

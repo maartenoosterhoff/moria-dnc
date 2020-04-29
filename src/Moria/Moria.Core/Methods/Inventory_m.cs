@@ -83,7 +83,7 @@ namespace Moria.Core.Methods
 
                     while (item_id < py.pack.unique_items)
                     {
-                        py.inventory[item_id] = py.inventory[item_id + 1];
+                        py.inventory[item_id] = py.inventory[item_id + 1].Clone();
                         item_id++;
                     }
 
