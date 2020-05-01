@@ -241,7 +241,7 @@ namespace Moria.Core.Methods
             }
 
             var item_val = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
             {
                 return;
             }

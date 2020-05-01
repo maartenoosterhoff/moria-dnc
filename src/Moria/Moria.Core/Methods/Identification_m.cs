@@ -1094,7 +1094,7 @@ namespace Moria.Core.Methods
             }
 
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
+            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
             {
                 return;
             }

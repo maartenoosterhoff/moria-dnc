@@ -376,7 +376,7 @@ namespace Moria.Core.Methods
             }
 
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }

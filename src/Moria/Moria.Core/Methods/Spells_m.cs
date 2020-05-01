@@ -579,7 +579,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Item you wish identified?", 0, (int)PLAYER_INVENTORY_SIZE, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Item you wish identified?", 0, (int)PLAYER_INVENTORY_SIZE, /*CNIL*/null, /*CNIL*/null))
             {
                 return false;
             }
@@ -1451,7 +1451,7 @@ namespace Moria.Core.Methods
             }
 
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Recharge which item?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Recharge which item?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return false;
             }

@@ -1288,7 +1288,7 @@ namespace Moria.Core.Methods
             }
 
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
+            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
             {
                 return false;
             }

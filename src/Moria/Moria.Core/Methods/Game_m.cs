@@ -61,14 +61,12 @@ namespace Moria.Core.Methods
                 prompt = "Which direction?";
             }
 
-            var command = '\0';
-
             while (true)
             {
                 // Don't end a counted command. -CJS-
                 var save = game.command_count;
 
-                if (!getCommand(prompt, out command))
+                if (!getCommand(prompt, out var command))
                 {
                     game.player_free_turn = true;
                     return false;

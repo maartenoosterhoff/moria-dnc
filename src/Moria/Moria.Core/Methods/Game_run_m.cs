@@ -2606,7 +2606,7 @@ namespace Moria.Core.Methods
             }
 
             var item_id = 0;
-            if (uiInventory.inventoryGetInputForItemId(ref item_id, "Which Book?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            if (uiInventory.inventoryGetInputForItemId(out item_id, "Which Book?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 var spell_index = new int[31];
                 var can_read = true;

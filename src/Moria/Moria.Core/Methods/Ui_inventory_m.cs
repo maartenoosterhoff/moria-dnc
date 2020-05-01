@@ -16,7 +16,7 @@ namespace Moria.Core.Methods
         int displayEquipment(bool weighted, int column);
         int displayInventory(int item_id_start, int item_id_end, bool weighted, int column, int[] mask);
 
-        bool inventoryGetInputForItemId(ref int command_key_id, string prompt, int item_id_start, int item_id_end,
+        bool inventoryGetInputForItemId(out int command_key_id, string prompt, int item_id_start, int item_id_end,
             int[] mask, string message);
         void inventoryExecuteCommand(char command);
         string playerItemWearingDescription(int body_location);
@@ -1433,7 +1433,7 @@ namespace Moria.Core.Methods
         }
 
         // Get the ID of an item and return the CTR value of it -RAK-
-        public bool inventoryGetInputForItemId(ref int command_key_id, string prompt, int item_id_start, int item_id_end, int[] mask, string message)
+        public bool inventoryGetInputForItemId(out int command_key_id, string prompt, int item_id_start, int item_id_end, int[] mask, string message)
         {
             var py = State.Instance.py;
             var screen_id = 1;
@@ -1454,13 +1454,13 @@ namespace Moria.Core.Methods
                 }
             }
 
+            command_key_id = 0;
+
             if (py.pack.unique_items < 1 && (!full || py.equipment_count < 1))
             {
                 putStringClearToEOL("You are not carrying anything.", new Coord_t(0, 0));
                 return false;
             }
-
-            command_key_id = 0;
 
             var item_found = false;
             var redraw_screen = false;

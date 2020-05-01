@@ -242,7 +242,7 @@ namespace Moria.Core.Methods
             }
 
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(ref item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
