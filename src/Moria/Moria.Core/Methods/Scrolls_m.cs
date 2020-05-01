@@ -716,7 +716,8 @@ namespace Moria.Core.Methods
                         //identified = spellDetectTreasureWithinVicinity();
                         break;
                     case 16:
-                        identified = spellDetectObjectsWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectObjectsWithinVicinityCommand());
+                        //identified = spellDetectObjectsWithinVicinity();
                         break;
                     case 17:
                         identified = spellDetectTrapsWithinVicinity();

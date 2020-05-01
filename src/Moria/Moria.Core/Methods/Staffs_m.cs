@@ -141,7 +141,8 @@ namespace Moria.Core.Methods
                         //identified = spellDetectTreasureWithinVicinity();
                         break;
                     case StaffSpellTypes.ObjectLocation:
-                        identified = spellDetectObjectsWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectObjectsWithinVicinityCommand());
+                        //identified = spellDetectObjectsWithinVicinity();
                         break;
                     case StaffSpellTypes.Teleportation:
                         playerTeleport(100);
