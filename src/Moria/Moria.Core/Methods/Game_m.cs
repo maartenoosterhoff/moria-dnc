@@ -76,7 +76,7 @@ namespace Moria.Core.Methods
 
                 if (Config.options.use_roguelike_keys)
                 {
-                    command = mapRoguelikeKeysToKeypad(command);
+                    command = this.mapRoguelikeKeysToKeypad(command);
                 }
 
                 if (command >= '1' && command <= '9' && command != '5')
@@ -107,7 +107,7 @@ namespace Moria.Core.Methods
 
                 if (Config.options.use_roguelike_keys)
                 {
-                    command = mapRoguelikeKeysToKeypad(command);
+                    command = this.mapRoguelikeKeysToKeypad(command);
                 }
 
                 if (command >= '1' && command <= '9')

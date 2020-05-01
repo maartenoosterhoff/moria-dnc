@@ -51,19 +51,19 @@ namespace Moria.Core.Methods
             {
                 for (var i = 0; i <= 10; i++)
                 {
-                    var at = new Coord_t(coord.y - 3 + rnd.randomNumber(5), coord.x - 4 + rnd.randomNumber(7));
+                    var at = new Coord_t(coord.y - 3 + this.rnd.randomNumber(5), coord.x - 4 + this.rnd.randomNumber(7));
 
                     if (this.dungeon.coordInBounds(at) &&
                         dg.floor[at.y][at.x].feature_id <= Dungeon_tile_c.MAX_CAVE_FLOOR &&
                         dg.floor[at.y][at.x].treasure_id == 0)
                     {
-                        if (rnd.randomNumber(100) < 75)
+                        if (this.rnd.randomNumber(100) < 75)
                         {
-                            dungeonPlaceRandomObjectAt(at, false);
+                            this.dungeonPlaceRandomObjectAt(at, false);
                         }
                         else
                         {
-                            dungeonPlaceGold(at);
+                            this.dungeonPlaceGold(at);
                         }
                         i = 9;
                     }
@@ -86,7 +86,7 @@ namespace Moria.Core.Methods
             var object_id = this.gameObjects.itemGetRandomObjectId(dg.current_level, must_be_small);
             this.inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], State.Instance.game.treasure.list[free_treasure_id]);
 
-            treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
+            this.treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {
@@ -125,11 +125,11 @@ namespace Moria.Core.Methods
 
             var free_treasure_id = this.gameObjects.popt();
 
-            var gold_type_id = ((rnd.randomNumber(dg.current_level + 2) + 2) / 2) - 1;
+            var gold_type_id = ((this.rnd.randomNumber(dg.current_level + 2) + 2) / 2) - 1;
 
-            if (rnd.randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
+            if (this.rnd.randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
             {
-                gold_type_id += rnd.randomNumber(dg.current_level + 1);
+                gold_type_id += this.rnd.randomNumber(dg.current_level + 1);
             }
 
             if (gold_type_id >= Config.dungeon_objects.MAX_GOLD_TYPES)
@@ -139,7 +139,7 @@ namespace Moria.Core.Methods
 
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
             this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_GOLD_LIST + gold_type_id, game.treasure.list[free_treasure_id]);
-            game.treasure.list[free_treasure_id].cost += (8 * rnd.randomNumber(game.treasure.list[free_treasure_id].cost)) + rnd.randomNumber(8);
+            game.treasure.list[free_treasure_id].cost += (8 * this.rnd.randomNumber(game.treasure.list[free_treasure_id].cost)) + this.rnd.randomNumber(8);
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {
@@ -161,8 +161,8 @@ namespace Moria.Core.Methods
                 // problems if player is standing under rubble, or on a trap.
                 do
                 {
-                    coord.y = rnd.randomNumber(dg.height) - 1;
-                    coord.x = rnd.randomNumber(dg.width) - 1;
+                    coord.y = this.rnd.randomNumber(dg.height) - 1;
+                    coord.x = this.rnd.randomNumber(dg.width) - 1;
                 } while (!set_function((int)dg.floor[coord.y][coord.x].feature_id) ||
                          dg.floor[coord.y][coord.x].treasure_id != 0 ||
                          (coord.y == py.pos.y && coord.x == py.pos.x));
@@ -170,19 +170,19 @@ namespace Moria.Core.Methods
                 switch (object_type)
                 {
                     case 1:
-                        dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
+                        this.dungeonSetTrap(coord, this.rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
                         break;
                     case 2:
                     // NOTE: object_type == 2 is no longer used - it used to be visible traps.
                     // FIXME: there was no `break` here so `case 3` catches it? -MRC-
                     case 3:
-                        dungeonPlaceRubble(coord);
+                        this.dungeonPlaceRubble(coord);
                         break;
                     case 4:
-                        dungeonPlaceGold(coord);
+                        this.dungeonPlaceGold(coord);
                         break;
                     case 5:
-                        dungeonPlaceRandomObjectAt(coord, false);
+                        this.dungeonPlaceRandomObjectAt(coord, false);
                         break;
                     default:
                         break;
@@ -213,17 +213,17 @@ namespace Moria.Core.Methods
                 for (var tries = 0; tries <= 20; tries++)
                 {
                     var at = new Coord_t(
-                        coord.y - 3 + rnd.randomNumber(5),
-                        coord.x - 3 + rnd.randomNumber(5));
+                        coord.y - 3 + this.rnd.randomNumber(5),
+                        coord.x - 3 + this.rnd.randomNumber(5));
 
-                    if (dungeon.coordInBounds(at) && dungeonLos.los(coord, at))
+                    if (this.dungeon.coordInBounds(at) && this.dungeonLos.los(coord, at))
                     {
                         if (dg.floor[at.y][at.x].feature_id <= Dungeon_tile_c.MAX_OPEN_SPACE && dg.floor[at.y][at.x].treasure_id == 0)
                         {
                             // object_type == 3 -> 50% objects, 50% gold
                             if (object_type == 3 || object_type == 7)
                             {
-                                if (rnd.randomNumber(100) < 50)
+                                if (this.rnd.randomNumber(100) < 50)
                                 {
                                     real_type = 1;
                                 }
@@ -235,16 +235,16 @@ namespace Moria.Core.Methods
 
                             if (real_type == 1)
                             {
-                                dungeonPlaceRandomObjectAt(at, (object_type >= 4));
+                                this.dungeonPlaceRandomObjectAt(at, (object_type >= 4));
                             }
                             else
                             {
-                                dungeonPlaceGold(at);
+                                this.dungeonPlaceGold(at);
                             }
 
-                            dungeon.dungeonLiteSpot(at);
+                            this.dungeon.dungeonLiteSpot(at);
 
-                            if (dungeon.caveTileVisible(at))
+                            if (this.dungeon.caveTileVisible(at))
                             {
                                 result += real_type;
                             }

@@ -123,15 +123,15 @@ namespace Moria.Core.Methods
                 int slope;      // slope or 1/slope of LOS
 
                 var delta_multiply = delta_x * delta_y;
-                scale_half = (int)std.std_abs(std.std_intmax_t(delta_multiply));
+                scale_half = (int) this.std.std_abs(this.std.std_intmax_t(delta_multiply));
                 scale = scale_half << 1;
                 x_sign = delta_x < 0 ? -1 : 1;
                 y_sign = delta_y < 0 ? -1 : 1;
 
                 // Travel from one end of the line to the other, oriented along the longer axis.
 
-                var abs_delta_x = (int)std.std_abs(std.std_intmax_t(delta_x));
-                var abs_delta_y = (int)std.std_abs(std.std_intmax_t(delta_y));
+                var abs_delta_x = (int) this.std.std_abs(this.std.std_intmax_t(delta_x));
+                var abs_delta_y = (int) this.std.std_abs(this.std.std_intmax_t(delta_y));
 
                 if (abs_delta_x >= abs_delta_y)
                 {
@@ -338,19 +338,19 @@ namespace Moria.Core.Methods
             }
 
             var dir = 0;
-            if (!game.getAllDirections("Look which direction?", ref dir))
+            if (!this.game.getAllDirections("Look which direction?", ref dir))
             {
                 return;
             }
 
-            los_num_places_seen = 0;
-            los_rocks_and_objects = 0;
+            this.los_num_places_seen = 0;
+            this.los_rocks_and_objects = 0;
 
             // Have to set this up for the lookSee
-            los_hack_no_query = false;
+            this.los_hack_no_query = false;
 
             var dummy = false;
-            if (lookSee(new Coord_t(0, 0), ref dummy))
+            if (this.lookSee(new Coord_t(0, 0), ref dummy))
             {
                 return;
             }
@@ -363,18 +363,19 @@ namespace Moria.Core.Methods
                 {
                     for (var i = 1; i <= 4; i++)
                     {
-                        los_fxx = los_dir_set_fxx[i];
-                        los_fyx = los_dir_set_fyx[i];
-                        los_fxy = los_dir_set_fxy[i];
-                        los_fyy = los_dir_set_fyy[i];
-                        if (lookRay(0, 2 * GRADF - 1, 1))
+                        this.los_fxx = this.los_dir_set_fxx[i];
+                        this.los_fyx = this.los_dir_set_fyx[i];
+                        this.los_fxy = this.los_dir_set_fxy[i];
+                        this.los_fyy = this.los_dir_set_fyy[i];
+                        if (this.lookRay(0, 2 * GRADF - 1, 1))
                         {
                             abort = true;
                             break;
                         }
-                        los_fxy = -los_fxy;
-                        los_fyy = -los_fyy;
-                        if (lookRay(0, 2 * GRADF, 2))
+
+                        this.los_fxy = -this.los_fxy;
+                        this.los_fyy = -this.los_fyy;
+                        if (this.lookRay(0, 2 * GRADF, 2))
                         {
                             abort = true;
                             break;
@@ -386,45 +387,45 @@ namespace Moria.Core.Methods
                     // Straight directions
 
                     var i = dir >> 1;
-                    los_fxx = los_dir_set_fxx[i];
-                    los_fyx = los_dir_set_fyx[i];
-                    los_fxy = los_dir_set_fxy[i];
-                    los_fyy = los_dir_set_fyy[i];
-                    if (lookRay(0, GRADF, 1))
+                    this.los_fxx = this.los_dir_set_fxx[i];
+                    this.los_fyx = this.los_dir_set_fyx[i];
+                    this.los_fxy = this.los_dir_set_fxy[i];
+                    this.los_fyy = this.los_dir_set_fyy[i];
+                    if (this.lookRay(0, GRADF, 1))
                     {
                         abort = true;
                     }
                     else
                     {
-                        los_fxy = -los_fxy;
-                        los_fyy = -los_fyy;
-                        abort = lookRay(0, GRADF, 2);
+                        this.los_fxy = -this.los_fxy;
+                        this.los_fyy = -this.los_fyy;
+                        abort = this.lookRay(0, GRADF, 2);
                     }
                 }
                 else
                 {
-                    var i = los_map_diagonals1[dir >> 1];
-                    los_fxx = los_dir_set_fxx[i];
-                    los_fyx = los_dir_set_fyx[i];
-                    los_fxy = -los_dir_set_fxy[i];
-                    los_fyy = -los_dir_set_fyy[i];
-                    if (lookRay(1, 2 * GRADF, GRADF))
+                    var i = this.los_map_diagonals1[dir >> 1];
+                    this.los_fxx = this.los_dir_set_fxx[i];
+                    this.los_fyx = this.los_dir_set_fyx[i];
+                    this.los_fxy = -this.los_dir_set_fxy[i];
+                    this.los_fyy = -this.los_dir_set_fyy[i];
+                    if (this.lookRay(1, 2 * GRADF, GRADF))
                     {
                         abort = true;
                     }
                     else
                     {
-                        i = los_map_diagonals2[dir >> 1];
-                        los_fxx = los_dir_set_fxx[i];
-                        los_fyx = los_dir_set_fyx[i];
-                        los_fxy = los_dir_set_fxy[i];
-                        los_fyy = los_dir_set_fyy[i];
-                        abort = lookRay(1, 2 * GRADF - 1, GRADF);
+                        i = this.los_map_diagonals2[dir >> 1];
+                        this.los_fxx = this.los_dir_set_fxx[i];
+                        this.los_fyx = this.los_dir_set_fyx[i];
+                        this.los_fxy = this.los_dir_set_fxy[i];
+                        this.los_fyy = this.los_dir_set_fyy[i];
+                        abort = this.lookRay(1, 2 * GRADF - 1, GRADF);
                     }
                 }
 
-                los_rocks_and_objects++;
-            } while (!abort && Config.options.highlight_seams && (los_rocks_and_objects < 2));
+                this.los_rocks_and_objects++;
+            } while (!abort && Config.options.highlight_seams && (this.los_rocks_and_objects < 2));
 
             if (abort)
             {
@@ -432,7 +433,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (los_num_places_seen != 0)
+            if (this.los_num_places_seen != 0)
             {
                 if (dir == 5)
                 {
@@ -504,18 +505,18 @@ namespace Moria.Core.Methods
             // sight. If 'to' is  greater than 1, we do not really look at
             // stuff along the direct line of sight, but we do have to see
             // what is opaque for the purposes of obscuring other objects.
-            los_hack_no_query = (y == 0 && to > 1) || (y == x && from < GRADF * 2);
+            this.los_hack_no_query = (y == 0 && to > 1) || (y == x && from < GRADF * 2);
 
             var transparent = false;
 
-            if (lookSee(new Coord_t(y, x), ref transparent))
+            if (this.lookSee(new Coord_t(y, x), ref transparent))
             {
                 return true;
             }
 
             if (y == x)
             {
-                los_hack_no_query = false;
+                this.los_hack_no_query = false;
             }
 
             // Old: goto init_transparent;
@@ -530,7 +531,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Look down the window we've found.
-                if (lookRay(y + 1, from, ((2 * y + 1) * (int)GRADF / x)))
+                if (this.lookRay(y + 1, from, ((2 * y + 1) * (int)GRADF / x)))
                 {
                     return true;
                 }
@@ -553,7 +554,7 @@ namespace Moria.Core.Methods
 
                     x++;
 
-                    if (lookSee(new Coord_t(y, x), ref transparent))
+                    if (this.lookSee(new Coord_t(y, x), ref transparent))
                     {
                         return true;
                     }
@@ -567,12 +568,12 @@ namespace Moria.Core.Methods
                     if (x == max_x)
                     {
                         // The window is trimmed by an earlier limit.
-                        return lookRay(y + 1, from, to);
+                        return this.lookRay(y + 1, from, to);
                     }
 
                     x++;
 
-                    if (lookSee(new Coord_t(y, x), ref transparent))
+                    if (this.lookSee(new Coord_t(y, x), ref transparent))
                     {
                         return true;
                     }
@@ -603,8 +604,8 @@ namespace Moria.Core.Methods
                 description = "You see";
             }
 
-            var j = py.pos.x + los_fxx * coord.x + los_fxy * coord.y;
-            coord.y = py.pos.y + los_fyx * coord.x + los_fyy * coord.y;
+            var j = py.pos.x + this.los_fxx * coord.x + this.los_fxy * coord.y;
+            coord.y = py.pos.y + this.los_fyx * coord.x + this.los_fyy * coord.y;
             coord.x = j;
 
             if (!coordInsidePanel(coord))
@@ -616,7 +617,7 @@ namespace Moria.Core.Methods
             var tile = dg.floor[coord.y][coord.x];
             transparent = tile.feature_id <= MAX_OPEN_SPACE;
 
-            if (los_hack_no_query)
+            if (this.los_hack_no_query)
             {
                 return false; // Don't look at a direct line of sight. A hack.
             }
@@ -628,7 +629,7 @@ namespace Moria.Core.Methods
             var msg = string.Empty;
             var monsters = State.Instance.monsters;
 
-            if (los_rocks_and_objects == 0 && tile.creature_id > 1 && monsters[tile.creature_id].lit)
+            if (this.los_rocks_and_objects == 0 && tile.creature_id > 1 && monsters[tile.creature_id].lit)
             {
                 j = (int)monsters[tile.creature_id].creature_id;
                 var prefix = this.helpers.isVowel(Library.Instance.Creatures.creatures_list[j].name[0]) ? "an" : "a";
@@ -644,7 +645,7 @@ namespace Moria.Core.Methods
                 if (query == 'r' || query == 'R')
                 {
                     terminalSaveScreen();
-                    query = (char)recall.memoryRecall(j);
+                    query = (char) this.recall.memoryRecall(j);
                     terminalRestoreScreen();
                 }
             }
@@ -663,7 +664,7 @@ namespace Moria.Core.Methods
                         goto granite;
                     }
 
-                    if (los_rocks_and_objects == 0 && game.treasure.list[tile.treasure_id].category_id != TV_INVIS_TRAP)
+                    if (this.los_rocks_and_objects == 0 && game.treasure.list[tile.treasure_id].category_id != TV_INVIS_TRAP)
                     {
                         var obj_string = string.Empty;
                         itemDescription(ref obj_string, game.treasure.list[tile.treasure_id], true);
@@ -679,7 +680,7 @@ namespace Moria.Core.Methods
                 }
 
             granite:
-                if (((los_rocks_and_objects != 0 || !string.IsNullOrEmpty(msg)) &&
+                if (((this.los_rocks_and_objects != 0 || !string.IsNullOrEmpty(msg)) &&
                     tile.feature_id >= MIN_CLOSED_SPACE) ||
                     skipForGraniteGoto)
                 {
@@ -728,7 +729,7 @@ namespace Moria.Core.Methods
             if (!string.IsNullOrEmpty(msg))
             //if (msg[0] != 0)
             {
-                los_num_places_seen++;
+                this.los_num_places_seen++;
                 if (query == ESCAPE)
                 {
                     return true;

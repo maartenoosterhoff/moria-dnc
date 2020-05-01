@@ -45,7 +45,7 @@ namespace Moria.Core.Methods
             }
             game.treasure.current_id--;
 
-            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, game.treasure.list[game.treasure.current_id]);
+            this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, game.treasure.list[game.treasure.current_id]);
         }
     }
 }

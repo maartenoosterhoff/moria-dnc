@@ -83,7 +83,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var is_protected = py.flags.protect_evil == 0;
 
-            py.flags.protect_evil += rnd.randomNumber(25) + 3 * (int)py.misc.level;
+            py.flags.protect_evil += this.rnd.randomNumber(25) + 3 * (int)py.misc.level;
 
             return is_protected;
         }

@@ -48,40 +48,39 @@ namespace Moria.Core.Methods
             State.Instance.game.town_seed = clock_var;
 
             clock_var += 113452;
-            rng.setRandomSeed(clock_var);
+            this.rng.setRandomSeed(clock_var);
 
             // make it a little more random
-            for (clock_var = (uint)randomNumber(100); clock_var != 0; clock_var--)
+            for (clock_var = (uint) this.randomNumber(100); clock_var != 0; clock_var--)
             {
-                rng.rnd();
+                this.rng.rnd();
             }
         }
 
         // change to different random number generator state
         public void seedSet(uint seed)
         {
-            State.Instance.old_seed = rng.getRandomSeed();
+            State.Instance.old_seed = this.rng.getRandomSeed();
 
             // want reproducible state here
-            rng.setRandomSeed(seed);
+            this.rng.setRandomSeed(seed);
         }
 
         // restore the normal random generator state
         public void seedResetToOldSeed()
         {
-            rng.setRandomSeed(State.Instance.old_seed);
+            this.rng.setRandomSeed(State.Instance.old_seed);
         }
 
-        public int randomNumber(uint max) => randomNumber((int)max);
+        public int randomNumber(uint max) => this.randomNumber((int)max);
 
         // Generates a random integer x where 1<=X<=MAXVAL -RAK-
         public int randomNumber(int max)
         {
-            return (rng.rnd() % max) + 1;
+            return (this.rng.rnd() % max) + 1;
         }
 
-        public int randomNumberNormalDistribution(uint mean, int standard) =>
-            randomNumberNormalDistribution((int)mean, standard);
+        public int randomNumberNormalDistribution(uint mean, int standard) => this.randomNumberNormalDistribution((int)mean, standard);
 
         // Generates a random integer number of NORMAL distribution -RAK-
         public int randomNumberNormalDistribution(int mean, int standard)
@@ -93,16 +92,16 @@ namespace Moria.Core.Methods
             // tmp = (tmp - 400) * standard / 81;
             // return tmp + mean;
 
-            var tmp = randomNumber(SHRT_MAX);
+            var tmp = this.randomNumber(SHRT_MAX);
             int offset;
 
             // off scale, assign random value between 4 and 5 times SD
             if (tmp == SHRT_MAX)
             {
-                offset = 4 * standard + randomNumber(standard);
+                offset = 4 * standard + this.randomNumber(standard);
 
                 // one half are negative
-                if (randomNumber(2) == 1)
+                if (this.randomNumber(2) == 1)
                 {
                     offset = -offset;
                 }
@@ -147,7 +146,7 @@ namespace Moria.Core.Methods
             offset = ((standard * iindex) + ((int)Game_c.NORMAL_TABLE_SD >> 1)) / (int)Game_c.NORMAL_TABLE_SD;
 
             // one half should be negative
-            if (randomNumber(2) == 1)
+            if (this.randomNumber(2) == 1)
             {
                 offset = -offset;
             }
@@ -161,7 +160,7 @@ namespace Moria.Core.Methods
 
             do
             {
-                dir = randomNumber(9);
+                dir = this.randomNumber(9);
             } while (dir == 5);
 
             return dir;

@@ -89,7 +89,7 @@ namespace Moria.Core.Methods
                     py.inventory[i] = py.inventory[i + 1].Clone();
                 }
 
-                inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items - 1]);
+                this.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items - 1]);
                 py.pack.unique_items--;
             }
 
@@ -105,11 +105,10 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i < py.pack.unique_items; i++)
             {
-                if (item_type(py.inventory[i]) &&
-                    rnd.randomNumber(100) < chance_percentage)
+                if (item_type(py.inventory[i]) && this.rnd.randomNumber(100) < chance_percentage)
                     //if ((*item_type)(&py.inventory[i]) && rnd.randomNumber(100) < chance_percentage)
                 {
-                    inventoryDestroyItem(i);
+                    this.inventoryDestroyItem(i);
                     damage++;
                 }
             }
@@ -135,7 +134,7 @@ namespace Moria.Core.Methods
         {
             int item_id;
 
-            switch (rnd.randomNumber(7))
+            switch (this.rnd.randomNumber(7))
             {
                 case 1:
                     item_id = (int)PlayerEquipment.Wield;
@@ -168,7 +167,7 @@ namespace Moria.Core.Methods
 
             if (item.to_hit > 0)
             {
-                item.to_hit -= rnd.randomNumber(2);
+                item.to_hit -= this.rnd.randomNumber(2);
 
                 // don't send it below zero
                 if (item.to_hit < 0)
@@ -179,7 +178,7 @@ namespace Moria.Core.Methods
             }
             if (item.to_damage > 0)
             {
-                item.to_damage -= rnd.randomNumber(2);
+                item.to_damage -= this.rnd.randomNumber(2);
 
                 // don't send it below zero
                 if (item.to_damage < 0)
@@ -190,7 +189,7 @@ namespace Moria.Core.Methods
             }
             if (item.to_ac > 0)
             {
-                item.to_ac -= rnd.randomNumber(2);
+                item.to_ac -= this.rnd.randomNumber(2);
 
                 // don't send it below zero
                 if (item.to_ac < 0)

@@ -16,30 +16,30 @@
 
         private uint rnd_seed;
 
-        public uint getRandomSeed() => rnd_seed;
+        public uint getRandomSeed() => this.rnd_seed;
 
         public void setRandomSeed(uint seed)
         {
             // set seed to value between 1 and m-1
-            rnd_seed = (seed % (RNG_M - 1)) + 1;
+            this.rnd_seed = (seed % (RNG_M - 1)) + 1;
         }
 
         // returns a pseudo-random number from set 1, 2, ..., RNG_M - 1
         public int rnd()
         {
-            var high = (int)(rnd_seed / RNG_Q);
-            var low = (int)(rnd_seed % RNG_Q);
+            var high = (int)(this.rnd_seed / RNG_Q);
+            var low = (int)(this.rnd_seed % RNG_Q);
             var test = (int)(RNG_A * low - RNG_R * high);
 
             if (test > 0)
             {
-                rnd_seed = (uint)test;
+                this.rnd_seed = (uint)test;
             }
             else
             {
-                rnd_seed = (uint)(test + RNG_M);
+                this.rnd_seed = (uint)(test + RNG_M);
             }
-            return (int)rnd_seed;
+            return (int) this.rnd_seed;
         }
     }
 }

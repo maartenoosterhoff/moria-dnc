@@ -117,9 +117,9 @@ namespace Moria.Core.Methods
         {
             if (adjustment < 0)
             {
-                return decrementStat(adjustment, stat);
+                return this.decrementStat(adjustment, stat);
             }
-            return incrementStat(adjustment, stat);
+            return this.incrementStat(adjustment, stat);
         }
 
         // generate all stats and modify for race. needed in a separate
@@ -129,13 +129,13 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var race = Library.Instance.Player.character_races[(int)py.misc.race_id];
 
-            characterGenerateStats();
-            py.stats.max[(int)PlayerAttr.STR] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.STR], race.str_adjustment);
-            py.stats.max[(int)PlayerAttr.INT] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.INT], race.int_adjustment);
-            py.stats.max[(int)PlayerAttr.WIS] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.WIS], race.wis_adjustment);
-            py.stats.max[(int)PlayerAttr.DEX] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.DEX], race.dex_adjustment);
-            py.stats.max[(int)PlayerAttr.CON] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CON], race.con_adjustment);
-            py.stats.max[(int)PlayerAttr.CHR] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CHR], race.chr_adjustment);
+            this.characterGenerateStats();
+            py.stats.max[(int)PlayerAttr.STR] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.STR], race.str_adjustment);
+            py.stats.max[(int)PlayerAttr.INT] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.INT], race.int_adjustment);
+            py.stats.max[(int)PlayerAttr.WIS] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.WIS], race.wis_adjustment);
+            py.stats.max[(int)PlayerAttr.DEX] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.DEX], race.dex_adjustment);
+            py.stats.max[(int)PlayerAttr.CON] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CON], race.con_adjustment);
+            py.stats.max[(int)PlayerAttr.CHR] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CHR], race.chr_adjustment);
 
             py.misc.level = 1;
 
@@ -186,7 +186,7 @@ namespace Moria.Core.Methods
         // Allows player to select a race -JWT-
         private void characterChooseRace()
         {
-            displayCharacterRaces();
+            this.displayCharacterRaces();
 
             int race_id;
 
@@ -292,7 +292,7 @@ namespace Moria.Core.Methods
                 }
             } while (history_id >= 1);
 
-            playerClearHistory();
+            this.playerClearHistory();
 
             // Process block of history text for pretty output
             var cursor_start = 0;
@@ -472,12 +472,12 @@ namespace Moria.Core.Methods
             putString(klass.title, new Coord_t(5, 15));
 
             // Adjust the stats for the class adjustment -RAK-
-            py.stats.max[(int)PlayerAttr.STR] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.STR], klass.strength);
-            py.stats.max[(int)PlayerAttr.INT] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.INT], klass.intelligence);
-            py.stats.max[(int)PlayerAttr.WIS] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.WIS], klass.wisdom);
-            py.stats.max[(int)PlayerAttr.DEX] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.DEX], klass.dexterity);
-            py.stats.max[(int)PlayerAttr.CON] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CON], klass.constitution);
-            py.stats.max[(int)PlayerAttr.CHR] = createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CHR], klass.charisma);
+            py.stats.max[(int)PlayerAttr.STR] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.STR], klass.strength);
+            py.stats.max[(int)PlayerAttr.INT] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.INT], klass.intelligence);
+            py.stats.max[(int)PlayerAttr.WIS] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.WIS], klass.wisdom);
+            py.stats.max[(int)PlayerAttr.DEX] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.DEX], klass.dexterity);
+            py.stats.max[(int)PlayerAttr.CON] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CON], klass.constitution);
+            py.stats.max[(int)PlayerAttr.CHR] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.CHR], klass.charisma);
 
             for (var i = 0; i < 6; i++)
             {
@@ -534,7 +534,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             var class_list = new uint[PLAYER_MAX_CLASSES];
-            var class_count = displayRaceClasses(py.misc.race_id, class_list);
+            var class_count = this.displayRaceClasses(py.misc.race_id, class_list);
 
             // Reset the class ID
             py.misc.class_id = 0;
@@ -551,7 +551,7 @@ namespace Moria.Core.Methods
                 if (class_id < class_count && class_id >= 0)
                 {
                     is_set = true;
-                    generateCharacterClass(class_list[class_id]);
+                    this.generateCharacterClass(class_list[class_id]);
                 }
                 else if (input == '?')
                 {
@@ -575,11 +575,11 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            var value = monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.STR]);
-            value += monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.INT]);
-            value += monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.WIS]);
-            value += monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.CON]);
-            value += monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.DEX]);
+            var value = this.monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.STR]);
+            value += this.monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.INT]);
+            value += this.monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.WIS]);
+            value += this.monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.CON]);
+            value += this.monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.DEX]);
 
             // Social Class adjustment
             var new_gold = py.misc.social_class * 6 + this.rnd.randomNumber(25) + 325;
@@ -588,7 +588,7 @@ namespace Moria.Core.Methods
             new_gold -= value;
 
             // Charisma adjustment
-            new_gold += monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.CHR]);
+            new_gold += this.monetaryValueCalculatedFromStat(py.stats.max[(int)PlayerAttr.CHR]);
 
             // She charmed the banker into it! -CJS-
             if (!playerIsMale())
@@ -609,17 +609,17 @@ namespace Moria.Core.Methods
         public void characterCreate()
         {
             printCharacterInformation();
-            characterChooseRace();
-            characterSetGender();
+            this.characterChooseRace();
+            this.characterSetGender();
 
             // here we start a loop giving a player a choice of characters -RGM-
             var done = false;
             while (!done)
             {
-                characterGenerateStatsAndRace();
-                characterGetHistory();
-                characterSetAgeHeightWeight();
-                displayCharacterHistory();
+                this.characterGenerateStatsAndRace();
+                this.characterGetHistory();
+                this.characterSetAgeHeightWeight();
+                this.displayCharacterHistory();
                 printCharacterVitalStatistics();
                 printCharacterStats();
 
@@ -643,8 +643,8 @@ namespace Moria.Core.Methods
                 }
             }
 
-            characterGetClass();
-            playerCalculateStartGold();
+            this.characterGetClass();
+            this.playerCalculateStartGold();
             printCharacterStats();
             printCharacterLevelExperience();
             printCharacterAbilities();

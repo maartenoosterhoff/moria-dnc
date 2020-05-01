@@ -137,7 +137,7 @@ namespace Moria.Core.Methods
                 {
                     var text = string.Empty;
                     //obj_desc_t text = { '\0' };
-                    inventoryItemWeightText(ref text, i);
+                    this.inventoryItemWeightText(ref text, i);
                     putStringClearToEOL(text, new Coord_t(current_line, 71));
                 }
 
@@ -252,7 +252,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Get position
-                var position_description = itemPositionDescription(i, (uint)py.inventory[i].weight);
+                var position_description = this.itemPositionDescription(i, (uint)py.inventory[i].weight);
 
                 var description = string.Empty;
                 //obj_desc_t description = { '\0' };
@@ -313,7 +313,7 @@ namespace Moria.Core.Methods
                 {
                     var text = string.Empty;
                     //obj_desc_t text = { '\0' };
-                    inventoryItemWeightText(ref text, i);
+                    this.inventoryItemWeightText(ref text, i);
                     putStringClearToEOL(text, new Coord_t(line + 1, 71));
                 }
 
@@ -369,12 +369,12 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            if (new_screen == screen_state)
+            if (new_screen == this.screen_state)
             {
                 return;
             }
 
-            screen_state = new_screen;
+            this.screen_state = new_screen;
 
             int line;
 
@@ -384,31 +384,31 @@ namespace Moria.Core.Methods
                     line = 0;
                     break;
                 case HELP_SCR:
-                    if (screen_left > 52)
+                    if (this.screen_left > 52)
                     {
-                        screen_left = 52;
+                        this.screen_left = 52;
                     }
 
-                    putStringClearToEOL("  ESC: exit", new Coord_t(1, screen_left));
-                    putStringClearToEOL("  w  : wear or wield object", new Coord_t(2, screen_left));
-                    putStringClearToEOL("  t  : take off item", new Coord_t(3, screen_left));
-                    putStringClearToEOL("  d  : drop object", new Coord_t(4, screen_left));
-                    putStringClearToEOL("  x  : exchange weapons", new Coord_t(5, screen_left));
-                    putStringClearToEOL("  i  : inventory of pack", new Coord_t(6, screen_left));
-                    putStringClearToEOL("  e  : list used equipment", new Coord_t(7, screen_left));
+                    putStringClearToEOL("  ESC: exit", new Coord_t(1, this.screen_left));
+                    putStringClearToEOL("  w  : wear or wield object", new Coord_t(2, this.screen_left));
+                    putStringClearToEOL("  t  : take off item", new Coord_t(3, this.screen_left));
+                    putStringClearToEOL("  d  : drop object", new Coord_t(4, this.screen_left));
+                    putStringClearToEOL("  x  : exchange weapons", new Coord_t(5, this.screen_left));
+                    putStringClearToEOL("  i  : inventory of pack", new Coord_t(6, this.screen_left));
+                    putStringClearToEOL("  e  : list used equipment", new Coord_t(7, this.screen_left));
 
                     line = 7;
                     break;
                 case INVEN_SCR:
-                    screen_left = displayInventory(0, py.pack.unique_items - 1, Config.options.show_inventory_weights, screen_left, /*CNIL*/null);
+                    this.screen_left = this.displayInventory(0, py.pack.unique_items - 1, Config.options.show_inventory_weights, this.screen_left, /*CNIL*/null);
                     line = py.pack.unique_items;
                     break;
                 case WEAR_SCR:
-                    screen_left = displayInventory(wear_low, wear_high, Config.options.show_inventory_weights, screen_left, /*CNIL*/null);
-                    line = wear_high - wear_low + 1;
+                    this.screen_left = this.displayInventory(this.wear_low, this.wear_high, Config.options.show_inventory_weights, this.screen_left, /*CNIL*/null);
+                    line = this.wear_high - this.wear_low + 1;
                     break;
                 case EQUIP_SCR:
-                    screen_left = displayEquipment(Config.options.show_inventory_weights, screen_left);
+                    this.screen_left = this.displayEquipment(Config.options.show_inventory_weights, this.screen_left);
                     line = py.equipment_count;
                     break;
                 default:
@@ -416,17 +416,17 @@ namespace Moria.Core.Methods
                     break;
             }
 
-            if (line >= screen_base)
+            if (line >= this.screen_base)
             {
-                screen_base = line + 1;
-                eraseLine(new Coord_t(screen_base, screen_left));
+                this.screen_base = line + 1;
+                eraseLine(new Coord_t(this.screen_base, this.screen_left));
                 return;
             }
 
             line++;
-            while (line <= screen_base)
+            while (line <= this.screen_base)
             {
-                eraseLine(new Coord_t(line, screen_left));
+                eraseLine(new Coord_t(line, this.screen_left));
                 line++;
             }
         }
@@ -467,22 +467,23 @@ namespace Moria.Core.Methods
                         game.doing_inventory_command = 0;
                         return;
                     }
-                    screen_left = 50;
-                    screen_base = 0;
+
+                    this.screen_left = 50;
+                    this.screen_base = 0;
                 }
 
-                var saved_state = screen_state;
-                screen_state = WRONG_SCR;
-                uiCommandDisplayInventoryScreen(saved_state);
+                var saved_state = this.screen_state;
+                this.screen_state = WRONG_SCR;
+                this.uiCommandDisplayInventoryScreen(saved_state);
 
                 return;
             }
 
-            screen_left = 50;
-            screen_base = 0;
+            this.screen_left = 50;
+            this.screen_base = 0;
 
             // this forces exit of inventoryExecuteCommand() if selecting is not set true
-            screen_state = BLANK_SCR;
+            this.screen_state = BLANK_SCR;
         }
 
         private bool uiCommandInventoryTakeOffItem(bool selecting)
@@ -503,9 +504,9 @@ namespace Moria.Core.Methods
                 return selecting;
             }
 
-            if (screen_state != BLANK_SCR)
+            if (this.screen_state != BLANK_SCR)
             {
-                uiCommandDisplayInventoryScreen(EQUIP_SCR);
+                this.uiCommandDisplayInventoryScreen(EQUIP_SCR);
             }
 
             return true;
@@ -528,18 +529,18 @@ namespace Moria.Core.Methods
                 return selecting;
             }
 
-            if ((screen_state == EQUIP_SCR && py.equipment_count > 0) || py.pack.unique_items == 0)
+            if ((this.screen_state == EQUIP_SCR && py.equipment_count > 0) || py.pack.unique_items == 0)
             {
-                if (screen_state != BLANK_SCR)
+                if (this.screen_state != BLANK_SCR)
                 {
-                    uiCommandDisplayInventoryScreen(EQUIP_SCR);
+                    this.uiCommandDisplayInventoryScreen(EQUIP_SCR);
                 }
 
                 command = 'r';
             }
-            else if (screen_state != BLANK_SCR)
+            else if (this.screen_state != BLANK_SCR)
             {
-                uiCommandDisplayInventoryScreen(INVEN_SCR);
+                this.uiCommandDisplayInventoryScreen(INVEN_SCR);
             }
 
             return true;
@@ -550,24 +551,24 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             // Note: simple loop to get the global wear_low value
-            for (wear_low = 0; wear_low < py.pack.unique_items && py.inventory[wear_low].category_id > TV_MAX_WEAR; wear_low++)
+            for (this.wear_low = 0; this.wear_low < py.pack.unique_items && py.inventory[this.wear_low].category_id > TV_MAX_WEAR; this.wear_low++)
                 ;
 
             // Note: simple loop to get the global wear_high value
-            for (wear_high = wear_low; wear_high < py.pack.unique_items && py.inventory[wear_high].category_id >= TV_MIN_WEAR; wear_high++)
+            for (this.wear_high = this.wear_low; this.wear_high < py.pack.unique_items && py.inventory[this.wear_high].category_id >= TV_MIN_WEAR; this.wear_high++)
                 ;
 
-            wear_high--;
+            this.wear_high--;
 
-            if (wear_low > wear_high)
+            if (this.wear_low > this.wear_high)
             {
                 printMessage("You have nothing to wear or wield.");
                 return selecting;
             }
 
-            if (screen_state != BLANK_SCR && screen_state != INVEN_SCR)
+            if (this.screen_state != BLANK_SCR && this.screen_state != INVEN_SCR)
             {
-                uiCommandDisplayInventoryScreen(WEAR_SCR);
+                this.uiCommandDisplayInventoryScreen(WEAR_SCR);
             }
 
             return true;
@@ -604,9 +605,9 @@ namespace Moria.Core.Methods
             py.inventory[(int)PlayerEquipment.Auxiliary] = py.inventory[(int)PlayerEquipment.Wield];
             py.inventory[(int)PlayerEquipment.Wield] = saved_item;
 
-            if (screen_state == EQUIP_SCR)
+            if (this.screen_state == EQUIP_SCR)
             {
-                screen_left = displayEquipment(Config.options.show_inventory_weights, screen_left);
+                this.screen_left = this.displayEquipment(Config.options.show_inventory_weights, this.screen_left);
             }
 
             playerAdjustBonusesForItem(py.inventory[(int)PlayerEquipment.Auxiliary], -1);  // Subtract bonuses
@@ -681,7 +682,7 @@ namespace Moria.Core.Methods
             var toChar = (char) (to + 'a');
 
             var list_items = string.Empty;
-            if (screen_state == BLANK_SCR)
+            if (this.screen_state == BLANK_SCR)
             {
                 list_items = ", * to list";
             }
@@ -700,27 +701,27 @@ namespace Moria.Core.Methods
         {
             if (command == 't' || command == 'r')
             {
-                uiCommandDisplayInventoryScreen(EQUIP_SCR);
+                this.uiCommandDisplayInventoryScreen(EQUIP_SCR);
             }
-            else if (command == 'w' && screen_state != INVEN_SCR)
+            else if (command == 'w' && this.screen_state != INVEN_SCR)
             {
-                uiCommandDisplayInventoryScreen(WEAR_SCR);
+                this.uiCommandDisplayInventoryScreen(WEAR_SCR);
             }
             else
             {
-                uiCommandDisplayInventoryScreen(INVEN_SCR);
+                this.uiCommandDisplayInventoryScreen(INVEN_SCR);
             }
         }
 
         private void swapInventoryScreenForDrop()
         {
-            if (screen_state == EQUIP_SCR)
+            if (this.screen_state == EQUIP_SCR)
             {
-                uiCommandDisplayInventoryScreen(INVEN_SCR);
+                this.uiCommandDisplayInventoryScreen(INVEN_SCR);
             }
-            else if (screen_state == INVEN_SCR)
+            else if (this.screen_state == INVEN_SCR)
             {
-                uiCommandDisplayInventoryScreen(EQUIP_SCR);
+                this.uiCommandDisplayInventoryScreen(EQUIP_SCR);
             }
         }
 
@@ -810,7 +811,7 @@ namespace Moria.Core.Methods
                                 {
                                     terminalBellSound();
                                 }
-                                if ((slot != 0) && !verify("Replace", slot))
+                                if ((slot != 0) && !this.verify("Replace", slot))
                                 {
                                     slot = 0;
                                 }
@@ -875,8 +876,8 @@ namespace Moria.Core.Methods
 
                 if (command == 'w')
                 {
-                    from = wear_low;
-                    to = wear_high;
+                    from = this.wear_low;
+                    to = this.wear_high;
                     prompt = "Wear/Wield";
                 }
                 else
@@ -921,7 +922,7 @@ namespace Moria.Core.Methods
 
                 var heading_text = string.Empty;
                 //obj_desc_t heading_text = { '\0' };
-                buildCommandHeading(ref heading_text, from, to, swap, command, prompt);
+                this.buildCommandHeading(ref heading_text, from, to, swap, command, prompt);
 
                 // Abort everything.
                 if (!getCommand(heading_text, out which))
@@ -934,7 +935,7 @@ namespace Moria.Core.Methods
                 // Draw the screen and maybe exit to main prompt.
                 if (which == ' ' || which == '*')
                 {
-                    drawInventoryScreenForCommand(command);
+                    this.drawInventoryScreenForCommand(command);
                     if (which == ' ')
                     {
                         selecting = false;
@@ -953,12 +954,13 @@ namespace Moria.Core.Methods
                     {
                         command = 'd';
                     }
-                    swapInventoryScreenForDrop();
+
+                    this.swapInventoryScreenForDrop();
                     continue;
                 }
 
                 // look for item whose inscription matches "which"
-                var item_id = inventoryGetItemMatchingInscription(which, command, from, to);
+                var item_id = this.inventoryGetItemMatchingInscription(which, command, from, to);
 
                 if (item_id < from || item_id > to)
                 {
@@ -983,7 +985,7 @@ namespace Moria.Core.Methods
                         }
                     } while (item_to_take_off >= 0);
 
-                    if ((char.IsUpper((char)which)) && !verify(prompt, item_id))
+                    if ((char.IsUpper((char)which)) && !this.verify(prompt, item_id))
                     {
                         item_id = -1;
                     }
@@ -1041,13 +1043,13 @@ namespace Moria.Core.Methods
                 {
                     // Wearing. Go to a bit of trouble over replacing existing equipment.
 
-                    if ((char.IsUpper((char)which)) && !verify(prompt, item_id))
+                    if ((char.IsUpper((char)which)) && !this.verify(prompt, item_id))
                     {
                         item_id = -1;
                     }
                     else
                     {
-                        slot = inventoryGetSlotToWearEquipment(item_id);
+                        slot = this.inventoryGetSlotToWearEquipment(item_id);
                         if (slot == -1)
                         {
                             item_id = -1;
@@ -1058,7 +1060,7 @@ namespace Moria.Core.Methods
                     {
                         if ((py.inventory[slot].flags & Config.treasure_flags.TR_CURSED) != 0u)
                         {
-                            inventoryItemIsCursedMessage(slot);
+                            this.inventoryItemIsCursedMessage(slot);
                             item_id = -1;
                         }
                         else if (py.inventory[item_id].sub_category_id == ITEM_GROUP_MIN && 
@@ -1082,13 +1084,13 @@ namespace Moria.Core.Methods
                         var saved_item = py.inventory[item_id].Clone();
                         var item = saved_item;
 
-                        wear_high--;
+                        this.wear_high--;
 
                         // Fix for torches
                         if (item.items_count > 1 && item.sub_category_id <= ITEM_SINGLE_STACK_MAX)
                         {
                             item.items_count = 1;
-                            wear_high++;
+                            this.wear_high++;
                         }
 
                         py.pack.weight += (int)(item.weight * item.items_count);
@@ -1109,7 +1111,7 @@ namespace Moria.Core.Methods
                             // in inventory, then increment wear_high.
                             if (py.pack.unique_items != saved_counter)
                             {
-                                wear_high++;
+                                this.wear_high++;
                             }
 
                             playerTakeOff(slot, item_to_take_off);
@@ -1210,7 +1212,7 @@ namespace Moria.Core.Methods
                             item_id = -1;
                         }
                     }
-                    else if ((char.IsUpper((char)which)) && !verify(prompt, item_id))
+                    else if ((char.IsUpper((char)which)) && !this.verify(prompt, item_id))
                     {
                         item_id = -1;
                     }
@@ -1237,7 +1239,7 @@ namespace Moria.Core.Methods
                     }
                 }
 
-                if (!game.player_free_turn && screen_state == BLANK_SCR)
+                if (!game.player_free_turn && this.screen_state == BLANK_SCR)
                 {
                     selecting = false;
                 }
@@ -1250,7 +1252,7 @@ namespace Moria.Core.Methods
         private void inventoryDisplayAppropriateHeader()
         {
             var py = State.Instance.py;
-            if (screen_state == INVEN_SCR)
+            if (this.screen_state == INVEN_SCR)
             {
                 var msg = string.Empty;
                 //obj_desc_t msg = { '\0' };
@@ -1273,9 +1275,9 @@ namespace Moria.Core.Methods
 
                 putStringClearToEOL(msg, new Coord_t(0, 0));
             }
-            else if (screen_state == WEAR_SCR)
+            else if (this.screen_state == WEAR_SCR)
             {
-                if (wear_high < wear_low)
+                if (this.wear_high < this.wear_low)
                 {
                     putStringClearToEOL("You have nothing you could wield.", new Coord_t(0, 0));
                 }
@@ -1284,7 +1286,7 @@ namespace Moria.Core.Methods
                     putStringClearToEOL("You could wield -", new Coord_t(0, 0));
                 }
             }
-            else if (screen_state == EQUIP_SCR)
+            else if (this.screen_state == EQUIP_SCR)
             {
                 if (State.Instance.py.equipment_count == 0)
                 {
@@ -1300,7 +1302,7 @@ namespace Moria.Core.Methods
                 putStringClearToEOL("Allowed commands:", new Coord_t(0, 0));
             }
 
-            eraseLine(new Coord_t(screen_base, screen_left));
+            eraseLine(new Coord_t(this.screen_base, this.screen_left));
         }
 
         public void uiCommandDisplayInventory()
@@ -1311,7 +1313,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                uiCommandDisplayInventoryScreen(INVEN_SCR);
+                this.uiCommandDisplayInventoryScreen(INVEN_SCR);
             }
         }
 
@@ -1324,7 +1326,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                uiCommandDisplayInventoryScreen(EQUIP_SCR);
+                this.uiCommandDisplayInventoryScreen(EQUIP_SCR);
             }
         }
 
@@ -1336,7 +1338,7 @@ namespace Moria.Core.Methods
             game.player_free_turn = true;
 
             terminalSaveScreen();
-            setInventoryCommandScreenState(command);
+            this.setInventoryCommandScreenState(command);
 
             do
             {
@@ -1350,28 +1352,28 @@ namespace Moria.Core.Methods
                 switch (command)
                 {
                     case 'i':
-                        uiCommandDisplayInventory();
+                        this.uiCommandDisplayInventory();
                         break;
                     case 'e':
-                        uiCommandDisplayEquipment();
+                        this.uiCommandDisplayEquipment();
                         break;
                     case 't':
-                        selecting = uiCommandInventoryTakeOffItem(selecting);
+                        selecting = this.uiCommandInventoryTakeOffItem(selecting);
                         break;
                     case 'd':
-                        selecting = uiCommandInventoryDropItem(ref command, selecting);
+                        selecting = this.uiCommandInventoryDropItem(ref command, selecting);
                         break;
                     case 'w':
-                        selecting = uiCommandInventoryWearWieldItem(selecting);
+                        selecting = this.uiCommandInventoryWearWieldItem(selecting);
                         break;
                     case 'x':
-                        uiCommandInventoryUnwieldItem();
+                        this.uiCommandInventoryUnwieldItem();
                         break;
                     case ' ':
                         // Dummy command to return again to main prompt.
                         break;
                     case '?':
-                        uiCommandDisplayInventoryScreen(HELP_SCR);
+                        this.uiCommandDisplayInventoryScreen(HELP_SCR);
                         break;
                     default:
                         // Nonsense command
@@ -1386,9 +1388,9 @@ namespace Moria.Core.Methods
                 // Keep looking for objects to drop/wear/take off/throw off
                 var which = 'z';
 
-                selecting = selectItemCommands(ref command, ref which, selecting);
+                selecting = this.selectItemCommands(ref command, ref which, selecting);
 
-                if (which == ESCAPE || screen_state == BLANK_SCR)
+                if (which == ESCAPE || this.screen_state == BLANK_SCR)
                 {
                     command = ESCAPE;
                 }
@@ -1415,16 +1417,16 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    inventoryDisplayAppropriateHeader();
+                    this.inventoryDisplayAppropriateHeader();
 
-                    putString("e/i/t/w/x/d/?/ESC:", new Coord_t(screen_base, 60));
+                    putString("e/i/t/w/x/d/?/ESC:", new Coord_t(this.screen_base, 60));
                     command = getKeyInput();
 
-                    eraseLine(new Coord_t(screen_base, screen_left));
+                    eraseLine(new Coord_t(this.screen_base, this.screen_left));
                 }
             } while (command != ESCAPE);
 
-            if (screen_state != BLANK_SCR)
+            if (this.screen_state != BLANK_SCR)
             {
                 terminalRestoreScreen();
             }
@@ -1471,11 +1473,11 @@ namespace Moria.Core.Methods
                 {
                     if (screen_id > 0)
                     {
-                        displayInventory(item_id_start, item_id_end, false, 80, mask);
+                        this.displayInventory(item_id_start, item_id_end, false, 80, mask);
                     }
                     else
                     {
-                        displayEquipment(false, 80);
+                        this.displayEquipment(false, 80);
                     }
                 }
 
@@ -1657,7 +1659,7 @@ namespace Moria.Core.Methods
                                     command_key_id = item_id_start;
                                 }
 
-                                if ((char.IsUpper((char)which) && !verify("Try", command_key_id)))
+                                if ((char.IsUpper((char)which) && !this.verify("Try", command_key_id)))
                                 {
                                     screen_id = -1;
                                     command_finished = true;

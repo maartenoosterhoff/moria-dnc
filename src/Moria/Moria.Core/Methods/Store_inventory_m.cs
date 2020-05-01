@@ -53,7 +53,7 @@ namespace Moria.Core.Methods
                 store.insults_counter = 0;
                 if (store.unique_items_counter >= Config.stores.STORE_MIN_AUTO_SELL_ITEMS)
                 {
-                    var turnaround = rnd.randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
+                    var turnaround = this.rnd.randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
                     if (store.unique_items_counter >= Config.stores.STORE_MAX_AUTO_BUY_ITEMS)
                     {
                         turnaround += 1 + (int)store.unique_items_counter - (int)Config.stores.STORE_MAX_AUTO_BUY_ITEMS;
@@ -61,14 +61,14 @@ namespace Moria.Core.Methods
                     turnaround--;
                     while (turnaround >= 0)
                     {
-                        storeDestroyItem(store_id, rnd.randomNumber(store.unique_items_counter) - 1, false);
+                        this.storeDestroyItem(store_id, this.rnd.randomNumber(store.unique_items_counter) - 1, false);
                         turnaround--;
                     }
                 }
 
                 if (store.unique_items_counter <= Config.stores.STORE_MAX_AUTO_BUY_ITEMS)
                 {
-                    var turnaround = rnd.randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
+                    var turnaround = this.rnd.randomNumber(Config.stores.STORE_STOCK_TURN_AROUND);
                     if (store.unique_items_counter < Config.stores.STORE_MIN_AUTO_SELL_ITEMS)
                     {
                         turnaround += (int)Config.stores.STORE_MIN_AUTO_SELL_ITEMS - (int)store.unique_items_counter;
@@ -79,7 +79,7 @@ namespace Moria.Core.Methods
                     turnaround--;
                     while (turnaround >= 0)
                     {
-                        storeItemCreate(store_id, max_cost);
+                        this.storeItemCreate(store_id, max_cost);
                         turnaround--;
                     }
                 }
@@ -98,31 +98,31 @@ namespace Moria.Core.Methods
             }
             else if ((item.category_id >= TV_BOW && item.category_id <= TV_SWORD) || (item.category_id >= TV_BOOTS && item.category_id <= TV_SOFT_ARMOR))
             {
-                value = getWeaponArmorBuyPrice(item);
+                value = this.getWeaponArmorBuyPrice(item);
             }
             else if (item.category_id >= TV_SLING_AMMO && item.category_id <= TV_SPIKE)
             {
-                value = getAmmoBuyPrice(item);
+                value = this.getAmmoBuyPrice(item);
             }
             else if (item.category_id == TV_SCROLL1 || item.category_id == TV_SCROLL2 || item.category_id == TV_POTION1 || item.category_id == TV_POTION2)
             {
-                value = getPotionScrollBuyPrice(item);
+                value = this.getPotionScrollBuyPrice(item);
             }
             else if (item.category_id == TV_FOOD)
             {
-                value = getFoodBuyPrice(item);
+                value = this.getFoodBuyPrice(item);
             }
             else if (item.category_id == TV_AMULET || item.category_id == TV_RING)
             {
-                value = getRingAmuletBuyPrice(item);
+                value = this.getRingAmuletBuyPrice(item);
             }
             else if (item.category_id == TV_STAFF || item.category_id == TV_WAND)
             {
-                value = getWandStaffBuyPrice(item);
+                value = this.getWandStaffBuyPrice(item);
             }
             else if (item.category_id == TV_DIGGING)
             {
-                value = getPickShovelBuyPrice(item);
+                value = this.getPickShovelBuyPrice(item);
             }
             else
             {
@@ -270,7 +270,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            var price = storeItemValue(item);
+            var price = this.storeItemValue(item);
 
             // check `item.cost` in case it is cursed, check `price` in case it is damaged
             // don't let the item get into the store inventory
@@ -354,7 +354,7 @@ namespace Moria.Core.Methods
             var store = State.Instance.stores[store_id];
 
             int item_cost = 0, dummy = 9;
-            if (storeItemSellPrice(store, ref dummy, ref item_cost, item) < 1)
+            if (this.storeItemSellPrice(store, ref dummy, ref item_cost, item) < 1)
             {
                 return;
             }
@@ -383,7 +383,7 @@ namespace Moria.Core.Methods
                         // must be recalculated for entire group
                         if (item_sub_catagory > ITEM_GROUP_MIN)
                         {
-                            storeItemSellPrice(store, ref dummy, ref item_cost, store_item);
+                            this.storeItemSellPrice(store, ref dummy, ref item_cost, store_item);
                             store.inventory[item_id].cost = -item_cost;
                         }
                         else if (store_item.items_count > 24)
@@ -397,7 +397,7 @@ namespace Moria.Core.Methods
                 }
                 else if (item_category > store_item.category_id)
                 { // Insert into list
-                    storeItemInsert(store_id, item_id, item_cost, item);
+                    this.storeItemInsert(store_id, item_id, item_cost, item);
                     flag = true;
                     index_id = item_id;
                 }
@@ -407,7 +407,7 @@ namespace Moria.Core.Methods
             // Becomes last item in list
             if (!flag)
             {
-                storeItemInsert(store_id, (int)store.unique_items_counter, item_cost, item);
+                this.storeItemInsert(store_id, (int)store.unique_items_counter, item_cost, item);
                 index_id = (int)store.unique_items_counter - 1;
             }
         }
@@ -432,7 +432,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    number = (uint)rnd.randomNumber((int)store_item.items_count);
+                    number = (uint) this.rnd.randomNumber((int)store_item.items_count);
                 }
             }
             else
@@ -464,13 +464,13 @@ namespace Moria.Core.Methods
 
             for (var tries = 0; tries <= 3; tries++)
             {
-                var id = (int)Library.Instance.Stores.store_choices[store_id][rnd.randomNumber(STORE_MAX_ITEM_TYPES) - 1];
+                var id = (int)Library.Instance.Stores.store_choices[store_id][this.rnd.randomNumber(STORE_MAX_ITEM_TYPES) - 1];
                 this.inventoryManager.inventoryItemCopyTo(id, game.treasure.list[free_id]);
-                treasure.magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
+                this.treasure.magicTreasureMagicalAbility(free_id, (int)Config.treasure.LEVEL_TOWN_OBJECTS);
 
                 var item = game.treasure.list[free_id].Clone();
 
-                if (storeCheckPlayerItemsCount(State.Instance.stores[store_id], item))
+                if (this.storeCheckPlayerItemsCount(State.Instance.stores[store_id], item))
                 {
                     // Item must be good: cost > 0.
                     if (item.cost > 0 && item.cost < max_cost)
@@ -480,7 +480,7 @@ namespace Moria.Core.Methods
                         itemIdentifyAsStoreBought(item);
 
                         var dummy = 0;
-                        storeCarryItem(store_id, ref dummy, item);
+                        this.storeCarryItem(store_id, ref dummy, item);
 
                         tries = 10;
                     }

@@ -60,7 +60,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[py.pos.y][py.pos.x].treasure_id != 0)
             {
-                dungeon.dungeonDeleteObject(py.pos);
+                this.dungeon.dungeonDeleteObject(py.pos);
             }
 
             var treasure_id = this.gameObjects.popt();
@@ -87,7 +87,7 @@ namespace Moria.Core.Methods
                         item_id++;
                     }
 
-                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items]);
+                    this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[py.pack.unique_items]);
                 }
                 else
                 {
@@ -114,7 +114,7 @@ namespace Moria.Core.Methods
 
             if (item.misc_use > 0)
             {
-                item.misc_use -= (250 + rnd.randomNumber(250));
+                item.misc_use -= (250 + this.rnd.randomNumber(250));
 
                 if (item.misc_use < 1)
                 {
@@ -141,7 +141,7 @@ namespace Moria.Core.Methods
         public bool inventoryDiminishChargesAttack(uint creature_level, ref int monster_hp, bool noticed)
         {
             var py = State.Instance.py;
-            var item = py.inventory[rnd.randomNumber(py.pack.unique_items) - 1];
+            var item = py.inventory[this.rnd.randomNumber(py.pack.unique_items) - 1];
 
             var has_charges = item.category_id == TV_STAFF || item.category_id == TV_WAND;
 
@@ -327,7 +327,7 @@ namespace Moria.Core.Methods
                 return minus;
             }
 
-            var item_id = items[rnd.randomNumber(items_count) - 1];
+            var item_id = items[this.rnd.randomNumber(items_count) - 1];
 
             var description = string.Empty;
             var msg = string.Empty;
@@ -495,12 +495,12 @@ namespace Moria.Core.Methods
         // Corrode the unsuspecting person's armor -RAK-
         public void damageCorrodingGas(string creature_name)
         {
-            if (!damageMinusAC(Config.treasure_flags.TR_RES_ACID))
+            if (!this.damageMinusAC(Config.treasure_flags.TR_RES_ACID))
             {
-                playerTakesHit(rnd.randomNumber(8), creature_name);
+                playerTakesHit(this.rnd.randomNumber(8), creature_name);
             }
 
-            if (inventoryManager.inventoryDamageItem(setCorrodableItems, 5) > 0)
+            if (this.inventoryManager.inventoryDamageItem(this.setCorrodableItems, 5) > 0)
             {
                 printMessage("There is an acrid smell coming from your pack.");
             }
@@ -513,7 +513,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            py.flags.poisoned += 12 + rnd.randomNumber(damage);
+            py.flags.poisoned += 12 + this.rnd.randomNumber(damage);
         }
 
         // Burn the fool up. -RAK-
@@ -533,7 +533,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            if (inventoryManager.inventoryDamageItem(setFlammableItems, 3) > 0)
+            if (this.inventoryManager.inventoryDamageItem(this.setFlammableItems, 3) > 0)
             {
                 printMessage("There is smoke coming from your pack!");
             }
@@ -556,7 +556,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            if (inventoryManager.inventoryDamageItem(setFrostDestroyableItems, 5) > 0)
+            if (this.inventoryManager.inventoryDamageItem(this.setFrostDestroyableItems, 5) > 0)
             {
                 printMessage("Something shatters inside your pack!");
             }
@@ -574,7 +574,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage, creature_name);
 
-            if (inventoryManager.inventoryDamageItem(setLightningDestroyableItems, 3) > 0)
+            if (this.inventoryManager.inventoryDamageItem(this.setLightningDestroyableItems, 3) > 0)
             {
                 printMessage("There are sparks coming from your pack!");
             }
@@ -587,7 +587,7 @@ namespace Moria.Core.Methods
 
             var flag = 0;
 
-            if (damageMinusAC(Config.treasure_flags.TR_RES_ACID))
+            if (this.damageMinusAC(Config.treasure_flags.TR_RES_ACID))
             {
                 flag = 1;
             }
@@ -599,7 +599,7 @@ namespace Moria.Core.Methods
 
             playerTakesHit(damage / (flag + 1), creature_name);
 
-            if (inventoryManager.inventoryDamageItem(setAcidAffectedItems, 3) > 0)
+            if (this.inventoryManager.inventoryDamageItem(this.setAcidAffectedItems, 3) > 0)
             {
                 printMessage("There is an acrid smell coming from your pack!");
             }

@@ -591,7 +591,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
 
             int id;
-            if (!wizardRequestObjectId(out id, "Dungeon/Store object", 0, 366))
+            if (!this.wizardRequestObjectId(out id, "Dungeon/Store object", 0, 366))
             {
                 return;
             }
@@ -615,7 +615,7 @@ namespace Moria.Core.Methods
                     var free_treasure_id = this.gameObjects.popt();
                     dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
                     this.inventoryManager.inventoryItemCopyTo(id, game.treasure.list[free_treasure_id]);
-                    treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
+                    this.treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 
                     // auto identify the item
                     itemIdentify(game.treasure.list[free_treasure_id], ref free_treasure_id);

@@ -183,31 +183,31 @@ namespace Moria.Core.Methods
 
             if (deaths != 0u)
             {
-                desc = $"{deaths:d} of the contributors to your monster memory {plural((int)deaths, "has", "have")}";
+                desc = $"{deaths:d} of the contributors to your monster memory {this.plural((int)deaths, "has", "have")}";
                 //(void)sprintf(desc, "%d of the contributors to your monster memory %s", deaths, plural(deaths, "has", "have"));
-                memoryPrint(desc);
-                memoryPrint(" been killed by this creature, and ");
+                this.memoryPrint(desc);
+                this.memoryPrint(" been killed by this creature, and ");
                 if (kills == 0)
                 {
-                    memoryPrint("it is not ever known to have been defeated.");
+                    this.memoryPrint("it is not ever known to have been defeated.");
                 }
                 else
                 {
-                    desc = $"at least {kills:d} of the beasts {plural((int)kills, "has", "have")} been exterminated.";
+                    desc = $"at least {kills:d} of the beasts {this.plural((int)kills, "has", "have")} been exterminated.";
                     //(void)sprintf(desc, "at least %d of the beasts %s been exterminated.", kills, plural(kills, "has", "have"));
-                    memoryPrint(desc);
+                    this.memoryPrint(desc);
                 }
             }
             else if (kills != 0u)
             {
-                desc = $"At least {kills:d} of these creatures {plural((int)kills, "has", "have")}";
+                desc = $"At least {kills:d} of these creatures {this.plural((int)kills, "has", "have")}";
                 //(void)sprintf(desc, "At least %d of these creatures %s", kills, plural(kills, "has", "have"));
-                memoryPrint(desc);
-                memoryPrint(" been killed by contributors to your monster memory.");
+                this.memoryPrint(desc);
+                this.memoryPrint(" been killed by contributors to your monster memory.");
             }
             else
             {
-                memoryPrint("No known battles to the death are recalled.");
+                this.memoryPrint("No known battles to the death are recalled.");
             }
         }
 
@@ -219,7 +219,7 @@ namespace Moria.Core.Methods
             if (level == 0)
             {
                 known = true;
-                memoryPrint(" It lives in the town");
+                this.memoryPrint(" It lives in the town");
             }
             else if (kills != 0u)
             {
@@ -234,7 +234,7 @@ namespace Moria.Core.Methods
                 var desc = $" It is normally found at depths of {level * 50:d} feet";
                 //vtype_t desc = { '\0' };
                 //(void)sprintf(desc, " It is normally found at depths of %d feet", level * 50);
-                memoryPrint(desc);
+                this.memoryPrint(desc);
             }
 
             return known;
@@ -249,60 +249,60 @@ namespace Moria.Core.Methods
             {
                 if (is_known)
                 {
-                    memoryPrint(", and");
+                    this.memoryPrint(", and");
                 }
                 else
                 {
-                    memoryPrint(" It");
+                    this.memoryPrint(" It");
                     is_known = true;
                 }
 
-                memoryPrint(" moves");
+                this.memoryPrint(" moves");
 
                 if ((rc_move & Config.monsters_move.CM_RANDOM_MOVE) != 0u)
                 {
-                    memoryPrint(
+                    this.memoryPrint(
                         Library.Instance.Recall.recall_description_how_much
                             [(int)((rc_move & Config.monsters_move.CM_RANDOM_MOVE) >> 3)]);
-                    memoryPrint(" erratically");
+                    this.memoryPrint(" erratically");
                 }
 
                 if (monster_speed == 1)
                 {
-                    memoryPrint(" at normal speed");
+                    this.memoryPrint(" at normal speed");
                 }
                 else
                 {
                     if ((rc_move & Config.monsters_move.CM_RANDOM_MOVE) != 0u)
                     {
-                        memoryPrint(", and");
+                        this.memoryPrint(", and");
                     }
 
                     if (monster_speed <= 0)
                     {
                         if (monster_speed == -1)
                         {
-                            memoryPrint(" very");
+                            this.memoryPrint(" very");
                         }
                         else if (monster_speed < -1)
                         {
-                            memoryPrint(" incredibly");
+                            this.memoryPrint(" incredibly");
                         }
 
-                        memoryPrint(" slowly");
+                        this.memoryPrint(" slowly");
                     }
                     else
                     {
                         if (monster_speed == 3)
                         {
-                            memoryPrint(" very");
+                            this.memoryPrint(" very");
                         }
                         else if (monster_speed > 3)
                         {
-                            memoryPrint(" unbelievably");
+                            this.memoryPrint(" unbelievably");
                         }
 
-                        memoryPrint(" quickly");
+                        this.memoryPrint(" quickly");
                     }
                 }
             }
@@ -311,30 +311,30 @@ namespace Moria.Core.Methods
             {
                 if (is_known)
                 {
-                    memoryPrint(", but");
+                    this.memoryPrint(", but");
                 }
                 else
                 {
-                    memoryPrint(" It");
+                    this.memoryPrint(" It");
                     is_known = true;
                 }
 
-                memoryPrint(" does not deign to chase intruders");
+                this.memoryPrint(" does not deign to chase intruders");
             }
 
             if ((rc_move & Config.monsters_move.CM_ONLY_MAGIC) != 0u)
             {
                 if (is_known)
                 {
-                    memoryPrint(", but");
+                    this.memoryPrint(", but");
                 }
                 else
                 {
-                    memoryPrint(" It");
+                    this.memoryPrint(" It");
                     is_known = true;
                 }
 
-                memoryPrint(" always moves and attacks by using magic");
+                this.memoryPrint(" always moves and attacks by using magic");
             }
 
             return is_known;
@@ -346,21 +346,21 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            memoryPrint(" A kill of this");
+            this.memoryPrint(" A kill of this");
 
             if ((creature_defense & Config.monsters_defense.CD_ANIMAL) != 0)
             {
-                memoryPrint(" natural");
+                this.memoryPrint(" natural");
             }
 
             if ((creature_defense & Config.monsters_defense.CD_EVIL) != 0)
             {
-                memoryPrint(" evil");
+                this.memoryPrint(" evil");
             }
 
             if ((creature_defense & Config.monsters_defense.CD_UNDEAD) != 0)
             {
-                memoryPrint(" undead");
+                this.memoryPrint(" undead");
             }
 
             // calculate the integer exp part, can be larger than 64K when first
@@ -386,7 +386,7 @@ namespace Moria.Core.Methods
             var desc = $" creature is worth {quotient:d}.{remainder,2:d} point{plural}";
             //vtype_t desc = { '\0' };
             //(void)sprintf(desc, " creature is worth %d.%02d point%c", quotient, remainder, plural);
-            memoryPrint(desc);
+            this.memoryPrint(desc);
 
             string p, q;
 
@@ -426,7 +426,7 @@ namespace Moria.Core.Methods
 
             desc = $" for a{q} {py.misc.level:d}{p} level character.";
             //(void)sprintf(desc, " for a%s %d%s level character.", q, py.misc.level, p);
-            memoryPrint(desc);
+            this.memoryPrint(desc);
         }
 
         // Spells known, if have been used against us.
@@ -448,25 +448,25 @@ namespace Moria.Core.Methods
                     {
                         if ((monster_spell_flags & Config.monsters_spells.CS_FREQ) != 0u)
                         {
-                            memoryPrint(" It can breathe ");
+                            this.memoryPrint(" It can breathe ");
                         }
                         else
                         {
-                            memoryPrint(" It is resistant to ");
+                            this.memoryPrint(" It is resistant to ");
                         }
 
                         known = false;
                     }
                     else if ((spell_flags & Config.monsters_spells.CS_BREATHE) != 0u)
                     {
-                        memoryPrint(", ");
+                        this.memoryPrint(", ");
                     }
                     else
                     {
-                        memoryPrint(" and ");
+                        this.memoryPrint(" and ");
                     }
 
-                    memoryPrint(Library.Instance.Recall.recall_description_breath[i]);
+                    this.memoryPrint(Library.Instance.Recall.recall_description_breath[i]);
                 }
             }
 
@@ -482,26 +482,26 @@ namespace Moria.Core.Methods
                     {
                         if ((memory_spell_flags & Config.monsters_spells.CS_BREATHE) != 0u)
                         {
-                            memoryPrint(", and is also");
+                            this.memoryPrint(", and is also");
                         }
                         else
                         {
-                            memoryPrint(" It is");
+                            this.memoryPrint(" It is");
                         }
 
-                        memoryPrint(" magical, casting spells which ");
+                        this.memoryPrint(" magical, casting spells which ");
                         known = false;
                     }
                     else if ((spell_flags & Config.monsters_spells.CS_SPELLS) != 0u)
                     {
-                        memoryPrint(", ");
+                        this.memoryPrint(", ");
                     }
                     else
                     {
-                        memoryPrint(" or ");
+                        this.memoryPrint(" or ");
                     }
 
-                    memoryPrint(Library.Instance.Recall.recall_description_spell[i]);
+                    this.memoryPrint(Library.Instance.Recall.recall_description_spell[i]);
                 }
             }
 
@@ -513,10 +513,10 @@ namespace Moria.Core.Methods
                     var temp = $"; 1 time in {(creature_spell_flags & Config.monsters_spells.CS_FREQ):d}";
                     //vtype_t temp = { '\0' };
                     //(void)sprintf(temp, "; 1 time in %d", creature_spell_flags & Config.monsters_spells.CS_FREQ);
-                    memoryPrint(temp);
+                    this.memoryPrint(temp);
                 }
 
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
         }
 
@@ -535,7 +535,7 @@ namespace Moria.Core.Methods
 
             description = $" It has an armor rating of {creature.ac:d}";
             //(void)sprintf(description, " It has an armor rating of %d", creature.ac);
-            memoryPrint(description);
+            this.memoryPrint(description);
 
             description =
                 $" and a{((creature.defenses & Config.monsters_defense.CD_MAX_HP) != 0 ? " maximized" : "")} life rating of {creature.hit_die.dice}d{creature.hit_die.sides}.";
@@ -545,7 +545,7 @@ namespace Moria.Core.Methods
             //           creature.hit_die.dice,                                                                 //
             //           creature.hit_die.sides                                                                 //
             //);
-            memoryPrint(description);
+            this.memoryPrint(description);
         }
 
         // Do we know how clever they are? Special abilities.
@@ -561,25 +561,25 @@ namespace Moria.Core.Methods
 
                     if (known)
                     {
-                        memoryPrint(" It can ");
+                        this.memoryPrint(" It can ");
                         known = false;
                     }
                     else if ((move & Config.monsters_move.CM_SPECIAL) != 0u)
                     {
-                        memoryPrint(", ");
+                        this.memoryPrint(", ");
                     }
                     else
                     {
-                        memoryPrint(" and ");
+                        this.memoryPrint(" and ");
                     }
 
-                    memoryPrint(Library.Instance.Recall.recall_description_move[i]);
+                    this.memoryPrint(Library.Instance.Recall.recall_description_move[i]);
                 }
             }
 
             if (!known)
             {
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
         }
 
@@ -595,25 +595,25 @@ namespace Moria.Core.Methods
                     defense &= ~(Config.monsters_defense.CD_FROST << i);
                     if (known)
                     {
-                        memoryPrint(" It is susceptible to ");
+                        this.memoryPrint(" It is susceptible to ");
                         known = false;
                     }
                     else if ((defense & Config.monsters_defense.CD_WEAKNESS) != 0u)
                     {
-                        memoryPrint(", ");
+                        this.memoryPrint(", ");
                     }
                     else
                     {
-                        memoryPrint(" and ");
+                        this.memoryPrint(" and ");
                     }
 
-                    memoryPrint(Library.Instance.Recall.recall_description_weakness[i]);
+                    this.memoryPrint(Library.Instance.Recall.recall_description_weakness[i]);
                 }
             }
 
             if (!known)
             {
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
         }
 
@@ -624,57 +624,57 @@ namespace Moria.Core.Methods
                 memory.ignore == UCHAR_MAX ||
                 (creature.sleep_counter == 0 && memory.kills >= 10))
             {
-                memoryPrint(" It ");
+                this.memoryPrint(" It ");
 
                 if (creature.sleep_counter > 200)
                 {
-                    memoryPrint("prefers to ignore");
+                    this.memoryPrint("prefers to ignore");
                 }
                 else if (creature.sleep_counter > 95)
                 {
-                    memoryPrint("pays very little attention to");
+                    this.memoryPrint("pays very little attention to");
                 }
                 else if (creature.sleep_counter > 75)
                 {
-                    memoryPrint("pays little attention to");
+                    this.memoryPrint("pays little attention to");
                 }
                 else if (creature.sleep_counter > 45)
                 {
-                    memoryPrint("tends to overlook");
+                    this.memoryPrint("tends to overlook");
                 }
                 else if (creature.sleep_counter > 25)
                 {
-                    memoryPrint("takes quite a while to see");
+                    this.memoryPrint("takes quite a while to see");
                 }
                 else if (creature.sleep_counter > 10)
                 {
-                    memoryPrint("takes a while to see");
+                    this.memoryPrint("takes a while to see");
                 }
                 else if (creature.sleep_counter > 5)
                 {
-                    memoryPrint("is fairly observant of");
+                    this.memoryPrint("is fairly observant of");
                 }
                 else if (creature.sleep_counter > 3)
                 {
-                    memoryPrint("is observant of");
+                    this.memoryPrint("is observant of");
                 }
                 else if (creature.sleep_counter > 1)
                 {
-                    memoryPrint("is very observant of");
+                    this.memoryPrint("is very observant of");
                 }
                 else if (creature.sleep_counter != 0)
                 {
-                    memoryPrint("is vigilant for");
+                    this.memoryPrint("is vigilant for");
                 }
                 else
                 {
-                    memoryPrint("is ever vigilant for");
+                    this.memoryPrint("is ever vigilant for");
                 }
 
                 var text = $" intruders, which it may notice from {10 * creature.area_affect_radius} feet.";
                 //vtype_t text = { '\0' };
                 //(void)sprintf(text, " intruders, which it may notice from %d feet.", 10 * creature.area_affect_radius);
-                memoryPrint(text);
+                this.memoryPrint(text);
             }
         }
 
@@ -686,7 +686,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            memoryPrint(" It may");
+            this.memoryPrint(" It may");
 
             var carrying_chance = (uint)((memory_move & Config.monsters_move.CM_TREASURE) >>
                                           (int)Config.monsters_move.CM_TR_SHIFT);
@@ -695,20 +695,20 @@ namespace Moria.Core.Methods
             {
                 if ((creature_move & Config.monsters_move.CM_TREASURE) == Config.monsters_move.CM_60_RANDOM)
                 {
-                    memoryPrint(" sometimes");
+                    this.memoryPrint(" sometimes");
                 }
                 else
                 {
-                    memoryPrint(" often");
+                    this.memoryPrint(" often");
                 }
             }
             else if (carrying_chance == 2 && (creature_move & Config.monsters_move.CM_TREASURE) ==
                 (Config.monsters_move.CM_60_RANDOM | Config.monsters_move.CM_90_RANDOM))
             {
-                memoryPrint(" often");
+                this.memoryPrint(" often");
             }
 
-            memoryPrint(" carry");
+            this.memoryPrint(" carry");
 
             string p;
 
@@ -734,37 +734,37 @@ namespace Moria.Core.Methods
             }
             else if (carrying_chance == 2)
             {
-                memoryPrint(" one or two");
+                this.memoryPrint(" one or two");
             }
             else
             {
                 var msg = $" up to {carrying_chance}";
                 //vtype_t msg = { '\0' };
                 //(void)sprintf(msg, " up to %d", carrying_chance);
-                memoryPrint(msg);
+                this.memoryPrint(msg);
             }
 
             if ((memory_move & Config.monsters_move.CM_CARRY_OBJ) != 0u)
             {
-                memoryPrint(p);
+                this.memoryPrint(p);
                 if ((memory_move & Config.monsters_move.CM_CARRY_GOLD) != 0u)
                 {
-                    memoryPrint(" or treasure");
+                    this.memoryPrint(" or treasure");
                     if (carrying_chance > 1)
                     {
-                        memoryPrint("s");
+                        this.memoryPrint("s");
                     }
                 }
 
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
             else if (carrying_chance != 1)
             {
-                memoryPrint(" treasures.");
+                this.memoryPrint(" treasures.");
             }
             else
             {
-                memoryPrint(" treasure.");
+                this.memoryPrint(" treasure.");
             }
         }
 
@@ -806,15 +806,15 @@ namespace Moria.Core.Methods
 
                 if (attack_count == 1)
                 {
-                    memoryPrint(" It can ");
+                    this.memoryPrint(" It can ");
                 }
                 else if (attack_count == known_attacks)
                 {
-                    memoryPrint(", and ");
+                    this.memoryPrint(", and ");
                 }
                 else
                 {
-                    memoryPrint(", ");
+                    this.memoryPrint(", ");
                 }
 
                 if (attack_description_id > 19)
@@ -822,37 +822,37 @@ namespace Moria.Core.Methods
                     attack_description_id = 0;
                 }
 
-                memoryPrint(Library.Instance.Recall.recall_description_attack_method[(int)attack_description_id]);
+                this.memoryPrint(Library.Instance.Recall.recall_description_attack_method[(int)attack_description_id]);
 
                 if (attack_type != 1 || (dice.dice > 0 && dice.sides > 0))
                 {
-                    memoryPrint(" to ");
+                    this.memoryPrint(" to ");
 
                     if (attack_type > 24)
                     {
                         attack_type = 0;
                     }
 
-                    memoryPrint(Library.Instance.Recall.recall_description_attack_type[(int)attack_type]);
+                    this.memoryPrint(Library.Instance.Recall.recall_description_attack_type[(int)attack_type]);
 
                     if ((dice.dice != 0) && (dice.sides != 0))
                     {
-                        if (knowDamage((int)creature.level, (int)memory.attacks[i], (int)(dice.dice * dice.sides)))
+                        if (this.knowDamage((int)creature.level, (int)memory.attacks[i], (int)(dice.dice * dice.sides)))
                         {
                             // Loss of experience
                             if (attack_type == 19)
                             {
-                                memoryPrint(" by");
+                                this.memoryPrint(" by");
                             }
                             else
                             {
-                                memoryPrint(" with damage");
+                                this.memoryPrint(" with damage");
                             }
 
                             var msg = $" {dice.dice}d{dice.sides}";
                             //vtype_t msg = { '\0' };
                             //(void)sprintf(msg, " %dd%d", dice.dice, dice.sides);
-                            memoryPrint(msg);
+                            this.memoryPrint(msg);
                         }
                     }
                 }
@@ -860,15 +860,15 @@ namespace Moria.Core.Methods
 
             if (attack_count != 0)
             {
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
             else if (known_attacks > 0 && memory.attacks[0] >= 10)
             {
-                memoryPrint(" It has no physical attacks.");
+                this.memoryPrint(" It has no physical attacks.");
             }
             else
             {
-                memoryPrint(" Nothing is known about its attack.");
+                this.memoryPrint(" Nothing is known about its attack.");
             }
         }
 
@@ -885,7 +885,7 @@ namespace Moria.Core.Methods
             if (game.wizard_mode)
             {
                 saved_memory = memory;
-                memoryWizardModeInit(memory, creature);
+                this.memoryWizardModeInit(memory, creature);
             }
 
             State.Instance.roff_print_line = 0;
@@ -904,68 +904,68 @@ namespace Moria.Core.Methods
             var msg = $"The {creature.name}:\n";
             //vtype_t msg = {'\0'};
             //(void) sprintf(msg, "The %s:\n", creature.name);
-            memoryPrint(msg);
+            this.memoryPrint(msg);
 
-            memoryConflictHistory(memory.deaths, memory.kills);
-            known = memoryDepthFoundAt(creature.level, memory.kills);
-            known = memoryMovement(move, (int)creature.speed, known);
+            this.memoryConflictHistory(memory.deaths, memory.kills);
+            known = this.memoryDepthFoundAt(creature.level, memory.kills);
+            known = this.memoryMovement(move, (int)creature.speed, known);
 
             // Finish off the paragraph with a period!
             if (known)
             {
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
 
             if (memory.kills != 0u)
             {
-                memoryKillPoints(creature.defenses, creature.kill_exp_value, creature.level);
+                this.memoryKillPoints(creature.defenses, creature.kill_exp_value, creature.level);
             }
 
-            memoryMagicSkills(spells, memory.spells, creature.spells);
+            this.memoryMagicSkills(spells, memory.spells, creature.spells);
 
-            memoryKillDifficulty(creature, memory.kills);
+            this.memoryKillDifficulty(creature, memory.kills);
 
-            memorySpecialAbilities(move);
+            this.memorySpecialAbilities(move);
 
-            memoryWeaknesses(defense);
+            this.memoryWeaknesses(defense);
 
             if ((defense & Config.monsters_defense.CD_INFRA) != 0)
             {
-                memoryPrint(" It is warm blooded");
+                this.memoryPrint(" It is warm blooded");
             }
 
             if ((defense & Config.monsters_defense.CD_NO_SLEEP) != 0)
             {
                 if ((defense & Config.monsters_defense.CD_INFRA) != 0)
                 {
-                    memoryPrint(", and");
+                    this.memoryPrint(", and");
                 }
                 else
                 {
-                    memoryPrint(" It");
+                    this.memoryPrint(" It");
                 }
 
-                memoryPrint(" cannot be charmed or slept");
+                this.memoryPrint(" cannot be charmed or slept");
             }
 
             if ((defense & (Config.monsters_defense.CD_NO_SLEEP | Config.monsters_defense.CD_INFRA)) != 0)
             {
-                memoryPrint(".");
+                this.memoryPrint(".");
             }
 
-            memoryAwareness(creature, memory);
+            this.memoryAwareness(creature, memory);
 
-            memoryLootCarried(creature.movement, move);
+            this.memoryLootCarried(creature.movement, move);
 
-            memoryAttackNumberAndDamage(memory, creature);
+            this.memoryAttackNumberAndDamage(memory, creature);
 
             // Always know the win creature.
             if ((creature.movement & Config.monsters_move.CM_WIN) != 0u)
             {
-                memoryPrint(" Killing one of these wins the game!");
+                this.memoryPrint(" Killing one of these wins the game!");
             }
 
-            memoryPrint("\n");
+            this.memoryPrint("\n");
             putStringClearToEOL("--pause--", new Coord_t(State.Instance.roff_print_line, 0));
 
             if (game.wizard_mode)
@@ -984,8 +984,7 @@ namespace Moria.Core.Methods
 
             for (var i = (int)MON_MAX_CREATURES - 1; i >= 0; i--)
             {
-                if (Library.Instance.Creatures.creatures_list[i].sprite == command &&
-                    memoryMonsterKnown(State.Instance.creature_recall[i]))
+                if (Library.Instance.Creatures.creatures_list[i].sprite == command && this.memoryMonsterKnown(State.Instance.creature_recall[i]))
                 {
                     if (n == 0)
                     {
@@ -1003,7 +1002,7 @@ namespace Moria.Core.Methods
 
                     n++;
 
-                    query = (char)memoryRecall(i);
+                    query = (char) this.memoryRecall(i);
                     terminalRestoreScreen();
                     if (query == ESCAPE)
                     {

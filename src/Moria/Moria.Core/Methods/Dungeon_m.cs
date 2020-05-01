@@ -111,7 +111,7 @@ namespace Moria.Core.Methods
                 for (var x = 0; x < MAX_WIDTH; x++)
                 {
                     var col = x / (int)RATIO;
-                    var cave_char = caveGetTileSymbol(new Coord_t(y, x));
+                    var cave_char = this.caveGetTileSymbol(new Coord_t(y, x));
                     if (priority[map[col]] < priority[cave_char])
                     {
                         map[col] = cave_char;
@@ -255,9 +255,9 @@ namespace Moria.Core.Methods
                 return ' ';
             }
 
-            if (py.flags.image > 0 && rnd.randomNumber(12) == 1)
+            if (py.flags.image > 0 && this.rnd.randomNumber(12) == 1)
             {
-                return (char)(rnd.randomNumber(95) + 31);
+                return (char)(this.rnd.randomNumber(95) + 31);
             }
 
             if (tile.creature_id > 1 && State.Instance.monsters[tile.creature_id].lit)
@@ -313,7 +313,7 @@ namespace Moria.Core.Methods
             if (item.category_id == TV_INVIS_TRAP)
             {
                 item.category_id = TV_VIS_TRAP;
-                dungeonLiteSpot(coord);
+                this.dungeonLiteSpot(coord);
                 return;
             }
 
@@ -323,7 +323,7 @@ namespace Moria.Core.Methods
                 item.id = Config.dungeon_objects.OBJ_CLOSED_DOOR;
                 item.category_id = Library.Instance.Treasure.game_objects[(int)Config.dungeon_objects.OBJ_CLOSED_DOOR].category_id;
                 item.sprite = Library.Instance.Treasure.game_objects[(int)Config.dungeon_objects.OBJ_CLOSED_DOOR].sprite;
-                dungeonLiteSpot(coord);
+                this.dungeonLiteSpot(coord);
             }
         }
 
@@ -381,7 +381,7 @@ namespace Moria.Core.Methods
                                 tile.field_mark = true;
                             }
                         }
-                        panelPutTile(caveGetTileSymbol(location), location);
+                        panelPutTile(this.caveGetTileSymbol(location), location);
                     }
                 }
             }
@@ -395,7 +395,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var symbol = caveGetTileSymbol(coord);
+            var symbol = this.caveGetTileSymbol(coord);
             panelPutTile(symbol, coord);
         }
 
@@ -485,7 +485,7 @@ namespace Moria.Core.Methods
                 // Leftmost to rightmost do
                 for (coord.x = left; coord.x <= right; coord.x++)
                 {
-                    panelPutTile(caveGetTileSymbol(coord), coord);
+                    panelPutTile(this.caveGetTileSymbol(coord), coord);
                 }
             }
         }
@@ -506,7 +506,7 @@ namespace Moria.Core.Methods
                     for (coord.x = from.x - 1; coord.x <= from.x + 1; coord.x++)
                     {
                         dg.floor[coord.y][coord.x].temporary_light = false;
-                        panelPutTile(caveGetTileSymbol(coord), coord);
+                        panelPutTile(this.caveGetTileSymbol(coord), coord);
                     }
                 }
 
@@ -514,7 +514,7 @@ namespace Moria.Core.Methods
             }
             else if ((py.running_tracker == 0) || Config.options.run_print_self)
             {
-                panelPutTile(caveGetTileSymbol(from), from);
+                panelPutTile(this.caveGetTileSymbol(from), from);
             }
 
             if ((py.running_tracker == 0) || Config.options.run_print_self)
@@ -531,11 +531,11 @@ namespace Moria.Core.Methods
 
             if (py.flags.blind > 0 || !py.carrying_light)
             {
-                sub3MoveLight(from, to);
+                this.sub3MoveLight(from, to);
             }
             else
             {
-                sub1MoveLight(from, to);
+                this.sub1MoveLight(from, to);
             }
         }
 
@@ -551,7 +551,7 @@ namespace Moria.Core.Methods
 
             if (monster.lit)
             {
-                dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                this.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
             }
 
             var last_id = State.Instance.next_free_monster_id - 1;
@@ -597,7 +597,7 @@ namespace Moria.Core.Methods
 
             if (monster.lit)
             {
-                dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                this.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
             }
 
             if (State.Instance.monster_multiply_total > 0)
@@ -645,9 +645,9 @@ namespace Moria.Core.Methods
             tile.treasure_id = 0;
             tile.field_mark = false;
 
-            dungeonLiteSpot(coord);
+            this.dungeonLiteSpot(coord);
 
-            return caveTileVisible(coord);
+            return this.caveTileVisible(coord);
         }
     }
 }

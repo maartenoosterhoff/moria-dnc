@@ -52,7 +52,7 @@ namespace Moria.Core.Methods
                 {
                     for (coord.x = 0; coord.x < dg.width; coord.x++)
                     {
-                        if (dg.floor[coord.y][coord.x].treasure_id != 0 && dungeon.coordDistanceBetween(coord, py.pos) > current_distance)
+                        if (dg.floor[coord.y][coord.x].treasure_id != 0 && this.dungeon.coordDistanceBetween(coord, py.pos) > current_distance)
                         {
                             int chance;
 
@@ -81,9 +81,9 @@ namespace Moria.Core.Methods
                                     chance = 10;
                                     break;
                             }
-                            if (rnd.randomNumber(100) <= chance)
+                            if (this.rnd.randomNumber(100) <= chance)
                             {
-                                dungeon.dungeonDeleteObject(coord);
+                                this.dungeon.dungeonDeleteObject(coord);
                                 counter++;
                             }
                         }
@@ -106,9 +106,9 @@ namespace Moria.Core.Methods
         public int popt()
         {
             var game = State.Instance.game;
-            if (game.treasure.current_id == Game_c.LEVEL_MAX_OBJECTS)
+            if (game.treasure.current_id == LEVEL_MAX_OBJECTS)
             {
-                compactObjects();
+                this.compactObjects();
             }
 
             return game.treasure.current_id++;
@@ -142,16 +142,16 @@ namespace Moria.Core.Methods
             var treasure_levels = State.Instance.treasure_levels;
             if (level == 0)
             {
-                return rnd.randomNumber(treasure_levels[0]) - 1;
+                return this.rnd.randomNumber(treasure_levels[0]) - 1;
             }
 
             if (level >= TREASURE_MAX_LEVELS)
             {
                 level = (int)TREASURE_MAX_LEVELS;
             }
-            else if (rnd.randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
+            else if (this.rnd.randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
             {
-                level = level * (int)TREASURE_MAX_LEVELS / rnd.randomNumber(TREASURE_MAX_LEVELS) + 1;
+                level = level * (int)TREASURE_MAX_LEVELS / this.rnd.randomNumber(TREASURE_MAX_LEVELS) + 1;
                 if (level > TREASURE_MAX_LEVELS)
                 {
                     level = (int)TREASURE_MAX_LEVELS;
@@ -167,23 +167,23 @@ namespace Moria.Core.Methods
             // and 1/2n are 0th level.
             do
             {
-                if (rnd.randomNumber(2) == 1)
+                if (this.rnd.randomNumber(2) == 1)
                 {
-                    object_id = rnd.randomNumber(treasure_levels[level]) - 1;
+                    object_id = this.rnd.randomNumber(treasure_levels[level]) - 1;
                 }
                 else
                 {
                     // Choose three objects, pick the highest level.
-                    object_id = rnd.randomNumber(treasure_levels[level]) - 1;
+                    object_id = this.rnd.randomNumber(treasure_levels[level]) - 1;
 
-                    var j = rnd.randomNumber(treasure_levels[level]) - 1;
+                    var j = this.rnd.randomNumber(treasure_levels[level]) - 1;
 
                     if (object_id < j)
                     {
                         object_id = j;
                     }
 
-                    j = rnd.randomNumber(treasure_levels[level]) - 1;
+                    j = this.rnd.randomNumber(treasure_levels[level]) - 1;
 
                     if (object_id < j)
                     {
@@ -194,14 +194,14 @@ namespace Moria.Core.Methods
 
                     if (found_level == 0)
                     {
-                        object_id = rnd.randomNumber(treasure_levels[0]) - 1;
+                        object_id = this.rnd.randomNumber(treasure_levels[0]) - 1;
                     }
                     else
                     {
-                        object_id = rnd.randomNumber(treasure_levels[found_level] - treasure_levels[found_level - 1]) - 1 + treasure_levels[found_level - 1];
+                        object_id = this.rnd.randomNumber(treasure_levels[found_level] - treasure_levels[found_level - 1]) - 1 + treasure_levels[found_level - 1];
                     }
                 }
-            } while (must_be_small && itemBiggerThanChest(Library.Instance.Treasure.game_objects[State.Instance.sorted_objects[object_id]]));
+            } while (must_be_small && this.itemBiggerThanChest(Library.Instance.Treasure.game_objects[State.Instance.sorted_objects[object_id]]));
 
             return object_id;
         }
