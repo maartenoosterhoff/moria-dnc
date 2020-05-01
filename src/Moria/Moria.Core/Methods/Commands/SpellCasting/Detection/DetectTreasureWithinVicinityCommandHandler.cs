@@ -2,24 +2,24 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 
-namespace Moria.Core.Methods.Commands.SpellCasting
+namespace Moria.Core.Methods.Commands.SpellCasting.Detection
 {
-    public class DetectObjectsWithinVicinityCommandHandler : ICommandHandler<DetectObjectsWithinVicinityCommand, bool>
+    public class DetectTreasureWithinVicinityCommandHandler : ICommandHandler<DetectTreasureWithinVicinityCommand, bool>
     {
         private readonly IDungeon dungeon;
 
-        public DetectObjectsWithinVicinityCommandHandler(IDungeon dungeon)
+        public DetectTreasureWithinVicinityCommandHandler(IDungeon dungeon)
         {
             this.dungeon = dungeon;
         }
 
-        public bool Handle(DetectObjectsWithinVicinityCommand command)
+        public bool Handle(DetectTreasureWithinVicinityCommand command)
         {
-            return this.spellDetectObjectsWithinVicinity();
+            return this.spellDetectTreasureWithinVicinity();
         }
 
-        // Detect all objects on the current panel -RAK-
-        private bool spellDetectObjectsWithinVicinity()
+        // Detect any treasure on the current panel -RAK-
+        private bool spellDetectTreasureWithinVicinity()
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -34,7 +34,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 {
                     var tile = dg.floor[coord.y][coord.x];
 
-                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id < Treasure_c.TV_MAX_OBJECT && !this.dungeon.caveTileVisible(coord))
+                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id == Treasure_c.TV_GOLD && !this.dungeon.caveTileVisible(coord))
                     {
                         tile.field_mark = true;
                         this.dungeon.dungeonLiteSpot(coord);

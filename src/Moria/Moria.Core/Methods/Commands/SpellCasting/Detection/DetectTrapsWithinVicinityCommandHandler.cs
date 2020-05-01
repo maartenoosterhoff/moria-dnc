@@ -3,7 +3,7 @@ using Moria.Core.Constants;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
-namespace Moria.Core.Methods.Commands.SpellCasting
+namespace Moria.Core.Methods.Commands.SpellCasting.Detection
 {
     public class DetectTrapsWithinVicinityCommandHandler : ICommandHandler<DetectTrapsWithinVicinityCommand, bool>, ICommandHandler<DetectTrapsWithinVicinityCommand>
     {
