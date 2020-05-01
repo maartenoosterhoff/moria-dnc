@@ -1023,9 +1023,6 @@ namespace Moria.Core.Methods
             var new_spells = (int)py.flags.new_spells_to_learn;
             var diff_spells = 0;
 
-            // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
-            var spells = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1];
-
             int stat, offset;
 
             if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
@@ -1076,6 +1073,9 @@ namespace Moria.Core.Methods
             var spell_id = 0;
             var spell_bank = new int[31];
             uint mask = 0x1;
+
+            // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
+            var spells = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1];
 
             for (var i = 0; spell_flag != 0u; mask <<= 1, i++)
             {
