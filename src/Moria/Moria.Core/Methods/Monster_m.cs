@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting.Attacks;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -28,7 +29,9 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
-            IStd std
+            IStd std,
+
+            IEventPublisher eventPublisher
         )
         {
             Monster_m.dice = dice;
@@ -41,6 +44,8 @@ namespace Moria.Core.Methods
             Monster_m.monsterManager = monsterManager;
             Monster_m.rnd = rnd;
             Monster_m.std = std;
+
+            Monster_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -53,6 +58,8 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStd std;
+
+        private static IEventPublisher eventPublisher;
 
         public static bool monsterIsVisible(Monster_t monster)
         {
@@ -1088,31 +1095,56 @@ namespace Moria.Core.Methods
                     monster_name += "breathes lightning.";
                     //(void)strcat(monster_name, "breathes lightning.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, monster.hp / 4, (int)MagicSpellFlags.Lightning, death_description);
+                    eventPublisher.Publish(
+                        new BreathCommand(
+                            py.pos, monster_id, monster.hp / 4, (int)MagicSpellFlags.Lightning, death_description
+                        )
+                    );
+                    //spellBreath(py.pos, monster_id, monster.hp / 4, (int)MagicSpellFlags.Lightning, death_description);
                     break;
                 case 21: // Breath Gas
                     monster_name += "breathes gas.";
                     //(void)strcat(monster_name, "breathes gas.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.PoisonGas, death_description);
+                    eventPublisher.Publish(
+                        new BreathCommand(
+                            py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.PoisonGas, death_description
+                        )
+                    );
+                    //spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.PoisonGas, death_description);
                     break;
                 case 22: // Breath Acid
                     monster_name += "breathes acid.";
                     //(void)strcat(monster_name, "breathes acid.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Acid, death_description);
+                    eventPublisher.Publish(
+                        new BreathCommand(
+                            py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Acid, death_description
+                        )
+                    );
+                    //spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Acid, death_description);
                     break;
                 case 23: // Breath Frost
                     monster_name += "breathes frost.";
                     //(void)strcat(monster_name, "breathes frost.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Frost, death_description);
+                    eventPublisher.Publish(
+                        new BreathCommand(
+                            py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Frost, death_description
+                        )
+                    );
+                    //spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Frost, death_description);
                     break;
                 case 24: // Breath Fire
                     monster_name += "breathes fire.";
                     //(void)strcat(monster_name, "breathes fire.");
                     printMessage(monster_name);
-                    spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Fire, death_description);
+                    eventPublisher.Publish(
+                        new BreathCommand(
+                            py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Fire, death_description
+                        )
+                    );
+                    //spellBreath(py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Fire, death_description);
                     break;
                 default:
                     monster_name += "cast unknown spell.";

@@ -243,7 +243,8 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IStd>()
+                container.GetInstance<IStd>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_m.SetDependencies(
