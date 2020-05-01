@@ -211,8 +211,8 @@ namespace Moria.Core.Methods
 
             // Choose starting point and direction
             var coord = new Coord_t(
-                (dg.height / 2) + 11 - this.rnd.randomNumber(23),
-                (dg.width / 2) + 16 - this.rnd.randomNumber(33)
+                dg.height / 2 + 11 - this.rnd.randomNumber(23),
+                dg.width / 2 + 16 - this.rnd.randomNumber(33)
             );
 
             // Get random direction. Numbers 1-4, 6-9
@@ -306,7 +306,7 @@ namespace Moria.Core.Methods
             dg.floor[coord.y][coord.x].treasure_id = (uint)curPos;
             this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[curPos]);
             dg.floor[coord.y][coord.x].feature_id = Dungeon_tile_c.TILE_BLOCKED_FLOOR;
-            game.treasure.list[curPos].misc_use = (-this.rnd.randomNumber(10) - 10);
+            game.treasure.list[curPos].misc_use = -this.rnd.randomNumber(10) - 10;
         }
 
         private void DungeonPlaceSecretDoor(Coord_t coord)
@@ -435,14 +435,14 @@ namespace Moria.Core.Methods
                                     }
                                 }
                                 coord1.x++;
-                            } while ((coord1.x != coord2.x) && (!placed));
+                            } while (coord1.x != coord2.x && !placed);
 
                             coord1.x = coord2.x - 12;
                             coord1.y++;
-                        } while ((coord1.y != coord2.y) && (!placed));
+                        } while (coord1.y != coord2.y && !placed);
 
                         j++;
-                    } while ((!placed) && (j <= 30));
+                    } while (!placed && j <= 30);
 
                     walls--;
                 }
@@ -564,7 +564,7 @@ namespace Moria.Core.Methods
                         dg.floor[y][x].perma_lit_room = true;
                     }
                 }
-                for (y = (height - 1); y <= (depth + 1); y++)
+                for (y = height - 1; y <= depth + 1; y++)
                 {
                     if (dg.floor[y][left - 1].feature_id != floor)
                     {
@@ -758,7 +758,7 @@ namespace Moria.Core.Methods
                 }
             }
 
-            for (var i = (height - 1); i <= (depth + 1); i++)
+            for (var i = height - 1; i <= depth + 1; i++)
             {
                 dg.floor[i][left - 1].feature_id = Dungeon_tile_c.TILE_GRANITE_WALL;
                 dg.floor[i][left - 1].perma_lit_room = true;
@@ -782,7 +782,7 @@ namespace Moria.Core.Methods
             left += 2;
             right -= 2;
 
-            for (var i = (height - 1); i <= (depth + 1); i++)
+            for (var i = height - 1; i <= depth + 1; i++)
             {
                 dg.floor[i][left - 1].feature_id = Dungeon_tile_c.TMP1_WALL;
                 dg.floor[i][right + 1].feature_id = Dungeon_tile_c.TMP1_WALL;
@@ -1275,17 +1275,17 @@ namespace Moria.Core.Methods
         // Functions to emulate the original Pascal sets
         private static bool SetRooms(int tileId)
         {
-            return (tileId == Dungeon_tile_c.TILE_DARK_FLOOR || tileId == Dungeon_tile_c.TILE_LIGHT_FLOOR);
+            return tileId == Dungeon_tile_c.TILE_DARK_FLOOR || tileId == Dungeon_tile_c.TILE_LIGHT_FLOOR;
         }
 
         private static bool SetCorridors(int tileId)
         {
-            return (tileId == Dungeon_tile_c.TILE_CORR_FLOOR || tileId == Dungeon_tile_c.TILE_BLOCKED_FLOOR);
+            return tileId == Dungeon_tile_c.TILE_CORR_FLOOR || tileId == Dungeon_tile_c.TILE_BLOCKED_FLOOR;
         }
 
         private static bool SetFloors(int tileId)
         {
-            return (tileId <= Dungeon_tile_c.MAX_CAVE_FLOOR);
+            return tileId <= Dungeon_tile_c.MAX_CAVE_FLOOR;
         }
 
         // Cave logic flow for generation of new dungeon
@@ -1316,8 +1316,8 @@ namespace Moria.Core.Methods
                 {
                     if (roomMap[row][col])
                     {
-                        locations[locationId].y = (row * (int)(Dungeon_c.SCREEN_HEIGHT >> 1) + (int)Dungeon_c.QUART_HEIGHT);
-                        locations[locationId].x = (col * (int)(Dungeon_c.SCREEN_WIDTH >> 1) + (int)Dungeon_c.QUART_WIDTH);
+                        locations[locationId].y = row * (int)(Dungeon_c.SCREEN_HEIGHT >> 1) + (int)Dungeon_c.QUART_HEIGHT;
+                        locations[locationId].x = col * (int)(Dungeon_c.SCREEN_WIDTH >> 1) + (int)Dungeon_c.QUART_WIDTH;
                         if (dg.current_level > this.rnd.randomNumber(Config.dungeon.DUN_UNUSUAL_ROOMS))
                         {
                             var roomType = this.rnd.randomNumber(3);
@@ -1390,7 +1390,7 @@ namespace Moria.Core.Methods
                 this.DungeonPlaceDoorIfNextToTwoWalls(new Coord_t(State.Instance.doors_tk[i].y + 1, State.Instance.doors_tk[i].x));
             }
 
-            var allocLevel = (dg.current_level / 3);
+            var allocLevel = dg.current_level / 3;
             if (allocLevel < 2)
             {
                 allocLevel = 2;
@@ -1410,7 +1410,7 @@ namespace Moria.Core.Methods
             //py.pos.x = coord.x;
             py.pos = coord;
 
-            this.monsterManager.monsterPlaceNewWithinDistance((this.rnd.randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + allocLevel), 0, true);
+            this.monsterManager.monsterPlaceNewWithinDistance(this.rnd.randomNumber(8) + (int)Config.monsters.MON_MIN_PER_LEVEL + allocLevel, 0, true);
             this.dungeonPlacer.dungeonAllocateAndPlaceObject(SetCorridors, 3, this.rnd.randomNumber(allocLevel));
             this.dungeonPlacer.dungeonAllocateAndPlaceObject(SetRooms, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_ROOM, 3));
             this.dungeonPlacer.dungeonAllocateAndPlaceObject(SetFloors, 5, this.rnd.randomNumberNormalDistribution((int)Config.dungeon_objects.LEVEL_OBJECTS_PER_CORRIDOR, 3));
@@ -1615,8 +1615,8 @@ namespace Moria.Core.Methods
                 dg.width = (int)Dungeon_c.SCREEN_WIDTH;
             }
 
-            dg.panel.max_rows = ((dg.height / (int)Dungeon_c.SCREEN_HEIGHT) * 2 - 2);
-            dg.panel.max_cols = ((dg.width / (int)Dungeon_c.SCREEN_WIDTH) * 2 - 2);
+            dg.panel.max_rows = dg.height / (int)Dungeon_c.SCREEN_HEIGHT * 2 - 2;
+            dg.panel.max_cols = dg.width / (int)Dungeon_c.SCREEN_WIDTH * 2 - 2;
 
             dg.panel.row = dg.panel.max_rows;
             dg.panel.col = dg.panel.max_cols;

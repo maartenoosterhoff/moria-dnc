@@ -150,7 +150,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.GainExperience:
                         if (py.misc.exp < Config.player.PLAYER_MAX_EXP)
                         {
-                            var exp = (uint)((py.misc.exp / 2) + 10);
+                            var exp = (uint)(py.misc.exp / 2 + 10);
                             if (exp > 100000u)
                             {
                                 exp = 100000u;
@@ -252,7 +252,7 @@ namespace Moria.Core.Methods
                             {
                                 const int intMax = +2147483647;
                                 var scale = (int)(intMax / py.misc.exp);
-                                exp += (rnd.randomNumber((int)scale) * py.misc.exp) / (scale * 5);
+                                exp += rnd.randomNumber((int)scale) * py.misc.exp / (scale * 5);
                             }
                             else
                             {

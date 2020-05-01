@@ -30,7 +30,7 @@ namespace Moria.Core.Methods
         // the more damage an attack does, the more attacks you need.
         //#define knowdamage(l, a, d) ((4 + (l)) * (a) > 80 * (d))
 
-        private bool knowDamage(int l, int a, int d) => ((4 + (l)) * (a) > 80 * (d));
+        private bool knowDamage(int l, int a, int d) => (4 + l) * a > 80 * d;
 
         // Print out strings, filling up lines as we go.
         private void memoryPrint(string p)
@@ -120,8 +120,8 @@ namespace Moria.Core.Methods
                 return true;
             }
 
-            if ((memory.movement != 0u) || (memory.defenses != 0u) || (memory.kills != 0u) || (memory.spells != 0u) ||
-                (memory.deaths != 0u))
+            if (memory.movement != 0u || memory.defenses != 0u || memory.kills != 0u || memory.spells != 0u ||
+                memory.deaths != 0u)
             {
                 return true;
             }
@@ -370,7 +370,7 @@ namespace Moria.Core.Methods
             // calculate the fractional exp part scaled by 100,
             // must use long arithmetic to avoid overflow
             var remainder =
-                (int)((((int)monster_exp * (int)level % (int)py.misc.level) * (int)1000 / (int)py.misc.level +
+                (int)(((int)monster_exp * (int)level % (int)py.misc.level * (int)1000 / (int)py.misc.level +
                         5) / 10);
 
             char plural;
@@ -510,7 +510,7 @@ namespace Moria.Core.Methods
                 // Could offset by level
                 if ((monster_spell_flags & Config.monsters_spells.CS_FREQ) > 5)
                 {
-                    var temp = $"; 1 time in {(creature_spell_flags & Config.monsters_spells.CS_FREQ):d}";
+                    var temp = $"; 1 time in {creature_spell_flags & Config.monsters_spells.CS_FREQ:d}";
                     //vtype_t temp = { '\0' };
                     //(void)sprintf(temp, "; 1 time in %d", creature_spell_flags & Config.monsters_spells.CS_FREQ);
                     this.memoryPrint(temp);
@@ -622,7 +622,7 @@ namespace Moria.Core.Methods
         {
             if (memory.wake * memory.wake > creature.sleep_counter ||
                 memory.ignore == UCHAR_MAX ||
-                (creature.sleep_counter == 0 && memory.kills >= 10))
+                creature.sleep_counter == 0 && memory.kills >= 10)
             {
                 this.memoryPrint(" It ");
 
@@ -824,7 +824,7 @@ namespace Moria.Core.Methods
 
                 this.memoryPrint(Library.Instance.Recall.recall_description_attack_method[(int)attack_description_id]);
 
-                if (attack_type != 1 || (dice.dice > 0 && dice.sides > 0))
+                if (attack_type != 1 || dice.dice > 0 && dice.sides > 0)
                 {
                     this.memoryPrint(" to ");
 
@@ -835,7 +835,7 @@ namespace Moria.Core.Methods
 
                     this.memoryPrint(Library.Instance.Recall.recall_description_attack_type[(int)attack_type]);
 
-                    if ((dice.dice != 0) && (dice.sides != 0))
+                    if (dice.dice != 0 && dice.sides != 0)
                     {
                         if (this.knowDamage((int)creature.level, (int)memory.attacks[i], (int)(dice.dice * dice.sides)))
                         {

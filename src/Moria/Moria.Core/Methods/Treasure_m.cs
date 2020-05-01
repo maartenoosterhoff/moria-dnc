@@ -38,7 +38,7 @@ namespace Moria.Core.Methods
         // Enchant a bonus based on degree desired -RAK-
         private int magicEnchantmentBonus(int @base, int max_standard, int level)
         {
-            var stand_deviation = ((int)Config.treasure.LEVEL_STD_OBJECT_ADJUST * level / 100) + (int)Config.treasure.LEVEL_MIN_OBJECT_STD;
+            var stand_deviation = (int)Config.treasure.LEVEL_STD_OBJECT_ADJUST * level / 100 + (int)Config.treasure.LEVEL_MIN_OBJECT_STD;
 
             // Check for level > max_standard since that may have generated an overflow.
             if (stand_deviation > max_standard || level > max_standard)
@@ -48,7 +48,7 @@ namespace Moria.Core.Methods
 
             // abs may be a macro, don't call it with rnd.randomNumberNormalDistribution() as a parameter
             var abs_distribution = (int) this.std.std_abs(this.std.std_intmax_t(this.rnd.randomNumberNormalDistribution(0, stand_deviation)));
-            var bonus = (abs_distribution / 10) + @base;
+            var bonus = abs_distribution / 10 + @base;
 
             if (bonus < @base)
             {
@@ -71,7 +71,7 @@ namespace Moria.Core.Methods
             {
                 case 1:
                     item.flags |=
-                        (Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID | Config.treasure_flags.TR_RES_FIRE);
+                        Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID | Config.treasure_flags.TR_RES_FIRE;
                     item.special_name_id = (int)SpecialNameIds.SN_R;
                     item.to_ac += 5;
                     item.cost += 2500;
@@ -130,8 +130,8 @@ namespace Moria.Core.Methods
                 switch (this.rnd.randomNumber(16))
                 {
                     case 1: // Holy Avenger
-                        item.flags |= (Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SUST_STAT | Config.treasure_flags.TR_SLAY_UNDEAD |
-                                       Config.treasure_flags.TR_SLAY_EVIL | Config.treasure_flags.TR_STR);
+                        item.flags |= Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SUST_STAT | Config.treasure_flags.TR_SLAY_UNDEAD |
+                                      Config.treasure_flags.TR_SLAY_EVIL | Config.treasure_flags.TR_STR;
                         item.to_hit += 5;
                         item.to_damage += 5;
                         item.to_ac += this.rnd.randomNumber(4);
@@ -144,9 +144,9 @@ namespace Moria.Core.Methods
                         item.cost += 10000;
                         break;
                     case 2: // Defender
-                        item.flags |= (Config.treasure_flags.TR_FFALL | Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_SEE_INVIS |
-                                       Config.treasure_flags.TR_FREE_ACT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID |
-                                       Config.treasure_flags.TR_RES_FIRE | Config.treasure_flags.TR_REGEN | Config.treasure_flags.TR_STEALTH);
+                        item.flags |= Config.treasure_flags.TR_FFALL | Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_SEE_INVIS |
+                                      Config.treasure_flags.TR_FREE_ACT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID |
+                                      Config.treasure_flags.TR_RES_FIRE | Config.treasure_flags.TR_REGEN | Config.treasure_flags.TR_STEALTH;
                         item.to_hit += 3;
                         item.to_damage += 3;
                         item.to_ac += 5 + this.rnd.randomNumber(5);
@@ -183,7 +183,7 @@ namespace Moria.Core.Methods
                         break;
                     case 9:
                     case 10: // Slay Undead
-                        item.flags |= (Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SLAY_UNDEAD);
+                        item.flags |= Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SLAY_UNDEAD;
                         item.to_hit += 3;
                         item.to_damage += 3;
                         item.special_name_id = (int)SpecialNameIds.SN_SU;
@@ -397,7 +397,7 @@ namespace Moria.Core.Methods
                         item.cost += item.misc_use * 500;
                         break;
                     default:
-                        item.misc_use = (1 + this.rnd.randomNumber(4));
+                        item.misc_use = 1 + this.rnd.randomNumber(4);
                         item.flags |= Config.treasure_flags.TR_INFRA;
                         item.special_name_id = (int)SpecialNameIds.SN_INFRAVISION;
                         item.cost += item.misc_use * 250;
@@ -411,22 +411,22 @@ namespace Moria.Core.Methods
                 case 1:
                     item.identification |= Config.identification.ID_SHOW_P1;
                     item.misc_use = this.rnd.randomNumber(3);
-                    item.flags |= (Config.treasure_flags.TR_FREE_ACT | Config.treasure_flags.TR_CON | Config.treasure_flags.TR_DEX | Config.treasure_flags.TR_STR);
+                    item.flags |= Config.treasure_flags.TR_FREE_ACT | Config.treasure_flags.TR_CON | Config.treasure_flags.TR_DEX | Config.treasure_flags.TR_STR;
                     item.special_name_id = (int)SpecialNameIds.SN_MIGHT;
                     item.cost += 1000 + item.misc_use * 500;
                     break;
                 case 2:
                     item.identification |= Config.identification.ID_SHOW_P1;
                     item.misc_use = this.rnd.randomNumber(3);
-                    item.flags |= (Config.treasure_flags.TR_CHR | Config.treasure_flags.TR_WIS);
+                    item.flags |= Config.treasure_flags.TR_CHR | Config.treasure_flags.TR_WIS;
                     item.special_name_id = (int)SpecialNameIds.SN_LORDLINESS;
                     item.cost += 1000 + item.misc_use * 500;
                     break;
                 case 3:
                     item.identification |= Config.identification.ID_SHOW_P1;
                     item.misc_use = this.rnd.randomNumber(3);
-                    item.flags |= (Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID |
-                                   Config.treasure_flags.TR_RES_FIRE | Config.treasure_flags.TR_INT);
+                    item.flags |= Config.treasure_flags.TR_RES_LIGHT | Config.treasure_flags.TR_RES_COLD | Config.treasure_flags.TR_RES_ACID |
+                                  Config.treasure_flags.TR_RES_FIRE | Config.treasure_flags.TR_INT;
                     item.special_name_id = (int)SpecialNameIds.SN_MAGI;
                     item.cost += 3000 + item.misc_use * 500;
                     break;
@@ -439,8 +439,8 @@ namespace Moria.Core.Methods
                     break;
                 case 5:
                     item.identification |= Config.identification.ID_SHOW_P1;
-                    item.misc_use = (5 * (1 + this.rnd.randomNumber(4)));
-                    item.flags |= (Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SEARCH);
+                    item.misc_use = 5 * (1 + this.rnd.randomNumber(4));
+                    item.flags |= Config.treasure_flags.TR_SEE_INVIS | Config.treasure_flags.TR_SEARCH;
                     item.special_name_id = (int)SpecialNameIds.SN_SEEING;
                     item.cost += 1000 + item.misc_use * 100;
                     break;
@@ -541,7 +541,7 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 5:
-                    item.misc_use = (5 * this.magicEnchantmentBonus(1, 20, level));
+                    item.misc_use = 5 * this.magicEnchantmentBonus(1, 20, level);
                     item.cost += item.misc_use * 50;
                     if (this.magicShouldBeEnchanted(cursed))
                     {
@@ -624,7 +624,7 @@ namespace Moria.Core.Methods
             }
             else if (item.sub_category_id == 2)
             {
-                item.misc_use = (5 * this.magicEnchantmentBonus(1, 25, level));
+                item.misc_use = 5 * this.magicEnchantmentBonus(1, 25, level);
                 if (this.magicShouldBeEnchanted(cursed))
                 {
                     item.misc_use = -item.misc_use;
@@ -639,7 +639,7 @@ namespace Moria.Core.Methods
             else if (item.sub_category_id == 8)
             {
                 // amulet of the magi is never cursed
-                item.misc_use = (5 * this.magicEnchantmentBonus(1, 25, level));
+                item.misc_use = 5 * this.magicEnchantmentBonus(1, 25, level);
                 item.cost += 20 * item.misc_use;
             }
         }
@@ -822,40 +822,40 @@ namespace Moria.Core.Methods
                     break;
                 case 3:
                 case 4:
-                    item.flags |= (Config.treasure_chests.CH_LOSE_STR | Config.treasure_chests.CH_LOCKED);
+                    item.flags |= Config.treasure_chests.CH_LOSE_STR | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_POISON_NEEDLE;
                     break;
                 case 5:
                 case 6:
-                    item.flags |= (Config.treasure_chests.CH_POISON | Config.treasure_chests.CH_LOCKED);
+                    item.flags |= Config.treasure_chests.CH_POISON | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_POISON_NEEDLE;
                     break;
                 case 7:
                 case 8:
                 case 9:
-                    item.flags |= (Config.treasure_chests.CH_PARALYSED | Config.treasure_chests.CH_LOCKED);
+                    item.flags |= Config.treasure_chests.CH_PARALYSED | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_GAS_TRAP;
                     break;
                 case 10:
                 case 11:
-                    item.flags |= (Config.treasure_chests.CH_EXPLODE | Config.treasure_chests.CH_LOCKED);
+                    item.flags |= Config.treasure_chests.CH_EXPLODE | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_EXPLOSION_DEVICE;
                     break;
                 case 12:
                 case 13:
                 case 14:
-                    item.flags |= (Config.treasure_chests.CH_SUMMON | Config.treasure_chests.CH_LOCKED);
+                    item.flags |= Config.treasure_chests.CH_SUMMON | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_SUMMONING_RUNES;
                     break;
                 case 15:
                 case 16:
                 case 17:
                     item.flags |=
-                        (Config.treasure_chests.CH_PARALYSED | Config.treasure_chests.CH_POISON | Config.treasure_chests.CH_LOSE_STR | Config.treasure_chests.CH_LOCKED);
+                        Config.treasure_chests.CH_PARALYSED | Config.treasure_chests.CH_POISON | Config.treasure_chests.CH_LOSE_STR | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_MULTIPLE_TRAPS;
                     break;
                 default:
-                    item.flags |= (Config.treasure_chests.CH_SUMMON | Config.treasure_chests.CH_EXPLODE | Config.treasure_chests.CH_LOCKED);
+                    item.flags |= Config.treasure_chests.CH_SUMMON | Config.treasure_chests.CH_EXPLODE | Config.treasure_chests.CH_LOCKED;
                     item.special_name_id = (int)SpecialNameIds.SN_MULTIPLE_TRAPS;
                     break;
             }
@@ -973,7 +973,7 @@ namespace Moria.Core.Methods
             }
 
             var special = chance / (int)Config.treasure.OBJECT_CHANCE_SPECIAL;
-            var cursed = (10 * chance) / (int)Config.treasure.OBJECT_CHANCE_CURSED;
+            var cursed = 10 * chance / (int)Config.treasure.OBJECT_CHANCE_CURSED;
 
             int magic_amount;
 
@@ -1089,7 +1089,7 @@ namespace Moria.Core.Methods
                 case TV_LIGHT:
                     // `sub_category_id` should be even for store, odd for dungeon
                     // Dungeon found ones will be partially charged
-                    if ((item.sub_category_id % 2) == 1)
+                    if (item.sub_category_id % 2 == 1)
                     {
                         item.misc_use = this.rnd.randomNumber(item.misc_use);
                         item.sub_category_id -= 1;

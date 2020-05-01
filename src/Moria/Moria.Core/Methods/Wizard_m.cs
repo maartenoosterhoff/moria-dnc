@@ -77,7 +77,7 @@ namespace Moria.Core.Methods
                 answer = getInputConfirmation("The game will not be scored if you enter wizard mode. Are you sure?");
             }
 
-            if ((game.noscore != 0) || answer)
+            if (game.noscore != 0 || answer)
             {
                 game.noscore |= 0x2;
                 game.wizard_mode = true;

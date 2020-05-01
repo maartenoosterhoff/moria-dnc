@@ -21,7 +21,7 @@
         public void setRandomSeed(uint seed)
         {
             // set seed to value between 1 and m-1
-            this.rnd_seed = (seed % (RNG_M - 1)) + 1;
+            this.rnd_seed = seed % (RNG_M - 1) + 1;
         }
 
         // returns a pseudo-random number from set 1, 2, ..., RNG_M - 1

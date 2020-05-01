@@ -81,7 +81,7 @@ namespace Moria.Core.Methods
             var spell_found = false;
             var redraw = false;
 
-            var offset = (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == (int)Config.spells.SPELL_TYPE_MAGE ? (int)Config.spells.NAME_OFFSET_SPELLS : (int)Config.spells.NAME_OFFSET_PRAYERS);
+            var offset = Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == (int)Config.spells.SPELL_TYPE_MAGE ? (int)Config.spells.NAME_OFFSET_SPELLS : (int)Config.spells.NAME_OFFSET_PRAYERS;
 
             var choice = '\0';
 
@@ -169,7 +169,7 @@ namespace Moria.Core.Methods
 
                 if (spell_id == -2)
                 {
-                    var spellOrPrayer = (offset == Config.spells.NAME_OFFSET_SPELLS ? "spell" : "prayer");
+                    var spellOrPrayer = offset == Config.spells.NAME_OFFSET_SPELLS ? "spell" : "prayer";
                     var tmp_str = $"You don't know that {spellOrPrayer}.";
                     //vtype_t tmp_str = { '\0' };
                     //(void)sprintf(tmp_str, "You don't know that %s.", (offset == Config.spells.NAME_OFFSET_SPELLS ? "spell" : "prayer"));
@@ -233,7 +233,7 @@ namespace Moria.Core.Methods
                 result = 1;
             }
 
-            if ((result != 0) && Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id].mana_required > py.misc.current_mana)
+            if (result != 0 && Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id].mana_required > py.misc.current_mana)
             {
                 if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
@@ -398,7 +398,7 @@ namespace Moria.Core.Methods
                 var monster = State.Instance.monsters[id];
 
                 if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) &&
-                    ((Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) != 0u))
+                    (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) != 0u)
                 {
                     monster.lit = true;
 
@@ -470,8 +470,8 @@ namespace Moria.Core.Methods
             {
                 var half_height = (int)(SCREEN_HEIGHT / 2);
                 var half_width = (int)(SCREEN_WIDTH / 2);
-                var start_row = (coord.y / half_height) * half_height + 1;
-                var start_col = (coord.x / half_width) * half_width + 1;
+                var start_row = coord.y / half_height * half_height + 1;
+                var start_col = coord.x / half_width * half_width + 1;
                 var end_row = start_row + half_height - 1;
                 var end_col = start_col + half_width - 1;
 
@@ -751,7 +751,7 @@ namespace Moria.Core.Methods
 
                     var item = game.treasure.list[tile.treasure_id];
 
-                    if ((item.category_id >= TV_INVIS_TRAP && item.category_id <= TV_CLOSED_DOOR && item.category_id != TV_RUBBLE) || item.category_id == TV_SECRET_DOOR)
+                    if (item.category_id >= TV_INVIS_TRAP && item.category_id <= TV_CLOSED_DOOR && item.category_id != TV_RUBBLE || item.category_id == TV_SECRET_DOOR)
                     {
                         if (dungeon.dungeonDeleteObject(coord))
                         {
@@ -1228,7 +1228,7 @@ namespace Moria.Core.Methods
                                             }
                                         }
 
-                                        damage = (damage / (dungeon.coordDistanceBetween(spot, coord) + 1));
+                                        damage = damage / (dungeon.coordDistanceBetween(spot, coord) + 1);
 
                                         if (monsterTakeHit((int)tile.creature_id, damage) >= 0)
                                         {
@@ -1248,9 +1248,9 @@ namespace Moria.Core.Methods
                     // show ball of whatever
                     putQIO();
 
-                    for (var row = (coord.y - 2); row <= (coord.y + 2); row++)
+                    for (var row = coord.y - 2; row <= coord.y + 2; row++)
                     {
-                        for (var col = (coord.x - 2); col <= (coord.x + 2); col++)
+                        for (var col = coord.x - 2; col <= coord.x + 2; col++)
                         {
                             spot.y = row;
                             spot.x = col;
@@ -1265,11 +1265,11 @@ namespace Moria.Core.Methods
 
                     if (total_hits == 1)
                     {
-                        printMessage(("The " + spell_name + " envelops a creature!"));
+                        printMessage("The " + spell_name + " envelops a creature!");
                     }
                     else if (total_hits > 1)
                     {
-                        printMessage(("The " + spell_name + " envelops several creatures!"));
+                        printMessage("The " + spell_name + " envelops several creatures!");
                     }
 
                     if (total_kills == 1)
@@ -1329,7 +1329,7 @@ namespace Moria.Core.Methods
                             // must test status bit, not py.flags.blind here, flag could have
                             // been set by a previous monster, but the breath should still
                             // be visible until the blindness takes effect
-                            if (coordInsidePanel(location) && ((py.flags.status & Config.player_status.PY_BLIND) == 0u))
+                            if (coordInsidePanel(location) && (py.flags.status & Config.player_status.PY_BLIND) == 0u)
                             {
                                 panelPutTile('*', location);
                             }
@@ -1347,10 +1347,10 @@ namespace Moria.Core.Methods
                                 }
                                 else if ((weapon_type & creature.spells) != 0u)
                                 {
-                                    damage = (damage / 4);
+                                    damage = damage / 4;
                                 }
 
-                                damage = (damage / (dungeon.coordDistanceBetween(location, coord) + 1));
+                                damage = damage / (dungeon.coordDistanceBetween(location, coord) + 1);
 
                                 // can not call monsterTakeHit here, since player does not
                                 // get experience for kill
@@ -1364,7 +1364,7 @@ namespace Moria.Core.Methods
                                     if (monster.lit)
                                     {
                                         var tmp = (uint)((State.Instance.creature_recall[monster.creature_id].movement & Config.monsters_move.CM_TREASURE) >> (int)Config.monsters_move.CM_TR_SHIFT);
-                                        if (tmp > ((treasure_id & Config.monsters_move.CM_TREASURE) >> (int)Config.monsters_move.CM_TR_SHIFT))
+                                        if (tmp > (treasure_id & Config.monsters_move.CM_TREASURE) >> (int)Config.monsters_move.CM_TR_SHIFT)
                                         {
                                             treasure_id = (uint)((treasure_id & ~Config.monsters_move.CM_TREASURE) | (tmp << (int)Config.monsters_move.CM_TR_SHIFT));
                                         }
@@ -1388,7 +1388,7 @@ namespace Moria.Core.Methods
                             }
                             else if (tile.creature_id == 1)
                             {
-                                var damage = (damage_hp / (dungeon.coordDistanceBetween(location, coord) + 1));
+                                var damage = damage_hp / (dungeon.coordDistanceBetween(location, coord) + 1);
 
                                 // let's do at least one point of damage
                                 // prevents rnd.randomNumber(0) problem with damagePoisonedGas, also
@@ -1427,9 +1427,9 @@ namespace Moria.Core.Methods
             putQIO();
 
             var spot = new Coord_t(0, 0);
-            for (spot.y = (coord.y - 2); spot.y <= (coord.y + 2); spot.y++)
+            for (spot.y = coord.y - 2; spot.y <= coord.y + 2; spot.y++)
             {
-                for (spot.x = (coord.x - 2); spot.x <= (coord.x + 2); spot.x++)
+                for (spot.x = coord.x - 2; spot.x <= coord.x + 2; spot.x++)
                 {
                     if (dungeon.coordInBounds(spot) && coordInsidePanel(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                     {
@@ -1483,7 +1483,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                number_of_charges = (number_of_charges / ((int)item.depth_first_found + 2)) + 1;
+                number_of_charges = number_of_charges / ((int)item.depth_first_found + 2) + 1;
                 item.misc_use += 2 + rnd.randomNumber(number_of_charges);
 
                 if (spellItemIdentified(item))
@@ -1691,9 +1691,9 @@ namespace Moria.Core.Methods
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
-                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                     {
-                        if (monster.lit && ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                        if (monster.lit && (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                         {
                             State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
                         }
@@ -1759,9 +1759,9 @@ namespace Moria.Core.Methods
 
                     var name = monsterNameDescription(creature.name, monster.lit);
 
-                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                     {
-                        if (monster.lit && ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                        if (monster.lit && (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                         {
                             State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
                         }
@@ -1925,7 +1925,7 @@ namespace Moria.Core.Methods
                         spellItemIdentifyAndRemoveRandomInscription(item);
                     }
                 }
-            } while ((distance <= Config.treasure.OBJECT_BOLTS_MAX_RANGE) || tile.feature_id <= MAX_OPEN_SPACE);
+            } while (distance <= Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id <= MAX_OPEN_SPACE);
 
             return destroyed;
         }
@@ -2052,7 +2052,7 @@ namespace Moria.Core.Methods
                 tile.field_mark = false;
 
                 // Permanently light this wall if it is lit by player's lamp.
-                tile.permanent_light = (tile.temporary_light || tile.permanent_light);
+                tile.permanent_light = tile.temporary_light || tile.permanent_light;
                 dungeon.dungeonLiteSpot(coord);
 
                 built = true;
@@ -2114,7 +2114,7 @@ namespace Moria.Core.Methods
                     counter = 0;
                     distance_from_player += 5;
                 }
-            } while ((dg.floor[coord.y][coord.x].feature_id >= MIN_CLOSED_SPACE) || (dg.floor[coord.y][coord.x].creature_id != 0));
+            } while (dg.floor[coord.y][coord.x].feature_id >= MIN_CLOSED_SPACE || dg.floor[coord.y][coord.x].creature_id != 0);
 
             dungeon.dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
             dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
@@ -2151,7 +2151,7 @@ namespace Moria.Core.Methods
                     counter = 0;
                     distance++;
                 }
-            } while (!dungeon.coordInBounds(rnd_coord) || (dg.floor[rnd_coord.y][rnd_coord.x].feature_id >= MIN_CLOSED_SPACE) || (dg.floor[rnd_coord.y][rnd_coord.x].creature_id >= 2));
+            } while (!dungeon.coordInBounds(rnd_coord) || dg.floor[rnd_coord.y][rnd_coord.x].feature_id >= MIN_CLOSED_SPACE || dg.floor[rnd_coord.y][rnd_coord.x].creature_id >= 2);
 
             dungeon.dungeonMoveCreatureRecord(py.pos, rnd_coord);
 
@@ -2264,7 +2264,7 @@ namespace Moria.Core.Methods
                         // genocide is a powerful spell, so we will let the player
                         // know the names of the creatures they did not destroy,
                         // this message makes no sense otherwise
-                        printMessage(("The " + creature.name) + " is unaffected.");
+                        printMessage("The " + creature.name + " is unaffected.");
                     }
                 }
             }
@@ -2343,7 +2343,7 @@ namespace Moria.Core.Methods
                     continue; // do nothing
                 }
 
-                if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0))
+                if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                 {
                     if (monster.lit)
                     {
@@ -2407,7 +2407,7 @@ namespace Moria.Core.Methods
             {
                 var monster = State.Instance.monsters[id];
 
-                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && ((Library.Instance.Creatures.creatures_list[(int)monster.creature_id].defenses & Config.monsters_defense.CD_EVIL) != 0))
+                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].defenses & Config.monsters_defense.CD_EVIL) != 0)
                 {
                     monster.lit = true;
 
@@ -2607,7 +2607,7 @@ namespace Moria.Core.Methods
             {
                 var monster = State.Instance.monsters[id];
 
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature_defense & creatures_list[(int)monster.creature_id].defenses) != 0) &&
+                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature_defense & creatures_list[(int)monster.creature_id].defenses) != 0 &&
                     dungeonLos.los(py.pos, monster.pos))
                 {
                     var creature = creatures_list[(int)monster.creature_id];
@@ -2651,7 +2651,7 @@ namespace Moria.Core.Methods
                 var monster = State.Instance.monsters[id];
                 var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && ((creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0) && dungeonLos.los(py.pos, monster.pos))
+                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0 && dungeonLos.los(py.pos, monster.pos))
                 {
                     var name = monsterNameDescription(creature.name, monster.lit);
 

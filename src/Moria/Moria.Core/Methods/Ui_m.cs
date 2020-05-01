@@ -74,7 +74,7 @@ namespace Moria.Core.Methods
 
             if (force || coord.x < dg.panel.left + 3 || coord.x > dg.panel.right - 3)
             {
-                panel.x = ((coord.x - (int)SCREEN_WIDTH / 4) / ((int)SCREEN_WIDTH / 2));
+                panel.x = (coord.x - (int)SCREEN_WIDTH / 4) / ((int)SCREEN_WIDTH / 2);
                 if (panel.x > dg.panel.max_cols)
                 {
                     panel.x = dg.panel.max_cols;
@@ -676,7 +676,7 @@ namespace Moria.Core.Methods
 
             putString(py.misc.name, new Coord_t(2, 15));
             putString(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(3, 15));
-            putString((playerGetGenderLabel()), new Coord_t(4, 15));
+            putString(playerGetGenderLabel(), new Coord_t(4, 15));
             putString(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(5, 15));
         }
 
@@ -775,8 +775,8 @@ namespace Moria.Core.Methods
             var class_level_adj = Library.Instance.Player.class_level_adj;
             clearToBottom(14);
 
-            var xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level);
-            var xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level);
+            var xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level;
+            var xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level;
 
             // this results in a range from 0 to 29
             var xfos = 40 - py.misc.fos;
@@ -790,11 +790,11 @@ namespace Moria.Core.Methods
             // this results in a range from 0 to 9
             var xstl = py.misc.stealth_factor + 1;
             var xdis = py.misc.disarm + 2 * playerDisarmAdjustment() + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) +
-                       (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3);
+                       class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
             var xsave =
-                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3);
+                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.WIS) + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.SAVE] * (int)py.misc.level / 3;
             var xdev =
-                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + (class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3);
+                py.misc.saving_throw + playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT) + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DEVICE] * (int)py.misc.level / 3;
 
             var xinfra = $"{py.flags.see_infra * 10} feet";
             //vtype_t xinfra = { '\0' };
@@ -876,7 +876,7 @@ namespace Moria.Core.Methods
                     case 'f':
                         putStringClearToEOL("File name:", new Coord_t(0, 0));
 
-                        if (getStringInput(out temp, new Coord_t(0, 10), 60) && (temp[0] != 0))
+                        if (getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
                         {
                             if (outputPlayerCharacterToFile(temp))
                             {
@@ -1005,7 +1005,7 @@ namespace Moria.Core.Methods
             {
                 // lose some of the 'extra' exp when gaining several levels at once
                 var dif_exp = py.misc.exp - new_exp;
-                py.misc.exp = new_exp + (dif_exp / 2);
+                py.misc.exp = new_exp + dif_exp / 2;
             }
 
             printCharacterLevel();
@@ -1034,7 +1034,7 @@ namespace Moria.Core.Methods
                 py.misc.exp = Config.player.PLAYER_MAX_EXP;
             }
 
-            while ((py.misc.level < PLAYER_MAX_LEVEL) && (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100) <= py.misc.exp)
+            while (py.misc.level < PLAYER_MAX_LEVEL && (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100) <= py.misc.exp)
             {
                 playerGainLevel();
             }

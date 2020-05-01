@@ -43,7 +43,7 @@ namespace Moria.Core.Methods
         {
             var game = State.Instance.game;
             if (tile_id < MIN_CAVE_WALL &&
-                (treasure_id == 0 || (game.treasure.list[treasure_id].category_id != TV_RUBBLE && game.treasure.list[treasure_id].category_id != TV_SECRET_DOOR)))
+                (treasure_id == 0 || game.treasure.list[treasure_id].category_id != TV_RUBBLE && game.treasure.list[treasure_id].category_id != TV_SECRET_DOOR))
             {
                 game.player_free_turn = true;
 
@@ -84,7 +84,7 @@ namespace Moria.Core.Methods
             // then also make it harder to dig with it.
             if (py.weapon_is_heavy)
             {
-                digging_ability += (int)((py.stats.used[(int)PlayerAttr.STR] * 15) - weapon.weight);
+                digging_ability += (int)(py.stats.used[(int)PlayerAttr.STR] * 15 - weapon.weight);
 
                 if (digging_ability < 0)
                 {

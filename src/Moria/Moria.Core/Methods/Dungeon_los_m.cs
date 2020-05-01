@@ -158,7 +158,7 @@ namespace Moria.Core.Methods
                         yy = from.y;
                     }
 
-                    while ((to.x - xx) != 0)
+                    while (to.x - xx != 0)
                     {
                         if (dg.floor[yy][xx].feature_id >= MIN_CLOSED_SPACE)
                         {
@@ -210,7 +210,7 @@ namespace Moria.Core.Methods
                     xx = from.x;
                 }
 
-                while ((to.y - yy) != 0)
+                while (to.y - yy != 0)
                 {
                     if (dg.floor[yy][xx].feature_id >= MIN_CLOSED_SPACE)
                     {
@@ -425,7 +425,7 @@ namespace Moria.Core.Methods
                 }
 
                 this.los_rocks_and_objects++;
-            } while (!abort && Config.options.highlight_seams && (this.los_rocks_and_objects < 2));
+            } while (!abort && Config.options.highlight_seams && this.los_rocks_and_objects < 2);
 
             if (abort)
             {
@@ -505,7 +505,7 @@ namespace Moria.Core.Methods
             // sight. If 'to' is  greater than 1, we do not really look at
             // stuff along the direct line of sight, but we do have to see
             // what is opaque for the purposes of obscuring other objects.
-            this.los_hack_no_query = (y == 0 && to > 1) || (y == x && from < GRADF * 2);
+            this.los_hack_no_query = y == 0 && to > 1 || y == x && @from < GRADF * 2;
 
             var transparent = false;
 
@@ -531,7 +531,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Look down the window we've found.
-                if (this.lookRay(y + 1, from, ((2 * y + 1) * (int)GRADF / x)))
+                if (this.lookRay(y + 1, from, (2 * y + 1) * (int)GRADF / x))
                 {
                     return true;
                 }
@@ -545,7 +545,7 @@ namespace Moria.Core.Methods
                     }
 
                     // See if this seals off the scan. (If y is zero, then it will.)
-                    from = ((2 * y - 1) * (int)GRADF / x);
+                    from = (2 * y - 1) * (int)GRADF / x;
 
                     if (from <= to)
                     {
@@ -680,8 +680,8 @@ namespace Moria.Core.Methods
                 }
 
             granite:
-                if (((this.los_rocks_and_objects != 0 || !string.IsNullOrEmpty(msg)) &&
-                    tile.feature_id >= MIN_CLOSED_SPACE) ||
+                if ((this.los_rocks_and_objects != 0 || !string.IsNullOrEmpty(msg)) &&
+                    tile.feature_id >= MIN_CLOSED_SPACE ||
                     skipForGraniteGoto)
                 {
                     var featureId = TILE_GRANITE_WALL;

@@ -40,10 +40,10 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            var hp = (int)py.base_hp_levels[py.misc.level - 1] + (playerStatAdjustmentConstitution() * (int)py.misc.level);
+            var hp = (int)py.base_hp_levels[py.misc.level - 1] + playerStatAdjustmentConstitution() * (int)py.misc.level;
 
             // Always give at least one point per level + 1
-            if (hp < (py.misc.level + 1))
+            if (hp < py.misc.level + 1)
             {
                 hp = (int)py.misc.level + 1;
             }
@@ -107,7 +107,7 @@ namespace Moria.Core.Methods
 
         static int playerAttackBlowsStrength(int strength, int weight)
         {
-            var adj_weight = (strength * 10 / weight);
+            var adj_weight = strength * 10 / weight;
 
             int str;
 
@@ -284,7 +284,7 @@ namespace Moria.Core.Methods
 
             if (con < 7)
             {
-                return (con - 7);
+                return con - 7;
             }
 
             if (con < 17)
@@ -315,7 +315,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var new_stat = py.stats.current[stat];
 
-            var loop = (amount < 0 ? -amount : amount);
+            var loop = amount < 0 ? -amount : amount;
 
             for (var i = 0; i < loop; i++)
             {
@@ -489,7 +489,7 @@ namespace Moria.Core.Methods
             // can not call displayCharacterStats() here:
             //   might be in a store,
             //   might be in inventoryExecuteCommand()
-            py.flags.status |= (Config.player_status.PY_STR << stat);
+            py.flags.status |= Config.player_status.PY_STR << stat;
         }
 
         // Returns a character's adjustment to hit. -JWT-

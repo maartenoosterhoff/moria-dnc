@@ -96,7 +96,7 @@ namespace Moria.Core.Methods
                 // don't purchase known cursed items
                 value = 0;
             }
-            else if ((item.category_id >= TV_BOW && item.category_id <= TV_SWORD) || (item.category_id >= TV_BOOTS && item.category_id <= TV_SOFT_ARMOR))
+            else if (item.category_id >= TV_BOW && item.category_id <= TV_SWORD || item.category_id >= TV_BOOTS && item.category_id <= TV_SOFT_ARMOR)
             {
                 value = this.getWeaponArmorBuyPrice(item);
             }
@@ -235,7 +235,7 @@ namespace Moria.Core.Methods
 
             if (spellItemIdentified(item))
             {
-                return item.cost + (item.cost / 20) * item.misc_use;
+                return item.cost + item.cost / 20 * item.misc_use;
             }
 
             return item.cost;

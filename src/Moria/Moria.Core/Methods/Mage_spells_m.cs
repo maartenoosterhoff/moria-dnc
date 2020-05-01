@@ -131,7 +131,7 @@ namespace Moria.Core.Methods
                     playerMagic.playerCurePoison();
                     break;
                 case MageSpellId.TeleportSelf:
-                    playerTeleport(((int)py.misc.level * 5));
+                    playerTeleport((int)py.misc.level * 5);
                     break;
                 case MageSpellId.RemoveCurse:
                     for (var id = 22; id < PLAYER_INVENTORY_SIZE; id++)
@@ -283,7 +283,7 @@ namespace Moria.Core.Methods
             {
                 printMessage("You faint from the effort!");
 
-                py.flags.paralysis = rnd.randomNumber((5 * ((int)magic_spell.mana_required - py.misc.current_mana)));
+                py.flags.paralysis = rnd.randomNumber(5 * ((int)magic_spell.mana_required - py.misc.current_mana));
                 py.misc.current_mana = 0;
                 py.misc.current_mana_fraction = 0;
 

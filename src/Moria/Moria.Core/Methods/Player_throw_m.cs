@@ -93,7 +93,7 @@ namespace Moria.Core.Methods
                 plus_to_hit -= py.inventory[(int)PlayerEquipment.Wield].to_hit;
             }
 
-            distance = ((((int)py.stats.used[(int)PlayerAttr.STR] + 20) * 10) / weight);
+            distance = ((int)py.stats.used[(int)PlayerAttr.STR] + 20) * 10 / weight;
             if (distance > 10)
             {
                 distance = 10;

@@ -120,7 +120,7 @@ namespace Moria.Core.Methods
             {
                 var level = (int)item.depth_first_found;
 
-                if ((total - level) > rnd.randomNumber(100))
+                if (total - level > rnd.randomNumber(100))
                 {
                     item.flags &= ~Config.treasure_chests.CH_TRAPPED;
 
@@ -140,7 +140,7 @@ namespace Moria.Core.Methods
 
                     displayCharacterExperience();
                 }
-                else if ((total > 5) && (rnd.randomNumber(total) > 5))
+                else if (total > 5 && rnd.randomNumber(total) > 5)
                 {
                     printMessageNoCommandInterrupt("You failed to disarm the chest.");
                 }

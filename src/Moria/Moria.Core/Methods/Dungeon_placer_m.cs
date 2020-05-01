@@ -125,7 +125,7 @@ namespace Moria.Core.Methods
 
             var free_treasure_id = this.gameObjects.popt();
 
-            var gold_type_id = ((this.rnd.randomNumber(dg.current_level + 2) + 2) / 2) - 1;
+            var gold_type_id = (this.rnd.randomNumber(dg.current_level + 2) + 2) / 2 - 1;
 
             if (this.rnd.randomNumber(Config.treasure.TREASURE_CHANCE_OF_GREAT_ITEM) == 1)
             {
@@ -139,7 +139,7 @@ namespace Moria.Core.Methods
 
             dg.floor[coord.y][coord.x].treasure_id = (uint)free_treasure_id;
             this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_GOLD_LIST + gold_type_id, game.treasure.list[free_treasure_id]);
-            game.treasure.list[free_treasure_id].cost += (8 * this.rnd.randomNumber(game.treasure.list[free_treasure_id].cost)) + this.rnd.randomNumber(8);
+            game.treasure.list[free_treasure_id].cost += 8 * this.rnd.randomNumber(game.treasure.list[free_treasure_id].cost) + this.rnd.randomNumber(8);
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {
@@ -165,7 +165,7 @@ namespace Moria.Core.Methods
                     coord.x = this.rnd.randomNumber(dg.width) - 1;
                 } while (!set_function((int)dg.floor[coord.y][coord.x].feature_id) ||
                          dg.floor[coord.y][coord.x].treasure_id != 0 ||
-                         (coord.y == py.pos.y && coord.x == py.pos.x));
+                         coord.y == py.pos.y && coord.x == py.pos.x);
 
                 switch (object_type)
                 {
@@ -235,7 +235,7 @@ namespace Moria.Core.Methods
 
                             if (real_type == 1)
                             {
-                                this.dungeonPlaceRandomObjectAt(at, (object_type >= 4));
+                                this.dungeonPlaceRandomObjectAt(at, object_type >= 4);
                             }
                             else
                             {

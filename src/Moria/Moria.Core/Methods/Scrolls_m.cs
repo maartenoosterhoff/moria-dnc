@@ -327,7 +327,7 @@ namespace Moria.Core.Methods
         {
             var dg = State.Instance.dg;
 
-            dg.current_level += (-3) + 2 * rnd.randomNumber(2);
+            dg.current_level += -3 + 2 * rnd.randomNumber(2);
             if (dg.current_level < 1)
             {
                 dg.current_level = 1;
@@ -583,7 +583,7 @@ namespace Moria.Core.Methods
             item.flags = Config.treasure_flags.TR_CURSED;
             item.to_hit = 0;
             item.to_damage = 0;
-            item.to_ac = (-rnd.randomNumber(5) - rnd.randomNumber(5));
+            item.to_ac = -rnd.randomNumber(5) - rnd.randomNumber(5);
 
             playerRecalculateBonuses();
 
@@ -611,7 +611,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.flags.word_of_recall == 0)
             {
-                py.flags.word_of_recall = (25 + rnd.randomNumber(30));
+                py.flags.word_of_recall = 25 + rnd.randomNumber(30);
             }
             printMessage("The air about you becomes charged.");
         }

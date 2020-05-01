@@ -432,7 +432,7 @@ namespace Moria.Core.Methods
                     new_len = 0;
                 }
 
-                if ((string.IsNullOrEmpty(msg)) || new_len + old_len + 2 >= 73)
+                if (string.IsNullOrEmpty(msg) || new_len + old_len + 2 >= 73)
                 {
                     // ensure that the complete -more- message is visible.
                     if (old_len > 73)
@@ -446,7 +446,7 @@ namespace Moria.Core.Methods
                     do
                     {
                         in_char = getKeyInput();
-                    } while ((in_char != ' ') && (in_char != ESCAPE) && (in_char != '\n') && (in_char != '\r'));
+                    } while (in_char != ' ' && in_char != ESCAPE && in_char != '\n' && in_char != '\r');
                 }
                 else
                 {
@@ -648,7 +648,7 @@ namespace Moria.Core.Methods
                         }
                         break;
                     default:
-                        if ((!isprint((char)key)) || coord.x > end_col)
+                        if (!isprint((char)key) || coord.x > end_col)
                         {
                             terminalBellSound();
                         }
@@ -710,7 +710,7 @@ namespace Moria.Core.Methods
 
             messageLineClear();
 
-            return (input == 'Y' || input == 'y');
+            return input == 'Y' || input == 'y';
         }
 
         // Pauses for user response before returning -RAK-

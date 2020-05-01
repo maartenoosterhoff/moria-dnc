@@ -156,7 +156,7 @@ namespace Moria.Core.Methods
 
             game.command_count = 0;
 
-            if ((major_disturbance != 0) && ((py.flags.status & Config.player_status.PY_SEARCH) != 0u))
+            if (major_disturbance != 0 && (py.flags.status & Config.player_status.PY_SEARCH) != 0u)
             {
                 playerSearchOff();
             }
@@ -166,7 +166,7 @@ namespace Moria.Core.Methods
                 playerRestOff();
             }
 
-            if ((light_disturbance != 0) || (py.running_tracker != 0))
+            if (light_disturbance != 0 || py.running_tracker != 0)
             {
                 py.running_tracker = 0;
                 dungeonResetView();
@@ -241,7 +241,7 @@ namespace Moria.Core.Methods
 
             // check for reasonable value, must be positive number
             // in range of a short, or must be -MAX_SHORT
-            if (rest_num == -SHRT_MAX || (rest_num > 0 && rest_num <= SHRT_MAX))
+            if (rest_num == -SHRT_MAX || rest_num > 0 && rest_num <= SHRT_MAX)
             {
                 if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u)
                 {
@@ -484,12 +484,12 @@ namespace Moria.Core.Methods
                 playerChangeSpeed(-amount);
             }
 
-            if (((item.flags & Config.treasure_flags.TR_BLIND) != 0u) && factor > 0)
+            if ((item.flags & Config.treasure_flags.TR_BLIND) != 0u && factor > 0)
             {
                 py.flags.blind += 1000;
             }
 
-            if (((item.flags & Config.treasure_flags.TR_TIMID) != 0u) && factor > 0)
+            if ((item.flags & Config.treasure_flags.TR_TIMID) != 0u && factor > 0)
             {
                 py.flags.afraid += 50;
             }
@@ -617,7 +617,7 @@ namespace Moria.Core.Methods
 
             if (py.weapon_is_heavy)
             {
-                py.misc.display_to_hit += ((int)py.stats.used[(int)PlayerAttr.STR] * 15 - (int)py.inventory[(int)PlayerEquipment.Wield].weight);
+                py.misc.display_to_hit += (int)py.stats.used[(int)PlayerAttr.STR] * 15 - (int)py.inventory[(int)PlayerEquipment.Wield].weight;
             }
 
             // Add in temporary spell increases
@@ -763,13 +763,13 @@ namespace Moria.Core.Methods
             playerDisturb(1, 0);
 
             // `plus_to_hit` could be less than 0 if player wielding weapon too heavy for them
-            var hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + (level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id]);
+            var hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id];
 
             // always miss 1 out of 20, always hit 1 out of 20
             var die = rnd.randomNumber(20);
 
             // normal hit
-            return (die != 1 && (die == 20 || (hit_chance > 0 && rnd.randomNumber(hit_chance) > armor_class)));
+            return die != 1 && (die == 20 || hit_chance > 0 && rnd.randomNumber(hit_chance) > armor_class);
         }
 
         // Decreases players hit points and sets game.character_is_dead flag if necessary -RAK-
@@ -1109,7 +1109,7 @@ namespace Moria.Core.Methods
                 displaySpellsList(spell_bank, spell_id, false, -1);
 
                 var query = '\0';
-                while ((new_spells != 0) && getCommand("Learn which spell?", out query))
+                while (new_spells != 0 && getCommand("Learn which spell?", out query))
                 {
                     var c = query - 'a';
 
@@ -1260,7 +1260,7 @@ namespace Moria.Core.Methods
 
             // Weight of weapon, plusses to hit, and character level all
             // contribute to the chance of a critical
-            if (rnd.randomNumber(5000) <= weapon_weight + 5 * plus_to_hit + (Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id] * py.misc.level))
+            if (rnd.randomNumber(5000) <= weapon_weight + 5 * plus_to_hit + Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id] * py.misc.level)
             {
                 weapon_weight += rnd.randomNumber(650);
 
@@ -1444,7 +1444,7 @@ namespace Moria.Core.Methods
 
                     printMessage("Your hands stop glowing.");
 
-                    if (((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0) || rnd.randomNumber(MON_MAX_LEVELS) < creature.level)
+                    if ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0 || rnd.randomNumber(MON_MAX_LEVELS) < creature.level)
                     {
                         msg = $"{name} is unaffected.";
                         //(void)sprintf(msg, "%s is unaffected.", name);
@@ -1893,7 +1893,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             uint mask;
 
-            for (var n = 0; ((py.flags.spells_forgotten != 0u) && (new_spells != 0) && (n < allowed_spells) && (n < 32)); n++)
+            for (var n = 0; py.flags.spells_forgotten != 0u && new_spells != 0 && n < allowed_spells && n < 32; n++)
             {
                 // order ID is (i+1)th spell learned
                 var order_id = (int)py.flags.spells_learned_order[n];
@@ -1970,7 +1970,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             uint mask;
 
-            for (var i = 31; (new_spells != 0) && (py.flags.spells_learnt != 0u); i--)
+            for (var i = 31; new_spells != 0 && py.flags.spells_learnt != 0u; i--)
             {
                 // orderID is the (i+1)th spell learned
                 var order_id = (int)py.flags.spells_learned_order[i];

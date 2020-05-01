@@ -77,7 +77,7 @@ namespace Moria.Core.Methods
         // Generates a random integer x where 1<=X<=MAXVAL -RAK-
         public int randomNumber(int max)
         {
-            return (this.rng.rnd() % max) + 1;
+            return this.rng.rnd() % max + 1;
         }
 
         public int randomNumberNormalDistribution(uint mean, int standard) => this.randomNumberNormalDistribution((int)mean, standard);
@@ -143,7 +143,7 @@ namespace Moria.Core.Methods
 
             // normal_table is based on SD of 64, so adjust the
             // index value here, round the half way case up.
-            offset = ((standard * iindex) + ((int)Game_c.NORMAL_TABLE_SD >> 1)) / (int)Game_c.NORMAL_TABLE_SD;
+            offset = (standard * iindex + ((int)Game_c.NORMAL_TABLE_SD >> 1)) / (int)Game_c.NORMAL_TABLE_SD;
 
             // one half should be negative
             if (this.randomNumber(2) == 1)

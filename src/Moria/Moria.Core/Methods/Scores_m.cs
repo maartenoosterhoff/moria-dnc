@@ -294,7 +294,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            var total = py.misc.max_exp + (100 * (int)py.misc.max_dungeon_depth);
+            var total = py.misc.max_exp + 100 * (int)py.misc.max_dungeon_depth;
             total += py.misc.au / 100;
 
             foreach (var item in py.inventory)

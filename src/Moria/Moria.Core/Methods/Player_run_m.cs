@@ -458,7 +458,7 @@ namespace Moria.Core.Methods
 
             // choose a direction.
 
-            if (dir_b == 0 || (Config.options.run_examine_corners && !Config.options.run_cut_corners))
+            if (dir_b == 0 || Config.options.run_examine_corners && !Config.options.run_cut_corners)
             {
                 // There is only one option, or if two, then we always examine
                 // potential corners and never cur known corners, so you step

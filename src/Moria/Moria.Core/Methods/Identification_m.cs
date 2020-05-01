@@ -321,7 +321,7 @@ namespace Moria.Core.Methods
             }
 
             id <<= 6;
-            id += (sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1));
+            id += sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             State.Instance.objects_identified[id] |= Config.identification.OD_KNOWN1;
 
@@ -343,7 +343,7 @@ namespace Moria.Core.Methods
             }
 
             id <<= 6;
-            id += ((int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1));
+            id += (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             // clear the tried flag, since it is now known
             clearObjectTriedFlag(id);
@@ -398,7 +398,7 @@ namespace Moria.Core.Methods
             }
 
             id <<= 6;
-            id += (sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1));
+            id += sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             return isObjectKnown(id);
         }
@@ -414,7 +414,7 @@ namespace Moria.Core.Methods
             }
 
             id <<= 6;
-            id += ((int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1));
+            id += (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             setObjectTriedFlag(id);
         }
@@ -454,7 +454,7 @@ namespace Moria.Core.Methods
                 if (t_ptr.category_id == cat_id &&
                     t_ptr.sub_category_id == sub_cat_id &&
                     i != item_id &&
-                    ((int)t_ptr.items_count + (int)item.items_count) < 256)
+                    (int)t_ptr.items_count + (int)item.items_count < 256)
                 {
                     // make *item_id the smaller number
                     if (item_id > i)
@@ -799,7 +799,7 @@ namespace Moria.Core.Methods
                 {
                     tmp_str = string.Format(
                         " ({0}{1},{2}{3})",
-                        (item.to_hit < 0) ? '-' : '+', abs_to_hit, (item.to_damage < 0) ? '-' : '+', abs_to_damage
+                        item.to_hit < 0 ? '-' : '+', abs_to_hit, item.to_damage < 0 ? '-' : '+', abs_to_damage
                     );
                     //(void)sprintf(tmp_str, " (%c%d,%c%d)", (item.to_hit < 0) ? '-' : '+', abs_to_hit, (item.to_damage < 0) ? '-' : '+', abs_to_damage);
                 }
@@ -807,7 +807,7 @@ namespace Moria.Core.Methods
                 {
                     tmp_str = string.Format(
                         "({0}{1})",
-                        (item.to_hit < 0) ? '-' : '+', abs_to_hit
+                        item.to_hit < 0 ? '-' : '+', abs_to_hit
                     );
                     //(void)sprintf(tmp_str, " (%c%d)", (item.to_hit < 0) ? '-' : '+', abs_to_hit);
                 }
@@ -815,7 +815,7 @@ namespace Moria.Core.Methods
                 {
                     tmp_str = string.Format(
                         "({0}{1})",
-                        (item.to_damage < 0) ? '-' : '+', abs_to_damage
+                        item.to_damage < 0 ? '-' : '+', abs_to_damage
                     );
                     //(void)sprintf(tmp_str, " (%c%d)", (item.to_damage < 0) ? '-' : '+', abs_to_damage);
                 }
@@ -841,7 +841,7 @@ namespace Moria.Core.Methods
                     // originally used %+d, but several machines don't support it
                     tmp_str = string.Format(
                         ",{0}{1}",
-                        (item.to_ac < 0) ? '-' : '+', abs_to_ac
+                        item.to_ac < 0 ? '-' : '+', abs_to_ac
                     );
                     //(void)sprintf(tmp_str, ",%c%d", (item.to_ac < 0) ? '-' : '+', abs_to_ac);
                     tmp_val += tmp_str;
@@ -856,7 +856,7 @@ namespace Moria.Core.Methods
                 // originally used %+d, but several machines don't support it
                 tmp_str = string.Format(
                     " [{0}{1}]",
-                    (item.to_ac < 0) ? '-' : '+', abs_to_ac
+                    item.to_ac < 0 ? '-' : '+', abs_to_ac
                 );
                 //(void)sprintf(tmp_str, " [%c%d]", (item.to_ac < 0) ? '-' : '+', abs_to_ac);
                 tmp_val += tmp_str;
@@ -891,7 +891,7 @@ namespace Moria.Core.Methods
                 if (misc_type == ItemMiscUse.ZPlusses)
                 {
                     // originally used %+d, but several machines don't support it
-                    tmp_str = string.Format(" ({0}{1})", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
+                    tmp_str = string.Format(" ({0}{1})", item.misc_use < 0 ? '-' : '+', abs_misc_use);
                     //(void)sprintf(tmp_str, " (%c%d)", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
                 }
                 else if (misc_type == ItemMiscUse.Charges)
@@ -903,19 +903,19 @@ namespace Moria.Core.Methods
                 {
                     if (misc_type == ItemMiscUse.Plusses)
                     {
-                        tmp_str = string.Format(" ({0}{1})", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
+                        tmp_str = string.Format(" ({0}{1})", item.misc_use < 0 ? '-' : '+', abs_misc_use);
                         //(void)sprintf(tmp_str, " (%c%d)", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
                     }
                     else if (misc_type == ItemMiscUse.Flags)
                     {
                         if ((item.flags & Config.treasure_flags.TR_STR) != 0u)
                         {
-                            tmp_str = string.Format(" ({0}{1} to STR)", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
+                            tmp_str = string.Format(" ({0}{1} to STR)", item.misc_use < 0 ? '-' : '+', abs_misc_use);
                             //(void)sprintf(tmp_str, " (%c%d to STR)", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
                         }
                         else if ((item.flags & Config.treasure_flags.TR_STEALTH) != 0u)
                         {
-                            tmp_str = string.Format(" ({0}{1} to stealth)", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
+                            tmp_str = string.Format(" ({0}{1} to stealth)", item.misc_use < 0 ? '-' : '+', abs_misc_use);
                             //(void)sprintf(tmp_str, " (%c%d to stealth)", (item.misc_use < 0) ? '-' : '+', abs_misc_use);
                         }
                     }
@@ -979,10 +979,10 @@ namespace Moria.Core.Methods
             if ((indexx = objectPositionOffset((int)item.category_id, (int)item.sub_category_id)) >= 0)
             {
                 indexx <<= 6;
-                indexx += ((int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1));
+                indexx += (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
                 // don't print tried string for store bought items
-                if (((State.Instance.objects_identified[indexx] & Config.identification.OD_TRIED) != 0) && !itemStoreBought((int)item.identification))
+                if ((State.Instance.objects_identified[indexx] & Config.identification.OD_TRIED) != 0 && !itemStoreBought((int)item.identification))
                 {
                     tmp_str = "tried ";
                     //(void)strcat(tmp_str, "tried ");

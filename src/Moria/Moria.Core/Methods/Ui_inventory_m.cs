@@ -36,7 +36,7 @@ namespace Moria.Core.Methods
             this.inventoryManager = inventoryManager;
         }
 
-        private void inventoryItemWeightText(ref string text, int item_id)
+        private void inventoryItemWeightText(out string text, int item_id)
         {
             var py = State.Instance.py;
             var total_weight = (int)(py.inventory[item_id].weight * py.inventory[item_id].items_count);
@@ -73,7 +73,7 @@ namespace Moria.Core.Methods
             // Generate the descriptions text
             for (var i = item_id_start; i <= item_id_end; i++)
             {
-                if (mask != null && (mask[i] == 0))
+                if (mask != null && mask[i] == 0)
                 {
                     continue;
                 }
@@ -117,7 +117,7 @@ namespace Moria.Core.Methods
             // Print the descriptions
             for (var i = item_id_start; i <= item_id_end; i++)
             {
-                if (mask != null && (mask[i] == 0))
+                if (mask != null && mask[i] == 0)
                 {
                     continue;
                 }
@@ -135,9 +135,8 @@ namespace Moria.Core.Methods
 
                 if (weighted)
                 {
-                    var text = string.Empty;
                     //obj_desc_t text = { '\0' };
-                    this.inventoryItemWeightText(ref text, i);
+                    this.inventoryItemWeightText(out var text, i);
                     putStringClearToEOL(text, new Coord_t(current_line, 71));
                 }
 
@@ -231,16 +230,7 @@ namespace Moria.Core.Methods
             //vtype_t descriptions[PLAYER_INVENTORY_SIZE - PlayerEquipment.Wield];
 
             var len = 79 - column;
-
-            int lim;
-            if (weighted)
-            {
-                lim = 52;
-            }
-            else
-            {
-                lim = 60;
-            }
+            var lim = weighted ? 52 : 60;
 
             // Range of equipment
             var line = 0;
@@ -311,9 +301,8 @@ namespace Moria.Core.Methods
 
                 if (weighted)
                 {
-                    var text = string.Empty;
                     //obj_desc_t text = { '\0' };
-                    this.inventoryItemWeightText(ref text, i);
+                    this.inventoryItemWeightText(out var text, i);
                     putStringClearToEOL(text, new Coord_t(line + 1, 71));
                 }
 
@@ -498,7 +487,7 @@ namespace Moria.Core.Methods
                 return selecting;
             }
 
-            if (py.pack.unique_items >= (int)PlayerEquipment.Wield && (game.doing_inventory_command == 0))
+            if (py.pack.unique_items >= (int)PlayerEquipment.Wield && game.doing_inventory_command == 0)
             {
                 printMessage("You will have to drop something first.");
                 return selecting;
@@ -529,7 +518,7 @@ namespace Moria.Core.Methods
                 return selecting;
             }
 
-            if ((this.screen_state == EQUIP_SCR && py.equipment_count > 0) || py.pack.unique_items == 0)
+            if (this.screen_state == EQUIP_SCR && py.equipment_count > 0 || py.pack.unique_items == 0)
             {
                 if (this.screen_state != BLANK_SCR)
                 {
@@ -811,7 +800,7 @@ namespace Moria.Core.Methods
                                 {
                                     terminalBellSound();
                                 }
-                                if ((slot != 0) && !this.verify("Replace", slot))
+                                if (slot != 0 && !this.verify("Replace", slot))
                                 {
                                     slot = 0;
                                 }
@@ -861,19 +850,18 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            int item_to_take_off;
             var slot = 0;
 
-            int from, to;
-            string prompt = null;
-            string swap = null;
             //const char* prompt = nullptr;
             //const char* swap = nullptr;
 
             while (selecting && game.player_free_turn)
             {
-                swap = "";
+                var swap = "";
 
+                string prompt;
+                int from;
+                int to;
                 if (command == 'w')
                 {
                     from = this.wear_low;
@@ -944,7 +932,7 @@ namespace Moria.Core.Methods
                 }
 
                 // Swap screens (for drop)
-                if (which == '/' && (swap[0] != 0))
+                if (which == '/' && swap[0] != 0)
                 {
                     if (command == 'd')
                     {
@@ -970,6 +958,7 @@ namespace Moria.Core.Methods
 
                 // Found an item!
 
+                int item_to_take_off;
                 if (command == 'r' || command == 't')
                 {
                     // Get its place in the equipment list.
@@ -985,7 +974,7 @@ namespace Moria.Core.Methods
                         }
                     } while (item_to_take_off >= 0);
 
-                    if ((char.IsUpper((char)which)) && !this.verify(prompt, item_id))
+                    if (char.IsUpper(which) && !this.verify(prompt, item_id))
                     {
                         item_id = -1;
                     }
@@ -1043,7 +1032,7 @@ namespace Moria.Core.Methods
                 {
                     // Wearing. Go to a bit of trouble over replacing existing equipment.
 
-                    if ((char.IsUpper((char)which)) && !this.verify(prompt, item_id))
+                    if (char.IsUpper((char)which) && !this.verify(prompt, item_id))
                     {
                         item_id = -1;
                     }
@@ -1212,7 +1201,7 @@ namespace Moria.Core.Methods
                             item_id = -1;
                         }
                     }
-                    else if ((char.IsUpper((char)which)) && !this.verify(prompt, item_id))
+                    else if (char.IsUpper((char)which) && !this.verify(prompt, item_id))
                     {
                         item_id = -1;
                     }
@@ -1254,11 +1243,11 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (this.screen_state == INVEN_SCR)
             {
-                var msg = string.Empty;
                 //obj_desc_t msg = { '\0' };
                 var w_quotient = py.pack.weight / 10;
                 var w_remainder = py.pack.weight % 10;
 
+                string msg;
                 if (!Config.options.show_inventory_weights || py.pack.unique_items == 0)
                 {
                     msg = $"You are carrying {w_quotient:d}.{w_remainder:d} pounds. In your pack there is {(py.pack.unique_items == 0 ? "nothing." : "-")}";
@@ -1488,12 +1477,12 @@ namespace Moria.Core.Methods
                 {
                     description = string.Format(
                         "({0}: {1:c}-{2:c},{3:s}{4:s} / for {5:s}, or ESC) {6:s}", //
-                        (screen_id > 0 ? "Inven" : "Equip"), //
+                        screen_id > 0 ? "Inven" : "Equip", //
                         (char)(item_id_start + 'a'), //
                         (char)(item_id_end + 'a'), //
-                        (screen_id > 0 ? " 0-9," : ""), //
-                        (redraw_screen ? "" : " * to see,"), //
-                        (screen_id > 0 ? "Equip" : "Inven"), //
+                        screen_id > 0 ? " 0-9," : "", //
+                        redraw_screen ? "" : " * to see,", //
+                        screen_id > 0 ? "Equip" : "Inven", //
                         prompt //
                     );
                     //(void)sprintf(description,                            //
@@ -1513,8 +1502,8 @@ namespace Moria.Core.Methods
                         "(Items {0:c}-{1:c},{2:s}{3:s} ESC to exit) {4:s}",             //
                         (char)(item_id_start + 'a'),                             //
                         (char)(item_id_end + 'a'),                               //
-                        (screen_id > 0 ? " 0-9," : ""),                  //
-                        (redraw_screen ? "" : " * for inventory list,"), //
+                        screen_id > 0 ? " 0-9," : "",                  //
+                        redraw_screen ? "" : " * for inventory list,", //
                         prompt                                           //
                     );
                     //(void)sprintf(description,                                     //
@@ -1637,7 +1626,7 @@ namespace Moria.Core.Methods
                                 command_key_id = which - 'a';
                             }
 
-                            if (command_key_id >= item_id_start && command_key_id <= item_id_end && (mask == null || (mask[command_key_id] != 0)))
+                            if (command_key_id >= item_id_start && command_key_id <= item_id_end && (mask == null || mask[command_key_id] != 0))
                             {
                                 if (screen_id == 0)
                                 {
@@ -1659,7 +1648,7 @@ namespace Moria.Core.Methods
                                     command_key_id = item_id_start;
                                 }
 
-                                if ((char.IsUpper((char)which) && !this.verify("Try", command_key_id)))
+                                if (char.IsUpper((char)which) && !this.verify("Try", command_key_id))
                                 {
                                     screen_id = -1;
                                     command_finished = true;

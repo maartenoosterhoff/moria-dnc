@@ -122,7 +122,7 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case PriestSpellTypes.Portal:
-                    playerTeleport(((int)py.misc.level * 3));
+                    playerTeleport((int)py.misc.level * 3);
                     break;
                 case PriestSpellTypes.CureMediumWounds:
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
@@ -273,7 +273,7 @@ namespace Moria.Core.Methods
                 {
                     py.misc.exp += (int)(spell.exp_gain_for_learning << 2);
                     displayCharacterExperience();
-                    py.flags.spells_worked |= (1u << choice);
+                    py.flags.spells_worked |= 1u << choice;
                 }
             }
 
@@ -282,7 +282,7 @@ namespace Moria.Core.Methods
                 if (spell.mana_required > py.misc.current_mana)
                 {
                     printMessage("You faint from fatigue!");
-                    py.flags.paralysis = (int)rnd.randomNumber((5 * (int)(spell.mana_required - py.misc.current_mana)));
+                    py.flags.paralysis = (int)rnd.randomNumber(5 * (int)(spell.mana_required - py.misc.current_mana));
                     py.misc.current_mana = 0;
                     py.misc.current_mana_fraction = 0;
                     if (rnd.randomNumber(3) == 1)

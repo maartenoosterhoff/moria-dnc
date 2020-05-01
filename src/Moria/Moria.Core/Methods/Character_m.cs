@@ -499,15 +499,15 @@ namespace Moria.Core.Methods
 
             // now set misc stats, do this after setting stats because of playerStatAdjustmentConstitution() for hit-points
             py.misc.hit_die += klass.hit_points;
-            py.misc.max_hp = (playerStatAdjustmentConstitution() + (int)py.misc.hit_die);
+            py.misc.max_hp = playerStatAdjustmentConstitution() + (int)py.misc.hit_die;
             py.misc.current_hp = py.misc.max_hp;
             py.misc.current_hp_fraction = 0;
 
             // Initialize hit_points array.
             // Put bounds on total possible hp, only succeed
             // if it is within 1/8 of average value.
-            var min_value = (PLAYER_MAX_LEVEL * 3 / 8 * (py.misc.hit_die - 1)) + PLAYER_MAX_LEVEL;
-            var max_value = (PLAYER_MAX_LEVEL * 5 / 8 * (py.misc.hit_die - 1)) + PLAYER_MAX_LEVEL;
+            var min_value = PLAYER_MAX_LEVEL * 3 / 8 * (py.misc.hit_die - 1) + PLAYER_MAX_LEVEL;
+            var max_value = PLAYER_MAX_LEVEL * 5 / 8 * (py.misc.hit_die - 1) + PLAYER_MAX_LEVEL;
             py.base_hp_levels[0] = py.misc.hit_die;
 
             do

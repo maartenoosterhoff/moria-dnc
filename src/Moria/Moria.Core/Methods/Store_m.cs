@@ -166,7 +166,7 @@ namespace Moria.Core.Methods
         // Displays a store's inventory -RAK-
         public static void displayStoreInventory(Store_t store, int item_pos_start)
         {
-            var item_pos_end = ((item_pos_start / 12) + 1) * 12;
+            var item_pos_end = (item_pos_start / 12 + 1) * 12;
             if (item_pos_end > store.unique_items_counter)
             {
                 item_pos_end = (int)store.unique_items_counter;
@@ -174,7 +174,7 @@ namespace Moria.Core.Methods
 
             int item_line_num;
 
-            for (item_line_num = (item_pos_start % 12); item_pos_start < item_pos_end; item_line_num++)
+            for (item_line_num = item_pos_start % 12; item_pos_start < item_pos_end; item_line_num++)
             {
                 var item = store.inventory[item_pos_start].item;
 
@@ -224,7 +224,7 @@ namespace Moria.Core.Methods
 
             if (item_line_num < 12)
             {
-                for (var i = 0; i < (11 - item_line_num + 1); i++)
+                for (var i = 0; i < 11 - item_line_num + 1; i++)
                 {
                     // clear remaining lines
                     eraseLine(new Coord_t(i + item_line_num + 5, 0));
@@ -260,7 +260,7 @@ namespace Moria.Core.Methods
                 msg = $"{cost,9:d} [Fixed]";
                 //(void)sprintf(msg, "%9d [Fixed]", cost);
             }
-            putStringClearToEOL(msg, new Coord_t((item_id % 12) + 5, 59));
+            putStringClearToEOL(msg, new Coord_t(item_id % 12 + 5, 59));
         }
 
         // Displays players gold -RAK-
@@ -291,7 +291,7 @@ namespace Moria.Core.Methods
             item_id = -1;
             var item_found = false;
 
-            var msg = $"(Items {(char)((char)(item_pos_start + 'a'))}-{(char)(item_pos_end + 'a')}, ESC to exit) {prompt}";
+            var msg = $"(Items {(char)(char)(item_pos_start + 'a')}-{(char)(item_pos_end + 'a')}, ESC to exit) {prompt}";
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
@@ -387,11 +387,11 @@ namespace Moria.Core.Methods
             {
                 putStringClearToEOL(prompt, new Coord_t(0, 0));
 
-                if ((offer_count != 0) && State.Instance.store_last_increment != 0)
+                if (offer_count != 0 && State.Instance.store_last_increment != 0)
                 {
                     var abs_store_last_increment = (int)std.std_abs(std.std_intmax_t(State.Instance.store_last_increment));
 
-                    last_offer_str = $"[{((State.Instance.store_last_increment < 0) ? '-' : '+')}{abs_store_last_increment}] ";
+                    last_offer_str = $"[{(State.Instance.store_last_increment < 0 ? '-' : '+')}{abs_store_last_increment}] ";
                     //(void)sprintf(last_offer_str, "[%c%d] ", (State.Instance.store_last_increment < 0) ? '-' : '+', abs_store_last_increment);
                     putStringClearToEOL(last_offer_str, new Coord_t(0, start_len));
 
@@ -419,7 +419,7 @@ namespace Moria.Core.Methods
                 //    increment = true;
                 //}
 
-                if ((offer_count != 0) && increment)
+                if (offer_count != 0 && increment)
                 {
                     helpers.stringToNumber(msg, out adjustment);
 
@@ -435,7 +435,7 @@ namespace Moria.Core.Methods
                         State.Instance.store_last_increment = (int)adjustment;
                     }
                 }
-                else if ((offer_count != 0) && string.IsNullOrEmpty(msg))
+                else if (offer_count != 0 && string.IsNullOrEmpty(msg))
                 {
                     adjustment = State.Instance.store_last_increment;
                     increment = true;
@@ -653,7 +653,7 @@ namespace Moria.Core.Methods
                         }
                     }
 
-                    adjustment = ((current_asking_price - new_offer) * (adjustment + rnd.randomNumber(5) - 3) / 100) + 1;
+                    adjustment = (current_asking_price - new_offer) * (adjustment + rnd.randomNumber(5) - 3) / 100 + 1;
 
                     // don't let the price go up
                     if (adjustment > 0)
@@ -923,7 +923,7 @@ namespace Moria.Core.Methods
                             }
                         }
 
-                        adjustment = ((new_offer - current_asking_price) * (adjustment + rnd.randomNumber(5) - 3) / 100) + 1;
+                        adjustment = (new_offer - current_asking_price) * (adjustment + rnd.randomNumber(5) - 3) / 100 + 1;
 
                         // don't let the price go down
                         if (adjustment > 0)
@@ -1493,9 +1493,9 @@ namespace Moria.Core.Methods
                 return true;
             }
 
-            var record = (int)((store.good_purchases - 3 * store.bad_purchases - 5));
+            var record = (int)(store.good_purchases - 3 * store.bad_purchases - 5);
 
-            return ((record > 0) && (record * record > min_price / 50));
+            return record > 0 && record * record > min_price / 50;
         }
 
         // update the bargain info -DJB-

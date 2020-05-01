@@ -173,7 +173,7 @@ namespace Moria.Core.Methods
             var a = (dy + dx) << 1;
             var b = dy > dx ? dx : dy;
 
-            return ((a - b) >> 1);
+            return (a - b) >> 1;
         }
 
         // Checks points north, south, east, and west for a wall -RAK-
@@ -245,7 +245,7 @@ namespace Moria.Core.Methods
 
             var tile = dg.floor[coord.y][coord.x];
 
-            if (tile.creature_id == 1 && ((py.running_tracker == 0) || Config.options.run_print_self))
+            if (tile.creature_id == 1 && (py.running_tracker == 0 || Config.options.run_print_self))
             {
                 return '@';
             }
@@ -349,11 +349,11 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            var height_middle = ((int)SCREEN_HEIGHT / 2);
-            var width_middle = ((int)SCREEN_WIDTH / 2);
+            var height_middle = (int)SCREEN_HEIGHT / 2;
+            var width_middle = (int)SCREEN_WIDTH / 2;
 
-            var top = (coord.y / height_middle) * height_middle;
-            var left = (coord.x / width_middle) * width_middle;
+            var top = coord.y / height_middle * height_middle;
+            var left = coord.x / width_middle * width_middle;
             var bottom = top + height_middle - 1;
             var right = left + width_middle - 1;
 
@@ -417,12 +417,12 @@ namespace Moria.Core.Methods
                         dg.floor[y][x].temporary_light = false;
                     }
                 }
-                if ((py.running_tracker != 0) && !Config.options.run_print_self)
+                if (py.running_tracker != 0 && !Config.options.run_print_self)
                 {
                     py.temporary_light_only = false;
                 }
             }
-            else if ((py.running_tracker == 0) || Config.options.run_print_self)
+            else if (py.running_tracker == 0 || Config.options.run_print_self)
             {
                 py.temporary_light_only = true;
             }
@@ -512,12 +512,12 @@ namespace Moria.Core.Methods
 
                 py.temporary_light_only = false;
             }
-            else if ((py.running_tracker == 0) || Config.options.run_print_self)
+            else if (py.running_tracker == 0 || Config.options.run_print_self)
             {
                 panelPutTile(this.caveGetTileSymbol(from), from);
             }
 
-            if ((py.running_tracker == 0) || Config.options.run_print_self)
+            if (py.running_tracker == 0 || Config.options.run_print_self)
             {
                 panelPutTile('@', to);
             }

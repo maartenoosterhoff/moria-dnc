@@ -130,7 +130,7 @@ namespace Moria.Core.Methods
                 case TV_HAFTED:
                 case TV_SWORD:
                 case TV_DIGGING:
-                    return (obj.weight > 150);
+                    return obj.weight > 150;
                 default:
                     return false;
             }

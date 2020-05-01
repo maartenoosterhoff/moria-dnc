@@ -562,7 +562,7 @@ namespace Moria.Core.Methods
             // a wall is a free turn normally, hence don't give player free turns
             // attacking each wall in an attempt to locate the invisible creature,
             // instead force player to tunnel into walls which always takes a turn
-            if (tile.creature_id < 2 || (!monster.lit && tile.feature_id >= MIN_CLOSED_SPACE))
+            if (tile.creature_id < 2 || !monster.lit && tile.feature_id >= MIN_CLOSED_SPACE)
             {
                 // Open floor spot
                 if (tile.feature_id <= MAX_OPEN_SPACE)
@@ -591,7 +591,7 @@ namespace Moria.Core.Methods
 
                     // Check to see if they've noticed something
                     // fos may be negative if have good rings of searching
-                    if (py.misc.fos <= 1 || rnd.randomNumber(py.misc.fos) == 1 || ((py.flags.status & Config.player_status.PY_SEARCH) != 0u))
+                    if (py.misc.fos <= 1 || rnd.randomNumber(py.misc.fos) == 1 || (py.flags.status & Config.player_status.PY_SEARCH) != 0u)
                     {
                         playerSearch(py.pos, py.misc.chance_in_search);
                     }
@@ -600,7 +600,7 @@ namespace Moria.Core.Methods
                     {
                         // A room of light should be lit.
 
-                        if (!tile.permanent_light && (py.flags.blind == 0))
+                        if (!tile.permanent_light && py.flags.blind == 0)
                         {
                             dungeon.dungeonLightRoom(py.pos);
                         }
@@ -609,9 +609,9 @@ namespace Moria.Core.Methods
                     {
                         // In doorway of light-room?
 
-                        for (var row = (py.pos.y - 1); row <= (py.pos.y + 1); row++)
+                        for (var row = py.pos.y - 1; row <= py.pos.y + 1; row++)
                         {
-                            for (var col = (py.pos.x - 1); col <= (py.pos.x + 1); col++)
+                            for (var col = py.pos.x - 1; col <= py.pos.x + 1; col++)
                             {
                                 if (dg.floor[row][col].feature_id == TILE_LIGHT_FLOOR && !dg.floor[row][col].permanent_light)
                                 {
@@ -657,7 +657,7 @@ namespace Moria.Core.Methods
                 {
                     // Can't move onto floor space
 
-                    if ((py.running_tracker == 0) && tile.treasure_id != 0)
+                    if (py.running_tracker == 0 && tile.treasure_id != 0)
                     {
                         if (game.treasure.list[tile.treasure_id].category_id == TV_RUBBLE)
                         {
@@ -684,7 +684,7 @@ namespace Moria.Core.Methods
                 playerEndRunning();
 
                 // if player can see monster, and was in find mode, then nothing
-                if (monster.lit && (old_find_flag != 0))
+                if (monster.lit && old_find_flag != 0)
                 {
                     // did not do anything this turn
                     game.player_free_turn = true;

@@ -18,7 +18,7 @@ namespace Moria.Core.Methods
         public static bool saveGame()
         {
             var instance = State.Instance;
-            var saveGameContents = JsonConvert.SerializeObject((instance), Formatting.Indented);
+            var saveGameContents = JsonConvert.SerializeObject(instance, Formatting.Indented);
             File.WriteAllText(Config.files.save_game, saveGameContents);
             return true;
         }

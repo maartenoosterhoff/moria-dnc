@@ -310,7 +310,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (((item.flags & Config.treasure_chests.CH_LOCKED) != 0u) && rnd.randomNumber(10) == 1)
+            if ((item.flags & Config.treasure_chests.CH_LOCKED) != 0u && rnd.randomNumber(10) == 1)
             {
                 printMessage("The lock breaks open!");
 

@@ -114,7 +114,7 @@ namespace Moria.Core.Methods
 
             if (item.misc_use > 0)
             {
-                item.misc_use -= (250 + this.rnd.randomNumber(250));
+                item.misc_use -= 250 + this.rnd.randomNumber(250);
 
                 if (item.misc_use < 1)
                 {
@@ -184,7 +184,7 @@ namespace Moria.Core.Methods
 
                 // make sure the number field doesn't overflow
                 // NOTE: convert to bigger types before addition -MRC-
-                var same_number = ((uint)(py.inventory[i].items_count) + (uint)(item.items_count)) < 256;
+                var same_number = (uint)py.inventory[i].items_count + (uint)item.items_count < 256;
 
                 // they always stack (sub_category_id < 192), or else they have same `misc_use`
                 var same_group = item.sub_category_id < ITEM_GROUP_MIN || py.inventory[i].misc_use == item.misc_use;
@@ -253,7 +253,7 @@ namespace Moria.Core.Methods
                     break;
                 }
 
-                if ((is_same_category && is_always_known) || new_item.category_id > item.category_id)
+                if (is_same_category && is_always_known || new_item.category_id > item.category_id)
                 {
                     // For items which are always `is_known`, i.e. never have a 'color',
                     // insert them into the inventory in sorted order.
@@ -428,12 +428,12 @@ namespace Moria.Core.Methods
 
         public bool setFrostDestroyableItems(Inventory_t item)
         {
-            return (item.category_id == TV_POTION1 || item.category_id == TV_POTION2 || item.category_id == TV_FLASK);
+            return item.category_id == TV_POTION1 || item.category_id == TV_POTION2 || item.category_id == TV_FLASK;
         }
 
         public bool setLightningDestroyableItems(Inventory_t item)
         {
-            return (item.category_id == TV_RING || item.category_id == TV_WAND || item.category_id == TV_SPIKE);
+            return item.category_id == TV_RING || item.category_id == TV_WAND || item.category_id == TV_SPIKE;
         }
 
         public bool setAcidDestroyableItems(Inventory_t item)

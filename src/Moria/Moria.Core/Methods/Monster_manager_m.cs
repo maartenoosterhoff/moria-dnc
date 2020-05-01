@@ -86,7 +86,7 @@ namespace Moria.Core.Methods
             }
 
             // the creatures_list[] speed value is 10 greater, so that it can be a uint8_t
-            monster.speed = ((int)creatures_list[creature_id].speed - 10 + py.flags.speed);
+            monster.speed = (int)creatures_list[creature_id].speed - 10 + py.flags.speed;
             monster.stunned_amount = 0;
             monster.distance_from_player = (uint) this.dungeon.coordDistanceBetween(py.pos, coord);
             monster.lit = false;
@@ -101,7 +101,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    monster.sleep_count = (int)((creatures_list[creature_id].sleep_counter * 2) + this.rnd.randomNumber((int)creatures_list[creature_id].sleep_counter * 10));
+                    monster.sleep_count = (int)(creatures_list[creature_id].sleep_counter * 2 + this.rnd.randomNumber((int)creatures_list[creature_id].sleep_counter * 10));
                 }
             }
             else
@@ -171,7 +171,7 @@ namespace Moria.Core.Methods
             }
 
             // the creatures_list speed value is 10 greater, so that it can be a uint8_t
-            monster.speed = ((int)creatures_list[creature_id].speed - 10 + py.flags.speed);
+            monster.speed = (int)creatures_list[creature_id].speed - 10 + py.flags.speed;
             monster.stunned_amount = 0;
             monster.distance_from_player = (uint) this.dungeon.coordDistanceBetween(py.pos, coord);
 

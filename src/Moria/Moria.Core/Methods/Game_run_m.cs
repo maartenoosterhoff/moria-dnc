@@ -382,7 +382,7 @@ namespace Moria.Core.Methods
         public static void playerInitializePlayerLight()
         {
             var py = State.Instance.py;
-            py.carrying_light = (py.inventory[(int)PlayerEquipment.Light].misc_use > 0);
+            py.carrying_light = py.inventory[(int)PlayerEquipment.Light].misc_use > 0;
         }
 
         // Check for a maximum level
@@ -631,7 +631,7 @@ namespace Moria.Core.Methods
                 amount = amount * 3 / 2;
             }
 
-            if (((py.flags.status & Config.player_status.PY_SEARCH) != 0u) || py.flags.rest != 0)
+            if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u || py.flags.rest != 0)
             {
                 amount = amount * 2;
             }
@@ -803,14 +803,14 @@ namespace Moria.Core.Methods
                 case 1:
                 case 2:
                 case 3:
-                    damage = ((dg.game_turn % 2) == 0 ? 1 : 0);
+                    damage = dg.game_turn % 2 == 0 ? 1 : 0;
                     break;
                 case 4:
                 case 5:
-                    damage = ((dg.game_turn % 3) == 0 ? 1 : 0);
+                    damage = dg.game_turn % 3 == 0 ? 1 : 0;
                     break;
                 case 6:
-                    damage = ((dg.game_turn % 4) == 0 ? 1 : 0);
+                    damage = dg.game_turn % 4 == 0 ? 1 : 0;
                     break;
                 default:
                     damage = 0;
@@ -907,7 +907,7 @@ namespace Moria.Core.Methods
                 // Rest until reach max mana and max hit points.
                 py.flags.rest++;
 
-                if ((py.misc.current_hp == py.misc.max_hp && py.misc.current_mana == py.misc.mana) || py.flags.rest == 0)
+                if (py.misc.current_hp == py.misc.max_hp && py.misc.current_mana == py.misc.mana || py.flags.rest == 0)
                 {
                     playerRestOff();
                 }
@@ -1187,7 +1187,7 @@ namespace Moria.Core.Methods
                 printCharacterSpeed();
             }
 
-            if (((py.flags.status & Config.player_status.PY_PARALYSED) != 0u) && py.flags.paralysis < 1)
+            if ((py.flags.status & Config.player_status.PY_PARALYSED) != 0u && py.flags.paralysis < 1)
             {
                 printCharacterMovementState();
                 py.flags.status &= ~Config.player_status.PY_PARALYSED;
@@ -1251,7 +1251,7 @@ namespace Moria.Core.Methods
 
                 // if in inventory, succeed 1 out of 50 times,
                 // if in equipment list, success 1 out of 10 times
-                var chance = (i < 22 ? 50 : 10);
+                var chance = i < 22 ? 50 : 10;
 
                 if (item.category_id != TV_NOTHING && itemEnchanted(item) && rnd.randomNumber(chance) == 1)
                 {
@@ -1411,7 +1411,7 @@ namespace Moria.Core.Methods
 
                     // Get a count for a command.
                     var repeat_count = 0;
-                    if ((Config.options.use_roguelike_keys && last_input_command >= '0' && last_input_command <= '9') || (!Config.options.use_roguelike_keys && last_input_command == '#'))
+                    if (Config.options.use_roguelike_keys && last_input_command >= '0' && last_input_command <= '9' || !Config.options.use_roguelike_keys && last_input_command == '#')
                     {
                         repeat_count = getCommandRepeatCount(ref last_input_command);
                     }
@@ -1468,7 +1468,7 @@ namespace Moria.Core.Methods
                 {
                     game.command_count--;
                 }
-            } while (game.player_free_turn && !State.Instance.dg.generate_new_level && (State.Instance.eof_flag == 0));
+            } while (game.player_free_turn && !State.Instance.dg.generate_new_level && State.Instance.eof_flag == 0);
 
             command = last_input_command;
         }
@@ -2925,8 +2925,8 @@ namespace Moria.Core.Methods
                 playerUpdateRestingState();
 
                 // Check for interrupts to find or rest.
-                var microseconds = (py.running_tracker != 0 ? 0 : 10000);
-                if ((game.command_count > 0 || (py.running_tracker != 0) || py.flags.rest != 0) && checkForNonBlockingKeyPress(microseconds))
+                var microseconds = py.running_tracker != 0 ? 0 : 10000;
+                if ((game.command_count > 0 || py.running_tracker != 0 || py.flags.rest != 0) && checkForNonBlockingKeyPress(microseconds))
                 {
                     playerDisturb(0, 0);
                 }
@@ -3005,7 +3005,7 @@ namespace Moria.Core.Methods
                 {
                     updateMonsters(true);
                 }
-            } while (!dg.generate_new_level && (State.Instance.eof_flag == 0));
+            } while (!dg.generate_new_level && State.Instance.eof_flag == 0);
         }
 
     }
