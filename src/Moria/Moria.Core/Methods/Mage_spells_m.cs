@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -103,7 +104,8 @@ namespace Moria.Core.Methods
                     //playerTeleport(10);
                     break;
                 case MageSpellId.LightArea:
-                    spellLightArea(py.pos);
+                    eventPublisher.Publish(new LightAreaCommand(py.pos));
+                    //spellLightArea(py.pos);
                     break;
                 case MageSpellId.CureLightWounds:
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));

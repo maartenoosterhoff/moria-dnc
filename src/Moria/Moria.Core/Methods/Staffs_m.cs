@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -128,7 +129,8 @@ namespace Moria.Core.Methods
                 switch ((StaffSpellTypes)(helpers.getAndClearFirstBit(ref flags) + 1))
                 {
                     case StaffSpellTypes.StaffLight:
-                        identified = spellLightArea(py.pos);
+                        identified = eventPublisher.PublishWithOutputBool(new LightAreaCommand(py.pos));
+                        //identified = spellLightArea(py.pos);
                         break;
                     case StaffSpellTypes.DetectDoorsStairs:
                         identified = spellDetectSecretDoorssWithinVicinity();

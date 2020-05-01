@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -680,7 +681,8 @@ namespace Moria.Core.Methods
                         identified = scrollRemoveCurse();
                         break;
                     case 6:
-                        identified = spellLightArea(py.pos);
+                        identified = eventPublisher.PublishWithOutputBool(new LightAreaCommand(py.pos));
+                        //identified = spellLightArea(py.pos);
                         break;
                     case 7:
                         identified = scrollSummonMonster();

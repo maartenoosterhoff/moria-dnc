@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -114,7 +115,8 @@ namespace Moria.Core.Methods
                     playerMagic.playerRemoveFear();
                     break;
                 case PriestSpellTypes.CallLight:
-                    spellLightArea(py.pos);
+                    eventPublisher.Publish(new LightAreaCommand(py.pos));
+                    //spellLightArea(py.pos);
                     break;
                 case PriestSpellTypes.FindTraps:
                     eventPublisher.Publish(new DetectTrapsWithinVicinityCommand());
