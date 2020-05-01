@@ -169,7 +169,8 @@ namespace Moria.Core.Methods
                         break;
                     case StaffSpellTypes.Starlight:
                         identified = true;
-                        spellStarlite(py.pos);
+                        eventPublisher.Publish(new StarlightCommand(py.pos));
+                        //spellStarlite(py.pos);
                         break;
                     case StaffSpellTypes.HasteMonsters:
                         identified = spellSpeedAllMonsters(1);

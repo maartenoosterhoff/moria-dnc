@@ -765,24 +765,6 @@ namespace Moria.Core.Methods
             }
         }
 
-        // Light line in all directions -RAK-
-        public static void spellStarlite(Coord_t coord)
-        {
-            var py = State.Instance.py;
-            if (py.flags.blind < 1)
-            {
-                printMessage("The end of the staff bursts into a blue shimmering light.");
-            }
-
-            for (var dir = 1; dir <= 9; dir++)
-            {
-                if (dir != 5)
-                {
-                    spellLightLine(coord, dir);
-                }
-            }
-        }
-
         // Disarms all traps/chests in a given direction -RAK-
         public static bool spellDisarmAllInDirection(Coord_t coord, int direction)
         {
