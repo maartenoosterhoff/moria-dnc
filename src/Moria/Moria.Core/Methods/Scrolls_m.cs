@@ -686,11 +686,13 @@ namespace Moria.Core.Methods
                         identified = scrollSummonMonster();
                         break;
                     case 8:
-                        playerTeleport(10); // Teleport Short, aka Phase Door
+                        eventPublisher.Publish(new TeleportCommand(10));
+                        //playerTeleport(10); // Teleport Short, aka Phase Door
                         identified = true;
                         break;
                     case 9:
-                        playerTeleport(100); // Teleport Long
+                        eventPublisher.Publish(new TeleportCommand(100));
+                        //playerTeleport(100); // Teleport Long
                         identified = true;
                         break;
                     case 10:

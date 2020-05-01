@@ -146,7 +146,8 @@ namespace Moria.Core.Methods
                         //identified = spellDetectObjectsWithinVicinity();
                         break;
                     case StaffSpellTypes.Teleportation:
-                        playerTeleport(100);
+                        eventPublisher.Publish(new TeleportCommand(100));
+                        //playerTeleport(100);
                         identified = true;
                         break;
                     case StaffSpellTypes.Earthquakes:

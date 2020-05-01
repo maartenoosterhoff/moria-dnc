@@ -133,7 +133,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case PriestSpellTypes.Portal:
-                    playerTeleport((int)py.misc.level * 3);
+                    eventPublisher.Publish(new TeleportCommand((int)(py.misc.level * 3)));
+                    //playerTeleport((int)py.misc.level * 3);
                     break;
                 case PriestSpellTypes.CureMediumWounds:
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));

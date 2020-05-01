@@ -6,6 +6,7 @@ using Moria.Core.Structures.Enumerations;
 using Moria.Core.Utils;
 using System;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.Spells;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Game_c;
@@ -2061,7 +2062,8 @@ namespace Moria.Core.Methods
                     break;
                 case CTRL_KEY_T:
                     // Random player teleportation
-                    playerTeleport(100);
+                    eventPublisher.Publish(new TeleportCommand(100));
+                    //playerTeleport(100);
                     break;
                 case '%':
                     // Generate a dungeon item!
@@ -2954,7 +2956,8 @@ namespace Moria.Core.Methods
                 if (py.flags.teleport && rnd.randomNumber(100) == 1)
                 {
                     playerDisturb(0, 0);
-                    playerTeleport(40);
+                    eventPublisher.Publish(new TeleportCommand(40));
+                    //playerTeleport(40);
                 }
 
                 // See if we are too weak to handle the weapon or pack. -CJS-
@@ -3005,7 +3008,8 @@ namespace Moria.Core.Methods
                 // Teleport?
                 if (game.teleport_player)
                 {
-                    playerTeleport(100);
+                    eventPublisher.Publish(new TeleportCommand(100));
+                    //playerTeleport(100);
                 }
 
                 // Move the creatures

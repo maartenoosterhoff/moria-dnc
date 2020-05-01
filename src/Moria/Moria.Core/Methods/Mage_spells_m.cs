@@ -99,7 +99,8 @@ namespace Moria.Core.Methods
                     //spellDetectMonsters();
                     break;
                 case MageSpellId.PhaseDoor:
-                    playerTeleport(10);
+                    eventPublisher.Publish(new TeleportCommand(10));
+                    //playerTeleport(10);
                     break;
                 case MageSpellId.LightArea:
                     spellLightArea(py.pos);
@@ -143,7 +144,8 @@ namespace Moria.Core.Methods
                     playerMagic.playerCurePoison();
                     break;
                 case MageSpellId.TeleportSelf:
-                    playerTeleport((int)py.misc.level * 5);
+                    eventPublisher.Publish(new TeleportCommand((int)(py.misc.level * 5)));
+                    //playerTeleport((int)py.misc.level * 5);
                     break;
                 case MageSpellId.RemoveCurse:
                     for (var id = 22; id < PLAYER_INVENTORY_SIZE; id++)
