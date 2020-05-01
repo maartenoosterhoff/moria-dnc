@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Attacks;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
@@ -173,7 +174,12 @@ namespace Moria.Core.Methods
                 case PriestSpellTypes.OrbOfDraining:
                     if (game.getDirectionWithMemory(/*CNIL*/ null, ref dir))
                     {
-                        spellFireBall(py.pos, dir, (int)(dice.diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere");
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                py.pos, dir, (int)(dice.diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere"
+                            )
+                        );
+                        //spellFireBall(py.pos, dir, (int)(dice.diceRoll(new Dice_t(3, 6)) + py.misc.level), (int)MagicSpellFlags.HolyOrb, "Black Sphere");
                     }
                     break;
                 case PriestSpellTypes.CureSeriousWounds:

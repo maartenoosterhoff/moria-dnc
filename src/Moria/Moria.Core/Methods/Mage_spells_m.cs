@@ -128,7 +128,12 @@ namespace Moria.Core.Methods
                 case MageSpellId.StinkingCloud:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBall(py.pos, dir, 12, (int)MagicSpellFlags.PoisonGas, Library.Instance.Player.spell_names[6]);
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                py.pos, dir, 12, (int)MagicSpellFlags.PoisonGas, Library.Instance.Player.spell_names[6]
+                            )
+                        );
+                        //spellFireBall(py.pos, dir, 12, (int)MagicSpellFlags.PoisonGas, Library.Instance.Player.spell_names[6]);
                     }
                     break;
                 case MageSpellId.Confusion:
@@ -241,7 +246,12 @@ namespace Moria.Core.Methods
                 case MageSpellId.FrostBall:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBall(py.pos, dir, 48, (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[24]);
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                py.pos, dir, 48, (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[24]
+                            )
+                        );
+                        //spellFireBall(py.pos, dir, 48, (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[24]);
                     }
                     break;
                 case MageSpellId.RechargeItem2:
@@ -259,7 +269,12 @@ namespace Moria.Core.Methods
                 case MageSpellId.FireBall:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBall(py.pos, dir, 72, (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[28]);
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                py.pos, dir, 72, (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[28]
+                            )
+                        );
+                        //spellFireBall(py.pos, dir, 72, (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[28]);
                     }
                     break;
                 case MageSpellId.WordOfDestruction:

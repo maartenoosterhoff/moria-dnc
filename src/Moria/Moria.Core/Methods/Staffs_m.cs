@@ -421,23 +421,48 @@ namespace Moria.Core.Methods
                         identified = spellDisarmAllInDirection(coord, direction);
                         break;
                     case WandSpellTypes.LightningBall:
-                        spellFireBall(coord, direction, 32, (int)MagicSpellFlags.Lightning, "Lightning Ball");
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                coord, direction, 32, (int)MagicSpellFlags.Lightning, "Lightning Ball"
+                            )
+                        );
+                        //spellFireBall(coord, direction, 32, (int)MagicSpellFlags.Lightning, "Lightning Ball");
                         identified = true;
                         break;
                     case WandSpellTypes.ColdBall:
-                        spellFireBall(coord, direction, 48, (int)MagicSpellFlags.Frost, "Cold Ball");
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                coord, direction, 48, (int)MagicSpellFlags.Frost, "Cold Ball"
+                            )
+                        );
+                        //spellFireBall(coord, direction, 48, (int)MagicSpellFlags.Frost, "Cold Ball");
                         identified = true;
                         break;
                     case WandSpellTypes.FireBall:
-                        spellFireBall(coord, direction, 72, (int)MagicSpellFlags.Fire, spell_names[28]);
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                coord, direction, 72, (int)MagicSpellFlags.Fire, spell_names[28]
+                            )
+                        );
+                        //spellFireBall(coord, direction, 72, (int)MagicSpellFlags.Fire, spell_names[28]);
                         identified = true;
                         break;
                     case WandSpellTypes.StinkingCloud:
-                        spellFireBall(coord, direction, 12, (int)MagicSpellFlags.PoisonGas, spell_names[6]);
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                coord, direction, 12, (int)MagicSpellFlags.PoisonGas, spell_names[6]
+                            )
+                        );
+                        //spellFireBall(coord, direction, 12, (int)MagicSpellFlags.PoisonGas, spell_names[6]);
                         identified = true;
                         break;
                     case WandSpellTypes.AcidBall:
-                        spellFireBall(coord, direction, 60, (int)MagicSpellFlags.Acid, "Acid Ball");
+                        eventPublisher.Publish(
+                            new FireBallCommand(
+                                coord, direction, 60, (int)MagicSpellFlags.Acid, "Acid Ball"
+                            )
+                        );
+                        //spellFireBall(coord, direction, 60, (int)MagicSpellFlags.Acid, "Acid Ball");
                         identified = true;
                         break;
                     case WandSpellTypes.Wonder:
