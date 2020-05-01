@@ -734,7 +734,8 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 20:
-                        identified = spellDetectInvisibleCreaturesWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectInvisibleCreaturesWithinVicinityCommand());
+                        //identified = spellDetectInvisibleCreaturesWithinVicinity();
                         break;
                     case 21:
                         printMessage("There is a high pitched humming noise.");

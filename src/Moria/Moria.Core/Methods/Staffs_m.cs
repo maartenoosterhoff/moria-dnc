@@ -185,7 +185,8 @@ namespace Moria.Core.Methods
                         identified = spellChangePlayerHitPoints(rnd.randomNumber(8));
                         break;
                     case StaffSpellTypes.DetectInvisible:
-                        identified = spellDetectInvisibleCreaturesWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectInvisibleCreaturesWithinVicinityCommand());
+                        //identified = spellDetectInvisibleCreaturesWithinVicinity();
                         break;
                     case StaffSpellTypes.Speed:
                         if (py.flags.fast == 0)
