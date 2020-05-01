@@ -49,7 +49,7 @@ namespace Moria.Core.Methods
             ability += playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT);
             ability += Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
 
-            if (py.flags.blind > 0 || playerNoLight())
+            if (py.flags.blind > 0 || helpers.playerNoLight())
             {
                 ability = ability / 10;
             }

@@ -2,6 +2,7 @@
 using Moria.Core.States;
 using System;
 using System.Linq;
+using Moria.Core.Methods.Commands;
 using SimpleInjector;
 using static Moria.Core.Constants.Version_c;
 using static Moria.Core.Methods.Ui_io_m;
@@ -172,6 +173,9 @@ Options:
             container.RegisterSingleton<ITreasure, Treasure_m>();
             container.RegisterSingleton<IUiInventory, Ui_inventory_m>();
             container.RegisterSingleton<IWizard, Wizard_m>();
+            
+            container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
+            container.Collection.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
 
             container.Verify();
 
@@ -189,7 +193,9 @@ Options:
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<IUiInventory>(),
-                container.GetInstance<IWizard>()
+                container.GetInstance<IWizard>(),
+
+                container.GetInstance<IEventPublisher>()
             );
 
             Game_death_m.SetDependencies(
@@ -218,10 +224,13 @@ Options:
             Mage_spells_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>()
+                container.GetInstance<IUiInventory>(),
+
+                container.GetInstance<IEventPublisher>()
             );
 
             Monster_m.SetDependencies(
@@ -279,10 +288,13 @@ Options:
             Player_pray_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>()
+                container.GetInstance<IUiInventory>(),
+
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_quaff_m.SetDependencies(
@@ -344,7 +356,9 @@ Options:
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>()
+                container.GetInstance<IUiInventory>(),
+
+                container.GetInstance<IEventPublisher>()
             );
 
             Spells_m.SetDependencies(
@@ -369,7 +383,9 @@ Options:
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>()
+                container.GetInstance<IUiInventory>(),
+
+                container.GetInstance<IEventPublisher>()
             );
 
             Store_m.SetDependencies(
@@ -388,5 +404,39 @@ Options:
 
             return container;
         }
+
+        private class SimpleInjectorEventPublisher: IEventPublisher
+        {
+            private readonly Container container;
+
+            public SimpleInjectorEventPublisher(Container container)
+            {
+                this.container = container;
+            }
+
+            public void Publish<TCommand>(TCommand command) where TCommand : ICommand
+            {
+                var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
+                var handlers = this.container.GetAllInstances(handlerType);
+                foreach (ICommandHandler<TCommand> handler in handlers)
+                {
+                    handler.Handle(command);
+                }
+            }
+
+            public bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand
+            {
+                var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
+                var handler = (ICommandHandler<TCommand, bool>) this.container.GetInstance(handlerType);
+                return handler.Handle(command);
+            }
+        }
+    }
+
+    public interface IEventPublisher
+    {
+        void Publish<TCommand>(TCommand command) where TCommand : ICommand;
+
+        bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand;
     }
 }

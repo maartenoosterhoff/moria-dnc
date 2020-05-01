@@ -124,9 +124,9 @@ namespace Moria.Core.Data
         public IReadOnlyList<string> rocks { get; private set; }
 
         public IReadOnlyList<string> amulets { get; private set; }
-        public IReadOnlyList<string> syllables { get; private set; }
-        public IReadOnlyList<IReadOnlyList<uint>> blows_table { get; private set; }
-        public IReadOnlyList<uint> normal_table { get; private set; }
+        public IReadOnlyList<string> syllables { get; }
+        public IReadOnlyList<IReadOnlyList<uint>> blows_table { get; }
+        public IReadOnlyList<uint> normal_table { get; }
 
         public IReadOnlyList<string> magic_item_titles { get; private set; }
 

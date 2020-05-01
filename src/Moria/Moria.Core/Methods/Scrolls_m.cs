@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -21,7 +22,9 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Scrolls_m.dice = dice;
@@ -31,6 +34,8 @@ namespace Moria.Core.Methods
             Scrolls_m.playerMagic = playerMagic;
             Scrolls_m.rnd = rnd;
             Scrolls_m.uiInventory = uiInventory;
+
+            Scrolls_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -40,6 +45,8 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         // Note: naming of all the scroll functions needs verifying -MRC-
 
@@ -52,7 +59,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (playerNoLight())
+            if (helpers.playerNoLight())
             {
                 printMessage("You have no light to read by.");
                 return false;
@@ -705,7 +712,8 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 15:
-                        identified = spellDetectTreasureWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectTreasureWithinVicinityCommand());
+                        //identified = spellDetectTreasureWithinVicinity();
                         break;
                     case 16:
                         identified = spellDetectObjectsWithinVicinity();
@@ -755,7 +763,8 @@ namespace Moria.Core.Methods
                         identified = playerMagic.playerProtectEvil();
                         break;
                     case 29:
-                        spellCreateFood();
+                        eventPublisher.Publish(new CreateFoodCommand());
+                        //spellCreateFood();
                         identified = true;
                         break;
                     case 30:

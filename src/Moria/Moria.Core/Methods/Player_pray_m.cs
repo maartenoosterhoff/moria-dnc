@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -18,26 +19,35 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_pray_m.dice = dice;
             Player_pray_m.game = game;
+            Player_pray_m.helpers = helpers;
             Player_pray_m.inventoryManager = inventoryManager;
             Player_pray_m.playerMagic = playerMagic;
             Player_pray_m.rnd = rnd;
             Player_pray_m.uiInventory = uiInventory;
+
+            Player_pray_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         static bool playerCanPray(ref int item_pos_begin, ref int item_pos_end)
         {
@@ -48,7 +58,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (playerNoLight())
+            if (helpers.playerNoLight())
             {
                 printMessage("You have no light to read by.");
                 return false;
@@ -134,7 +144,8 @@ namespace Moria.Core.Methods
                     monsterSleep(py.pos);
                     break;
                 case PriestSpellTypes.CreateFood:
-                    spellCreateFood();
+                    eventPublisher.Publish(new CreateFoodCommand());
+                    //spellCreateFood();
                     break;
                 case PriestSpellTypes.RemoveCurse:
                     foreach (var entry in py.inventory)

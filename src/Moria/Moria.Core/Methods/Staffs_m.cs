@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -23,7 +24,9 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Staffs_m.dice = dice;
@@ -34,6 +37,8 @@ namespace Moria.Core.Methods
             Staffs_m.playerMagic = playerMagic;
             Staffs_m.rnd = rnd;
             Staffs_m.uiInventory = uiInventory;
+
+            Staffs_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -44,6 +49,8 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         public static bool staffPlayerIsCarrying(ref int item_pos_start, ref int item_pos_end)
         {
@@ -130,7 +137,8 @@ namespace Moria.Core.Methods
                         identified = spellDetectTrapsWithinVicinity();
                         break;
                     case StaffSpellTypes.TreasureLocation:
-                        identified = spellDetectTreasureWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectTreasureWithinVicinityCommand());
+                        //identified = spellDetectTreasureWithinVicinity();
                         break;
                     case StaffSpellTypes.ObjectLocation:
                         identified = spellDetectObjectsWithinVicinity();

@@ -24,13 +24,13 @@ namespace Moria.Core.Data
 
         public IReadOnlyList<string> speech_sale_accepted { get; }
         public IReadOnlyList<string> speech_selling_haggle_final { get; }
-        public IReadOnlyList<string> speech_selling_haggle { get; } = new string[16];
-        public IReadOnlyList<string> speech_buying_haggle_final { get; } = new string[3];
-        public IReadOnlyList<string> speech_buying_haggle { get; } = new string[15];
-        public IReadOnlyList<string> speech_insulted_haggling_done { get; } = new string[5];
-        public IReadOnlyList<string> speech_get_out_of_my_store { get; } = new string[3];
-        public IReadOnlyList<string> speech_haggling_try_again { get; } = new string[10];
-        public IReadOnlyList<string> speech_sorry { get; } = new string[3];
+        public IReadOnlyList<string> speech_selling_haggle { get; }
+        public IReadOnlyList<string> speech_buying_haggle_final { get; }
+        public IReadOnlyList<string> speech_buying_haggle { get; }
+        public IReadOnlyList<string> speech_insulted_haggling_done { get; }
+        public IReadOnlyList<string> speech_get_out_of_my_store { get; }
+        public IReadOnlyList<string> speech_haggling_try_again { get; }
+        public IReadOnlyList<string> speech_sorry { get; }
 
         private static List<Owner_t> CreateStoreOwners()
         {

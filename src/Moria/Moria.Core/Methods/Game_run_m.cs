@@ -6,6 +6,7 @@ using Moria.Core.Structures.Enumerations;
 using Moria.Core.Utils;
 using System;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Spells;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Constants.Std_c;
@@ -55,7 +56,9 @@ namespace Moria.Core.Methods
             IRnd rnd,
             IStoreInventory storeInventory,
             IUiInventory uiInventory,
-            IWizard wizard
+            IWizard wizard,
+
+            IEventPublisher eventPublisher
         )
         {
             Game_run_m.character = character;
@@ -71,6 +74,8 @@ namespace Moria.Core.Methods
             Game_run_m.storeInventory = storeInventory;
             Game_run_m.wizard = wizard;
             Game_run_m.uiInventory = uiInventory;
+
+            Game_run_m.eventPublisher = eventPublisher;
         }
 
 
@@ -87,6 +92,8 @@ namespace Moria.Core.Methods
         private static IStoreInventory storeInventory;
         private static IWizard wizard;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         public static void startMoria(int seed, bool start_new_game, bool use_roguelike_keys)
         {
@@ -1900,7 +1907,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var dg = State.Instance.dg;
 
-            if (py.flags.blind > 0 || playerNoLight())
+            if (py.flags.blind > 0 || helpers.playerNoLight())
             {
                 printMessage("You can't see your map.");
                 return;
@@ -2235,7 +2242,8 @@ namespace Moria.Core.Methods
                     inventoryRefillLamp();
                     break;
                 case 'G': // (G)ain magic spells
-                    playerGainSpells();
+                    eventPublisher.Publish(new GainSpellsCommand());
+                    //playerGainSpells();
                     break;
                 case 'V': // (V)iew scores
                     terminalSaveScreen();
@@ -2593,7 +2601,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            if (playerNoLight())
+            if (helpers.playerNoLight())
             {
                 printMessage("You have no light to read by.");
                 return;

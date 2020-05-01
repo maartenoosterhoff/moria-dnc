@@ -248,39 +248,6 @@ namespace Moria.Core.Methods
             return result;
         }
 
-        // Following are spell procedure/functions -RAK-
-        // These routines are commonly used in the scroll, potion, wands, and
-        // staves routines, and are occasionally called from other areas.
-        // Now included are creature spells also.           -RAK
-
-        // Detect any treasure on the current panel -RAK-
-        public static bool spellDetectTreasureWithinVicinity()
-        {
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
-
-            var detected = false;
-
-            var coord = new Coord_t(0, 0);
-
-            for (coord.y = dg.panel.top; coord.y <= dg.panel.bottom; coord.y++)
-            {
-                for (coord.x = dg.panel.left; coord.x <= dg.panel.right; coord.x++)
-                {
-                    var tile = dg.floor[coord.y][coord.x];
-
-                    if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id == TV_GOLD && !dungeon.caveTileVisible(coord))
-                    {
-                        tile.field_mark = true;
-                        dungeon.dungeonLiteSpot(coord);
-                        detected = true;
-                    }
-                }
-            }
-
-            return detected;
-        }
-
         // Detect all objects on the current panel -RAK-
         public static bool spellDetectObjectsWithinVicinity()
         {
@@ -2567,32 +2534,6 @@ namespace Moria.Core.Methods
                     }
                 }
             }
-        }
-
-        // Create some high quality mush for the player. -RAK-
-        public static void spellCreateFood()
-        {
-            var dg = State.Instance.dg;
-            var py = State.Instance.py;
-            var game = State.Instance.game;
-
-            // Note: must take reference to this location as dungeonPlaceRandomObjectAt()
-            // below, changes the tile values.
-            var tile = dg.floor[py.pos.y][py.pos.x];
-
-            // take no action here, don't want to destroy object under player
-            if (tile.treasure_id != 0)
-            {
-                // set player_free_turn so that scroll/spell points won't be used
-                game.player_free_turn = true;
-
-                printMessage("There is already an object under you.");
-
-                return;
-            }
-
-            dungeonPlacer.dungeonPlaceRandomObjectAt(py.pos, false);
-            inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_MUSH, game.treasure.list[tile.treasure_id]);
         }
 
         // Attempts to destroy a type of creature.  Success depends on

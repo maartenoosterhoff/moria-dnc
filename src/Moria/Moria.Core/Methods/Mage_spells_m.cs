@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -19,26 +20,35 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IGame game,
+            IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Mage_spells_m.dice = dice;
             Mage_spells_m.game = game;
+            Mage_spells_m.helpers = helpers;
             Mage_spells_m.inventoryManager = inventoryManager;
             Mage_spells_m.playerMagic = playerMagic;
             Mage_spells_m.rnd = rnd;
             Mage_spells_m.uiInventory = uiInventory;
+
+            Mage_spells_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
         private static IGame game;
+        private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         public static bool canReadSpells()
         {
@@ -49,7 +59,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (playerNoLight())
+            if (helpers.playerNoLight())
             {
                 printMessage("You have no light to read by.");
                 return false;
@@ -152,7 +162,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.CreateFood:
-                    spellCreateFood();
+                    eventPublisher.Publish(new CreateFoodCommand());
+                    //spellCreateFood();
                     break;
                 case MageSpellId.RechargeItem1:
                     spellRechargeItem(20);

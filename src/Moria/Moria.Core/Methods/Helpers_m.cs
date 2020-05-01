@@ -14,6 +14,8 @@ namespace Moria.Core.Methods
         void humanDateString(out string day);
 
         bool movePosition(int dir, ref Coord_t coord);
+
+        bool playerNoLight();
     }
 
     public class Helpers_m : IHelpers
@@ -161,6 +163,15 @@ namespace Moria.Core.Methods
             }
 
             return can_move;
+        }
+
+        // Returns true if player has no light -RAK-
+        public bool playerNoLight()
+        {
+            var dg = State.Instance.dg;
+            var py = State.Instance.py;
+
+            return !dg.floor[py.pos.y][py.pos.x].temporary_light && !dg.floor[py.pos.y][py.pos.x].permanent_light;
         }
     }
 }
