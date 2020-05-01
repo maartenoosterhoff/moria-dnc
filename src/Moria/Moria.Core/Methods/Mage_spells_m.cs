@@ -108,7 +108,8 @@ namespace Moria.Core.Methods
                     break;
                 case MageSpellId.FindHiddenTrapsDoors:
                     spellDetectSecretDoorssWithinVicinity();
-                    spellDetectTrapsWithinVicinity();
+                    eventPublisher.Publish(new DetectTrapsWithinVicinityCommand());
+                    //spellDetectTrapsWithinVicinity();
                     break;
                 case MageSpellId.StinkingCloud:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))

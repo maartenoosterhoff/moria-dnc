@@ -720,7 +720,8 @@ namespace Moria.Core.Methods
                         //identified = spellDetectObjectsWithinVicinity();
                         break;
                     case 17:
-                        identified = spellDetectTrapsWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectTrapsWithinVicinityCommand());
+                        //identified = spellDetectTrapsWithinVicinity();
                         break;
                     case 18:
                         identified = spellDetectSecretDoorssWithinVicinity();

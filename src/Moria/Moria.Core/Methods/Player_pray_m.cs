@@ -117,7 +117,8 @@ namespace Moria.Core.Methods
                     spellLightArea(py.pos);
                     break;
                 case PriestSpellTypes.FindTraps:
-                    spellDetectTrapsWithinVicinity();
+                    eventPublisher.Publish(new DetectTrapsWithinVicinityCommand());
+                    //spellDetectTrapsWithinVicinity();
                     break;
                 case PriestSpellTypes.DetectDoorsStairs:
                     spellDetectSecretDoorssWithinVicinity();

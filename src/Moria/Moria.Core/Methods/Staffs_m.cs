@@ -134,7 +134,8 @@ namespace Moria.Core.Methods
                         identified = spellDetectSecretDoorssWithinVicinity();
                         break;
                     case StaffSpellTypes.TrapLocation:
-                        identified = spellDetectTrapsWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectTrapsWithinVicinityCommand());
+                        //identified = spellDetectTrapsWithinVicinity();
                         break;
                     case StaffSpellTypes.TreasureLocation:
                         identified = eventPublisher.PublishWithOutputBool(new DetectTreasureWithinVicinityCommand());
