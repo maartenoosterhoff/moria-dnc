@@ -95,7 +95,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.DetectMonsters:
-                    spellDetectMonsters();
+                    eventPublisher.Publish(new DetectMonstersCommand());
+                    //spellDetectMonsters();
                     break;
                 case MageSpellId.PhaseDoor:
                     playerTeleport(10);

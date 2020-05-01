@@ -677,36 +677,7 @@ namespace Moria.Core.Methods
             return destroyed;
         }
 
-        // Display all creatures on the current panel -RAK-
-        public static bool spellDetectMonsters()
-        {
-            var detected = false;
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-
-                if (coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) == 0)
-                {
-                    monster.lit = true;
-                    detected = true;
-
-                    // works correctly even if hallucinating
-                    panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
-                }
-            }
-
-            if (detected)
-            {
-                printMessage("You sense the presence of monsters!");
-                printMessage(/*CNIL*/null);
-
-                // must unlight every monster just lighted
-                updateMonsters(false);
-            }
-
-            return detected;
-        }
+        
 
         // Update monster when light line spell touches it.
         public static void spellLightLineTouchesMonster(int monster_id)
