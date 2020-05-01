@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Attacks;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
@@ -329,15 +330,42 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.LightningBolt:
-                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, spell_names[8]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                coord,
+                                direction,
+                                dice.diceRoll(new Dice_t(4, 8)),
+                                (int)MagicSpellFlags.Lightning,
+                                spell_names[8]
+                            )
+                        );
+                        //spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, spell_names[8]);
                         identified = true;
                         break;
                     case WandSpellTypes.FrostBolt:
-                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, spell_names[14]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                coord,
+                                direction,
+                                dice.diceRoll(new Dice_t(6, 8)),
+                                (int)MagicSpellFlags.Frost,
+                                spell_names[14]
+                            )
+                        );
+                        //spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, spell_names[14]);
                         identified = true;
                         break;
                     case WandSpellTypes.FireBolt:
-                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, spell_names[22]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                coord,
+                                direction,
+                                dice.diceRoll(new Dice_t(9, 8)),
+                                (int)MagicSpellFlags.Fire,
+                                spell_names[22]
+                            )
+                        );
+                        //spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, spell_names[22]);
                         identified = true;
                         break;
                     case WandSpellTypes.StoneToMud:
@@ -368,7 +396,16 @@ namespace Moria.Core.Methods
                         identified = spellDestroyDoorsTrapsInDirection(coord, direction);
                         break;
                     case WandSpellTypes.WandMagicMissile:
-                        spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, spell_names[0]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                coord,
+                                direction,
+                                dice.diceRoll(new Dice_t(2, 6)),
+                                (int)MagicSpellFlags.MagicMissile,
+                                spell_names[0]
+                            )
+                        );
+                        //spellFireBolt(coord, direction, dice.diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, spell_names[0]);
                         identified = true;
                         break;
                     case WandSpellTypes.WallBuilding:

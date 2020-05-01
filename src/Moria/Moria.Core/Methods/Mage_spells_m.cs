@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Attacks;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
@@ -93,7 +94,14 @@ namespace Moria.Core.Methods
                 case MageSpellId.MagicMissile:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, Library.Instance.Player.spell_names[0]);
+                        eventPublisher.Publish(new FireBoltCommand(
+                            py.pos,
+                            dir,
+                            dice.diceRoll(new Dice_t(2, 6)),
+                            (int)MagicSpellFlags.MagicMissile,
+                            Library.Instance.Player.spell_names[0]
+                        ));
+                        //spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(2, 6)), (int)MagicSpellFlags.MagicMissile, Library.Instance.Player.spell_names[0]);
                     }
                     break;
                 case MageSpellId.DetectMonsters:
@@ -132,7 +140,16 @@ namespace Moria.Core.Methods
                 case MageSpellId.LightningBolt:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, Library.Instance.Player.spell_names[8]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                py.pos,
+                                dir,
+                                dice.diceRoll(new Dice_t(4, 8)),
+                                (int)MagicSpellFlags.Lightning,
+                                Library.Instance.Player.spell_names[8]
+                            )
+                        );
+                        //spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(4, 8)), (int)MagicSpellFlags.Lightning, Library.Instance.Player.spell_names[8]);
                     }
                     break;
                 case MageSpellId.TrapDoorDestruction:
@@ -160,7 +177,16 @@ namespace Moria.Core.Methods
                 case MageSpellId.FrostBolt:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[14]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                py.pos,
+                                dir,
+                                dice.diceRoll(new Dice_t(6, 8)),
+                                (int)MagicSpellFlags.Frost,
+                                Library.Instance.Player.spell_names[14]
+                            )
+                        );
+                        //spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(6, 8)), (int)MagicSpellFlags.Frost, Library.Instance.Player.spell_names[14]);
                     }
                     break;
                 case MageSpellId.WallToMud:
@@ -194,7 +220,16 @@ namespace Moria.Core.Methods
                 case MageSpellId.FireBolt:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[22]);
+                        eventPublisher.Publish(
+                            new FireBoltCommand(
+                                py.pos,
+                                dir,
+                                dice.diceRoll(new Dice_t(9, 8)),
+                                (int)MagicSpellFlags.Fire,
+                                Library.Instance.Player.spell_names[22]
+                            )
+                        );
+                        //spellFireBolt(py.pos, dir, dice.diceRoll(new Dice_t(9, 8)), (int)MagicSpellFlags.Fire, Library.Instance.Player.spell_names[22]);
                     }
                     break;
                 case MageSpellId.SpeedMonster:

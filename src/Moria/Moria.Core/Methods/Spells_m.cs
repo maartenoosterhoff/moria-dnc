@@ -698,116 +698,11 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void printBoltStrikesMonsterMessage(Creature_t creature, string bolt_name, bool is_lit)
-        {
-            string monster_name;
-            if (is_lit)
-            {
-                monster_name = "the " + creature.name;
-            }
-            else
-            {
-                monster_name = "it";
-            }
-            var msg = "The " + bolt_name + " strikes " + monster_name + ".";
-            printMessage(msg);
-        }
 
-        // Light up, draw, and check for monster damage when Fire Bolt touches it.
-        public static void spellFireBoltTouchesMonster(Tile_t tile, int damage, int harm_type, uint weapon_id, string bolt_name)
-        {
-            var monster = State.Instance.monsters[tile.creature_id];
-            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-            // light up monster and draw monster, temporarily set
-            // permanent_light so that `monsterUpdateVisibility()` will work
-            var saved_lit_status = tile.permanent_light;
-            tile.permanent_light = true;
-            monsterUpdateVisibility((int)tile.creature_id);
-            tile.permanent_light = saved_lit_status;
+        
 
-            // draw monster and clear previous bolt
-            putQIO();
-
-            printBoltStrikesMonsterMessage(creature, bolt_name, monster.lit);
-
-            if ((harm_type & creature.defenses) != 0)
-            {
-                damage = damage * 2;
-                if (monster.lit)
-                {
-                    State.Instance.creature_recall[monster.creature_id].defenses |= (uint)harm_type;
-                }
-            }
-            else if ((weapon_id & creature.spells) != 0u)
-            {
-                damage = damage / 4;
-                if (monster.lit)
-                {
-                    State.Instance.creature_recall[monster.creature_id].spells |= weapon_id;
-                }
-            }
-
-            var name = monsterNameDescription(creature.name, monster.lit);
-
-            if (monsterTakeHit((int)tile.creature_id, damage) >= 0)
-            {
-                printMonsterActionText(name, "dies in a fit of agony.");
-                displayCharacterExperience();
-            }
-            else if (damage > 0)
-            {
-                printMonsterActionText(name, "screams in agony.");
-            }
-        }
-
-        // Shoot a bolt in a given direction -RAK-
-        public static void spellFireBolt(Coord_t coord, int direction, int damage_hp, int spell_type, string spell_name)
-        {
-            var dg = State.Instance.dg;
-            var py = State.Instance.py;
-
-            int harm_type;
-            uint weapon_type;
-            spellGetAreaAffectFlags(spell_type, out weapon_type, out harm_type, out _);
-
-            var old_coord = new Coord_t(0, 0);
-
-            var distance = 0;
-            var finished = false;
-
-            while (!finished)
-            {
-                old_coord.y = coord.y;
-                old_coord.x = coord.x;
-                helpers.movePosition(direction, ref coord);
-
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                dungeon.dungeonLiteSpot(old_coord);
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                    continue; // we're done here, break out of the loop
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    finished = true;
-                    spellFireBoltTouchesMonster(tile, damage_hp, harm_type, weapon_type, spell_name);
-                }
-                else if (coordInsidePanel(coord) && py.flags.blind < 1)
-                {
-                    panelPutTile('*', coord);
-
-                    // show the bolt
-                    putQIO();
-                }
-            }
-        }
+        
 
         // Shoot a ball in a given direction.  Note that balls have an area affect. -RAK-
         public static void spellFireBall(Coord_t coord, int direction, int damage_hp, int spell_type, string spell_name)
