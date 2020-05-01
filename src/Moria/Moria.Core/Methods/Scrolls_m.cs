@@ -764,7 +764,8 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 27:
-                        identified = spellDarkenArea(py.pos);
+                        identified = eventPublisher.PublishWithOutputBool(new DarkenAreaCommand(py.pos));
+                        //identified = spellDarkenArea(py.pos);
                         break;
                     case 28:
                         identified = playerMagic.playerProtectEvil();
