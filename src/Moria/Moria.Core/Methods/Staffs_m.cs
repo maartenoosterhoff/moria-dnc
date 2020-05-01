@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -133,7 +134,8 @@ namespace Moria.Core.Methods
                         //identified = spellLightArea(py.pos);
                         break;
                     case StaffSpellTypes.DetectDoorsStairs:
-                        identified = spellDetectSecretDoorssWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectSecretDoorsWithinVicinityCommand());
+                        //identified = spellDetectSecretDoorssWithinVicinity();
                         break;
                     case StaffSpellTypes.TrapLocation:
                         identified = eventPublisher.PublishWithOutputBool(new DetectTrapsWithinVicinityCommand());

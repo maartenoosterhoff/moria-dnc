@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -123,7 +124,8 @@ namespace Moria.Core.Methods
                     //spellDetectTrapsWithinVicinity();
                     break;
                 case PriestSpellTypes.DetectDoorsStairs:
-                    spellDetectSecretDoorssWithinVicinity();
+                    eventPublisher.Publish(new DetectSecretDoorsWithinVicinityCommand());
+                    //spellDetectSecretDoorssWithinVicinity();
                     break;
                 case PriestSpellTypes.SlowPoison:
                     spellSlowPoison();

@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -728,7 +729,8 @@ namespace Moria.Core.Methods
                         //identified = spellDetectTrapsWithinVicinity();
                         break;
                     case 18:
-                        identified = spellDetectSecretDoorssWithinVicinity();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectSecretDoorsWithinVicinityCommand());
+                        //identified = spellDetectSecretDoorssWithinVicinity();
                         break;
                     case 19:
                         printMessage("This is a mass genocide scroll.");

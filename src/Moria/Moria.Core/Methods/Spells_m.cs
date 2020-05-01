@@ -248,50 +248,6 @@ namespace Moria.Core.Methods
             return result;
         }
 
-        // Locates and displays all secret doors on current panel -RAK-
-        public static bool spellDetectSecretDoorssWithinVicinity()
-        {
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
-            var detected = false;
-
-            var coord = new Coord_t(0, 0);
-
-            for (coord.y = dg.panel.top; coord.y <= dg.panel.bottom; coord.y++)
-            {
-                for (coord.x = dg.panel.left; coord.x <= dg.panel.right; coord.x++)
-                {
-                    var tile = dg.floor[coord.y][coord.x];
-
-                    if (tile.treasure_id == 0)
-                    {
-                        continue;
-                    }
-
-                    if (game.treasure.list[tile.treasure_id].category_id == TV_SECRET_DOOR)
-                    {
-                        // Secret doors
-
-                        tile.field_mark = true;
-                        dungeon.trapChangeVisibility(coord);
-                        detected = true;
-                    }
-                    else if ((game.treasure.list[tile.treasure_id].category_id == TV_UP_STAIR || game.treasure.list[tile.treasure_id].category_id == TV_DOWN_STAIR) && !tile.field_mark)
-                    {
-                        // Staircases
-
-                        tile.field_mark = true;
-                        dungeon.dungeonLiteSpot(coord);
-                        detected = true;
-                    }
-                }
-            }
-
-            return detected;
-        }
-
-        
-
         public static void dungeonLightAreaAroundFloorTile(Coord_t coord)
         {
             var dg = State.Instance.dg;

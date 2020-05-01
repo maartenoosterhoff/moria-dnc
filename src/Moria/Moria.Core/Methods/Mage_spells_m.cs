@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Light;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -111,7 +112,8 @@ namespace Moria.Core.Methods
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
                     break;
                 case MageSpellId.FindHiddenTrapsDoors:
-                    spellDetectSecretDoorssWithinVicinity();
+                    eventPublisher.PublishWithOutputBool(new DetectSecretDoorsWithinVicinityCommand());
+                    //spellDetectSecretDoorssWithinVicinity();
                     eventPublisher.Publish(new DetectTrapsWithinVicinityCommand());
                     //spellDetectTrapsWithinVicinity();
                     break;
