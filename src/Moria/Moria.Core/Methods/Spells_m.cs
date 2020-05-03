@@ -719,53 +719,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        // Increase or decrease a creatures hit points -RAK-
-        public static bool spellChangeMonsterHitPoints(Coord_t coord, int direction, int damage_hp)
-        {
-            var dg = State.Instance.dg;
-
-            var distance = 0;
-            var changed = false;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                    continue;
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    finished = true;
-
-                    var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                    var name = monsterNameDescription(creature.name, monster.lit);
-
-                    if (monsterTakeHit((int)tile.creature_id, damage_hp) >= 0)
-                    {
-                        printMonsterActionText(name, "dies in a fit of agony.");
-                        displayCharacterExperience();
-                    }
-                    else if (damage_hp > 0)
-                    {
-                        printMonsterActionText(name, "screams in agony.");
-                    }
-
-                    changed = true;
-                }
-            }
-
-            return changed;
-        }
+        
 
         
 

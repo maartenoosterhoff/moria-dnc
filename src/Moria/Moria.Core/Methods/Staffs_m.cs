@@ -377,7 +377,10 @@ namespace Moria.Core.Methods
                         identified = spellPolymorphMonster(coord, direction);
                         break;
                     case WandSpellTypes.HealMonster:
-                        identified = spellChangeMonsterHitPoints(coord, direction, -dice.diceRoll(new Dice_t(4, 6)));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangeMonsterHitPointsCommand(
+                            coord, direction, -dice.diceRoll(new Dice_t(4, 6))
+                        ));
+                        //identified = spellChangeMonsterHitPoints(coord, direction, -dice.diceRoll(new Dice_t(4, 6)));
                         break;
                     case WandSpellTypes.HasteMonster:
                         identified = eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
