@@ -24,7 +24,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
         void ICommandHandler<SpeedMonsterCommand>.Handle(SpeedMonsterCommand command)
         {
-            throw new System.NotImplementedException();
+            this.spellSpeedMonster(
+                command.Coord,
+                command.Direction,
+                command.Speed
+            );
         }
 
         bool ICommandHandler<SpeedMonsterCommand, bool>.Handle(SpeedMonsterCommand command)

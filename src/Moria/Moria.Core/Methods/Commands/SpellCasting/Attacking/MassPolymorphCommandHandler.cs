@@ -27,12 +27,12 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
         void ICommandHandler<MassPolymorphCommand>.Handle(MassPolymorphCommand command)
         {
-            throw new System.NotImplementedException();
+            this.spellMassPolymorph();
         }
 
         bool ICommandHandler<MassPolymorphCommand, bool>.Handle(MassPolymorphCommand command)
         {
-            throw new System.NotImplementedException();
+            return this.spellMassPolymorph();
         }
 
         // Polymorph any creature that player can see. -RAK-

@@ -30,12 +30,18 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
         void ICommandHandler<PolymorphMonsterCommand>.Handle(PolymorphMonsterCommand command)
         {
-            throw new System.NotImplementedException();
+            this.spellPolymorphMonster(
+                command.Coord,
+                command.Direction
+            );
         }
 
         bool ICommandHandler<PolymorphMonsterCommand, bool>.Handle(PolymorphMonsterCommand command)
         {
-            throw new System.NotImplementedException();
+            return this.spellPolymorphMonster(
+                command.Coord,
+                command.Direction
+            );
         }
 
         // Polymorph a monster -RAK-
