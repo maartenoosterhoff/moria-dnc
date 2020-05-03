@@ -2,6 +2,7 @@
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
 using Moria.Core.States;
@@ -169,7 +170,8 @@ namespace Moria.Core.Methods
                         break;
                     case StaffSpellTypes.Destruction:
                         identified = true;
-                        spellDestroyArea(py.pos);
+                        eventPublisher.Publish(new DestroyAreaCommand(py.pos));
+                        //spellDestroyArea(py.pos);
                         break;
                     case StaffSpellTypes.Starlight:
                         identified = true;

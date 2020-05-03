@@ -814,7 +814,8 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 42:
-                        spellDestroyArea(py.pos);
+                        eventPublisher.Publish(new DestroyAreaCommand(py.pos));
+                        //spellDestroyArea(py.pos);
                         identified = true;
                         break;
                     default:

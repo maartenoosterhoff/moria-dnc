@@ -279,7 +279,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.WordOfDestruction:
-                    spellDestroyArea(py.pos);
+                    eventPublisher.Publish(new DestroyAreaCommand(py.pos));
+                    //spellDestroyArea(py.pos);
                     break;
                 case MageSpellId.Genocide:
                     spellGenocide();
