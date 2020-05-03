@@ -392,7 +392,11 @@ namespace Moria.Core.Methods
                         //identified = spellSpeedMonster(coord, direction, -1);
                         break;
                     case WandSpellTypes.ConfuseMonster:
-                        identified = spellConfuseMonster(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new ConfuseMonsterCommand(
+                            coord,
+                            direction
+                        ));
+                        //identified = spellConfuseMonster(coord, direction);
                         break;
                     case WandSpellTypes.SleepMonster:
                         identified = spellSleepMonster(coord, direction);

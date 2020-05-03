@@ -134,7 +134,11 @@ namespace Moria.Core.Methods
                 case PriestSpellTypes.BlindCreature:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellConfuseMonster(py.pos, dir);
+                        eventPublisher.Publish(new ConfuseMonsterCommand(
+                            py.pos,
+                            dir
+                        ));
+                        //spellConfuseMonster(py.pos, dir);
                     }
                     break;
                 case PriestSpellTypes.Portal:
