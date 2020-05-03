@@ -205,7 +205,8 @@ namespace Moria.Core.Methods
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(16, 4)));
                     break;
                 case PriestSpellTypes.TurnUndead:
-                    spellTurnUndead();
+                    eventPublisher.Publish(new TurnUndeadCommand());
+                    //spellTurnUndead();
                     break;
                 case PriestSpellTypes.Prayer:
                     playerMagic.playerBless(rnd.randomNumber(48) + 48);
@@ -233,7 +234,8 @@ namespace Moria.Core.Methods
                     }
 
                     spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(4 * py.misc.level));
-                    spellTurnUndead();
+                    eventPublisher.Publish(new TurnUndeadCommand());
+                    //spellTurnUndead();
 
                     if (py.flags.invulnerability < 3)
                     {

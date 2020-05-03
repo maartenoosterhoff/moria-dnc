@@ -1298,43 +1298,7 @@ namespace Moria.Core.Methods
             return dispelled;
         }
 
-        // Attempt to turn (confuse) undead creatures. -RAK-
-        public static bool spellTurnUndead()
-        {
-            var py = State.Instance.py;
-            var turned = false;
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0 && dungeonLos.los(py.pos, monster.pos))
-                {
-                    var name = monsterNameDescription(creature.name, monster.lit);
-
-                    if (py.misc.level + 1 > creature.level || rnd.randomNumber(5) == 1)
-                    {
-                        if (monster.lit)
-                        {
-                            State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_UNDEAD;
-
-                            turned = true;
-
-                            printMonsterActionText(name, "runs frantically!");
-                        }
-
-                        monster.confused_amount = (uint)py.misc.level;
-                    }
-                    else if (monster.lit)
-                    {
-                        printMonsterActionText(name, "is unaffected.");
-                    }
-                }
-            }
-
-            return turned;
-        }
+        
 
         // Leave a glyph of warding. Creatures will not pass over! -RAK-
         public static void spellWardingGlyph()
