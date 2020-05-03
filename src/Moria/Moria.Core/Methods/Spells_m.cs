@@ -831,58 +831,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Polymorph a monster -RAK-
-        // NOTE: cannot polymorph a winning creature (BALROG)
-        public static bool spellPolymorphMonster(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-            var distance = 0;
-            var morphed = false;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                    continue;
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                    if (rnd.randomNumber(MON_MAX_LEVELS) > creature.level)
-                    {
-                        finished = true;
-
-                        dungeon.dungeonDeleteMonster((int)tile.creature_id);
-
-                        // Place_monster() should always return true here.
-                        morphed = monsterManager.monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
-
-                        // don't test tile.field_mark here, only permanent_light/temporary_light
-                        if (morphed && coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light))
-                        {
-                            morphed = true;
-                        }
-                    }
-                    else
-                    {
-                        var name = monsterNameDescription(creature.name, monster.lit);
-                        printMonsterActionText(name, "is unaffected.");
-                    }
-                }
-            }
-
-            return morphed;
-        }
+        
 
         // Create a wall. -RAK-
         public static bool spellBuildWall(Coord_t coord, int direction)

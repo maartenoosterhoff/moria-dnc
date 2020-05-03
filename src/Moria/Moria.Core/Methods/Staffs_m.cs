@@ -382,7 +382,10 @@ namespace Moria.Core.Methods
                         identified = spellWallToMud(coord, direction);
                         break;
                     case WandSpellTypes.Polymorph:
-                        identified = spellPolymorphMonster(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new PolymorphMonsterCommand(
+                            coord, direction
+                        ));
+                        //identified = spellPolymorphMonster(coord, direction);
                         break;
                     case WandSpellTypes.HealMonster:
                         identified = eventPublisher.PublishWithOutputBool(new ChangeMonsterHitPointsCommand(

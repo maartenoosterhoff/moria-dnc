@@ -221,7 +221,10 @@ namespace Moria.Core.Methods
                 case MageSpellId.PolymorphOther:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellPolymorphMonster(py.pos, dir);
+                        eventPublisher.Publish(new PolymorphMonsterCommand(
+                            py.pos, dir
+                        ));
+                        //spellPolymorphMonster(py.pos, dir);
                     }
                     break;
                 case MageSpellId.IdentifyItem:
