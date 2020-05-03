@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -21,7 +22,9 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_quaff_m.dice = dice;
@@ -30,6 +33,8 @@ namespace Moria.Core.Methods
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
             Player_quaff_m.uiInventory = uiInventory;
+
+            Player_quaff_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -38,6 +43,8 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         static bool playerDrinkPotion(uint flags, uint item_type)
         {
@@ -322,7 +329,8 @@ namespace Moria.Core.Methods
                         playerMagic.playerDetectInvisible(rnd.randomNumber(12) + 12);
                         break;
                     case PotionSpellTypes.SlowPoison:
-                        identified = spellSlowPoison();
+                        identified = eventPublisher.PublishWithOutputBool(new SlowPoisonCommand());
+                        //identified = spellSlowPoison();
                         break;
                     case PotionSpellTypes.NeutralizePoison:
                         identified = playerMagic.playerCurePoison();

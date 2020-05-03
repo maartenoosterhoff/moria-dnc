@@ -304,7 +304,9 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>()
+                container.GetInstance<IUiInventory>(),
+
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_run_m.SetDependencies(

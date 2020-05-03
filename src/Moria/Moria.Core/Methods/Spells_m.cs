@@ -1112,24 +1112,6 @@ namespace Moria.Core.Methods
             }
         }
 
-        // Slow Poison -RAK-
-        public static bool spellSlowPoison()
-        {
-            var py = State.Instance.py;
-            if (py.flags.poisoned > 0)
-            {
-                py.flags.poisoned = (int)(py.flags.poisoned / 2);
-                if (py.flags.poisoned < 1)
-                {
-                    py.flags.poisoned = 1;
-                }
-                printMessage("The effect of the poison has been reduced.");
-                return true;
-            }
-
-            return false;
-        }
-
         // Enchants a plus onto an item. -RAK-
         // `limit` param is the maximum bonus allowed; usually 10,
         // but weapon's maximum damage when enchanting melee weapons to damage.

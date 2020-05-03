@@ -130,7 +130,8 @@ namespace Moria.Core.Methods
                     //spellDetectSecretDoorssWithinVicinity();
                     break;
                 case PriestSpellTypes.SlowPoison:
-                    spellSlowPoison();
+                    eventPublisher.Publish(new SlowPoisonCommand());
+                    //spellSlowPoison();
                     break;
                 case PriestSpellTypes.BlindCreature:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
