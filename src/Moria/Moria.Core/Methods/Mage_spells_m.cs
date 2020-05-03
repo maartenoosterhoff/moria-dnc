@@ -2,6 +2,7 @@
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
@@ -275,7 +276,10 @@ namespace Moria.Core.Methods
                 case MageSpellId.TeleportOther:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellTeleportAwayMonsterInDirection(py.pos, dir);
+                        eventPublisher.Publish(new TeleportAwayMonsterInDirectionCommand(
+                            py.pos, dir
+                        ));
+                        //spellTeleportAwayMonsterInDirection(py.pos, dir);
                     }
                     break;
                 case MageSpellId.HasteSelf:

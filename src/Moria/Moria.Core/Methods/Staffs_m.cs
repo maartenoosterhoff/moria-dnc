@@ -2,6 +2,7 @@
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
@@ -450,7 +451,10 @@ namespace Moria.Core.Methods
                         identified = spellCloneMonster(coord, direction);
                         break;
                     case WandSpellTypes.TeleportAway:
-                        identified = spellTeleportAwayMonsterInDirection(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new TeleportAwayMonsterInDirectionCommand(
+                            coord, direction
+                        ));
+                        //identified = spellTeleportAwayMonsterInDirection(coord, direction);
                         break;
                     case WandSpellTypes.Disarming:
                         identified = spellDisarmAllInDirection(coord, direction);

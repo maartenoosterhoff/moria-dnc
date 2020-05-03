@@ -997,42 +997,7 @@ namespace Moria.Core.Methods
             updateMonsters(false);
         }
 
-        // Teleport all creatures in a given direction away -RAK-
-        public static bool spellTeleportAwayMonsterInDirection(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-
-            var distance = 0;
-            var teleported = false;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                    continue;
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    // wake it up
-                    State.Instance.monsters[tile.creature_id].sleep_count = 0;
-
-                    eventPublisher.Publish(new TeleportAwayMonsterCommand((int)tile.creature_id, (int)Config.monsters.MON_MAX_SIGHT));
-                    //spellTeleportAwayMonster((int)tile.creature_id, (int)Config.monsters.MON_MAX_SIGHT);
-
-                    teleported = true;
-                }
-            }
-
-            return teleported;
-        }
+        
 
         // Change players hit points in some manner -RAK-
         public static bool spellChangePlayerHitPoints(int adjustment)
