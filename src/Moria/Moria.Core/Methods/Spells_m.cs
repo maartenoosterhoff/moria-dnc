@@ -767,60 +767,7 @@ namespace Moria.Core.Methods
             return changed;
         }
 
-        // Drains life; note it must be living. -RAK-
-        public static bool spellDrainLifeFromMonster(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-
-            var distance = 0;
-            var drained = false;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                    continue;
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    finished = true;
-
-                    var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                    if ((creature.defenses & Config.monsters_defense.CD_UNDEAD) == 0)
-                    {
-                        var name = monsterNameDescription(creature.name, monster.lit);
-
-                        if (monsterTakeHit((int)tile.creature_id, 75) >= 0)
-                        {
-                            printMonsterActionText(name, "dies in a fit of agony.");
-                            displayCharacterExperience();
-                        }
-                        else
-                        {
-                            printMonsterActionText(name, "screams in agony.");
-                        }
-
-                        drained = true;
-                    }
-                    else
-                    {
-                        State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_UNDEAD;
-                    }
-                }
-            }
-
-            return drained;
-        }
+        
 
         // Increase or decrease a creatures speed -RAK-
         // NOTE: cannot slow a winning creature (BALROG)

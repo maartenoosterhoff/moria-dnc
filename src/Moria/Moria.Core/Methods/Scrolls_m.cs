@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
@@ -735,7 +736,8 @@ namespace Moria.Core.Methods
                         break;
                     case 19:
                         printMessage("This is a mass genocide scroll.");
-                        spellMassGenocide();
+                        eventPublisher.Publish(new MassGenocideCommand());
+                        //spellMassGenocide();
                         identified = true;
                         break;
                     case 20:
@@ -764,7 +766,8 @@ namespace Moria.Core.Methods
                         break;
                     case 26:
                         printMessage("This is a genocide scroll.");
-                        spellGenocide();
+                        eventPublisher.Publish(new GenocideCommand());
+                        //spellGenocide();
                         identified = true;
                         break;
                     case 27:
