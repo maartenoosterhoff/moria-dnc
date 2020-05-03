@@ -104,7 +104,8 @@ namespace Moria.Core.Methods
             switch ((PriestSpellTypes)(prayer_type + 1))
             {
                 case PriestSpellTypes.DetectEvil:
-                    spellDetectEvil();
+                    eventPublisher.Publish(new DetectEvilCommand());
+                    //spellDetectEvil();
                     break;
                 case PriestSpellTypes.CureLightWounds:
                     spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 3)));

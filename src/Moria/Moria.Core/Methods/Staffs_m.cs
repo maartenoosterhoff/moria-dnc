@@ -222,7 +222,8 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case StaffSpellTypes.DetectEvil:
-                        identified = spellDetectEvil();
+                        identified = eventPublisher.PublishWithOutputBool(new DetectEvilCommand());
+                        //identified = spellDetectEvil();
                         break;
                     case StaffSpellTypes.Curing:
                         if (playerMagic.playerCureBlindness() ||
