@@ -1300,20 +1300,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Leave a glyph of warding. Creatures will not pass over! -RAK-
-        public static void spellWardingGlyph()
-        {
-            var dg = State.Instance.dg;
-            var py = State.Instance.py;
-            var game = State.Instance.game;
-
-            if (dg.floor[py.pos.y][py.pos.x].treasure_id == 0)
-            {
-                var free_id = gameObjects.popt();
-                dg.floor[py.pos.y][py.pos.x].treasure_id = (uint)free_id;
-                inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_SCARE_MON, game.treasure.list[free_id]);
-            }
-        }
+        
 
         // Lose a strength point. -RAK-
         public static void spellLoseSTR()

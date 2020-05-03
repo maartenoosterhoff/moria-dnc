@@ -2,6 +2,7 @@
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
 using Moria.Core.States;
@@ -221,7 +222,8 @@ namespace Moria.Core.Methods
                     spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(3 * py.misc.level));
                     break;
                 case PriestSpellTypes.GlyphOfWarding:
-                    spellWardingGlyph();
+                    eventPublisher.Publish(new WardingGlyphCommand());
+                    //spellWardingGlyph();
                     break;
                 case PriestSpellTypes.HolyWord:
                     playerMagic.playerRemoveFear();

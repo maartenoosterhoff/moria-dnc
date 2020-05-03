@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
@@ -715,7 +716,8 @@ namespace Moria.Core.Methods
                         identified = monsterSleep(py.pos);
                         break;
                     case 14:
-                        spellWardingGlyph();
+                        eventPublisher.Publish(new WardingGlyphCommand());
+                        //spellWardingGlyph();
                         identified = true;
                         break;
                     case 15:
