@@ -1114,46 +1114,6 @@ namespace Moria.Core.Methods
             return teleported;
         }
 
-
-
-        
-
-        
-
-        
-
-        // Polymorph any creature that player can see. -RAK-
-        // NOTE: cannot polymorph a winning creature (BALROG)
-        public static bool spellMassPolymorph()
-        {
-            var morphed = false;
-            var coord = new Coord_t(0, 0);
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT)
-                {
-                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                    if ((creature.movement & Config.monsters_move.CM_WIN) == 0)
-                    {
-                        coord.y = monster.pos.y;
-                        coord.x = monster.pos.x;
-                        dungeon.dungeonDeleteMonster(id);
-
-                        // Place_monster() should always return true here.
-                        morphed = monsterManager.monsterPlaceNew(coord, rnd.randomNumber(State.Instance.monster_levels[MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
-                    }
-                }
-            }
-
-            return morphed;
-        }
-
-        
-
         // Change players hit points in some manner -RAK-
         public static bool spellChangePlayerHitPoints(int adjustment)
         {

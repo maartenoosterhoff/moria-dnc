@@ -216,7 +216,8 @@ namespace Moria.Core.Methods
                         py.flags.slow += rnd.randomNumber(30) + 15;
                         break;
                     case StaffSpellTypes.MassPolymorph:
-                        identified = spellMassPolymorph();
+                        identified = eventPublisher.PublishWithOutputBool(new MassPolymorphCommand());
+                        //identified = spellMassPolymorph();
                         break;
                     case StaffSpellTypes.RemoveCurse:
                         if (spellRemoveCurseFromAllItems())
