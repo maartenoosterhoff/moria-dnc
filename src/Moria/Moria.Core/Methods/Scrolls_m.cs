@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
 using Moria.Core.States;
@@ -750,7 +751,8 @@ namespace Moria.Core.Methods
                         identified = spellSurroundPlayerWithTraps();
                         break;
                     case 23:
-                        identified = spellDestroyAdjacentDoorsTraps();
+                        identified = eventPublisher.PublishWithOutputBool(new DestroyAdjacentDoorsTrapsCommand());
+                        //identified = spellDestroyAdjacentDoorsTraps();
                         break;
                     case 24:
                         identified = spellSurroundPlayerWithDoors();

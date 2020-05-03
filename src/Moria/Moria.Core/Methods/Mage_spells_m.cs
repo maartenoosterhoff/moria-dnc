@@ -2,6 +2,7 @@
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Destroying;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
 using Moria.Core.Methods.Commands.SpellCasting.Lighting;
 using Moria.Core.States;
@@ -157,7 +158,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.TrapDoorDestruction:
-                    spellDestroyAdjacentDoorsTraps();
+                    eventPublisher.Publish(new DestroyAdjacentDoorsTrapsCommand());
+                    //spellDestroyAdjacentDoorsTraps();
                     break;
                 case MageSpellId.Sleep1:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))

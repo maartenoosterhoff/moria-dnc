@@ -452,53 +452,7 @@ namespace Moria.Core.Methods
             return created;
         }
 
-        // Destroys any adjacent door(s)/trap(s) -RAK-
-        public static bool spellDestroyAdjacentDoorsTraps()
-        {
-            var py = State.Instance.py;
-            var game = State.Instance.game;
-            var dg = State.Instance.dg;
-
-            var destroyed = false;
-
-            var coord = new Coord_t(0, 0);
-
-            for (coord.y = py.pos.y - 1; coord.y <= py.pos.y + 1; coord.y++)
-            {
-                for (coord.x = py.pos.x - 1; coord.x <= py.pos.x + 1; coord.x++)
-                {
-                    var tile = dg.floor[coord.y][coord.x];
-
-                    if (tile.treasure_id == 0)
-                    {
-                        continue;
-                    }
-
-                    var item = game.treasure.list[tile.treasure_id];
-
-                    if (item.category_id >= TV_INVIS_TRAP && item.category_id <= TV_CLOSED_DOOR && item.category_id != TV_RUBBLE || item.category_id == TV_SECRET_DOOR)
-                    {
-                        if (dungeon.dungeonDeleteObject(coord))
-                        {
-                            destroyed = true;
-                        }
-                    }
-                    else if (item.category_id == TV_CHEST && item.flags != 0)
-                    {
-                        // destroy traps on chest and unlock
-                        item.flags &= ~(Config.treasure_chests.CH_TRAPPED | Config.treasure_chests.CH_LOCKED);
-                        item.special_name_id = (int)SpecialNameIds.SN_UNLOCKED;
-
-                        destroyed = true;
-
-                        printMessage("You have disarmed the chest.");
-                        spellItemIdentifyAndRemoveRandomInscription(item);
-                    }
-                }
-            }
-
-            return destroyed;
-        }
+        
 
         
 
