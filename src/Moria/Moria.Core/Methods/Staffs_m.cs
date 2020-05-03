@@ -158,7 +158,8 @@ namespace Moria.Core.Methods
                         break;
                     case StaffSpellTypes.Earthquakes:
                         identified = true;
-                        spellEarthquake();
+                        eventPublisher.Publish(new EarthquakeCommand());
+                        //spellEarthquake();
                         break;
                     case StaffSpellTypes.Summoning:
                         identified = false;

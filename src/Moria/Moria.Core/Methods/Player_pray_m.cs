@@ -197,7 +197,8 @@ namespace Moria.Core.Methods
                     playerMagic.playerProtectEvil();
                     break;
                 case PriestSpellTypes.Earthquake:
-                    spellEarthquake();
+                    eventPublisher.Publish(new EarthquakeCommand());
+                    //spellEarthquake();
                     break;
                 case PriestSpellTypes.SenseSurroundings:
                     spellMapCurrentArea();
