@@ -283,7 +283,8 @@ namespace Moria.Core.Methods
                     //spellDestroyArea(py.pos);
                     break;
                 case MageSpellId.Genocide:
-                    spellGenocide();
+                    eventPublisher.Publish(new GenocideCommand());
+                    //spellGenocide();
                     break;
                 default:
                     // All cases are handled, so this should never be reached!
