@@ -5,6 +5,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 {
     public class StarlightCommandHandler : ICommandHandler<StarlightCommand>
     {
+        private readonly IEventPublisher eventPublisher;
+
+        public StarlightCommandHandler(IEventPublisher eventPublisher)
+        {
+            this.eventPublisher = eventPublisher;
+        }
+
         public void Handle(StarlightCommand command)
         {
             this.spellStarlite(command.Coord);
@@ -23,7 +30,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
             {
                 if (dir != 5)
                 {
-                    Spells_m.spellLightLine(coord, dir);
+                    this.eventPublisher.Publish(new LightLineCommand(coord, dir));
+                    //Spells_m.spellLightLine(coord, dir);
                 }
             }
         }

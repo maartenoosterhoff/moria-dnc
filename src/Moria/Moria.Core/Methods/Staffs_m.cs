@@ -337,7 +337,10 @@ namespace Moria.Core.Methods
                 {
                     case WandSpellTypes.WandLight:
                         printMessage("A line of blue shimmering light appears.");
-                        spellLightLine(py.pos, direction);
+                        eventPublisher.Publish(new LightLineCommand(
+                            py.pos, direction
+                        ));
+                        //spellLightLine(py.pos, direction);
                         identified = true;
                         break;
                     case WandSpellTypes.LightningBolt:

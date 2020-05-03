@@ -463,91 +463,9 @@ namespace Moria.Core.Methods
 
         
 
-        // Update monster when light line spell touches it.
-        public static void spellLightLineTouchesMonster(int monster_id)
-        {
-            var monster = State.Instance.monsters[monster_id];
-            var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
+       
 
-            // light up and draw monster
-            monsterUpdateVisibility(monster_id);
-
-            var name = monsterNameDescription(creature.name, monster.lit);
-
-            if ((creature.defenses & Config.monsters_defense.CD_LIGHT) != 0)
-            {
-                if (monster.lit)
-                {
-                    State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_LIGHT;
-                }
-
-                if (monsterTakeHit(monster_id, dice.diceRoll(new Dice_t(2, 8))) >= 0)
-                {
-                    printMonsterActionText(name, "shrivels away in the light!");
-                    displayCharacterExperience();
-                }
-                else
-                {
-                    printMonsterActionText(name, "cringes from the light!");
-                }
-            }
-        }
-
-        // Leave a line of light in given dir, blue light can sometimes hurt creatures. -RAK-
-        public static void spellLightLine(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-            var distance = 0;
-            var finished = false;
-
-            var tmp_coord = new Coord_t(0, 0);
-
-            while (!finished)
-            {
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    helpers.movePosition(direction, ref coord);
-                    finished = true;
-                    continue; // we're done here, break out of the loop
-                }
-
-                if (!tile.permanent_light && !tile.temporary_light)
-                {
-                    // set permanent_light so that dungeonLiteSpot will work
-                    tile.permanent_light = true;
-
-                    // coord y/x need to be maintained, so copy them
-                    tmp_coord.y = coord.y;
-                    tmp_coord.x = coord.x;
-
-                    if (tile.feature_id == TILE_LIGHT_FLOOR)
-                    {
-                        if (coordInsidePanel(tmp_coord))
-                        {
-                            dungeon.dungeonLightRoom(tmp_coord);
-                        }
-                    }
-                    else
-                    {
-                        dungeon.dungeonLiteSpot(tmp_coord);
-                    }
-                }
-
-                // set permanent_light in case temporary_light was true above
-                tile.permanent_light = true;
-
-                if (tile.creature_id > 1)
-                {
-                    spellLightLineTouchesMonster((int)tile.creature_id);
-                }
-
-                // move must be at end because want to light up current tmp_coord
-                helpers.movePosition(direction, ref coord);
-                distance++;
-            }
-        }
+        
 
         // Disarms all traps/chests in a given direction -RAK-
         public static bool spellDisarmAllInDirection(Coord_t coord, int direction)
