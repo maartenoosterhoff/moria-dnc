@@ -5,7 +5,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 
-namespace Moria.Core.Methods.Commands.SpellCasting.Attacks
+namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 {
     public class BreathCommandHandler : ICommandHandler<BreathCommand>
     {

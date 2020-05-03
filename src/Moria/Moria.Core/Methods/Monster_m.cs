@@ -1,6 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
-using Moria.Core.Methods.Commands.SpellCasting.Attacks;
+using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;

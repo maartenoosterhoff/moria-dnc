@@ -1,6 +1,6 @@
 ﻿using Moria.Core.Structures;
 
-namespace Moria.Core.Methods.Commands.SpellCasting.Attacks
+namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 {
     public class BreathCommand : ICommand
     {

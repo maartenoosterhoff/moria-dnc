@@ -1,7 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
-using Moria.Core.Methods.Commands.SpellCasting.Light;
+using Moria.Core.Methods.Commands.SpellCasting.Lighting;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;

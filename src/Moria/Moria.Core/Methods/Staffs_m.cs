@@ -1,9 +1,9 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
-using Moria.Core.Methods.Commands.SpellCasting.Attacks;
+using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Detection;
-using Moria.Core.Methods.Commands.SpellCasting.Light;
+using Moria.Core.Methods.Commands.SpellCasting.Lighting;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -13,7 +13,6 @@ using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {

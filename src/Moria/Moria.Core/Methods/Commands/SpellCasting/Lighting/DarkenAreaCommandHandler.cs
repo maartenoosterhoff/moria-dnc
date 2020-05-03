@@ -2,7 +2,7 @@
 using Moria.Core.States;
 using Moria.Core.Structures;
 
-namespace Moria.Core.Methods.Commands.SpellCasting.Light
+namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 {
     public class DarkenAreaCommandHandler :
         ICommandHandler<DarkenAreaCommand>,

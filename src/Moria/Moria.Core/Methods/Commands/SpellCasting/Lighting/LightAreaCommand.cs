@@ -1,6 +1,6 @@
 ﻿using Moria.Core.Structures;
 
-namespace Moria.Core.Methods.Commands.SpellCasting.Light
+namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 {
     public class LightAreaCommand : ICommand
     {

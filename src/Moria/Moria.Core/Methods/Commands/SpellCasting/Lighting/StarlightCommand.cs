@@ -1,6 +1,6 @@
 ﻿using Moria.Core.Structures;
 
-namespace Moria.Core.Methods.Commands.SpellCasting
+namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 {
     public class StarlightCommand : ICommand
     {
