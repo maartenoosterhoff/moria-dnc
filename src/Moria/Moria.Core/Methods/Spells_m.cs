@@ -1118,57 +1118,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Change speed of any creature . -RAK-
-        // NOTE: cannot slow a winning creature (BALROG)
-        public static bool spellSpeedAllMonsters(int speed)
-        {
-            var py = State.Instance.py;
-
-            var speedy = false;
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                var name = monsterNameDescription(creature.name, monster.lit);
-
-                if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !dungeonLos.los(py.pos, monster.pos))
-                {
-                    continue; // do nothing
-                }
-
-                if (speed > 0)
-                {
-                    monster.speed += speed;
-                    monster.sleep_count = 0;
-
-                    if (monster.lit)
-                    {
-                        speedy = true;
-                        printMonsterActionText(name, "starts moving faster.");
-                    }
-                }
-                else if (rnd.randomNumber(MON_MAX_LEVELS) > creature.level)
-                {
-                    monster.speed += speed;
-                    monster.sleep_count = 0;
-
-                    if (monster.lit)
-                    {
-                        speedy = true;
-                        printMonsterActionText(name, "starts moving slower.");
-                    }
-                }
-                else if (monster.lit)
-                {
-                    monster.sleep_count = 0;
-                    printMonsterActionText(name, "is unaffected.");
-                }
-            }
-
-            return speedy;
-        }
+        
 
         // Sleep any creature . -RAK-
         public static bool spellSleepAllMonsters()

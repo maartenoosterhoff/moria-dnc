@@ -179,10 +179,16 @@ namespace Moria.Core.Methods
                         //spellStarlite(py.pos);
                         break;
                     case StaffSpellTypes.HasteMonsters:
-                        identified = spellSpeedAllMonsters(1);
+                        identified = eventPublisher.PublishWithOutputBool(new SpeedAllMonstersCommand(
+                            1
+                        ));
+                        //identified = spellSpeedAllMonsters(1);
                         break;
                     case StaffSpellTypes.SlowMonsters:
-                        identified = spellSpeedAllMonsters(-1);
+                        identified = eventPublisher.PublishWithOutputBool(new SpeedAllMonstersCommand(
+                            -1
+                        ));
+                        //identified = spellSpeedAllMonsters(-1);
                         break;
                     case StaffSpellTypes.SleepMonsters:
                         identified = spellSleepAllMonsters();
