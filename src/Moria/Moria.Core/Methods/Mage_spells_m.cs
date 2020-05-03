@@ -168,7 +168,10 @@ namespace Moria.Core.Methods
                 case MageSpellId.Sleep1:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellSleepMonster(py.pos, dir);
+                        eventPublisher.Publish(new SleepMonsterCommand(
+                            py.pos, dir
+                        ));
+                        //spellSleepMonster(py.pos, dir);
                     }
                     break;
                 case MageSpellId.CurePoison:

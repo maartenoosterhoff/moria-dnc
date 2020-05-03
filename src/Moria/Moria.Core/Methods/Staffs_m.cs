@@ -399,7 +399,10 @@ namespace Moria.Core.Methods
                         //identified = spellConfuseMonster(coord, direction);
                         break;
                     case WandSpellTypes.SleepMonster:
-                        identified = spellSleepMonster(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new SleepMonsterCommand(
+                            coord, direction
+                        ));
+                        //identified = spellSleepMonster(coord, direction);
                         break;
                     case WandSpellTypes.DrainLife:
                         identified = eventPublisher.PublishWithOutputBool(new DrainLifeFromMonsterCommand(

@@ -773,58 +773,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Sleep a creature. -RAK-
-        public static bool spellSleepMonster(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-            var distance = 0;
-            var asleep = false;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                    continue;
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    finished = true;
-
-                    var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                    var name = monsterNameDescription(creature.name, monster.lit);
-
-                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
-                    {
-                        if (monster.lit && (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
-                        {
-                            State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
-                        }
-
-                        printMonsterActionText(name, "is unaffected.");
-                    }
-                    else
-                    {
-                        monster.sleep_count = 500;
-
-                        asleep = true;
-
-                        printMonsterActionText(name, "falls asleep.");
-                    }
-                }
-            }
-
-            return asleep;
-        }
+        
 
         // Turn stone to mud, delete wall. -RAK-
         public static bool spellWallToMud(Coord_t coord, int direction)
