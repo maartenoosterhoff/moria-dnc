@@ -785,7 +785,10 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 30:
-                        identified = spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, 60);
+                        identified = eventPublisher.PublishWithOutputBool(new DispelCreatureCommand(
+                            (int)Config.monsters_defense.CD_UNDEAD, 60
+                        ));
+                        //identified = spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, 60);
                         break;
                     case 33:
                         identified = scrollEnchantWeapon();

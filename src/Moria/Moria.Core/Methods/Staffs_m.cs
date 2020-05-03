@@ -244,7 +244,10 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case StaffSpellTypes.DispelEvil:
-                        identified = spellDispelCreature((int)Config.monsters_defense.CD_EVIL, 60);
+                        identified = eventPublisher.PublishWithOutputBool(new DispelCreatureCommand(
+                            (int)Config.monsters_defense.CD_EVIL, 60
+                        ));
+                        //identified = spellDispelCreature((int)Config.monsters_defense.CD_EVIL, 60);
                         break;
                     case StaffSpellTypes.Darkness:
                         identified = eventPublisher.PublishWithOutputBool(new DarkenAreaCommand(py.pos)); 

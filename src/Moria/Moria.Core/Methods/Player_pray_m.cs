@@ -214,13 +214,19 @@ namespace Moria.Core.Methods
                     playerMagic.playerBless(rnd.randomNumber(48) + 48);
                     break;
                 case PriestSpellTypes.DispelUndead:
-                    spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level));
+                    eventPublisher.Publish(new DispelCreatureCommand(
+                        (int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level)
+                    ));
+                    //spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level));
                     break;
                 case PriestSpellTypes.Heal:
                     spellChangePlayerHitPoints(200);
                     break;
                 case PriestSpellTypes.DispelEvil:
-                    spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(3 * py.misc.level));
+                    eventPublisher.Publish(new DispelCreatureCommand(
+                        (int)Config.monsters_defense.CD_EVIL, (int)(3 * py.misc.level)
+                    ));
+                    //spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(3 * py.misc.level));
                     break;
                 case PriestSpellTypes.GlyphOfWarding:
                     eventPublisher.Publish(new WardingGlyphCommand());
@@ -236,7 +242,10 @@ namespace Moria.Core.Methods
                         playerStatRestore(i);
                     }
 
-                    spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(4 * py.misc.level));
+                    eventPublisher.Publish(new DispelCreatureCommand(
+                        (int)Config.monsters_defense.CD_EVIL, (int)(4 * py.misc.level)
+                    ));
+                    //spellDispelCreature((int)Config.monsters_defense.CD_EVIL, (int)(4 * py.misc.level));
                     eventPublisher.Publish(new TurnUndeadCommand());
                     //spellTurnUndead();
 

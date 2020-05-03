@@ -966,50 +966,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Attempts to destroy a type of creature.  Success depends on
-        // the creatures level VS. the player's level -RAK-
-        public static bool spellDispelCreature(int creature_defense, int damage)
-        {
-            var py = State.Instance.py;
-            var creatures_list = Library.Instance.Creatures.creatures_list;
-            var dispelled = false;
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature_defense & creatures_list[(int)monster.creature_id].defenses) != 0 &&
-                    dungeonLos.los(py.pos, monster.pos))
-                {
-                    var creature = creatures_list[(int)monster.creature_id];
-
-                    State.Instance.creature_recall[monster.creature_id].defenses |= (uint)creature_defense;
-
-                    dispelled = true;
-
-                    var name = monsterNameDescription(creature.name, monster.lit);
-
-                    var hit = monsterTakeHit(id, rnd.randomNumber(damage));
-
-                    // Should get these messages even if the monster is not visible.
-                    if (hit >= 0)
-                    {
-                        printMonsterActionText(name, "dissolves!");
-                    }
-                    else
-                    {
-                        printMonsterActionText(name, "shudders.");
-                    }
-
-                    if (hit >= 0)
-                    {
-                        displayCharacterExperience();
-                    }
-                }
-            }
-
-            return dispelled;
-        }
+        
 
         
 
