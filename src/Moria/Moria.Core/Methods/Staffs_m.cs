@@ -191,7 +191,8 @@ namespace Moria.Core.Methods
                         //identified = spellSpeedAllMonsters(-1);
                         break;
                     case StaffSpellTypes.SleepMonsters:
-                        identified = spellSleepAllMonsters();
+                        identified = eventPublisher.PublishWithOutputBool(new SleepAllMonstersCommand());
+                        //identified = spellSleepAllMonsters();
                         break;
                     case StaffSpellTypes.CureLightWounds:
                         identified = spellChangePlayerHitPoints(rnd.randomNumber(8));

@@ -1120,49 +1120,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Sleep any creature . -RAK-
-        public static bool spellSleepAllMonsters()
-        {
-            var py = State.Instance.py;
-
-            var asleep = false;
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                var name = monsterNameDescription(creature.name, monster.lit);
-
-                if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !dungeonLos.los(py.pos, monster.pos))
-                {
-                    continue; // do nothing
-                }
-
-                if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
-                {
-                    if (monster.lit)
-                    {
-                        if ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
-                        {
-                            State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
-                        }
-                        printMonsterActionText(name, "is unaffected.");
-                    }
-                }
-                else
-                {
-                    monster.sleep_count = 500;
-                    if (monster.lit)
-                    {
-                        asleep = true;
-                        printMonsterActionText(name, "falls asleep.");
-                    }
-                }
-            }
-
-            return asleep;
-        }
+        
 
         // Polymorph any creature that player can see. -RAK-
         // NOTE: cannot polymorph a winning creature (BALROG)

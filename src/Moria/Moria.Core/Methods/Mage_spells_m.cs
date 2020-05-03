@@ -228,7 +228,8 @@ namespace Moria.Core.Methods
                     spellIdentifyItem();
                     break;
                 case MageSpellId.Sleep3:
-                    spellSleepAllMonsters();
+                    eventPublisher.Publish(new SleepAllMonstersCommand());
+                    //spellSleepAllMonsters();
                     break;
                 case MageSpellId.FireBolt:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
