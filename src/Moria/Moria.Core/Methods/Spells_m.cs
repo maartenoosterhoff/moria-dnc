@@ -1389,26 +1389,7 @@ namespace Moria.Core.Methods
             return teleported;
         }
 
-        // Delete all creatures within max_sight distance -RAK-
-        // NOTE : Winning creatures cannot be killed by genocide.
-        public static bool spellMassGenocide()
-        {
-            var killed = false;
 
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-                var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.movement & Config.monsters_move.CM_WIN) == 0)
-                {
-                    killed = true;
-                    dungeon.dungeonDeleteMonster(id);
-                }
-            }
-
-            return killed;
-        }
 
         
 

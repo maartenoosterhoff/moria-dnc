@@ -7,6 +7,7 @@ using Moria.Core.Utils;
 using System;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting;
+using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.Spells;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Game_c;
@@ -2021,7 +2022,8 @@ namespace Moria.Core.Methods
                     break;
                 case CTRL_KEY_F:
                     // Mass Genocide, vanquish all monsters
-                    spellMassGenocide();
+                    eventPublisher.Publish(new MassGenocideCommand());
+                    //spellMassGenocide();
                     break;
                 case CTRL_KEY_G:
                     // Generate random items
