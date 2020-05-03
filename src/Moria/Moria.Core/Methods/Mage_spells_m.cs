@@ -241,7 +241,10 @@ namespace Moria.Core.Methods
                 case MageSpellId.SpeedMonster:
                     if (game.getDirectionWithMemory(/*CNIL*/ null, ref dir))
                     {
-                        spellSpeedMonster(py.pos, dir, -1);
+                        eventPublisher.Publish(new SpeedMonsterCommand(
+                            py.pos, dir, -1
+                        ));
+                        //spellSpeedMonster(py.pos, dir, -1);
                     }
                     break;
                 case MageSpellId.FrostBall:

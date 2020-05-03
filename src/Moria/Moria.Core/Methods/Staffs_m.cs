@@ -380,10 +380,16 @@ namespace Moria.Core.Methods
                         identified = spellChangeMonsterHitPoints(coord, direction, -dice.diceRoll(new Dice_t(4, 6)));
                         break;
                     case WandSpellTypes.HasteMonster:
-                        identified = spellSpeedMonster(coord, direction, 1);
+                        identified = eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
+                            coord, direction, 1
+                        ));
+                        //identified = spellSpeedMonster(coord, direction, 1);
                         break;
                     case WandSpellTypes.SlowMonster:
-                        identified = spellSpeedMonster(coord, direction, -1);
+                        identified = eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
+                            py.pos, direction, -1
+                        ));
+                        //identified = spellSpeedMonster(coord, direction, -1);
                         break;
                     case WandSpellTypes.ConfuseMonster:
                         identified = spellConfuseMonster(coord, direction);
