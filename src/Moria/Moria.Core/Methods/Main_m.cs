@@ -373,8 +373,9 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>()
-            );
+                container.GetInstance<IUiInventory>(),
+                container.GetInstance<IEventPublisher>()
+                    );
 
             Staffs_m.SetDependencies(
                 container.GetInstance<IDice>(),

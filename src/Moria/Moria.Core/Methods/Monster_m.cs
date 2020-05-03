@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -927,10 +928,12 @@ namespace Moria.Core.Methods
             switch (spell_id)
             {
                 case 5: // Teleport Short
-                    spellTeleportAwayMonster(monster_id, 5);
+                    eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, 5));
+                    //spellTeleportAwayMonster(monster_id, 5);
                     break;
                 case 6: // Teleport Long
-                    spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
+                    eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
+                    //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     break;
                 case 7: // Teleport To
                     spellTeleportPlayerTo(new Coord_t(monster.pos.y, monster.pos.x));
@@ -2190,7 +2193,8 @@ namespace Moria.Core.Methods
                     if (rnd.randomNumber(2) == 1)
                     {
                         printMessage("There is a puff of smoke!");
-                        spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
+                        eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
+                        //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 13: // Steal Object
@@ -2206,7 +2210,8 @@ namespace Moria.Core.Methods
                     if (rnd.randomNumber(2) == 1)
                     {
                         printMessage("There is a puff of smoke!");
-                        spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
+                        eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
+                        //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 14: // Poison

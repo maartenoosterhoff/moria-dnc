@@ -4,6 +4,7 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
@@ -31,7 +32,9 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Spells_m.dice = dice;
@@ -45,6 +48,8 @@ namespace Moria.Core.Methods
             Spells_m.monsterManager = monsterManager;
             Spells_m.rnd = rnd;
             Spells_m.uiInventory = uiInventory;
+
+            Spells_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -58,6 +63,8 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         // Returns spell pointer -RAK-
         public static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
@@ -941,44 +948,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        // Move the creature record to a new location -RAK-
-        public static void spellTeleportAwayMonster(int monster_id, int distance_from_player)
-        {
-            var dg = State.Instance.dg;
-            var counter = 0;
-
-            var coord = new Coord_t(0, 0);
-            var monster = State.Instance.monsters[monster_id];
-
-            do
-            {
-                do
-                {
-                    coord.y = monster.pos.y + (rnd.randomNumber(2 * distance_from_player + 1) - (distance_from_player + 1));
-                    coord.x = monster.pos.x + (rnd.randomNumber(2 * distance_from_player + 1) - (distance_from_player + 1));
-                } while (!dungeon.coordInBounds(coord));
-
-                counter++;
-                if (counter > 9)
-                {
-                    counter = 0;
-                    distance_from_player += 5;
-                }
-            } while (dg.floor[coord.y][coord.x].feature_id >= MIN_CLOSED_SPACE || dg.floor[coord.y][coord.x].creature_id != 0);
-
-            dungeon.dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
-            dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
-
-            monster.pos.y = coord.y;
-            monster.pos.x = coord.x;
-
-            // this is necessary, because the creature is
-            // not currently visible in its new position.
-            monster.lit = false;
-            monster.distance_from_player = (uint)dungeon.coordDistanceBetween(State.Instance.py.pos, coord);
-
-            monsterUpdateVisibility(monster_id);
-        }
+        
 
         // Teleport player to spell casting creature -RAK-
         public static void spellTeleportPlayerTo(Coord_t coord)
@@ -1054,7 +1024,8 @@ namespace Moria.Core.Methods
                     // wake it up
                     State.Instance.monsters[tile.creature_id].sleep_count = 0;
 
-                    spellTeleportAwayMonster((int)tile.creature_id, (int)Config.monsters.MON_MAX_SIGHT);
+                    eventPublisher.Publish(new TeleportAwayMonsterCommand((int)tile.creature_id, (int)Config.monsters.MON_MAX_SIGHT));
+                    //spellTeleportAwayMonster((int)tile.creature_id, (int)Config.monsters.MON_MAX_SIGHT);
 
                     teleported = true;
                 }
