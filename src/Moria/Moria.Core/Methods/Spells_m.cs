@@ -1104,53 +1104,7 @@ namespace Moria.Core.Methods
             return turned;
         }
 
-        // Destroy all traps and doors in a given direction -RAK-
-        public static bool spellDestroyDoorsTrapsInDirection(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
-
-            var destroyed = false;
-            var distance = 0;
-
-            Tile_t tile = null;
-
-            do
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                tile = dg.floor[coord.y][coord.x];
-
-                // must move into first closed spot, as it might be a secret door
-                if (tile.treasure_id != 0)
-                {
-                    var item = game.treasure.list[tile.treasure_id];
-
-                    if (item.category_id == TV_INVIS_TRAP || item.category_id == TV_CLOSED_DOOR || item.category_id == TV_VIS_TRAP || item.category_id == TV_OPEN_DOOR ||
-                        item.category_id == TV_SECRET_DOOR)
-                    {
-                        if (dungeon.dungeonDeleteObject(coord))
-                        {
-                            destroyed = true;
-                            printMessage("There is a bright flash of light!");
-                        }
-                    }
-                    else if (item.category_id == TV_CHEST && item.flags != 0)
-                    {
-                        destroyed = true;
-                        printMessage("Click!");
-
-                        item.flags &= ~(Config.treasure_chests.CH_TRAPPED | Config.treasure_chests.CH_LOCKED);
-                        item.special_name_id = (int)SpecialNameIds.SN_UNLOCKED;
-
-                        spellItemIdentifyAndRemoveRandomInscription(item);
-                    }
-                }
-            } while (distance <= Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id <= MAX_OPEN_SPACE);
-
-            return destroyed;
-        }
+        
 
         // Polymorph a monster -RAK-
         // NOTE: cannot polymorph a winning creature (BALROG)

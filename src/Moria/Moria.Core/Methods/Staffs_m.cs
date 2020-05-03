@@ -394,7 +394,10 @@ namespace Moria.Core.Methods
                         identified = spellDrainLifeFromMonster(coord, direction);
                         break;
                     case WandSpellTypes.TrapDoorDestruction:
-                        identified = spellDestroyDoorsTrapsInDirection(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new DestroyDoorsTrapsInDirectionCommand(
+                            coord, direction
+                        ));
+                        //identified = spellDestroyDoorsTrapsInDirection(coord, direction);
                         break;
                     case WandSpellTypes.WandMagicMissile:
                         eventPublisher.Publish(
