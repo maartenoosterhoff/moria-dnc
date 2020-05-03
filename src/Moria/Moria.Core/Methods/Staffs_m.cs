@@ -464,7 +464,10 @@ namespace Moria.Core.Methods
                         //identified = spellTeleportAwayMonsterInDirection(coord, direction);
                         break;
                     case WandSpellTypes.Disarming:
-                        identified = spellDisarmAllInDirection(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new DisarmAllInDirectionCommand(
+                            coord, direction
+                        ));
+                        //identified = spellDisarmAllInDirection(coord, direction);
                         break;
                     case WandSpellTypes.LightningBall:
                         eventPublisher.Publish(
