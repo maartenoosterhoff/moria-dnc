@@ -55,16 +55,18 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        private static bool staffPlayerIsCarrying(ref int item_pos_start, ref int item_pos_end)
+        private static bool staffPlayerIsCarrying(out int item_pos_start, out int item_pos_end)
         {
             var py = State.Instance.py;
+            item_pos_start = -1;
+            item_pos_end = -1;
             if (py.pack.unique_items == 0)
             {
                 printMessage("But you are not carrying anything.");
                 return false;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, out item_pos_start, out item_pos_end))
             {
                 printMessage("You are not carrying any staffs.");
                 return false;
@@ -277,8 +279,7 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = true;
 
-            int item_pos_start = 0, item_pos_end = 0;
-            if (!staffPlayerIsCarrying(ref item_pos_start, ref item_pos_end))
+            if (!staffPlayerIsCarrying(out var item_pos_start, out var item_pos_end))
             {
                 return;
             }
@@ -553,7 +554,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, out item_pos_start, out item_pos_end))
             {
                 printMessage("You are not carrying any wands.");
                 return;

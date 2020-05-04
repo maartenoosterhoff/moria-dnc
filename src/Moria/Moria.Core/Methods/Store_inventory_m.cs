@@ -12,8 +12,8 @@ namespace Moria.Core.Methods
 {
     public interface IStoreInventory
     {
-        int storeItemSellPrice(Store_t store, ref int min_price, ref int max_price, Inventory_t item);
-        void storeCarryItem(int store_id, ref int index_id, Inventory_t item);
+        int storeItemSellPrice(Store_t store, out int min_price, out int max_price, Inventory_t item);
+        void storeCarryItem(int store_id, out int index_id, Inventory_t item);
         void storeDestroyItem(int store_id, int item_id, bool only_one_of);
         bool storeCheckPlayerItemsCount(Store_t store, Inventory_t item);
         int storeItemValue(Inventory_t item);
@@ -266,7 +266,7 @@ namespace Moria.Core.Methods
         }
 
         // Asking price for an item -RAK-
-        public int storeItemSellPrice(Store_t store, ref int min_price, ref int max_price, Inventory_t item)
+        public int storeItemSellPrice(Store_t store, out int min_price, out int max_price, Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -276,6 +276,8 @@ namespace Moria.Core.Methods
             // don't let the item get into the store inventory
             if (item.cost < 1 || price < 1)
             {
+                min_price = 0;
+                max_price = 0;
                 return 0;
             }
 
@@ -347,14 +349,13 @@ namespace Moria.Core.Methods
         }
 
         // Add the item in INVEN_MAX to stores inventory. -RAK-
-        public void storeCarryItem(int store_id, ref int index_id, Inventory_t item)
+        public void storeCarryItem(int store_id, out int index_id, Inventory_t item)
         {
             index_id = -1;
 
             var store = State.Instance.stores[store_id];
 
-            int item_cost = 0, dummy = 9;
-            if (this.storeItemSellPrice(store, ref dummy, ref item_cost, item) < 1)
+            if (this.storeItemSellPrice(store, out _, out var item_cost, item) < 1)
             {
                 return;
             }
@@ -383,7 +384,7 @@ namespace Moria.Core.Methods
                         // must be recalculated for entire group
                         if (item_sub_catagory > ITEM_GROUP_MIN)
                         {
-                            this.storeItemSellPrice(store, ref dummy, ref item_cost, store_item);
+                            this.storeItemSellPrice(store, out _, out item_cost, store_item);
                             store.inventory[item_id].cost = -item_cost;
                         }
                         else if (store_item.items_count > 24)
@@ -480,7 +481,7 @@ namespace Moria.Core.Methods
                         itemIdentifyAsStoreBought(item);
 
                         var dummy = 0;
-                        this.storeCarryItem(store_id, ref dummy, item);
+                        this.storeCarryItem(store_id, out dummy, item);
 
                         tries = 10;
                     }

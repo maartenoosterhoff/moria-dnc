@@ -60,7 +60,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out item_pos_start, out item_pos_end))
             {
                 printMessage("You are not carrying any food.");
                 return;

@@ -87,7 +87,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_PRAYER_BOOK, TV_NEVER, ref item_pos_begin, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_PRAYER_BOOK, TV_NEVER, out item_pos_begin, out item_pos_end))
             {
                 printMessage("You are not carrying any Holy Books!");
                 return false;

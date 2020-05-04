@@ -16,7 +16,7 @@ namespace Moria.Core.Methods
         int inventoryDamageItem(Func<Inventory_t, bool> item_type, int chance_percentage);
         void inventoryTakeOneItem(ref Inventory_t to_item, Inventory_t from_item);
         bool executeDisenchantAttack();
-        bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k);
+        bool inventoryFindRange(int item_id_start, int item_id_end, out int j, out int k);
     }
 
     public class Inventory_manager_m : IInventoryManager
@@ -203,7 +203,7 @@ namespace Moria.Core.Methods
         }
 
         // Finds range of item in inventory list -RAK-
-        public bool inventoryFindRange(int item_id_start, int item_id_end, ref int j, ref int k)
+        public bool inventoryFindRange(int item_id_start, int item_id_end, out int j, out int k)
         {
             var py = State.Instance.py;
 

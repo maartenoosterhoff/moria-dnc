@@ -2293,7 +2293,7 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 22: // Eat food
-                    if (inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, ref item_pos_start, ref item_pos_end))
+                    if (inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out item_pos_start, out item_pos_end))
                     {
                         inventoryManager.inventoryDestroyItem(item_pos_start);
                         printMessage("It got at your rations!");

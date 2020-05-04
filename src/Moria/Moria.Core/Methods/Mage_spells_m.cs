@@ -335,7 +335,7 @@ namespace Moria.Core.Methods
             }
 
             int i = 0, j = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, TV_NEVER, ref i, ref j))
+            if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, TV_NEVER, out i, out j))
             {
                 printMessage("But you are not carrying any spell-books!");
                 return;

@@ -194,7 +194,7 @@ namespace Moria.Core.Methods
         }
 
         // Converts stat num into string
-        public static void statsAsString(uint stat, ref string stat_string)
+        public static void statsAsString(uint stat, out string stat_string)
         {
             var percentile = (int)stat - 18;
 
@@ -220,7 +220,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             var text = string.Empty;
-            statsAsString(py.stats.used[stat], ref text);
+            statsAsString(py.stats.used[stat], out text);
             putString(stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
             putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
         }
@@ -686,15 +686,13 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             for (var i = 0; i < 6; i++)
             {
-                var buf = string.Empty;
-
-                statsAsString(py.stats.used[i], ref buf);
+                statsAsString(py.stats.used[i], out var buf);
                 putString(stat_names[i], new Coord_t(2 + i, 61));
                 putString(buf, new Coord_t(2 + i, 66));
 
                 if (py.stats.max[i] > py.stats.current[i])
                 {
-                    statsAsString(py.stats.max[i], ref buf);
+                    statsAsString(py.stats.max[i], out buf);
                     putString(buf, new Coord_t(2 + i, 73));
                 }
             }

@@ -37,7 +37,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         {
             var py = State.Instance.py;
             int item_pos_start = 0, item_pos_end = 0;
-            if (!this.inventoryManager.inventoryFindRange((int)Treasure_c.TV_STAFF, (int)Treasure_c.TV_WAND, ref item_pos_start, ref item_pos_end))
+            if (!this.inventoryManager.inventoryFindRange((int)Treasure_c.TV_STAFF, (int)Treasure_c.TV_WAND, out item_pos_start, out item_pos_end))
             {
                 Ui_io_m.printMessage("You have nothing to recharge.");
                 return false;

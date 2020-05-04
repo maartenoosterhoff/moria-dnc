@@ -81,7 +81,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_SCROLL1, (int)TV_SCROLL2, ref item_pos_start, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_SCROLL1, (int)TV_SCROLL2, out item_pos_start, out item_pos_end))
             {
                 printMessage("You are not carrying any scrolls!");
                 return false;

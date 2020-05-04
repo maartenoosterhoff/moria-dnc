@@ -72,13 +72,13 @@ namespace Moria.Core.Methods
 
         // Comments vary. -RAK-
         // Comment one : Finished haggling
-        public static void printSpeechFinishedHaggling()
+        private static void printSpeechFinishedHaggling()
         {
             printMessage(Library.Instance.StoreOwners.speech_sale_accepted[(int)rnd.randomNumber(14) - 1]);
         }
 
         // %A1 is offer, %A2 is asking.
-        public static void printSpeechSellingHaggle(int offer, int asking, int final)
+        private static void printSpeechSellingHaggle(int offer, int asking, int final)
         {
             var comment = string.Empty;
             //vtype_t comment = { '\0' };
@@ -99,9 +99,10 @@ namespace Moria.Core.Methods
             printMessage(comment);
         }
 
-        public static void printSpeechBuyingHaggle(int offer, int asking, int final)
+        private static void printSpeechBuyingHaggle(int offer, int asking, int final)
         {
-            var comment = string.Empty;
+            string comment;
+            comment = string.Empty;
             //vtype_t comment = { '\0' };
 
             if (final > 0)
@@ -121,19 +122,19 @@ namespace Moria.Core.Methods
         }
 
         // Kick 'da bum out. -RAK-
-        public static void printSpeechGetOutOfMyStore()
+        private static void printSpeechGetOutOfMyStore()
         {
             var comment = rnd.randomNumber(5) - 1;
             printMessage(Library.Instance.StoreOwners.speech_insulted_haggling_done[comment]);
             printMessage(Library.Instance.StoreOwners.speech_get_out_of_my_store[comment]);
         }
 
-        public static void printSpeechTryAgain()
+        private static void printSpeechTryAgain()
         {
             printMessage(Library.Instance.StoreOwners.speech_haggling_try_again[rnd.randomNumber(10) - 1]);
         }
 
-        public static void printSpeechSorry()
+        private static void printSpeechSorry()
         {
             printMessage(Library.Instance.StoreOwners.speech_sorry[rnd.randomNumber(5) - 1]);
         }
@@ -148,7 +149,7 @@ namespace Moria.Core.Methods
         }
 
         // Displays the set of commands -RAK-
-        public static void displayStoreHaggleCommands(int haggle_type)
+        private static void displayStoreHaggleCommands(int haggle_type)
         {
             if (haggle_type == -1)
             {
@@ -164,7 +165,7 @@ namespace Moria.Core.Methods
         }
 
         // Displays a store's inventory -RAK-
-        public static void displayStoreInventory(Store_t store, int item_pos_start)
+        private static void displayStoreInventory(Store_t store, int item_pos_start)
         {
             var item_pos_end = (item_pos_start / 12 + 1) * 12;
             if (item_pos_end > store.unique_items_counter)
@@ -242,7 +243,7 @@ namespace Moria.Core.Methods
         }
 
         // Re-displays only a single cost -RAK-
-        public static void displaySingleCost(int store_id, int item_id)
+        private static void displaySingleCost(int store_id, int item_id)
         {
             var cost = State.Instance.stores[store_id].inventory[item_id].cost;
 
@@ -264,7 +265,7 @@ namespace Moria.Core.Methods
         }
 
         // Displays players gold -RAK-
-        public static void displayPlayerRemainingGold()
+        private static void displayPlayerRemainingGold()
         {
             var msg = $"Gold Remaining : {State.Instance.py.misc.au}";
             //vtype_t msg = { '\0' };
@@ -273,7 +274,7 @@ namespace Moria.Core.Methods
         }
 
         // Displays store -RAK-
-        public static void displayStore(Store_t store, string owner_name, int current_top_item_id)
+        private static void displayStore(Store_t store, string owner_name, int current_top_item_id)
         {
             clearScreen();
             putString(owner_name, new Coord_t(3, 9));
@@ -286,7 +287,7 @@ namespace Moria.Core.Methods
 
         // Get the ID of a store item and return it's value -RAK-
         // Returns true if the item was found.
-        public static bool storeGetItemId(ref int item_id, string prompt, int item_pos_start, int item_pos_end)
+        private static bool storeGetItemId(ref int item_id, string prompt, int item_pos_start, int item_pos_end)
         {
             item_id = -1;
             var item_found = false;
@@ -313,7 +314,7 @@ namespace Moria.Core.Methods
         }
 
         // Increase the insult counter and get angry if too many -RAK-
-        public static bool storeIncreaseInsults(int store_id)
+        private static bool storeIncreaseInsults(int store_id)
         {
             var store = State.Instance.stores[store_id];
 
@@ -334,7 +335,7 @@ namespace Moria.Core.Methods
         }
 
         // Decrease insults -RAK-
-        public static void storeDecreaseInsults(int store_id)
+        private static void storeDecreaseInsults(int store_id)
         {
             if (State.Instance.stores[store_id].insults_counter != 0)
             {
@@ -344,7 +345,7 @@ namespace Moria.Core.Methods
 
         // Have insulted while haggling -RAK-
         // Returns true if the store owner was angered.
-        public static bool storeHaggleInsults(int store_id)
+        private static bool storeHaggleInsults(int store_id)
         {
             if (storeIncreaseInsults(store_id))
             {
@@ -360,7 +361,7 @@ namespace Moria.Core.Methods
         }
 
         // Returns true if the customer made a valid offer
-        public static bool storeGetHaggle(string prompt, ref int new_offer, int offer_count)
+        private static bool storeGetHaggle(string prompt, ref int new_offer, int offer_count)
         {
             var valid_offer = true;
 
@@ -376,8 +377,6 @@ namespace Moria.Core.Methods
             var start_len = prompt_len;
 
             //string p = null;
-            var msg = string.Empty;
-            var last_offer_str = string.Empty;
             //char* p = nullptr;
             //vtype_t msg = { '\0' };
             //vtype_t last_offer_str = { '\0' };
@@ -391,7 +390,7 @@ namespace Moria.Core.Methods
                 {
                     var abs_store_last_increment = (int)std.std_abs(std.std_intmax_t(State.Instance.store_last_increment));
 
-                    last_offer_str = $"[{(State.Instance.store_last_increment < 0 ? '-' : '+')}{abs_store_last_increment}] ";
+                    var last_offer_str = $"[{(State.Instance.store_last_increment < 0 ? '-' : '+')}{abs_store_last_increment}] ";
                     //(void)sprintf(last_offer_str, "[%c%d] ", (State.Instance.store_last_increment < 0) ? '-' : '+', abs_store_last_increment);
                     putStringClearToEOL(last_offer_str, new Coord_t(0, start_len));
 
@@ -399,7 +398,7 @@ namespace Moria.Core.Methods
                     //prompt_len = start_len + (int)strlen(last_offer_str);
                 }
 
-                if (!getStringInput(out msg, new Coord_t(0, prompt_len), 40))
+                if (!getStringInput(out var msg, new Coord_t(0, prompt_len), 40))
                 {
                     // customer aborted, i.e. pressed escape
                     valid_offer = false;
@@ -473,7 +472,7 @@ namespace Moria.Core.Methods
             return valid_offer;
         }
 
-        public static BidState storeReceiveOffer(int store_id, string prompt, ref int new_offer, int last_offer, int offer_count, int factor)
+        private static BidState storeReceiveOffer(int store_id, string prompt, ref int new_offer, int last_offer, int offer_count, int factor)
         {
             var status = BidState.Received;
 
@@ -511,7 +510,7 @@ namespace Moria.Core.Methods
             return status;
         }
 
-        public static void storePurchaseCustomerAdjustment(ref int min_sell, ref int max_sell)
+        private static void storePurchaseCustomerAdjustment(ref int min_sell, ref int max_sell)
         {
             var charisma = playerStatAdjustmentCharisma();
 
@@ -529,7 +528,7 @@ namespace Moria.Core.Methods
         }
 
         // Haggling routine -RAK-
-        public static BidState storePurchaseHaggle(int store_id, ref int price, Inventory_t item)
+        private static BidState storePurchaseHaggle(int store_id, ref int price, Inventory_t item)
         {
             var status = BidState.Received;
 
@@ -538,8 +537,7 @@ namespace Moria.Core.Methods
             var store = State.Instance.stores[store_id];
             var owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
-            int max_sell = 0, min_sell = 0;
-            var cost = storeInventory.storeItemSellPrice(store, ref min_sell, ref max_sell, item);
+            var cost = storeInventory.storeItemSellPrice(store, out var min_sell, out var max_sell, item);
 
             storePurchaseCustomerAdjustment(ref min_sell, ref max_sell);
 
@@ -582,10 +580,10 @@ namespace Moria.Core.Methods
             var final_flag = 0;
 
             var rejected = false;
-            bool bidding_open;
 
             while (!rejected)
             {
+                bool bidding_open;
                 do
                 {
                     bidding_open = true;
@@ -725,7 +723,7 @@ namespace Moria.Core.Methods
             return status;
         }
 
-        public static void storeSellCustomerAdjustment(Owner_t owner, ref int cost, ref int min_buy, ref int max_buy, ref int max_sell)
+        private static void storeSellCustomerAdjustment(Owner_t owner, ref int cost, ref int min_buy, ref int max_buy, ref int max_sell)
         {
             var py = State.Instance.py;
             cost = cost * (200 - playerStatAdjustmentCharisma()) / 100;
@@ -755,7 +753,7 @@ namespace Moria.Core.Methods
         }
 
         // Haggling routine -RAK-
-        public static BidState storeSellHaggle(int store_id, ref int price, Inventory_t item)
+        private static BidState storeSellHaggle(int store_id, ref int price, Inventory_t item)
         {
             var status = BidState.Received;
 
@@ -790,11 +788,9 @@ namespace Moria.Core.Methods
             }
 
             var final_asking_price = 0;
-            var current_asking_price = 0;
 
             var final_flag = 0;
 
-            string comment = null;
             //const char* comment = nullptr;
             var accepted_without_haggle = false;
 
@@ -804,6 +800,8 @@ namespace Moria.Core.Methods
 
                 var offer_count = 0; // this prevents incremental haggling on first try
 
+                string comment;
+                int current_asking_price;
                 if (max_buy > max_gold)
                 {
                     final_flag = 1;
@@ -852,10 +850,9 @@ namespace Moria.Core.Methods
                     current_asking_price = 1;
                 }
 
-                bool bidding_open;
-
                 do
                 {
+                    bool bidding_open;
                     do
                     {
                         bidding_open = true;
@@ -996,7 +993,7 @@ namespace Moria.Core.Methods
         }
 
         // Get the number of store items to display on the screen
-        public static int storeItemsToDisplay(int store_counter, int current_top_item_id)
+        private static int storeItemsToDisplay(int store_counter, int current_top_item_id)
         {
             if (current_top_item_id == 12)
             {
@@ -1013,7 +1010,7 @@ namespace Moria.Core.Methods
 
         // Buy an item from a store -RAK-
         // Returns true is the owner kicks out the customer
-        public static bool storePurchaseAnItem(int store_id, ref int current_top_item_id)
+        private static bool storePurchaseAnItem(int store_id, ref int current_top_item_id)
         {
             var py = State.Instance.py;
             var kick_customer = false; // don't kick them out of the store!
@@ -1132,7 +1129,7 @@ namespace Moria.Core.Methods
         }
 
         // Functions to emulate the original Pascal sets
-        public static bool setGeneralStoreItems(uint item_id)
+        private static bool setGeneralStoreItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1149,7 +1146,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setArmoryItems(uint item_id)
+        private static bool setArmoryItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1165,7 +1162,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setWeaponsmithItems(uint item_id)
+        private static bool setWeaponsmithItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1182,7 +1179,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setTempleItems(uint item_id)
+        private static bool setTempleItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1198,7 +1195,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setAlchemistItems(uint item_id)
+        private static bool setAlchemistItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1212,7 +1209,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool setMagicShopItems(uint item_id)
+        private static bool setMagicShopItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1246,7 +1243,7 @@ namespace Moria.Core.Methods
 
         // Sell an item to the store -RAK-
         // Returns true is the owner kicks out the customer
-        public static bool storeSellAnItem(int store_id, ref int current_top_item_id)
+        private static bool storeSellAnItem(int store_id, ref int current_top_item_id)
         {
             var py = State.Instance.py;
 
@@ -1287,8 +1284,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
             {
                 return false;
             }
@@ -1347,8 +1343,7 @@ namespace Moria.Core.Methods
                 //(void)sprintf(msg, "You've sold %s", description);
                 printMessage(msg);
 
-                var item_pos_id = 0;
-                storeInventory.storeCarryItem(store_id, ref item_pos_id, sold_item);
+                storeInventory.storeCarryItem(store_id, out var item_pos_id, sold_item);
 
                 playerStrength();
 
@@ -1412,11 +1407,8 @@ namespace Moria.Core.Methods
                 // clear the msg flag just like we do in dungeon.c
                 State.Instance.message_ready_to_print = false;
 
-                var command = '\0';
-                if (getCommand("", out command))
+                if (getCommand("", out var command))
                 {
-                    int saved_chr;
-
                     switch (command)
                     {
                         case 'b':
@@ -1448,7 +1440,7 @@ namespace Moria.Core.Methods
                         case 'w': // Wear
                         case 'X':
                         case 'x': // Switch weapon
-                            saved_chr = (int)py.stats.used[(int)PlayerAttr.CHR];
+                            var saved_chr = (int)py.stats.used[(int)PlayerAttr.CHR];
 
                             do
                             {
@@ -1486,7 +1478,7 @@ namespace Moria.Core.Methods
         }
 
         // eliminate need to bargain if player has haggled well in the past -DJB-
-        public static bool storeNoNeedToBargain(Store_t store, int min_price)
+        private static bool storeNoNeedToBargain(Store_t store, int min_price)
         {
             if (store.good_purchases == SHRT_MAX)
             {
@@ -1499,7 +1491,7 @@ namespace Moria.Core.Methods
         }
 
         // update the bargain info -DJB-
-        public static void storeUpdateBargainingSkills(Store_t store, int price, int min_price)
+        private static void storeUpdateBargainingSkills(Store_t store, int price, int min_price)
         {
             if (min_price < 10)
             {

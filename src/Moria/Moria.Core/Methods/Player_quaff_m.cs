@@ -395,7 +395,7 @@ namespace Moria.Core.Methods
             }
 
             int item_pos_begin = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, ref item_pos_begin, ref item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, out item_pos_begin, out item_pos_end))
             {
                 printMessage("You are not carrying any potions.");
                 return;
