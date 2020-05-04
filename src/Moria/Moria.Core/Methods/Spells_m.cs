@@ -343,65 +343,6 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        
-
-        
-
-        // Surround the player with doors. -RAK-
-        public static bool spellSurroundPlayerWithDoors()
-        {
-            var py = State.Instance.py;
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
-
-            var created = false;
-
-            var coord = new Coord_t(0, 0);
-
-            for (coord.y = py.pos.y - 1; coord.y <= py.pos.y + 1; coord.y++)
-            {
-                for (coord.x = py.pos.x - 1; coord.x <= py.pos.x + 1; coord.x++)
-                {
-                    // Don't put a door under the player!
-                    if (coord.y == py.pos.y && coord.x == py.pos.x)
-                    {
-                        continue;
-                    }
-
-                    var tile = dg.floor[coord.y][coord.x];
-
-                    if (tile.feature_id <= MAX_CAVE_FLOOR)
-                    {
-                        if (tile.treasure_id != 0)
-                        {
-                            dungeon.dungeonDeleteObject(coord);
-                        }
-
-                        var free_id = gameObjects.popt();
-                        tile.feature_id = TILE_BLOCKED_FLOOR;
-                        tile.treasure_id = (uint)free_id;
-
-                        inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_CLOSED_DOOR, game.treasure.list[free_id]);
-                        dungeon.dungeonLiteSpot(coord);
-
-                        created = true;
-                    }
-                }
-            }
-
-            return created;
-        }
-
-        
-
-        
-
-       
-
-        
-
-        
-
         // Return flags for given type area affect -RAK-
         public static void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type, out Func<Inventory_t, bool> destroy)
         {

@@ -761,7 +761,8 @@ namespace Moria.Core.Methods
                         //identified = spellDestroyAdjacentDoorsTraps();
                         break;
                     case 24:
-                        identified = spellSurroundPlayerWithDoors();
+                        identified = eventPublisher.PublishWithOutputBool(new SurroundPlayerWithDoorsCommand());
+                        //identified = spellSurroundPlayerWithDoors();
                         break;
                     case 25:
                         printMessage("This is a Recharge-Item scroll.");
