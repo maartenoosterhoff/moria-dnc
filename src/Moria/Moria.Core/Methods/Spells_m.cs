@@ -16,18 +16,15 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IHelpers helpers,
-            IInventory inventory,
-            IRnd rnd
+            IInventory inventory
         )
         {
             Spells_m.helpers = helpers;
             Spells_m.inventory = inventory;
-            Spells_m.rnd = rnd;
         }
 
         private static IHelpers helpers;
         private static IInventory inventory;
-        private static IRnd rnd;
 
         // Returns spell pointer -RAK-
         public static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
@@ -404,28 +401,6 @@ namespace Moria.Core.Methods
                 printCharacterLevel();
                 printCharacterTitle();
             }
-        }
-
-        
-
-        // Removes curses from items in inventory -RAK-
-        public static bool spellRemoveCurseFromAllItems()
-        {
-            var py = State.Instance.py;
-
-            var removed = false;
-
-            for (var id = (int)PlayerEquipment.Wield; id <= (int)PlayerEquipment.Outer; id++)
-            {
-                if ((py.inventory[id].flags & Config.treasure_flags.TR_CURSED) != 0u)
-                {
-                    py.inventory[id].flags &= ~Config.treasure_flags.TR_CURSED;
-                    playerRecalculateBonuses();
-                    removed = true;
-                }
-            }
-
-            return removed;
         }
     }
 }

@@ -321,7 +321,8 @@ namespace Moria.Core.Methods
 
         public static bool scrollRemoveCurse()
         {
-            if (spellRemoveCurseFromAllItems())
+            if (eventPublisher.PublishWithOutputBool(new RemoveCurseFromAllItemsCommand()))
+            //if (spellRemoveCurseFromAllItems())
             {
                 printMessage("You feel as if someone is watching over you.");
                 return true;

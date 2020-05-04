@@ -368,9 +368,8 @@ Options:
 
             Spells_m.SetDependencies(
                 container.GetInstance<IHelpers>(),
-                container.GetInstance<IInventory>(),
-                container.GetInstance<IRnd>()
-                    );
+                container.GetInstance<IInventory>()
+            );
 
             Staffs_m.SetDependencies(
                 container.GetInstance<IDice>(),

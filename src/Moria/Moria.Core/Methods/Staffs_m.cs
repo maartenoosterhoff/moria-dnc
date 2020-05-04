@@ -225,7 +225,8 @@ namespace Moria.Core.Methods
                         //identified = spellMassPolymorph();
                         break;
                     case StaffSpellTypes.RemoveCurse:
-                        if (spellRemoveCurseFromAllItems())
+                        if (eventPublisher.PublishWithOutputBool(new RemoveCurseFromAllItemsCommand()))
+                        //if (spellRemoveCurseFromAllItems())
                         {
                             if (py.flags.blind < 1)
                             {

@@ -3,6 +3,7 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
+using Moria.Core.Methods.Commands.SpellCasting;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Identification_m;
@@ -40,6 +41,7 @@ namespace Moria.Core.Methods
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
+        private readonly IEventPublisher eventPublisher;
 
         public Wizard_m(
             IDungeon dungeon,
@@ -50,8 +52,10 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            ITreasure treasure
-        )
+            ITreasure treasure,
+
+            IEventPublisher eventPublisher
+            )
         {
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
@@ -62,6 +66,7 @@ namespace Moria.Core.Methods
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.treasure = treasure;
+            this.eventPublisher = eventPublisher;
         }
 
         // lets anyone enter wizard mode after a disclaimer... -JEW-
@@ -91,7 +96,8 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            spellRemoveCurseFromAllItems();
+            this.eventPublisher.Publish(new RemoveCurseFromAllItemsCommand());
+            //spellRemoveCurseFromAllItems();
             this.playerMagic.playerCureBlindness();
             this.playerMagic.playerCureConfusion();
             this.playerMagic.playerCurePoison();
