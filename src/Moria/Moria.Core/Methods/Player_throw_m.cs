@@ -49,7 +49,7 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static IUiInventory uiInventory;
 
-        public static void inventoryThrow(int item_id, out Inventory_t treasure)
+        private static void inventoryThrow(int item_id, out Inventory_t treasure)
         {
             var py = State.Instance.py;
 
@@ -72,7 +72,7 @@ namespace Moria.Core.Methods
         }
 
         // Obtain the hit and damage bonuses and the maximum distance for a thrown missile.
-        public static void weaponMissileFacts(Inventory_t item, ref int base_to_hit, ref int plus_to_hit, ref int damage, ref int distance)
+        private static void weaponMissileFacts(Inventory_t item, out int base_to_hit, out int plus_to_hit, out int damage, out int distance)
         {
             var py = State.Instance.py;
 
@@ -176,7 +176,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void inventoryDropOrThrowItem(Coord_t coord, Inventory_t item)
+        private static void inventoryDropOrThrowItem(Coord_t coord, Inventory_t item)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -241,8 +241,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
@@ -263,11 +262,9 @@ namespace Moria.Core.Methods
 
             inventoryThrow(item_id, out var thrown_item);
 
-            int tbth = 0, tpth = 0, tdam = 0, tdis = 0;
-            weaponMissileFacts(thrown_item, ref tbth, ref tpth, ref tdam, ref tdis);
+            weaponMissileFacts(thrown_item, out var tbth, out var tpth, out var tdam, out var tdis);
 
             var tile_char = (char)thrown_item.sprite;
-            bool visible;
             var current_distance = 0;
 
             var coord = py.pos.Clone();
@@ -319,6 +316,7 @@ namespace Moria.Core.Methods
                             itemDescription(ref description, thrown_item, false);
 
                             // Does the player know what they're fighting?
+                            bool visible;
                             if (!m_ptr.lit)
                             {
                                 msg = $"You hear a cry as the {description} finds a mark.";
