@@ -240,42 +240,7 @@ namespace Moria.Core.Methods
 
 
 
-        // Identify an object -RAK-
-        public static bool spellIdentifyItem()
-        {
-            var py = State.Instance.py;
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Item you wish identified?", 0, (int)PLAYER_INVENTORY_SIZE, /*CNIL*/null, /*CNIL*/null))
-            {
-                return false;
-            }
-
-            itemIdentify(py.inventory[item_id], ref item_id);
-
-            var item = py.inventory[item_id];
-            spellItemIdentifyAndRemoveRandomInscription(item);
-
-            var description = string.Empty;
-            //obj_desc_t description = { '\0' };
-            itemDescription(ref description, item, true);
-
-            var msg = string.Empty;
-            //obj_desc_t msg = { '\0' };
-            if (item_id >= (int)PlayerEquipment.Wield)
-            {
-                playerRecalculateBonuses();
-                msg = $"{uiInventory.playerItemWearingDescription(item_id)}: {description}";
-                //(void)sprintf(msg, "%s: %s", playerItemWearingDescription(item_id), description);
-            }
-            else
-            {
-                msg = $"{item_id + 97} {description}";
-                //(void)sprintf(msg, "%c %s", item_id + 97, description);
-            }
-            printMessage(msg);
-
-            return true;
-        }
+        
 
         // Return flags for given type area affect -RAK-
         public static void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type, out Func<Inventory_t, bool> destroy)

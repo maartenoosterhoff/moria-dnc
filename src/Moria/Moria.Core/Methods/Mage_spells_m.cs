@@ -235,7 +235,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.IdentifyItem:
-                    spellIdentifyItem();
+                    eventPublisher.Publish(new IdentifyItemCommand());
+                    //spellIdentifyItem();
                     break;
                 case MageSpellId.Sleep3:
                     eventPublisher.Publish(new SleepAllMonstersCommand());

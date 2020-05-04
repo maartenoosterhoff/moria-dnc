@@ -293,7 +293,8 @@ namespace Moria.Core.Methods
 
             printMessage("This is an identify scroll.");
 
-            is_used_up = spellIdentifyItem();
+            is_used_up = eventPublisher.PublishWithOutputBool(new IdentifyItemCommand());
+            //is_used_up = spellIdentifyItem();
 
             // The identify may merge objects, causing the identify scroll
             // to move to a different place.  Check for that here.  It can

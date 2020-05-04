@@ -2052,7 +2052,8 @@ namespace Moria.Core.Methods
                     break;
                 case CTRL_KEY_I:
                     // Identify an item
-                    spellIdentifyItem();
+                    eventPublisher.Publish(new IdentifyItemCommand());
+                    //spellIdentifyItem();
                     break;
                 case '*':
                     // Light up entire dungeon
