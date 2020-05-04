@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -8,7 +9,6 @@ using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -125,11 +125,13 @@ namespace Moria.Core.Methods
                         identified = playerMagic.playerCureConfusion();
                         break;
                     case FoodMagicTypes.Weakness:
-                        spellLoseSTR();
+                        eventPublisher.Publish(new LoseStrCommand());
+                        //spellLoseSTR();
                         identified = true;
                         break;
                     case FoodMagicTypes.Unhealth:
-                        spellLoseCON();
+                        eventPublisher.Publish(new LoseConCommand());
+                        //spellLoseCON();
                         identified = true;
                         break;
                     /*

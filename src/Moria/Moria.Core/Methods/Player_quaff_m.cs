@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -72,7 +71,8 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.Weakness:
-                        spellLoseSTR();
+                        eventPublisher.Publish(new LoseStrCommand());
+                        //spellLoseSTR();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreStrength:
@@ -90,7 +90,8 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.LoseIntelligence:
-                        spellLoseINT();
+                        eventPublisher.Publish(new LoseIntCommand());
+                        //spellLoseINT();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreIntelligence:
@@ -108,7 +109,8 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.LoseWisdom:
-                        spellLoseWIS();
+                        eventPublisher.Publish(new LoseWisCommand());
+                        //spellLoseWIS();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreWisdom:
@@ -126,7 +128,8 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.Ugliness:
-                        spellLoseCHR();
+                        eventPublisher.Publish(new LoseChrCommand());
+                        //spellLoseCHR();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreCharisma:
@@ -278,7 +281,8 @@ namespace Moria.Core.Methods
                             {
                                 exp += rnd.randomNumber((int)py.misc.exp) / 5;
                             }
-                            spellLoseEXP(exp);
+                            eventPublisher.Publish(new LoseExpCommand(exp));
+                            //spellLoseEXP(exp);
                             identified = true;
                         }
                         break;

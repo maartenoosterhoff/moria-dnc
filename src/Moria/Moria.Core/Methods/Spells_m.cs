@@ -4,8 +4,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using Moria.Core.Data;
-using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
@@ -34,9 +32,8 @@ namespace Moria.Core.Methods
             var spell_names = Library.Instance.Player.spell_names;
             spell_id = -1;
 
-            var str = string.Empty;
             //vtype_t str = { '\0' };
-            str = string.Format(
+            var str = string.Format(
                 "(Spells {0}-{1}, *=List, <ESCAPE>=exit) {2}",
                 (char)(spell_ids[0] + 'a' - first_spell),
                 (char)(spell_ids[number_of_choices - 1] + 'a' - first_spell),
@@ -49,9 +46,7 @@ namespace Moria.Core.Methods
 
             var offset = Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == (int)Config.spells.SPELL_TYPE_MAGE ? (int)Config.spells.NAME_OFFSET_SPELLS : (int)Config.spells.NAME_OFFSET_PRAYERS;
 
-            var choice = '\0';
-
-            while (!spell_found && getCommand(str, out choice))
+            while (!spell_found && getCommand(str, out var choice))
             {
                 if (char.IsUpper(choice))
                 //if (isupper((int)choice) != 0)
@@ -260,146 +255,6 @@ namespace Moria.Core.Methods
                     destroy = inventory.setNull;
                     printMessage("ERROR in spellGetAreaAffectFlags()\n");
                     break;
-            }
-        }
-
-        // Lose a strength point. -RAK-
-        public static void spellLoseSTR()
-        {
-            var py = State.Instance.py;
-
-            if (!py.flags.sustain_str)
-            {
-                playerStatRandomDecrease((int)PlayerAttr.STR);
-                printMessage("You feel very sick.");
-            }
-            else
-            {
-                printMessage("You feel sick for a moment,  it passes.");
-            }
-        }
-
-        // Lose an intelligence point. -RAK-
-        public static void spellLoseINT()
-        {
-            var py = State.Instance.py;
-
-            if (!py.flags.sustain_int)
-            {
-                playerStatRandomDecrease((int)PlayerAttr.INT);
-                printMessage("You become very dizzy.");
-            }
-            else
-            {
-                printMessage("You become dizzy for a moment,  it passes.");
-            }
-        }
-
-        // Lose a wisdom point. -RAK-
-        public static void spellLoseWIS()
-        {
-            var py = State.Instance.py;
-
-            if (!py.flags.sustain_wis)
-            {
-                playerStatRandomDecrease((int)PlayerAttr.WIS);
-                printMessage("You feel very naive.");
-            }
-            else
-            {
-                printMessage("You feel naive for a moment,  it passes.");
-            }
-        }
-
-        // Lose a dexterity point. -RAK-
-        public static void spellLoseDEX()
-        {
-            var py = State.Instance.py;
-
-            if (!py.flags.sustain_dex)
-            {
-                playerStatRandomDecrease((int)PlayerAttr.DEX);
-                printMessage("You feel very sore.");
-            }
-            else
-            {
-                printMessage("You feel sore for a moment,  it passes.");
-            }
-        }
-
-        // Lose a constitution point. -RAK-
-        public static void spellLoseCON()
-        {
-            var py = State.Instance.py;
-            if (!py.flags.sustain_con)
-            {
-                playerStatRandomDecrease((int)PlayerAttr.CON);
-                printMessage("You feel very sick.");
-            }
-            else
-            {
-                printMessage("You feel sick for a moment,  it passes.");
-            }
-        }
-
-        // Lose a charisma point. -RAK-
-        public static void spellLoseCHR()
-        {
-            var py = State.Instance.py;
-            if (!py.flags.sustain_chr)
-            {
-                playerStatRandomDecrease((int)PlayerAttr.CHR);
-                printMessage("Your skin starts to itch.");
-            }
-            else
-            {
-                printMessage("Your skin starts to itch, but feels better now.");
-            }
-        }
-
-        // Lose experience -RAK-
-        public static void spellLoseEXP(int adjustment)
-        {
-            var py = State.Instance.py;
-            if (adjustment > py.misc.exp)
-            {
-                py.misc.exp = 0;
-            }
-            else
-            {
-                py.misc.exp -= adjustment;
-            }
-            displayCharacterExperience();
-
-            var exp = 0;
-            while ((int)(py.base_exp_levels[exp] * py.misc.experience_factor / 100) <= py.misc.exp)
-            {
-                exp++;
-            }
-
-            // increment exp once more, because level 1 exp is stored in player_base_exp_levels[0]
-            exp++;
-
-            if (py.misc.level != exp)
-            {
-                py.misc.level = (uint)exp;
-
-                playerCalculateHitPoints();
-
-                var character_class = Library.Instance.Player.classes[(int)py.misc.class_id];
-
-                if (character_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
-                {
-                    playerCalculateAllowedSpellsCount((int)PlayerAttr.INT);
-                    playerGainMana((int)PlayerAttr.INT);
-                }
-                else if (character_class.class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
-                {
-                    playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
-                    playerGainMana((int)PlayerAttr.WIS);
-                }
-                printCharacterLevel();
-                printCharacterTitle();
             }
         }
     }
