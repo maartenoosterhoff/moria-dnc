@@ -27,7 +27,7 @@ namespace Moria.Core.Methods
             this.rnd = rnd;
         }
 
-        private IRnd rnd;
+        private readonly IRnd rnd;
 
         // Cure players confusion -RAK-
         public bool playerCureConfusion()

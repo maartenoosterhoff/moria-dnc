@@ -39,9 +39,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             var dg = State.Instance.dg;
             var py = State.Instance.py;
 
-            int harm_type;
-            uint weapon_type;
-            this.spells.spellGetAreaAffectFlags(spell_type, out weapon_type, out harm_type, out _);
+            this.spells.spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out _);
 
             var old_coord = new Coord_t(0, 0);
 

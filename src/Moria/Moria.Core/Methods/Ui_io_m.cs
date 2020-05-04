@@ -362,8 +362,7 @@ namespace Moria.Core.Methods
 
         public static Coord_t currentCursorPosition()
         {
-            int y, x;
-            getyx(out y, out x);
+            getyx(out var y, out var x);
             //getyx(stdscr, y, x);
             return new Coord_t(y, x);
         }
@@ -687,8 +686,7 @@ namespace Moria.Core.Methods
         {
             putStringClearToEOL(prompt, new Coord_t(0, 0));
 
-            int y, x;
-            getyx(out y, out x);
+            getyx(out var y, out var x);
             //getyx(stdscr, y, x);
 
             if (x > 73)

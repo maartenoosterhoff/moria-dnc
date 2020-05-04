@@ -210,8 +210,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int level;
-            if (!helpers.stringToNumber(input, out level))
+            if (!helpers.stringToNumber(input, out var level))
             {
                 return;
             }
@@ -222,8 +221,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int count;
-            if (!helpers.stringToNumber(input, out count))
+            if (!helpers.stringToNumber(input, out var count))
             {
                 return;
             }

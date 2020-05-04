@@ -261,8 +261,7 @@ namespace Moria.Core.Methods
                 dir = rnd.getRandomDirection();
             }
 
-            Inventory_t thrown_item;
-            inventoryThrow(item_id, out thrown_item);
+            inventoryThrow(item_id, out var thrown_item);
 
             int tbth = 0, tpth = 0, tdam = 0, tdis = 0;
             weaponMissileFacts(thrown_item, ref tbth, ref tpth, ref tdam, ref tdis);

@@ -54,7 +54,7 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        static bool playerCanPray(ref int item_pos_begin, ref int item_pos_end)
+        private static bool playerCanPray(ref int item_pos_begin, ref int item_pos_end)
         {
             var py = State.Instance.py;
             if (py.flags.blind > 0)
@@ -99,7 +99,7 @@ namespace Moria.Core.Methods
 
 
         // Recite a prayers.
-        static void playerRecitePrayer(int prayer_type)
+        private static void playerRecitePrayer(int prayer_type)
         {
             var py = State.Instance.py;
             var dir = 0;
@@ -299,8 +299,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Use which Holy Book?", item_pos_begin, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }

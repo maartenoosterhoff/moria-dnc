@@ -258,11 +258,10 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             int number;
-            string input;
             //vtype_t input = { '\0' };
 
             putStringClearToEOL("(3 - 118) Strength     = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 3))
+            if (getStringInput(out var input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -393,8 +392,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 7))
             {
-                int new_gold;
-                var valid_number = this.helpers.stringToNumber(input, out new_gold);
+                var valid_number = this.helpers.stringToNumber(input, out var new_gold);
                 if (valid_number && new_gold > -1)
                 {
                     py.misc.au = new_gold;
@@ -413,8 +411,7 @@ namespace Moria.Core.Methods
             putStringClearToEOL(input, new Coord_t(0, 0));
             if (getStringInput(out input, new Coord_t(0, number), 3))
             {
-                int new_gold;
-                var valid_number = this.helpers.stringToNumber(input, out new_gold);
+                var valid_number = this.helpers.stringToNumber(input, out var new_gold);
                 if (valid_number && number > -1 && number < 201)
                 {
                     py.misc.chance_in_search = (int)number;
@@ -533,8 +530,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            char inputChar;
-            while (getCommand("Alter speed? (+/-)", out inputChar))
+            while (getCommand("Alter speed? (+/-)", out var inputChar))
             {
                 if (inputChar == '+')
                 {
@@ -565,15 +561,13 @@ namespace Moria.Core.Methods
             //std::string msg = label + " ID (" + id_str.str() + "): ";
             putStringClearToEOL(msg, new Coord_t(0, 0));
 
-            string input;
             //vtype_t input = { 0 };
-            if (!getStringInput(out input, new Coord_t(0, (int)msg.Length), 3))
+            if (!getStringInput(out var input, new Coord_t(0, (int)msg.Length), 3))
             {
                 return false;
             }
 
-            int given_id;
-            if (!this.helpers.stringToNumber(input, out given_id))
+            if (!this.helpers.stringToNumber(input, out var given_id))
             {
                 return false;
             }
@@ -595,8 +589,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var game = State.Instance.game;
 
-            int id;
-            if (!this.wizardRequestObjectId(out id, "Dungeon/Store object", 0, 366))
+            if (!this.wizardRequestObjectId(out var id, "Dungeon/Store object", 0, 366))
             {
                 return;
             }
@@ -633,8 +626,6 @@ namespace Moria.Core.Methods
         // Wizard routine for creating objects -RAK-
         public void wizardCreateObjects()
         {
-            int number;
-            string input;
             //vtype_t input = { 0 };
 
             printMessage("Warning: This routine can cause a fatal error.");
@@ -648,11 +639,11 @@ namespace Moria.Core.Methods
             item.identification = Config.identification.ID_KNOWN2 | Config.identification.ID_STORE_BOUGHT;
 
             putStringClearToEOL("Tval   : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 3))
+            if (!getStringInput(out var input, new Coord_t(0, 9), 3))
             {
                 return;
             }
-            if (this.helpers.stringToNumber(input, out number))
+            if (this.helpers.stringToNumber(input, out var number))
             {
                 item.category_id = (uint)number;
             }

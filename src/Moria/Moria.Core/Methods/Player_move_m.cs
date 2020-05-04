@@ -44,7 +44,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
 
-        public static void trapOpenPit(Inventory_t item, int dam)
+        private static void trapOpenPit(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
             printMessage("You fell into a pit!");
@@ -61,7 +61,7 @@ namespace Moria.Core.Methods
             playerTakesHit(dam, description);
         }
 
-        public static void trapArrow(Inventory_t item, int dam)
+        private static void trapArrow(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
 
@@ -79,7 +79,7 @@ namespace Moria.Core.Methods
             printMessage("An arrow barely misses you.");
         }
 
-        public static void trapCoveredPit(Inventory_t item, int dam, Coord_t coord)
+        private static void trapCoveredPit(Inventory_t item, int dam, Coord_t coord)
         {
             var py = State.Instance.py;
 
@@ -100,7 +100,7 @@ namespace Moria.Core.Methods
             dungeonPlacer.dungeonSetTrap(coord, 0);
         }
 
-        public static void trapDoor(Inventory_t item, int dam)
+        private static void trapDoor(Inventory_t item, int dam)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -126,7 +126,7 @@ namespace Moria.Core.Methods
             printMessage(/*CNIL*/null);
         }
 
-        public static void trapSleepingGas()
+        private static void trapSleepingGas()
         {
             var py = State.Instance.py;
 
@@ -147,7 +147,7 @@ namespace Moria.Core.Methods
             printMessage("You fall asleep.");
         }
 
-        public static void trapHiddenObject(Coord_t coord)
+        private static void trapHiddenObject(Coord_t coord)
         {
             dungeon.dungeonDeleteObject(coord);
 
@@ -156,7 +156,7 @@ namespace Moria.Core.Methods
             printMessage("Hmmm, there was something under this rock.");
         }
 
-        public static void trapStrengthDart(Inventory_t item, int dam)
+        private static void trapStrengthDart(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
             if (playerTestBeingHit(125, 0, 0, py.misc.ac + py.misc.magical_ac, (int)CLASS_MISC_HIT))
@@ -183,7 +183,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void trapTeleport(Coord_t coord)
+        private static void trapTeleport(Coord_t coord)
         {
             var game = State.Instance.game;
 
@@ -195,7 +195,7 @@ namespace Moria.Core.Methods
             dungeon.dungeonMoveCharacterLight(coord, coord);
         }
 
-        public static void trapRockfall(Coord_t coord, int dam)
+        private static void trapRockfall(Coord_t coord, int dam)
         {
             playerTakesHit(dam, "a falling rock");
 
@@ -205,14 +205,14 @@ namespace Moria.Core.Methods
             printMessage("You are hit by falling rock.");
         }
 
-        public static void trapCorrodeGas()
+        private static void trapCorrodeGas()
         {
             printMessage("A strange red gas surrounds you.");
 
             inventory.damageCorrodingGas("corrosion gas");
         }
 
-        public static void trapSummonMonster(Coord_t coord)
+        private static void trapSummonMonster(Coord_t coord)
         {
             // Rune disappears.
             dungeon.dungeonDeleteObject(coord);
@@ -229,28 +229,28 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void trapFire(int dam)
+        private static void trapFire(int dam)
         {
             printMessage("You are enveloped in flames!");
 
             inventory.damageFire(dam, "a fire trap");
         }
 
-        static void trapAcid(int dam)
+        private static void trapAcid(int dam)
         {
             printMessage("You are splashed with acid!");
 
             inventory.damageAcid(dam, "an acid trap");
         }
 
-        static void trapPoisonGas(int dam)
+        private static void trapPoisonGas(int dam)
         {
             printMessage("A pungent green gas surrounds you!");
 
             inventory.damagePoisonedGas(dam, "a poison gas trap");
         }
 
-        static void trapBlindGas()
+        private static void trapBlindGas()
         {
             var py = State.Instance.py;
             printMessage("A black gas surrounds you!");
@@ -258,7 +258,7 @@ namespace Moria.Core.Methods
             py.flags.blind += rnd.randomNumber(50) + 50;
         }
 
-        static void trapConfuseGas()
+        private static void trapConfuseGas()
         {
             var py = State.Instance.py;
             printMessage("A gas of scintillating colors surrounds you!");
@@ -266,7 +266,7 @@ namespace Moria.Core.Methods
             py.flags.confused += rnd.randomNumber(15) + 15;
         }
 
-        static void trapSlowDart(Inventory_t item, int dam)
+        private static void trapSlowDart(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
 
@@ -294,7 +294,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static void trapConstitutionDart(Inventory_t item, int dam)
+        private static void trapConstitutionDart(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
 
@@ -325,7 +325,7 @@ namespace Moria.Core.Methods
 
 
         // Player hit a trap.  (Chuckle) -RAK-
-        static void playerStepsOnTrap(Coord_t coord)
+        private static void playerStepsOnTrap(Coord_t coord)
         {
             var game = State.Instance.game;
             var dg = State.Instance.dg;
@@ -424,7 +424,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static bool playerRandomMovement(int dir)
+        private static bool playerRandomMovement(int dir)
         {
             var py = State.Instance.py;
             // Never random if sitting
@@ -444,7 +444,7 @@ namespace Moria.Core.Methods
         // Player is on an object. Many things can happen based -RAK-
         // on the TVAL of the object. Traps are set off, money and most objects
         // are picked up. Some objects, such as open doors, just sit there.
-        static void carry(Coord_t coord, bool pickup)
+        private static void carry(Coord_t coord, bool pickup)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -465,7 +465,7 @@ namespace Moria.Core.Methods
             }
 
             var description = string.Empty;
-            var msg = string.Empty;
+            string msg;
             //obj_desc_t description = { '\0' };
             //obj_desc_t msg = { '\0' };
 
