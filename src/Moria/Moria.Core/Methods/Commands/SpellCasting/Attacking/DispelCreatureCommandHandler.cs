@@ -22,12 +22,18 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
         void ICommandHandler<DispelCreatureCommand>.Handle(DispelCreatureCommand command)
         {
-            throw new System.NotImplementedException();
+            this.spellDispelCreature(
+                command.CreatureDefense,
+                command.Damage
+            );
         }
 
         bool ICommandHandler<DispelCreatureCommand, bool>.Handle(DispelCreatureCommand command)
         {
-            throw new System.NotImplementedException();
+            return this.spellDispelCreature(
+                command.CreatureDefense,
+                command.Damage
+            );
         }
 
         // Attempts to destroy a type of creature.  Success depends on

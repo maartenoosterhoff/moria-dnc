@@ -20,7 +20,10 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
 
         public void Handle(TeleportAwayMonsterCommand command)
         {
-            throw new System.NotImplementedException();
+            this.spellTeleportAwayMonster(
+                command.MonsterId,
+                command.DistanceFromPlayer
+            );
         }
 
         // Move the creature record to a new location -RAK-

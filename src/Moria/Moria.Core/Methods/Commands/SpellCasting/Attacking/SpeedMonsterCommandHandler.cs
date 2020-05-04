@@ -33,7 +33,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
         bool ICommandHandler<SpeedMonsterCommand, bool>.Handle(SpeedMonsterCommand command)
         {
-            throw new System.NotImplementedException();
+            return this.spellSpeedMonster(
+                command.Coord,
+                command.Direction,
+                command.Speed
+            );
         }
 
         // Increase or decrease a creatures speed -RAK-
