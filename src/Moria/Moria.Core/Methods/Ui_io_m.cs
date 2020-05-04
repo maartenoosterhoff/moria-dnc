@@ -7,7 +7,6 @@ using Moria.Core.Structures;
 using Moria.Core.Utils;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Types_c;
-using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Game_death_m;
 
 namespace Moria.Core.Methods
@@ -15,11 +14,17 @@ namespace Moria.Core.Methods
     public static class Ui_io_m
     {
         public static void SetDependencies(
+            IGameSave gameSave,
+
             IEventPublisher eventPublisher
         )
         {
+            Ui_io_m.gameSave = gameSave;
+
             Ui_io_m.eventPublisher = eventPublisher;
         }
+
+        private static IGameSave gameSave;
 
         private static IEventPublisher eventPublisher;
 
@@ -568,7 +573,7 @@ namespace Moria.Core.Methods
 
                         State.Instance.game.character_died_from = "(end of input: panic saved)";
                         //(void)strcpy(game.character_died_from, "(end of input: panic saved)");
-                        if (!saveGame())
+                        if (!gameSave.saveGame())
                         {
                             State.Instance.game.character_died_from = "panic: unexpected eof";
                             //(void)strcpy(game.character_died_from, "panic: unexpected eof");

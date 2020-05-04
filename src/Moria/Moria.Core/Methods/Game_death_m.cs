@@ -6,7 +6,6 @@ using Moria.Core.Structures;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Scores_m;
@@ -19,6 +18,7 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IGame game,
+            IGameSave gameSave,
             IHelpers helpers,
             IUiInventory uiInventory,
 
@@ -26,12 +26,14 @@ namespace Moria.Core.Methods
         )
         {
             Game_death_m.game = game;
+            Game_death_m.gameSave = gameSave;
             Game_death_m.helpers = helpers;
             Game_death_m.uiInventory = uiInventory;
             Game_death_m.eventPublisher = eventPublisher;
         }
 
         private static IGame game;
+        private static IGameSave gameSave;
         private static IHelpers helpers;
         private static IUiInventory uiInventory;
 
@@ -201,7 +203,7 @@ namespace Moria.Core.Methods
             // Save the memory at least.
             if (game.character_generated && !game.character_saved)
             {
-                saveGame();
+                gameSave.saveGame();
             }
 
             // add score to score file if applicable

@@ -5,9 +5,16 @@ using Newtonsoft.Json;
 
 namespace Moria.Core.Methods
 {
-    public static class Game_save_m
+    public interface IGameSave
     {
-        public static bool loadGame(ref bool generate)
+        bool loadGame(ref bool generate);
+
+        bool saveGame();
+    }
+
+    public class Game_save_m : IGameSave
+    {
+        public bool loadGame(ref bool generate)
         {
             var saveGameContents = File.ReadAllText(Config.files.save_game);
             var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
@@ -15,7 +22,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool saveGame()
+        public bool saveGame()
         {
             var instance = State.Instance;
             var saveGameContents = JsonConvert.SerializeObject(instance, Formatting.Indented);

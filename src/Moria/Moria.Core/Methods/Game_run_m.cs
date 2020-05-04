@@ -19,7 +19,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
@@ -51,6 +50,7 @@ namespace Moria.Core.Methods
             IDungeonLos dungeonLos,
             IDungeonGenerator dungeonGenerator,
             IGame game,
+            IGameSave gameSave,
             IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
@@ -68,6 +68,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeonLos = dungeonLos;
             Game_run_m.dungeonGenerator = dungeonGenerator;
             Game_run_m.game = game;
+            Game_run_m.gameSave = gameSave;
             Game_run_m.helpers = helpers;
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
@@ -86,6 +87,7 @@ namespace Moria.Core.Methods
         private static IDungeonLos dungeonLos;
         private static IDungeonGenerator dungeonGenerator;
         private static IGame game;
+        private static IGameSave gameSave;
         private static IHelpers helpers;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
@@ -138,7 +140,7 @@ namespace Moria.Core.Methods
 
             if (!start_new_game &&
                 //(access(Config.files.save_game, 0) == 0) && 
-                loadGame(ref generate))
+                gameSave.loadGame(ref generate))
             {
                 result = true;
             }
@@ -234,7 +236,7 @@ namespace Moria.Core.Methods
                 {
                     game.character_died_from = "(end of input: saved)";
                     //(void)strcpy(game.character_died_from, "(end of input: saved)");
-                    if (!saveGame())
+                    if (!gameSave.saveGame())
                     {
                         game.character_died_from = "unexpected eof";
                         //(void)strcpy(game.character_died_from, "unexpected eof");
@@ -1924,7 +1926,7 @@ namespace Moria.Core.Methods
                 //(void)strcpy(game.character_died_from, "(saved)");
                 printMessage("Saving game...");
 
-                if (saveGame())
+                if (gameSave.saveGame())
                 {
                     endGame();
                 }

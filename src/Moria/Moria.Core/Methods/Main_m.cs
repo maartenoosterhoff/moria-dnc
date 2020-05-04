@@ -157,6 +157,7 @@ Options:
             container.RegisterSingleton<IDungeonLos, Dungeon_los_m>();
             container.RegisterSingleton<IDungeonPlacer, Dungeon_placer_m>();
             container.RegisterSingleton<IGame, Game_m>();
+            container.RegisterSingleton<IGameSave, Game_save_m>();
             container.RegisterSingleton<IGameObjects, Game_objects_m>();
             container.RegisterSingleton<IGameObjectsPush, Game_objects_push_m>();
             container.RegisterSingleton<IHelpers, Helpers_m>();
@@ -186,6 +187,7 @@ Options:
                 container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonGenerator>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IGameSave>(),
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
@@ -200,6 +202,7 @@ Options:
 
             Game_death_m.SetDependencies(
                 container.GetInstance<IGame>(),
+                container.GetInstance<IGameSave>(),
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IUiInventory>(),
                 container.GetInstance<IEventPublisher>()
@@ -400,6 +403,8 @@ Options:
             );
 
             Ui_io_m.SetDependencies(
+                container.GetInstance<IGameSave>(),
+
                 container.GetInstance<IEventPublisher>()
             );
 
