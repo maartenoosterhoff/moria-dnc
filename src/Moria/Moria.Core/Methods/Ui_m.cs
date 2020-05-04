@@ -42,8 +42,6 @@ namespace Moria.Core.Methods
 
         private static string blank_string = "                        ";
 
-        public static char CTRL_KEY(char x) => (char) (x & 0x1F);
-
         // Calculates current boundaries -RAK-
         private static void panelBounds()
         {

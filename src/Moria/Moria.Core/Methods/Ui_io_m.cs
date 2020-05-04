@@ -7,7 +7,6 @@ using Moria.Core.Structures;
 using Moria.Core.Utils;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Types_c;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Game_death_m;
 
@@ -24,9 +23,11 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        private static IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
+        private static readonly IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
 
-        public static bool isprint(char c)
+        private static char CTRL_KEY(char x) => (char)(x & 0x1F);
+
+        private static bool isprint(char c)
         {
             const string keys = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
             const string specialKeys = @"!""#$%&'()*+,-./:;<=>?@[\]^_`{|}~";
@@ -35,21 +36,22 @@ namespace Moria.Core.Methods
 
         public static void mvcur(int y, int x) => move(y, x);
 
-        public static void initscr()
+        private static void initscr()
         {
             console.clear();
             console.move(0,0);
         }
-        public static void refresh()
+
+        private static void refresh()
         {
             // Do... nothing?
         }
 
         public static int getConsoleWidth() => console.WindowWidth;
 
-        public static bool getch(out char c) => getch(out c, TimeSpan.MaxValue/*.FromMilliseconds(10)*/);
+        private static bool getch(out char c) => getch(out c, TimeSpan.MaxValue/*.FromMilliseconds(10)*/);
 
-        public static bool getch(out char c, TimeSpan timeout)
+        private static bool getch(out char c, TimeSpan timeout)
         {
             var duration = TimeSpan.Zero;
             while (!Console.KeyAvailable && duration <= timeout)
@@ -75,41 +77,41 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static void move(int y, int x)
+        private static void move(int y, int x)
         {
             console.move(y, x);
         }
 
-        public static void mvaddch(int y, int x, char c)
+        private static void mvaddch(int y, int x, char c)
         {
             console.move(y, x);
             console.addch(c);
         }
 
-        public static void mvaddstr(int y, int x, string s)
+        private static void mvaddstr(int y, int x, string s)
         {
             console.move(y, x);
             console.addstr(s);
         }
 
-        public static void addch(char c)
+        private static void addch(char c)
         {
             console.addch(c);
         }
 
-        public static void addstr(string s)
+        private static void addstr(string s)
         {
             console.addstr(s);
         }
 
-        public static void getyx(out int y, out int x)
+        private static void getyx(out int y, out int x)
         {
             console.getyx(out y, out x);
         }
 
-        public static void clear() => console.clear();
+        private static void clear() => console.clear();
 
-        public static void clrtoeol(int y, int x)
+        private static void clrtoeol(int y, int x)
         {
             move(y, x);
             var length = 79 - x;
@@ -117,7 +119,7 @@ namespace Moria.Core.Methods
             move(y, x);
         }
 
-        public static void moriaTerminalInitialize()
+        private static void moriaTerminalInitialize()
         {
             Console.TreatControlCAsInput = true;
 
@@ -249,7 +251,7 @@ namespace Moria.Core.Methods
             clear();
         }
 
-        public static void clearLine(int row)
+        private static void clearLine(int row)
         {
             move(row, 0);
             addstr(new string(' ', console.WindowWidth));
@@ -369,7 +371,7 @@ namespace Moria.Core.Methods
             //}
         }
 
-        public static Coord_t currentCursorPosition()
+        private static Coord_t currentCursorPosition()
         {
             getyx(out var y, out var x);
             //getyx(stdscr, y, x);
@@ -378,7 +380,7 @@ namespace Moria.Core.Methods
 
         // messageLinePrintMessage will print a line of text to the message line (0,0).
         // first clearing the line of any text!
-        public static void messageLinePrintMessage(string message)
+        private static void messageLinePrintMessage(string message)
         {
             // save current cursor position
             var coord = currentCursorPosition();
