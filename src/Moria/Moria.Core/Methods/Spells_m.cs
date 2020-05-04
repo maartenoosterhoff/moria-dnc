@@ -345,51 +345,7 @@ namespace Moria.Core.Methods
 
         
 
-        // Surround the fool with traps (chuckle) -RAK-
-        public static bool spellSurroundPlayerWithTraps()
-        {
-            var py = State.Instance.py;
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
-
-            var coord = new Coord_t(0, 0);
-
-            for (coord.y = py.pos.y - 1; coord.y <= py.pos.y + 1; coord.y++)
-            {
-                for (coord.x = py.pos.x - 1; coord.x <= py.pos.x + 1; coord.x++)
-                {
-                    // Don't put a trap under the player, since this can lead to
-                    // strange situations, e.g. falling through a trap door while
-                    // trying to rest, setting off a falling rock trap and ending
-                    // up under the rock.
-                    if (coord.y == py.pos.y && coord.x == py.pos.x)
-                    {
-                        continue;
-                    }
-
-                    var tile = dg.floor[coord.y][coord.x];
-
-                    if (tile.feature_id <= MAX_CAVE_FLOOR)
-                    {
-                        if (tile.treasure_id != 0)
-                        {
-                            dungeon.dungeonDeleteObject(coord);
-                        }
-
-                        dungeonPlacer.dungeonSetTrap(coord, rnd.randomNumber(Config.dungeon_objects.MAX_TRAPS) - 1);
-
-                        // don't let player gain exp from the newly created traps
-                        game.treasure.list[tile.treasure_id].misc_use = 0;
-
-                        // open pits are immediately visible, so call dungeonLiteSpot
-                        dungeon.dungeonLiteSpot(coord);
-                    }
-                }
-            }
-
-            // traps are always placed, so just return true
-            return true;
-        }
+        
 
         // Surround the player with doors. -RAK-
         public static bool spellSurroundPlayerWithDoors()

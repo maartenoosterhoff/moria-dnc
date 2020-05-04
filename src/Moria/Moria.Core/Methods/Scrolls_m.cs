@@ -753,7 +753,8 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 22:
-                        identified = spellSurroundPlayerWithTraps();
+                        identified = eventPublisher.PublishWithOutputBool(new SurroundPlayerWithTrapsCommand());
+                        //identified = spellSurroundPlayerWithTraps();
                         break;
                     case 23:
                         identified = eventPublisher.PublishWithOutputBool(new DestroyAdjacentDoorsTrapsCommand());
