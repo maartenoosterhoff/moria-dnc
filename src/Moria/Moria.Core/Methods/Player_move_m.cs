@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -24,7 +25,9 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IInventory inventory,
             IMonsterManager monsterManager,
-            IRnd rnd
+            IRnd rnd,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_move_m.dice = dice;
@@ -34,6 +37,8 @@ namespace Moria.Core.Methods
             Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
+
+            Player_move_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -43,6 +48,8 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
+
+        private static IEventPublisher eventPublisher;
 
         private static void trapOpenPit(Inventory_t item, int dam)
         {
@@ -330,7 +337,8 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
-            playerEndRunning();
+            eventPublisher.Publish(new EndRunningCommand());
+            //playerEndRunning();
             dungeon.trapChangeVisibility(coord);
 
             var item = game.treasure.list[dg.floor[coord.y][coord.x].treasure_id];
@@ -469,7 +477,8 @@ namespace Moria.Core.Methods
             //obj_desc_t description = { '\0' };
             //obj_desc_t msg = { '\0' };
 
-            playerEndRunning();
+            eventPublisher.Publish(new EndRunningCommand());
+            //playerEndRunning();
 
             // There's GOLD in them thar hills!
             if (tile_flags == TV_GOLD)
@@ -543,7 +552,8 @@ namespace Moria.Core.Methods
             if (playerRandomMovement(direction))
             {
                 direction = rnd.randomNumber(9);
-                playerEndRunning();
+                eventPublisher.Publish(new EndRunningCommand());
+                //playerEndRunning();
             }
 
             var coord = py.pos.Clone();
@@ -670,7 +680,8 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                     }
                     game.player_free_turn = true;
                 }
@@ -681,7 +692,8 @@ namespace Moria.Core.Methods
 
                 var old_find_flag = (int)py.running_tracker;
 
-                playerEndRunning();
+                eventPublisher.Publish(new EndRunningCommand());
+                //playerEndRunning();
 
                 // if player can see monster, and was in find mode, then nothing
                 if (monster.lit && old_find_flag != 0)

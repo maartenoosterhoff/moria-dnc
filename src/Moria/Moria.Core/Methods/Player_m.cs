@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -29,7 +30,9 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
-            IRnd rnd
+            IRnd rnd,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_m.dice = dice;
@@ -39,6 +42,8 @@ namespace Moria.Core.Methods
             Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
+
+            Player_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -48,6 +53,8 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+
+        private static IEventPublisher eventPublisher;
 
         static void playerResetFlags()
         {
@@ -809,7 +816,8 @@ namespace Moria.Core.Methods
                         printMessage(msg);
 
                         dungeon.trapChangeVisibility(spot);
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                     }
                     else if (item.category_id == TV_SECRET_DOOR)
                     {
@@ -818,7 +826,8 @@ namespace Moria.Core.Methods
                         printMessage("You have found a secret door.");
 
                         dungeon.trapChangeVisibility(spot);
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                     }
                     else if (item.category_id == TV_CHEST)
                     {

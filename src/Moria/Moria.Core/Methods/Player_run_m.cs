@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
@@ -12,15 +13,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDungeon dungeon,
-            IHelpers helpers
+            IHelpers helpers,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_run_m.dungeon = dungeon;
             Player_run_m.helpers = helpers;
+
+            Player_run_m.eventPublisher = eventPublisher;
         }
 
         private static IDungeon dungeon;
         private static IHelpers helpers;
+
+        private static IEventPublisher eventPublisher;
 
         // Overview: You keep moving until something interesting happens. If you are in
         // an enclosed space, you follow corners. This is the usual corridor scheme. If
@@ -278,26 +285,15 @@ namespace Moria.Core.Methods
             if (tracker > 100)
             {
                 printMessage("You stop running to catch your breath.");
-                playerEndRunning();
+                eventPublisher.Publish(new EndRunningCommand());
+                //playerEndRunning();
                 return;
             }
 
             playerMove(find_direction, true);
         }
 
-        // Switch off the run flag - and get the light correct. -CJS-
-        public static void playerEndRunning()
-        {
-            var py = State.Instance.py;
-            if (py.running_tracker == 0)
-            {
-                return;
-            }
 
-            py.running_tracker = 0;
-
-            dungeon.dungeonMoveCharacterLight(py.pos, py.pos);
-        }
 
         static bool areaAffectStopLookingAtSquares(int i, int dir, int new_dir, Coord_t coord, ref int check_dir, ref int dir_a, ref int dir_b)
         {
@@ -318,7 +314,8 @@ namespace Moria.Core.Methods
 
                     if (tile_id != TV_INVIS_TRAP && tile_id != TV_SECRET_DOOR && (tile_id != TV_OPEN_DOOR || !Config.options.run_ignore_doors))
                     {
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                         return true;
                     }
                 }
@@ -328,7 +325,8 @@ namespace Moria.Core.Methods
                 // for the special case of being in find mode
                 if (tile.creature_id > 1 && State.Instance.monsters[tile.creature_id].lit)
                 {
-                    playerEndRunning();
+                    eventPublisher.Publish(new EndRunningCommand());
+                    //playerEndRunning();
                     return true;
                 }
 
@@ -344,7 +342,8 @@ namespace Moria.Core.Methods
                     {
                         if (find_breakright)
                         {
-                            playerEndRunning();
+                            eventPublisher.Publish(new EndRunningCommand());
+                            //playerEndRunning();
                             return true;
                         }
                     }
@@ -352,7 +351,8 @@ namespace Moria.Core.Methods
                     {
                         if (find_breakleft)
                         {
-                            playerEndRunning();
+                            eventPublisher.Publish(new EndRunningCommand());
+                            //playerEndRunning();
                             return true;
                         }
                     }
@@ -365,13 +365,15 @@ namespace Moria.Core.Methods
                 else if (dir_b != 0)
                 {
                     // Three new directions. STOP.
-                    playerEndRunning();
+                    eventPublisher.Publish(new EndRunningCommand());
+                    //playerEndRunning();
                     return true;
                 }
                 else if (dir_a != cycle[chome[dir] + i - 1])
                 {
                     // If not adjacent to prev, STOP
-                    playerEndRunning();
+                    eventPublisher.Publish(new EndRunningCommand());
+                    //playerEndRunning();
                     return true;
                 }
                 else
@@ -398,7 +400,8 @@ namespace Moria.Core.Methods
                 {
                     if (find_breakleft)
                     {
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                         return true;
                     }
                     find_breakright = true;
@@ -407,7 +410,8 @@ namespace Moria.Core.Methods
                 {
                     if (find_breakright)
                     {
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                         return true;
                     }
                     find_breakleft = true;
@@ -499,7 +503,8 @@ namespace Moria.Core.Methods
                 else
                 {
                     // STOP: we are next to an intersection or a room
-                    playerEndRunning();
+                    eventPublisher.Publish(new EndRunningCommand());
+                    //playerEndRunning();
                 }
             }
             else if (Config.options.run_cut_corners)

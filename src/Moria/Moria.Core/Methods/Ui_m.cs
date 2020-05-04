@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -19,27 +20,33 @@ namespace Moria.Core.Methods
     public static class Ui_m
     {
         public static void SetDependencies(
-            IDungeon dungeon
+            IDungeon dungeon,
+
+            IEventPublisher eventPublisher
         )
         {
             Ui_m.dungeon = dungeon;
+
+            Ui_m.eventPublisher = eventPublisher;
         }
 
         private static IDungeon dungeon;
 
-        public static string[] stat_names = new string[] {
+        private static IEventPublisher eventPublisher;
+
+        private static string[] stat_names = new[] {
             "STR : ", "INT : ", "WIS : ", "DEX : ", "CON : ", "CHR : "
         };
 
-        public static readonly int BLANK_LENGTH = 24;
+        private static readonly int BLANK_LENGTH = 24;
         //#define BLANK_LENGTH 24
 
-        public static string blank_string = "                        ";
+        private static string blank_string = "                        ";
 
         public static char CTRL_KEY(char x) => (char) (x & 0x1F);
 
         // Calculates current boundaries -RAK-
-        public static void panelBounds()
+        private static void panelBounds()
         {
             var dg = State.Instance.dg;
             dg.panel.top = dg.panel.row * ((int)SCREEN_HEIGHT / 2);
@@ -94,7 +101,8 @@ namespace Moria.Core.Methods
                 // stop movement if any
                 if (Config.options.find_bound)
                 {
-                    playerEndRunning();
+                    eventPublisher.Publish(new EndRunningCommand());
+                    //playerEndRunning();
                 }
 
                 // Yes, the coordinates are beyond the current panel boundary

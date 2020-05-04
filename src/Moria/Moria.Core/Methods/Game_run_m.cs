@@ -6,6 +6,7 @@ using Moria.Core.Structures.Enumerations;
 using Moria.Core.Utils;
 using System;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.Spells;
@@ -932,7 +933,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            playerEndRunning();
+            eventPublisher.Publish(new EndRunningCommand());
+            //playerEndRunning();
 
             py.flags.image--;
 
@@ -1391,7 +1393,8 @@ namespace Moria.Core.Methods
 
                     if (find_count == 0)
                     {
-                        playerEndRunning();
+                        eventPublisher.Publish(new EndRunningCommand());
+                        //playerEndRunning();
                     }
 
                     putQIO();

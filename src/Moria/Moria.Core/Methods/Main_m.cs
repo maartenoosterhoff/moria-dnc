@@ -174,7 +174,7 @@ Options:
             container.RegisterSingleton<ITreasure, Treasure_m>();
             container.RegisterSingleton<IUiInventory, Ui_inventory_m>();
             container.RegisterSingleton<IWizard, Wizard_m>();
-            
+
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.Collection.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
 
@@ -257,7 +257,8 @@ Options:
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
-                container.GetInstance<IRnd>()
+                container.GetInstance<IRnd>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_bash_m.SetDependencies(
@@ -287,7 +288,8 @@ Options:
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IMonsterManager>(),
-                container.GetInstance<IRnd>()
+                container.GetInstance<IRnd>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_pray_m.SetDependencies(
@@ -316,7 +318,8 @@ Options:
 
             Player_run_m.SetDependencies(
                 container.GetInstance<IDungeon>(),
-                container.GetInstance<IHelpers>()
+                container.GetInstance<IHelpers>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_stats_m.SetDependencies(
@@ -393,13 +396,14 @@ Options:
             );
 
             Ui_m.SetDependencies(
-                container.GetInstance<IDungeon>()
+                container.GetInstance<IDungeon>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             return container;
         }
 
-        private class SimpleInjectorEventPublisher: IEventPublisher
+        private class SimpleInjectorEventPublisher : IEventPublisher
         {
             private readonly Container container;
 
@@ -421,7 +425,7 @@ Options:
             public bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand
             {
                 var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
-                var handler = (ICommandHandler<TCommand, bool>) this.container.GetInstance(handlerType);
+                var handler = (ICommandHandler<TCommand, bool>)this.container.GetInstance(handlerType);
                 return handler.Handle(command);
             }
         }
