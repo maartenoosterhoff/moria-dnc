@@ -2083,7 +2083,8 @@ namespace Moria.Core.Methods
                     else if (rnd.randomNumber(2) == 1)
                     {
                         terminal.printMessage("You feel weaker.");
-                        playerStatRandomDecrease((int)PlayerAttr.STR);
+                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+                        //playerStatRandomDecrease((int)PlayerAttr.STR);
                     }
                     else
                     {
@@ -2241,7 +2242,8 @@ namespace Moria.Core.Methods
                     else
                     {
                         terminal.printMessage("You feel more clumsy.");
-                        playerStatRandomDecrease((int)PlayerAttr.DEX);
+                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.DEX));
+                        //playerStatRandomDecrease((int)PlayerAttr.DEX);
                     }
                     break;
                 case 16: // Lose constitution
@@ -2253,7 +2255,8 @@ namespace Moria.Core.Methods
                     else
                     {
                         terminal.printMessage("Your health is damaged!");
-                        playerStatRandomDecrease((int)PlayerAttr.CON);
+                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.CON));
+                        //playerStatRandomDecrease((int)PlayerAttr.CON);
                     }
                     break;
                 case 17: // Lose intelligence
@@ -2265,7 +2268,8 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        playerStatRandomDecrease((int)PlayerAttr.INT);
+                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+                        //playerStatRandomDecrease((int)PlayerAttr.INT);
                     }
                     break;
                 case 18: // Lose wisdom
@@ -2277,7 +2281,8 @@ namespace Moria.Core.Methods
                     else
                     {
                         terminal.printMessage("Your wisdom is drained.");
-                        playerStatRandomDecrease((int)PlayerAttr.WIS);
+                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.WIS));
+                        //playerStatRandomDecrease((int)PlayerAttr.WIS);
                     }
                     break;
                 case 19: // Lose experience

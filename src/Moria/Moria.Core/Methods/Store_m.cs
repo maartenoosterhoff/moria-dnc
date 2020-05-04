@@ -53,7 +53,7 @@ namespace Moria.Core.Methods
         // Initializes the stores with owners -RAK-
         public static void storeInitializeOwners()
         {
-            var count = (int)(MAX_OWNERS / MAX_STORES);
+            const int count = (int)(MAX_OWNERS / MAX_STORES);
 
             for (var store_id = 0; store_id < MAX_STORES; store_id++)
             {
@@ -84,7 +84,7 @@ namespace Moria.Core.Methods
         // %A1 is offer, %A2 is asking.
         private static void printSpeechSellingHaggle(int offer, int asking, int final)
         {
-            var comment = string.Empty;
+            string comment;
             //vtype_t comment = { '\0' };
 
             if (final > 0)
@@ -106,7 +106,6 @@ namespace Moria.Core.Methods
         private static void printSpeechBuyingHaggle(int offer, int asking, int final)
         {
             string comment;
-            comment = string.Empty;
             //vtype_t comment = { '\0' };
 
             if (final > 0)
@@ -299,8 +298,7 @@ namespace Moria.Core.Methods
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
-            var key_char = '\0';
-            while (terminal.getCommand(msg, out key_char))
+            while (terminal.getCommand(msg, out var key_char))
             {
                 key_char -= 'a';
                 if (key_char >= item_pos_start && key_char <= item_pos_end)
@@ -1035,7 +1033,7 @@ namespace Moria.Core.Methods
 
             // Get the item number to be bought
 
-            item_id = item_id + current_top_item_id; // true item_id
+            item_id += current_top_item_id; // true item_id
 
             var sell_item = new Inventory_t();
             inventoryManager.inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
@@ -1231,7 +1229,7 @@ namespace Moria.Core.Methods
         }
 
         // Each store will buy only certain items, based on TVAL
-        private static Func<uint, bool>[] store_buy = {
+        private static readonly Func<uint, bool>[] store_buy = {
             setGeneralStoreItems,
             setArmoryItems,
             setWeaponsmithItems,

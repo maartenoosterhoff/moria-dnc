@@ -1,4 +1,5 @@
-﻿using Moria.Core.States;
+﻿using Moria.Core.Methods.Commands.Player;
+using Moria.Core.States;
 using Moria.Core.Structures.Enumerations;
 
 namespace Moria.Core.Methods.Commands.SpellCasting
@@ -6,12 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     public class LoseConCommandHandler : ICommandHandler<LoseConCommand>
     {
         private readonly ITerminal terminal;
+        private readonly IEventPublisher eventPublisher;
 
         public LoseConCommandHandler(
-            ITerminal terminal
+            ITerminal terminal,
+            IEventPublisher eventPublisher
         )
         {
             this.terminal = terminal;
+            this.eventPublisher = eventPublisher;
         }
 
         public void Handle(LoseConCommand command)
@@ -25,7 +29,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             var py = State.Instance.py;
             if (!py.flags.sustain_con)
             {
-                Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.CON);
+                this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.CON));
+                //Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.CON);
                 this.terminal.printMessage("You feel very sick.");
             }
             else

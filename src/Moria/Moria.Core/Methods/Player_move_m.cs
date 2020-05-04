@@ -170,7 +170,8 @@ namespace Moria.Core.Methods
             {
                 if (!py.flags.sustain_str)
                 {
-                    playerStatRandomDecrease((int)PlayerAttr.STR);
+                    eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+                    //playerStatRandomDecrease((int)PlayerAttr.STR);
 
                     //obj_desc_t description = { '\0' };
                     identification.itemDescription(out var description, item, true);
@@ -307,7 +308,8 @@ namespace Moria.Core.Methods
             {
                 if (!py.flags.sustain_con)
                 {
-                    playerStatRandomDecrease((int)PlayerAttr.CON);
+                    eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.CON));
+                    //playerStatRandomDecrease((int)PlayerAttr.CON);
 
                     //obj_desc_t description = { '\0' };
                     identification.itemDescription(out var description, item, true);

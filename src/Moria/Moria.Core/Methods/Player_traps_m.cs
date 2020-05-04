@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -21,7 +22,9 @@ namespace Moria.Core.Methods
             IIdentification identification,
             IMonsterManager monsterManager,
             IRnd rnd,
-            ITerminal terminal
+            ITerminal terminal,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_traps_m.dice = dice;
@@ -32,6 +35,7 @@ namespace Moria.Core.Methods
             Player_traps_m.monsterManager = monsterManager;
             Player_traps_m.rnd = rnd;
             Player_traps_m.terminal = terminal;
+            Player_traps_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -42,6 +46,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static IEventPublisher eventPublisher;
 
         private static int playerTrapDisarmAbility()
         {
@@ -229,7 +234,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            playerStatRandomDecrease((int)PlayerAttr.STR);
+            eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+            //playerStatRandomDecrease((int)PlayerAttr.STR);
 
             playerTakesHit(dice.diceRoll(new Dice_t(1, 4)), "a poison needle");
 

@@ -423,41 +423,6 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        // Decreases a stat by one randomized level -RAK-
-        public static bool playerStatRandomDecrease(int stat)
-        {
-            var py = State.Instance.py;
-
-            var new_stat = (int)py.stats.current[stat];
-
-            if (new_stat <= 3)
-            {
-                return false;
-            }
-
-            if (new_stat >= 19 && new_stat < 117)
-            {
-                var loss = (((118 - new_stat) >> 1) + 1) >> 1;
-                new_stat += -rnd.randomNumber(loss) - loss;
-
-                if (new_stat < 18)
-                {
-                    new_stat = 18;
-                }
-            }
-            else
-            {
-                new_stat--;
-            }
-
-            py.stats.current[stat] = (uint)new_stat;
-
-            playerSetAndUseStat(stat);
-            displayCharacterStats(stat);
-
-            return true;
-        }
-
         // Restore a stat.  Return true only if this actually makes a difference.
         public static bool playerStatRestore(int stat)
         {

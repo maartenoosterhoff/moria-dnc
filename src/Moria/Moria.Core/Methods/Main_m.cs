@@ -359,8 +359,9 @@ Options:
                 container.GetInstance<IIdentification>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<ITerminal>()
-            );
+                container.GetInstance<ITerminal>(),
+                container.GetInstance<IEventPublisher>()
+                    );
 
             Player_tunnel_m.SetDependencies(
                 container.GetInstance<IDice>(),

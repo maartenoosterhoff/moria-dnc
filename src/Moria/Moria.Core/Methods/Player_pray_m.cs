@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
@@ -352,7 +353,8 @@ namespace Moria.Core.Methods
                     if (rnd.randomNumber(3) == 1)
                     {
                         terminal.printMessage("You have damaged your health!");
-                        playerStatRandomDecrease((int)PlayerAttr.CON);
+                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.CON));
+                        //playerStatRandomDecrease((int)PlayerAttr.CON);
                     }
                 }
                 else

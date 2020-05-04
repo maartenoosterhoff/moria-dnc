@@ -1,4 +1,5 @@
-﻿using Moria.Core.States;
+﻿using Moria.Core.Methods.Commands.Player;
+using Moria.Core.States;
 using Moria.Core.Structures.Enumerations;
 
 namespace Moria.Core.Methods.Commands.SpellCasting
@@ -6,12 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     public class LoseDexCommandHandler : ICommandHandler<LoseDexCommand>
     {
         private readonly ITerminal terminal;
+        private readonly IEventPublisher eventPublisher;
 
         public LoseDexCommandHandler(
-            ITerminal terminal
+            ITerminal terminal,
+            IEventPublisher eventPublisher
         )
         {
             this.terminal = terminal;
+            this.eventPublisher = eventPublisher;
         }
 
         public void Handle(LoseDexCommand command)
@@ -27,7 +31,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 
             if (!py.flags.sustain_dex)
             {
-                Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.DEX);
+                this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.DEX));
+                //Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.DEX);
                 this.terminal.printMessage("You feel very sore.");
             }
             else

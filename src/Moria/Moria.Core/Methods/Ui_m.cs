@@ -226,15 +226,14 @@ namespace Moria.Core.Methods
         public static void displayCharacterStats(int stat)
         {
             var py = State.Instance.py;
-            var text = string.Empty;
-            statsAsString(py.stats.used[stat], out text);
+            statsAsString(py.stats.used[stat], out var text);
             terminal.putString(stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
             terminal.putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
         }
 
         // Print character info in given row, column -RAK-
         // The longest title is 13 characters, so only pad to 13
-        public static void printCharacterInfoInField(string info, Coord_t coord)
+        private static void printCharacterInfoInField(string info, Coord_t coord)
         {
             // blank out the current field space
             terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 13), coord);
@@ -244,7 +243,7 @@ namespace Moria.Core.Methods
         }
 
         // Print long number with header at given row, column
-        public static void printHeaderLongNumber(string header, int num, Coord_t coord)
+        private static void printHeaderLongNumber(string header, int num, Coord_t coord)
         {
             var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
@@ -253,7 +252,7 @@ namespace Moria.Core.Methods
         }
 
         // Print long number (7 digits of space) with header at given row, column
-        public static void printHeaderLongNumber7Spaces(string header, int num, Coord_t coord)
+        private static void printHeaderLongNumber7Spaces(string header, int num, Coord_t coord)
         {
             var str = $"{header}: {num,7:d}";
             //vtype_t str = { '\0' };
@@ -262,7 +261,7 @@ namespace Moria.Core.Methods
         }
 
         // Print number with header at given row, column -RAK-
-        public static void printHeaderNumber(string header, int num, Coord_t coord)
+        private static void printHeaderNumber(string header, int num, Coord_t coord)
         {
             var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
@@ -271,7 +270,7 @@ namespace Moria.Core.Methods
         }
 
         // Print long number at given row, column
-        public static void printLongNumber(int num, Coord_t coord)
+        private static void printLongNumber(int num, Coord_t coord)
         {
             var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
@@ -280,7 +279,7 @@ namespace Moria.Core.Methods
         }
 
         // Print number at given row, column -RAK-
-        public static void printNumber(int num, Coord_t coord)
+        private static void printNumber(int num, Coord_t coord)
         {
             var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
@@ -711,7 +710,7 @@ namespace Moria.Core.Methods
         }
 
         // Returns a rating of x depending on y -JWT-
-        public static string statRating(int y, int x)
+        private static string statRating(int y, int x)
         {
             switch (x / y)
             {
@@ -903,7 +902,7 @@ namespace Moria.Core.Methods
         }
 
         // Increases hit points and level -RAK-
-        public static void playerGainLevel()
+        private static void playerGainLevel()
         {
             var py = State.Instance.py;
             py.misc.level++;
