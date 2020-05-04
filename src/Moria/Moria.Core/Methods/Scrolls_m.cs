@@ -186,7 +186,10 @@ namespace Moria.Core.Methods
             printMessage(msg);
 
             var toHit = item.to_hit;
-            var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
+            var command = new EnchantItemCommand(toHit, 10);
+            var spellEnchantItemResult = eventPublisher.PublishWithOutputBool(command);
+            toHit = command.Plusses;
+            //var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
             item.to_hit = toHit;
             if (spellEnchantItemResult)
             {
@@ -235,7 +238,10 @@ namespace Moria.Core.Methods
             }
 
             var toDamage = item.to_damage;
-            var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
+            var command = new EnchantItemCommand(toDamage, scroll_type);
+            var spellEnchantItemResult = eventPublisher.PublishWithOutputBool(command);
+            toDamage = command.Plusses;
+            //var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
             item.to_damage = toDamage;
             if (spellEnchantItemResult)
             {
@@ -272,7 +278,10 @@ namespace Moria.Core.Methods
             printMessage(msg);
 
             var toAc = item.to_ac;
-            var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
+            var command = new EnchantItemCommand(toAc, 10);
+            var spellEnchantItemResult = eventPublisher.PublishWithOutputBool(command);
+            toAc = command.Plusses;
+            //var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
             item.to_ac = toAc;
             if (spellEnchantItemResult)
             {
@@ -386,7 +395,10 @@ namespace Moria.Core.Methods
             for (var i = 0; i < rnd.randomNumber(2); i++)
             {
                 var toHit = item.to_hit;
-                var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
+                var command = new EnchantItemCommand(toHit, 10);
+                var spellEnchantItemResult = eventPublisher.PublishWithOutputBool(command);
+                toHit = command.Plusses;
+                //var spellEnchantItemResult = spellEnchantItem(ref toHit, 10);
                 item.to_hit = toHit;
                 if (spellEnchantItemResult)
                 {
@@ -410,7 +422,10 @@ namespace Moria.Core.Methods
             for (var i = 0; i < rnd.randomNumber(2); i++)
             {
                 var toDamage = item.to_damage;
-                var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
+                var command = new EnchantItemCommand(toDamage, scroll_type);
+                var spellEnchantItemResult = eventPublisher.PublishWithOutputBool(command);
+                toDamage = command.Plusses;
+                //var spellEnchantItemResult = spellEnchantItem(ref toDamage, scroll_type);
                 item.to_damage = toDamage;
                 if (spellEnchantItemResult)
                 {
@@ -495,7 +510,10 @@ namespace Moria.Core.Methods
             for (var i = 0; i < rnd.randomNumber(2) + 1; i++)
             {
                 var toAc = item.to_ac;
-                var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
+                var command = new EnchantItemCommand(toAc, 10);
+                var spellEnchantItemResult = eventPublisher.PublishWithOutputBool(command);
+                toAc = command.Plusses;
+                //var spellEnchantItemResult = spellEnchantItem(ref toAc, 10);
                 item.to_ac = toAc;
                 if (spellEnchantItemResult)
                 {

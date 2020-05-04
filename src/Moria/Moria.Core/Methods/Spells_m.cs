@@ -406,38 +406,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        // Enchants a plus onto an item. -RAK-
-        // `limit` param is the maximum bonus allowed; usually 10,
-        // but weapon's maximum damage when enchanting melee weapons to damage.
-        public static bool spellEnchantItem(ref int plusses, int max_bonus_limit)
-        {
-            // avoid rnd.randomNumber(0) call
-            if (max_bonus_limit <= 0)
-            {
-                return false;
-            }
-
-            var chance = 0;
-
-            if (plusses > 0)
-            {
-                chance = plusses;
-
-                // very rarely allow enchantment over limit
-                if (rnd.randomNumber(100) == 1)
-                {
-                    chance = rnd.randomNumber(chance) - 1;
-                }
-            }
-
-            if (rnd.randomNumber(max_bonus_limit) > chance)
-            {
-                plusses += 1;
-                return true;
-            }
-
-            return false;
-        }
+        
 
         // Removes curses from items in inventory -RAK-
         public static bool spellRemoveCurseFromAllItems()
