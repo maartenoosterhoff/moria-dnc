@@ -11,7 +11,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -28,6 +27,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ISpells spells,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -39,6 +39,7 @@ namespace Moria.Core.Methods
             Mage_spells_m.inventoryManager = inventoryManager;
             Mage_spells_m.playerMagic = playerMagic;
             Mage_spells_m.rnd = rnd;
+            Mage_spells_m.spells = spells;
             Mage_spells_m.uiInventory = uiInventory;
 
             Mage_spells_m.eventPublisher = eventPublisher;
@@ -50,6 +51,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ISpells spells;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -346,7 +348,7 @@ namespace Moria.Core.Methods
             }
 
             int choice = 0, chance = 0;
-            var result = castSpellGetId("Cast which spell?", item_val, ref choice, ref chance);
+            var result = spells.castSpellGetId("Cast which spell?", item_val, ref choice, ref chance);
             if (result < 0)
             {
                 printMessage("You don't know any spells in that book.");

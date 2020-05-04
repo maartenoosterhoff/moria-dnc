@@ -10,7 +10,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Ui_m;
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ISpells spells,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -37,6 +37,7 @@ namespace Moria.Core.Methods
             Player_pray_m.inventoryManager = inventoryManager;
             Player_pray_m.playerMagic = playerMagic;
             Player_pray_m.rnd = rnd;
+            Player_pray_m.spells = spells;
             Player_pray_m.uiInventory = uiInventory;
 
             Player_pray_m.eventPublisher = eventPublisher;
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ISpells spells;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -304,7 +306,7 @@ namespace Moria.Core.Methods
             }
 
             int choice = 0, chance = 0;
-            var result = castSpellGetId("Recite which prayer?", item_id, ref choice, ref chance);
+            var result = spells.castSpellGetId("Recite which prayer?", item_id, ref choice, ref chance);
             if (result < 0)
             {
                 printMessage("You don't know any prayers in that book.");

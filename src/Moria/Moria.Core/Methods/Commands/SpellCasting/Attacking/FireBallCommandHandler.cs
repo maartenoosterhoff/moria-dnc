@@ -11,16 +11,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeon dungeon;
         private readonly IDungeonLos dungeonLos;
         private readonly IHelpers helpers;
+        private readonly ISpells spells;
 
         public FireBallCommandHandler(
             IDungeon dungeon,
             IDungeonLos dungeonLos,
-            IHelpers helpers
+            IHelpers helpers,
+            ISpells spells
         )
         {
             this.dungeon = dungeon;
             this.dungeonLos = dungeonLos;
             this.helpers = helpers;
+            this.spells = spells;
         }
 
         public void Handle(FireBallCommand command)
@@ -45,7 +48,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             var total_kills = 0;
             var max_distance = 2;
 
-            Spells_m.spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out var destroy);
+            this.spells.spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out var destroy);
 
             var old_coord = new Coord_t(0, 0);
             var spot = new Coord_t(0, 0);

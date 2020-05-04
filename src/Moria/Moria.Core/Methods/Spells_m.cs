@@ -10,22 +10,30 @@ using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Spells_m
+    public interface ISpells
     {
-        public static void SetDependencies(
+        int castSpellGetId(string prompt, int item_id, ref int spell_id, ref int spell_chance);
+
+        void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type,
+            out Func<Inventory_t, bool> destroy);
+    }
+
+    public class Spells_m : ISpells
+    {
+        private readonly IHelpers helpers;
+        private readonly IInventory inventory;
+
+        public Spells_m(
             IHelpers helpers,
             IInventory inventory
         )
         {
-            Spells_m.helpers = helpers;
-            Spells_m.inventory = inventory;
+            this.helpers = helpers;
+            this.inventory = inventory;
         }
 
-        private static IHelpers helpers;
-        private static IInventory inventory;
-
         // Returns spell pointer -RAK-
-        private static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
+        private bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
         {
             var py = State.Instance.py;
             var magic_spells = Library.Instance.Player.magic_spells;
@@ -158,12 +166,12 @@ namespace Moria.Core.Methods
         // returns  1 if choose a spell in book to cast
         // returns  0 if don't choose a spell, i.e. exit with an escape
         // TODO: split into two functions; getting spell ID and casting an actual spell
-        public static int castSpellGetId(string prompt, int item_id, ref int spell_id, ref int spell_chance)
+        public int castSpellGetId(string prompt, int item_id, ref int spell_id, ref int spell_chance)
         {
             var py = State.Instance.py;
             // NOTE: `flags` gets set again, since getAndClearFirstBit modified it
             var flags = py.inventory[item_id].flags;
-            var first_spell = helpers.getAndClearFirstBit(ref flags);
+            var first_spell = this.helpers.getAndClearFirstBit(ref flags);
             flags = py.inventory[item_id].flags & py.flags.spells_learnt;
 
             // TODO(cook) move access to `magic_spells[]` directly to the for loop it's used in, below?
@@ -174,7 +182,7 @@ namespace Moria.Core.Methods
 
             while (flags != 0u)
             {
-                var pos = helpers.getAndClearFirstBit(ref flags);
+                var pos = this.helpers.getAndClearFirstBit(ref flags);
 
                 if (spells[pos].level_required <= py.misc.level)
                 {
@@ -189,7 +197,7 @@ namespace Moria.Core.Methods
             }
 
             var result = 0;
-            if (spellGetId(spell_list, spell_count, ref spell_id, ref spell_chance, prompt, first_spell))
+            if (this.spellGetId(spell_list, spell_count, ref spell_id, ref spell_chance, prompt, first_spell))
             {
                 result = 1;
             }
@@ -210,49 +218,49 @@ namespace Moria.Core.Methods
         }
 
         // Return flags for given type area affect -RAK-
-        public static void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type, out Func<Inventory_t, bool> destroy)
+        public void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type, out Func<Inventory_t, bool> destroy)
         {
             switch ((MagicSpellFlags)spell_type)
             {
                 case MagicSpellFlags.MagicMissile:
                     weapon_type = 0;
                     harm_type = 0;
-                    destroy = inventory.setNull;
+                    destroy = this.inventory.setNull;
                     break;
                 case MagicSpellFlags.Lightning:
                     weapon_type = Config.monsters_spells.CS_BR_LIGHT;
                     harm_type = (int)Config.monsters_defense.CD_LIGHT;
-                    destroy = inventory.setLightningDestroyableItems;
+                    destroy = this.inventory.setLightningDestroyableItems;
                     break;
                 case MagicSpellFlags.PoisonGas:
                     weapon_type = Config.monsters_spells.CS_BR_GAS;
                     harm_type = (int)Config.monsters_defense.CD_POISON;
-                    destroy = inventory.setNull;
+                    destroy = this.inventory.setNull;
                     break;
                 case MagicSpellFlags.Acid:
                     weapon_type = Config.monsters_spells.CS_BR_ACID;
                     harm_type = (int)Config.monsters_defense.CD_ACID;
-                    destroy = inventory.setAcidDestroyableItems;
+                    destroy = this.inventory.setAcidDestroyableItems;
                     break;
                 case MagicSpellFlags.Frost:
                     weapon_type = Config.monsters_spells.CS_BR_FROST;
                     harm_type = (int)Config.monsters_defense.CD_FROST;
-                    destroy = inventory.setFrostDestroyableItems;
+                    destroy = this.inventory.setFrostDestroyableItems;
                     break;
                 case MagicSpellFlags.Fire:
                     weapon_type = Config.monsters_spells.CS_BR_FIRE;
                     harm_type = (int)Config.monsters_defense.CD_FIRE;
-                    destroy = inventory.setFireDestroyableItems;
+                    destroy = this.inventory.setFireDestroyableItems;
                     break;
                 case MagicSpellFlags.HolyOrb:
                     weapon_type = 0;
                     harm_type = (int)Config.monsters_defense.CD_EVIL;
-                    destroy = inventory.setNull;
+                    destroy = this.inventory.setNull;
                     break;
                 default:
                     weapon_type = 0;
                     harm_type = 0;
-                    destroy = inventory.setNull;
+                    destroy = this.inventory.setNull;
                     printMessage("ERROR in spellGetAreaAffectFlags()\n");
                     break;
             }

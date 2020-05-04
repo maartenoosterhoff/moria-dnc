@@ -12,16 +12,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeon dungeon;
         private readonly IDungeonLos dungeonLos;
         private readonly IInventory inventory;
+        private readonly ISpells spells;
 
         public BreathCommandHandler(
             IDungeon dungeon,
             IDungeonLos dungeonLos,
-            IInventory inventory
+            IInventory inventory,
+            ISpells spells
         )
         {
             this.dungeon = dungeon;
             this.dungeonLos = dungeonLos;
             this.inventory = inventory;
+            this.spells = spells;
         }
 
         public void Handle(BreathCommand command)
@@ -45,7 +48,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
             var max_distance = 2;
 
-            Spells_m.spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out var destroy);
+            this.spells.spellGetAreaAffectFlags(spell_type, out var weapon_type, out var harm_type, out var destroy);
 
             var location = new Coord_t(0, 0);
 

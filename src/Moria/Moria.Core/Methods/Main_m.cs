@@ -169,6 +169,7 @@ Options:
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
             container.RegisterSingleton<IStd, Std_m>();
+            container.RegisterSingleton<ISpells, Spells_m>();
             container.RegisterSingleton<IStoreInventory, Store_inventory_m>();
             container.RegisterSingleton<ITreasure, Treasure_m>();
             container.RegisterSingleton<IUiInventory, Ui_inventory_m>();
@@ -229,6 +230,7 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
+                container.GetInstance<ISpells>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -295,6 +297,7 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
+                container.GetInstance<ISpells>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -364,11 +367,6 @@ Options:
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
-            );
-
-            Spells_m.SetDependencies(
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IInventory>()
             );
 
             Staffs_m.SetDependencies(

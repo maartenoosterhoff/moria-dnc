@@ -2272,7 +2272,10 @@ namespace Moria.Core.Methods
                     break;
                 case 19: // Lose experience
                     printMessage("You feel your life draining away!");
-                    spellLoseEXP(damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT);
+                    eventPublisher.Publish(new LoseExpCommand(
+                        damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT
+                    ));
+                    //spellLoseEXP(damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT);
                     break;
                 case 20: // Aggravate monster
                     eventPublisher.Publish(new AggravateMonstersCommand(20));

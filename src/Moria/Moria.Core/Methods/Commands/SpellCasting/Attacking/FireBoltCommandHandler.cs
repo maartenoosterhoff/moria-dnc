@@ -10,14 +10,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     {
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly ISpells spells;
 
         public FireBoltCommandHandler(
             IDungeon dungeon,
-            IHelpers helpers
+            IHelpers helpers,
+            ISpells spells
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.spells = spells;
         }
         public void Handle(FireBoltCommand command)
         {
@@ -38,7 +41,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
             int harm_type;
             uint weapon_type;
-            Spells_m.spellGetAreaAffectFlags(spell_type, out weapon_type, out harm_type, out _);
+            this.spells.spellGetAreaAffectFlags(spell_type, out weapon_type, out harm_type, out _);
 
             var old_coord = new Coord_t(0, 0);
 
