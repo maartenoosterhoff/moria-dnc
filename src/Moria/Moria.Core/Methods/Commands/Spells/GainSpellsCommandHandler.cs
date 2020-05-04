@@ -11,14 +11,17 @@ namespace Moria.Core.Methods.Commands.Spells
     {
         private readonly IHelpers helpers;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         public GainSpellsCommandHandler(
             IHelpers helpers,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.helpers = helpers;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         public void Handle(GainSpellsCommand command)
@@ -34,7 +37,7 @@ namespace Moria.Core.Methods.Commands.Spells
             // fail when can't see if player has Config.spells.SPELL_TYPE_MAGE spells. This check is done below.
             if (py.flags.confused > 0)
             {
-                Ui_io_m.printMessage("You are too confused.");
+                this.terminal.printMessage("You are too confused.");
                 return;
             }
 
@@ -66,7 +69,7 @@ namespace Moria.Core.Methods.Commands.Spells
                 var tmp_str = $"You can't learn any new {(stat == (int)PlayerAttr.INT ? "spell" : "prayer")}s!";
                 //vtype_t tmp_str = { '\0' };
                 //(void)sprintf(tmp_str, "You can't learn any new %ss!", (stat == PlayerAttr.INT ? "spell" : "prayer"));
-                Ui_io_m.printMessage(tmp_str);
+                this.terminal.printMessage(tmp_str);
 
                 State.Instance.game.player_free_turn = true;
                 return;
@@ -110,7 +113,7 @@ namespace Moria.Core.Methods.Commands.Spells
 
             if (new_spells > spell_id)
             {
-                Ui_io_m.printMessage("You seem to be missing a book.");
+                this.terminal.printMessage("You seem to be missing a book.");
 
                 diff_spells = new_spells - spell_id;
                 new_spells = spell_id;
@@ -123,10 +126,10 @@ namespace Moria.Core.Methods.Commands.Spells
             else if (stat == (int)PlayerAttr.INT)
             {
                 // get to choose which mage spells will be learned
-                Ui_io_m.terminalSaveScreen();
+                this.terminal.terminalSaveScreen();
                 Ui_m.displaySpellsList(spell_bank, spell_id, false, -1);
 
-                while (new_spells != 0 && Ui_io_m.getCommand("Learn which spell?", out var query))
+                while (new_spells != 0 && this.terminal.getCommand("Learn which spell?", out var query))
                 {
                     var c = query - 'a';
 
@@ -147,16 +150,16 @@ namespace Moria.Core.Methods.Commands.Spells
 
                         spell_id--;
 
-                        Ui_io_m.eraseLine(new Coord_t(c + 1, 31));
+                        this.terminal.eraseLine(new Coord_t(c + 1, 31));
                         Ui_m.displaySpellsList(spell_bank, spell_id, false, -1);
                     }
                     else
                     {
-                        Ui_io_m.terminalBellSound();
+                        this.terminal.terminalBellSound();
                     }
                 }
 
-                Ui_io_m.terminalRestoreScreen();
+                this.terminal.terminalRestoreScreen();
             }
             else
             {
@@ -171,7 +174,7 @@ namespace Moria.Core.Methods.Commands.Spells
                     var tmp_str = $"You have learned the prayer of {Library.Instance.Player.spell_names[spell_bank[id] + offset]}.";
                     //vtype_t tmp_str = { '\0' };
                     //(void)sprintf(tmp_str, "You have learned the prayer of %s.", Library.Instance.Player.spell_names[spell_bank[id] + offset]);
-                    Ui_io_m.printMessage(tmp_str);
+                    this.terminal.printMessage(tmp_str);
 
                     for (; id <= spell_id - 1; id++)
                     {
@@ -202,13 +205,13 @@ namespace Moria.Core.Methods.Commands.Spells
             var py = State.Instance.py;
             if (py.flags.blind > 0)
             {
-                Ui_io_m.printMessage("You can't see to read your spell book!");
+                this.terminal.printMessage("You can't see to read your spell book!");
                 return false;
             }
 
             if (this.helpers.playerNoLight())
             {
-                Ui_io_m.printMessage("You have no light to read by.");
+                this.terminal.printMessage("You have no light to read by.");
                 return false;
             }
 

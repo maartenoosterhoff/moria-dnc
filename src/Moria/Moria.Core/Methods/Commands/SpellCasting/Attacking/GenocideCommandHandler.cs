@@ -7,10 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     public class GenocideCommandHandler : ICommandHandler<GenocideCommand>
     {
         private readonly IDungeon dungeon;
+        private readonly ITerminal terminal;
 
-        public GenocideCommandHandler(IDungeon dungeon)
+        public GenocideCommandHandler(
+            IDungeon dungeon,
+            ITerminal terminal
+        )
         {
             this.dungeon = dungeon;
+            this.terminal = terminal;
         }
 
         public void Handle(GenocideCommand command)
@@ -23,7 +28,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         // NOTE : Winning creatures can not be killed by genocide.
         private bool spellGenocide()
         {
-            if (!Ui_io_m.getCommand("Which type of creature do you wish exterminated?", out var creature_char))
+            if (!this.terminal.getCommand("Which type of creature do you wish exterminated?", out var creature_char))
             {
                 return false;
             }
@@ -47,7 +52,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                         // genocide is a powerful spell, so we will let the player
                         // know the names of the creatures they did not destroy,
                         // this message makes no sense otherwise
-                        Ui_io_m.printMessage("The " + creature.name + " is unaffected.");
+                        this.terminal.printMessage("The " + creature.name + " is unaffected.");
                     }
                 }
             }

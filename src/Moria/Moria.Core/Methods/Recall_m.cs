@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -18,6 +17,15 @@ namespace Moria.Core.Methods
 
     public class Recall_m : IRecall
     {
+        private readonly ITerminal terminal;
+
+        public Recall_m(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         private T plural<T>(int count, T ss, T sp)
         {
             return count == 1 ? ss : sp;
@@ -40,7 +48,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var width = getConsoleWidth();
+            var width = this.terminal.getConsoleWidth();
 
             while (p.Length > 0)
             {
@@ -57,7 +65,7 @@ namespace Moria.Core.Methods
                 }
 
                 var chunk = p.Substring(0, pos);
-                putStringClearToEOL(chunk, new Coord_t(State.Instance.roff_print_line, 0));
+                this.terminal.putStringClearToEOL(chunk, new Coord_t(State.Instance.roff_print_line, 0));
                 State.Instance.roff_print_line++;
                 if (pos == p.Length)
                 {
@@ -966,14 +974,14 @@ namespace Moria.Core.Methods
             }
 
             this.memoryPrint("\n");
-            putStringClearToEOL("--pause--", new Coord_t(State.Instance.roff_print_line, 0));
+            this.terminal.putStringClearToEOL("--pause--", new Coord_t(State.Instance.roff_print_line, 0));
 
             if (game.wizard_mode)
             {
                 memory = saved_memory;
             }
 
-            return getKeyInput();
+            return this.terminal.getKeyInput();
         }
 
         // Allow access to monster memory. -CJS-
@@ -988,22 +996,22 @@ namespace Moria.Core.Methods
                 {
                     if (n == 0)
                     {
-                        putString("You recall those details? [y/n]", new Coord_t(0, 40));
-                        query = getKeyInput();
+                        this.terminal.putString("You recall those details? [y/n]", new Coord_t(0, 40));
+                        query = this.terminal.getKeyInput();
 
                         if (query != 'y' && query != 'Y')
                         {
                             break;
                         }
 
-                        eraseLine(new Coord_t(0, 40));
-                        terminalSaveScreen();
+                        this.terminal.eraseLine(new Coord_t(0, 40));
+                        this.terminal.terminalSaveScreen();
                     }
 
                     n++;
 
                     query = (char) this.memoryRecall(i);
-                    terminalRestoreScreen();
+                    this.terminal.terminalRestoreScreen();
                     if (query == ESCAPE)
                     {
                         break;

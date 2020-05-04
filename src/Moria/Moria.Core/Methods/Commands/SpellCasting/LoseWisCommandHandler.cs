@@ -5,6 +5,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 {
     public class LoseWisCommandHandler : ICommandHandler<LoseWisCommand>
     {
+        private readonly ITerminal terminal;
+
+        public LoseWisCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         public void Handle(LoseWisCommand command)
         {
             this.spellLoseWIS();
@@ -18,11 +27,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             if (!py.flags.sustain_wis)
             {
                 Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.WIS);
-                Ui_io_m.printMessage("You feel very naive.");
+                this.terminal.printMessage("You feel very naive.");
             }
             else
             {
-                Ui_io_m.printMessage("You feel naive for a moment,  it passes.");
+                this.terminal.printMessage("You feel naive for a moment,  it passes.");
             }
         }
     }

@@ -8,12 +8,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<IdentifyItemCommand>,
         ICommandHandler<IdentifyItemCommand, bool>
     {
+        private readonly ITerminal terminal;
         private readonly IUiInventory uiInventory;
 
         public IdentifyItemCommandHandler(
+            ITerminal terminal,
             IUiInventory uiInventory
         )
         {
+            this.terminal = terminal;
             this.uiInventory = uiInventory;
         }
 
@@ -58,7 +61,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 msg = $"{item_id + 97} {description}";
                 //(void)sprintf(msg, "%c %s", item_id + 97, description);
             }
-            Ui_io_m.printMessage(msg);
+            this.terminal.printMessage(msg);
 
             return true;
         }

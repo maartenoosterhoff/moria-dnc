@@ -41,11 +41,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 var monster = State.Instance.monsters[id];
                 var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0 && dungeonLos.los(py.pos, monster.pos))
+                if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0 && this.dungeonLos.los(py.pos, monster.pos))
                 {
                     var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
 
-                    if (py.misc.level + 1 > creature.level || rnd.randomNumber(5) == 1)
+                    if (py.misc.level + 1 > creature.level || this.rnd.randomNumber(5) == 1)
                     {
                         if (monster.lit)
                         {

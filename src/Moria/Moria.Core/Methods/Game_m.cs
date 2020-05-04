@@ -1,6 +1,5 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.States;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -14,6 +13,13 @@ namespace Moria.Core.Methods
     
     public class Game_m : IGame
     {
+        private readonly ITerminal terminal;
+
+        public Game_m(ITerminal terminal)
+        {
+            this.terminal = terminal;
+        }
+
         // map roguelike direction commands into numbers
         private char mapRoguelikeKeysToKeypad(char command)
         {
@@ -66,7 +72,7 @@ namespace Moria.Core.Methods
                 // Don't end a counted command. -CJS-
                 var save = game.command_count;
 
-                if (!getCommand(prompt, out var command))
+                if (!this.terminal.getCommand(prompt, out var command))
                 {
                     game.player_free_turn = true;
                     return false;
@@ -86,7 +92,7 @@ namespace Moria.Core.Methods
                     return true;
                 }
 
-                terminalBellSound();
+                this.terminal.terminalBellSound();
             }
         }
 
@@ -99,7 +105,7 @@ namespace Moria.Core.Methods
 
             while (true)
             {
-                if (!getCommand(prompt, out command))
+                if (!this.terminal.getCommand(prompt, out command))
                 {
                     game.player_free_turn = true;
                     return false;
@@ -116,15 +122,15 @@ namespace Moria.Core.Methods
                     return true;
                 }
 
-                terminalBellSound();
+                this.terminal.terminalBellSound();
             }
         }
 
         // Restore the terminal and exit
         public void exitProgram()
         {
-            flushInputBuffer();
-            terminalRestore();
+            this.terminal.flushInputBuffer();
+            this.terminal.terminalRestore();
 
             throw new MoriaExitRequestedException();
         }

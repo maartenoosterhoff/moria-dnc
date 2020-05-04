@@ -11,12 +11,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
         ICommandHandler<DestroyAdjacentDoorsTrapsCommand, bool>
     {
         private readonly IDungeon dungeon;
+        private readonly ITerminal terminal;
 
         public DestroyAdjacentDoorsTrapsCommandHandler(
-            IDungeon dungeon
+            IDungeon dungeon,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
+            this.terminal = terminal;
         }
 
         void ICommandHandler<DestroyAdjacentDoorsTrapsCommand>.Handle(DestroyAdjacentDoorsTrapsCommand command)
@@ -68,7 +71,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
 
                         destroyed = true;
 
-                        Ui_io_m.printMessage("You have disarmed the chest.");
+                        if (this.terminal != null) this.terminal.printMessage("You have disarmed the chest.");
                         Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
                     }
                 }

@@ -5,6 +5,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 {
     public class LoseChrCommandHandler : ICommandHandler<LoseChrCommand>
     {
+        private readonly ITerminal terminal;
+
+        public LoseChrCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         public void Handle(LoseChrCommand command)
         {
             this.spellLoseCHR();
@@ -18,11 +27,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             if (!py.flags.sustain_chr)
             {
                 Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.CHR);
-                Ui_io_m.printMessage("Your skin starts to itch.");
+                this.terminal.printMessage("Your skin starts to itch.");
             }
             else
             {
-                Ui_io_m.printMessage("Your skin starts to itch, but feels better now.");
+                this.terminal.printMessage("Your skin starts to itch, but feels better now.");
             }
         }
     }

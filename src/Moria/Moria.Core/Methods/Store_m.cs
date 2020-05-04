@@ -10,7 +10,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IStd std,
             IStoreInventory storeInventory,
             IRnd rnd,
+            ITerminal terminal,
             IUiInventory uiInventory
         )
         {
@@ -35,6 +35,7 @@ namespace Moria.Core.Methods
             Store_m.std = std;
             Store_m.storeInventory = storeInventory;
             Store_m.rnd = rnd;
+            Store_m.terminal = terminal;
             Store_m.uiInventory = uiInventory;
         }
 
@@ -44,6 +45,7 @@ namespace Moria.Core.Methods
         private static IStd std;
         private static IStoreInventory storeInventory;
         private static IRnd rnd;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         // Initializes the stores with owners -RAK-
@@ -74,7 +76,7 @@ namespace Moria.Core.Methods
         // Comment one : Finished haggling
         private static void printSpeechFinishedHaggling()
         {
-            printMessage(Library.Instance.StoreOwners.speech_sale_accepted[(int)rnd.randomNumber(14) - 1]);
+            terminal.printMessage(Library.Instance.StoreOwners.speech_sale_accepted[(int)rnd.randomNumber(14) - 1]);
         }
 
         // %A1 is offer, %A2 is asking.
@@ -96,7 +98,7 @@ namespace Moria.Core.Methods
 
             helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
             helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
-            printMessage(comment);
+            terminal.printMessage(comment);
         }
 
         private static void printSpeechBuyingHaggle(int offer, int asking, int final)
@@ -118,34 +120,34 @@ namespace Moria.Core.Methods
 
             helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
             helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
-            printMessage(comment);
+            terminal.printMessage(comment);
         }
 
         // Kick 'da bum out. -RAK-
         private static void printSpeechGetOutOfMyStore()
         {
             var comment = rnd.randomNumber(5) - 1;
-            printMessage(Library.Instance.StoreOwners.speech_insulted_haggling_done[comment]);
-            printMessage(Library.Instance.StoreOwners.speech_get_out_of_my_store[comment]);
+            terminal.printMessage(Library.Instance.StoreOwners.speech_insulted_haggling_done[comment]);
+            terminal.printMessage(Library.Instance.StoreOwners.speech_get_out_of_my_store[comment]);
         }
 
         private static void printSpeechTryAgain()
         {
-            printMessage(Library.Instance.StoreOwners.speech_haggling_try_again[rnd.randomNumber(10) - 1]);
+            terminal.printMessage(Library.Instance.StoreOwners.speech_haggling_try_again[rnd.randomNumber(10) - 1]);
         }
 
         private static void printSpeechSorry()
         {
-            printMessage(Library.Instance.StoreOwners.speech_sorry[rnd.randomNumber(5) - 1]);
+            terminal.printMessage(Library.Instance.StoreOwners.speech_sorry[rnd.randomNumber(5) - 1]);
         }
 
         // Displays the set of commands -RAK-
         static void displayStoreCommands()
         {
-            putStringClearToEOL("You may:", new Coord_t(20, 0));
-            putStringClearToEOL(" p) Purchase an item.           b) Browse store's inventory.", new Coord_t(21, 0));
-            putStringClearToEOL(" s) Sell an item.               i/e/t/w/x) Inventory/Equipment Lists.", new Coord_t(22, 0));
-            putStringClearToEOL("ESC) Exit from Building.        ^R) Redraw the screen.", new Coord_t(23, 0));
+            terminal.putStringClearToEOL("You may:", new Coord_t(20, 0));
+            terminal.putStringClearToEOL(" p) Purchase an item.           b) Browse store's inventory.", new Coord_t(21, 0));
+            terminal.putStringClearToEOL(" s) Sell an item.               i/e/t/w/x) Inventory/Equipment Lists.", new Coord_t(22, 0));
+            terminal.putStringClearToEOL("ESC) Exit from Building.        ^R) Redraw the screen.", new Coord_t(23, 0));
         }
 
         // Displays the set of commands -RAK-
@@ -153,15 +155,15 @@ namespace Moria.Core.Methods
         {
             if (haggle_type == -1)
             {
-                putStringClearToEOL("Specify an asking-price in gold pieces.", new Coord_t(21, 0));
+                terminal.putStringClearToEOL("Specify an asking-price in gold pieces.", new Coord_t(21, 0));
             }
             else
             {
-                putStringClearToEOL("Specify an offer in gold pieces.", new Coord_t(21, 0));
+                terminal.putStringClearToEOL("Specify an offer in gold pieces.", new Coord_t(21, 0));
             }
 
-            putStringClearToEOL("ESC) Quit Haggling.", new Coord_t(22, 0));
-            eraseLine(new Coord_t(23, 0)); // clear last line
+            terminal.putStringClearToEOL("ESC) Quit Haggling.", new Coord_t(22, 0));
+            terminal.eraseLine(new Coord_t(23, 0)); // clear last line
         }
 
         // Displays a store's inventory -RAK-
@@ -197,7 +199,7 @@ namespace Moria.Core.Methods
                 var msg = $"{(char)('a' + item_line_num)}) {description}";
                 //obj_desc_t msg = { '\0' };
                 //(void)sprintf(msg, "%c) %s", 'a' + item_line_num, description);
-                putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 0));
+                terminal.putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 0));
 
                 current_item_count = store.inventory[item_pos_start].cost;
 
@@ -219,7 +221,7 @@ namespace Moria.Core.Methods
                     //(void)sprintf(msg, "%9d [Fixed]", current_item_count);
                 }
 
-                putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 59));
+                terminal.putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 59));
                 item_pos_start++;
             }
 
@@ -228,17 +230,17 @@ namespace Moria.Core.Methods
                 for (var i = 0; i < 11 - item_line_num + 1; i++)
                 {
                     // clear remaining lines
-                    eraseLine(new Coord_t(i + item_line_num + 5, 0));
+                    terminal.eraseLine(new Coord_t(i + item_line_num + 5, 0));
                 }
             }
 
             if (store.unique_items_counter > 12)
             {
-                putString("- cont. -", new Coord_t(17, 60));
+                terminal.putString("- cont. -", new Coord_t(17, 60));
             }
             else
             {
-                eraseLine(new Coord_t(17, 60));
+                terminal.eraseLine(new Coord_t(17, 60));
             }
         }
 
@@ -261,7 +263,7 @@ namespace Moria.Core.Methods
                 msg = $"{cost,9:d} [Fixed]";
                 //(void)sprintf(msg, "%9d [Fixed]", cost);
             }
-            putStringClearToEOL(msg, new Coord_t(item_id % 12 + 5, 59));
+            terminal.putStringClearToEOL(msg, new Coord_t(item_id % 12 + 5, 59));
         }
 
         // Displays players gold -RAK-
@@ -270,16 +272,16 @@ namespace Moria.Core.Methods
             var msg = $"Gold Remaining : {State.Instance.py.misc.au}";
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "Gold Remaining : %d", py.misc.au);
-            putStringClearToEOL(msg, new Coord_t(18, 17));
+            terminal.putStringClearToEOL(msg, new Coord_t(18, 17));
         }
 
         // Displays store -RAK-
         private static void displayStore(Store_t store, string owner_name, int current_top_item_id)
         {
-            clearScreen();
-            putString(owner_name, new Coord_t(3, 9));
-            putString("Item", new Coord_t(4, 3));
-            putString("Asking Price", new Coord_t(4, 60));
+            terminal.clearScreen();
+            terminal.putString(owner_name, new Coord_t(3, 9));
+            terminal.putString("Item", new Coord_t(4, 3));
+            terminal.putString("Asking Price", new Coord_t(4, 60));
             displayPlayerRemainingGold();
             displayStoreCommands();
             displayStoreInventory(store, current_top_item_id);
@@ -297,7 +299,7 @@ namespace Moria.Core.Methods
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
             var key_char = '\0';
-            while (getCommand(msg, out key_char))
+            while (terminal.getCommand(msg, out key_char))
             {
                 key_char -= 'a';
                 if (key_char >= item_pos_start && key_char <= item_pos_end)
@@ -306,9 +308,9 @@ namespace Moria.Core.Methods
                     item_id = key_char;
                     break;
                 }
-                terminalBellSound();
+                terminal.terminalBellSound();
             }
-            messageLineClear();
+            terminal.messageLineClear();
 
             return item_found;
         }
@@ -355,7 +357,7 @@ namespace Moria.Core.Methods
             printSpeechTryAgain();
 
             // keep insult separate from rest of haggle
-            printMessage(/*CNIL*/ null);
+            terminal.printMessage(/*CNIL*/ null);
 
             return false;
         }
@@ -384,7 +386,7 @@ namespace Moria.Core.Methods
             // Get a customers new offer
             while (valid_offer && adjustment == 0)
             {
-                putStringClearToEOL(prompt, new Coord_t(0, 0));
+                terminal.putStringClearToEOL(prompt, new Coord_t(0, 0));
 
                 if (offer_count != 0 && State.Instance.store_last_increment != 0)
                 {
@@ -392,13 +394,13 @@ namespace Moria.Core.Methods
 
                     var last_offer_str = $"[{(State.Instance.store_last_increment < 0 ? '-' : '+')}{abs_store_last_increment}] ";
                     //(void)sprintf(last_offer_str, "[%c%d] ", (State.Instance.store_last_increment < 0) ? '-' : '+', abs_store_last_increment);
-                    putStringClearToEOL(last_offer_str, new Coord_t(0, start_len));
+                    terminal.putStringClearToEOL(last_offer_str, new Coord_t(0, start_len));
 
                     prompt_len = start_len + last_offer_str.Length;
                     //prompt_len = start_len + (int)strlen(last_offer_str);
                 }
 
-                if (!getStringInput(out var msg, new Coord_t(0, prompt_len), 40))
+                if (!terminal.getStringInput(out var msg, new Coord_t(0, prompt_len), 40))
                 {
                     // customer aborted, i.e. pressed escape
                     valid_offer = false;
@@ -447,7 +449,7 @@ namespace Moria.Core.Methods
                 // don't allow incremental haggling, if player has not made an offer yet
                 if (valid_offer && offer_count == 0 && increment)
                 {
-                    printMessage("You haven't even made your first offer yet!");
+                    terminal.printMessage("You haven't even made your first offer yet!");
                     adjustment = 0;
                     increment = false;
                 }
@@ -466,7 +468,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                messageLineClear();
+                terminal.messageLineClear();
             }
 
             return valid_offer;
@@ -560,7 +562,7 @@ namespace Moria.Core.Methods
             // go right to final price if player has bargained well
             if (storeNoNeedToBargain(State.Instance.stores[store_id], final_asking_price))
             {
-                printMessage("After a long bargaining session, you agree upon the price.");
+                terminal.printMessage("After a long bargaining session, you agree upon the price.");
                 current_asking_price = min_sell;
                 comment = "Final offer";
                 accepted_without_haggle = true;
@@ -591,7 +593,7 @@ namespace Moria.Core.Methods
                     var msg = $"{comment} :  {current_asking_price:d}";
                     //vtype_t msg = { '\0' };
                     //(void)sprintf(msg, "%s :  %d", comment, current_asking_price);
-                    putString(msg, new Coord_t(1, 0));
+                    terminal.putString(msg, new Coord_t(1, 0));
 
                     status = storeReceiveOffer(store_id, "What do you offer? ", ref new_offer, last_offer, offers_count, 1);
 
@@ -693,12 +695,12 @@ namespace Moria.Core.Methods
                         last_offer = new_offer;
                         offers_count++; // enable incremental haggling
 
-                        eraseLine(new Coord_t(1, 0));
+                        terminal.eraseLine(new Coord_t(1, 0));
 
                         var msg = $"Your last offer: {last_offer:d}";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "Your last offer : %d", last_offer);
-                        putString(msg, new Coord_t(1, 39));
+                        terminal.putString(msg, new Coord_t(1, 39));
 
                         printSpeechSellingHaggle(last_offer, current_asking_price, final_flag);
 
@@ -811,7 +813,7 @@ namespace Moria.Core.Methods
                     State.Instance.store_last_increment = 0;
                     current_asking_price = max_gold;
                     final_asking_price = max_gold;
-                    printMessage("I am sorry, but I have not the money to afford such a fine item.");
+                    terminal.printMessage("I am sorry, but I have not the money to afford such a fine item.");
                     accepted_without_haggle = true;
                 }
                 else
@@ -829,7 +831,7 @@ namespace Moria.Core.Methods
                     // go right to final price if player has bargained well
                     if (storeNoNeedToBargain(State.Instance.stores[store_id], final_asking_price))
                     {
-                        printMessage("After a long bargaining session, you agree upon the price.");
+                        terminal.printMessage("After a long bargaining session, you agree upon the price.");
                         current_asking_price = final_asking_price;
                         comment = "Final offer";
                         accepted_without_haggle = true;
@@ -860,7 +862,7 @@ namespace Moria.Core.Methods
                         var msg = $"{comment} :  {current_asking_price:d}";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "%s :  %d", comment, current_asking_price);
-                        putString(msg, new Coord_t(1, 0));
+                        terminal.putString(msg, new Coord_t(1, 0));
 
                         status = storeReceiveOffer(store_id, "What price do you ask? ", ref new_offer, last_offer, offer_count, -1);
 
@@ -962,11 +964,11 @@ namespace Moria.Core.Methods
                             last_offer = new_offer;
                             offer_count++; // enable incremental haggling
 
-                            eraseLine(new Coord_t(1, 0));
+                            terminal.eraseLine(new Coord_t(1, 0));
                             var msg = $"Your last bid {last_offer:d}";
                             //vtype_t msg = { '\0' };
                             //(void)sprintf(msg, "Your last bid %d", last_offer);
-                            putString(msg, new Coord_t(1, 39));
+                            terminal.putString(msg, new Coord_t(1, 39));
 
                             printSpeechBuyingHaggle(current_asking_price, last_offer, final_flag);
 
@@ -1019,7 +1021,7 @@ namespace Moria.Core.Methods
 
             if (store.unique_items_counter < 1)
             {
-                printMessage("I am currently out of stock.");
+                terminal.printMessage("I am currently out of stock.");
                 return false;
             }
 
@@ -1039,7 +1041,7 @@ namespace Moria.Core.Methods
 
             if (!inventory.inventoryCanCarryItemCount(sell_item))
             {
-                putStringClearToEOL("You cannot carry that many different items.", new Coord_t(0, 0));
+                terminal.putStringClearToEOL("You cannot carry that many different items.", new Coord_t(0, 0));
                 return false;
             }
 
@@ -1079,7 +1081,7 @@ namespace Moria.Core.Methods
                     var msg = $"You have {description:s} ({(char)(new_item_id + 'a'):c}";
                     //obj_desc_t msg = { '\0' };
                     //(void)sprintf(msg, "You have %s (%c)", description, new_item_id + 'a');
-                    putStringClearToEOL(msg, new Coord_t(0, 0));
+                    terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
 
                     playerStrength();
 
@@ -1116,14 +1118,14 @@ namespace Moria.Core.Methods
                     else
                     {
                         printSpeechFinishedHaggling();
-                        printMessage("Liar!  You have not the gold!");
+                        terminal.printMessage("Liar!  You have not the gold!");
                     }
                 }
             }
 
             // Less intuitive, but looks better here than in storePurchaseHaggle.
             displayStoreCommands();
-            eraseLine(new Coord_t(1, 0));
+            terminal.eraseLine(new Coord_t(1, 0));
 
             return kick_customer;
         }
@@ -1280,7 +1282,7 @@ namespace Moria.Core.Methods
 
             if (last_item == -1)
             {
-                printMessage("You have nothing to sell to this store!");
+                terminal.printMessage("You have nothing to sell to this store!");
                 return false;
             }
 
@@ -1298,11 +1300,11 @@ namespace Moria.Core.Methods
             var msg = $"Selling {description:s} ({(char)(item_id + 'a'):c}";
             //obj_desc_t msg = { '\0' };
             //(void)sprintf(msg, "Selling %s (%c)", description, item_id + 'a');
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             if (!storeInventory.storeCheckPlayerItemsCount(State.Instance.stores[store_id], sold_item))
             {
-                printMessage("I have not the room in my store to keep it.");
+                terminal.printMessage("I have not the room in my store to keep it.");
                 return false;
             }
 
@@ -1316,8 +1318,8 @@ namespace Moria.Core.Methods
             }
             else if (status == BidState.Offended)
             {
-                printMessage("How dare you!");
-                printMessage("I will not buy that!");
+                terminal.printMessage("How dare you!");
+                terminal.printMessage("I will not buy that!");
                 kick_customer = storeIncreaseInsults(store_id);
             }
             else if (status == BidState.Received)
@@ -1341,7 +1343,7 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, sold_item, true);
                 msg = $"You've sold {description:s}";
                 //(void)sprintf(msg, "You've sold %s", description);
-                printMessage(msg);
+                terminal.printMessage(msg);
 
                 storeInventory.storeCarryItem(store_id, out var item_pos_id, sold_item);
 
@@ -1375,7 +1377,7 @@ namespace Moria.Core.Methods
             }
 
             // Less intuitive, but looks better here than in storeSellHaggle.
-            eraseLine(new Coord_t(1, 0));
+            terminal.eraseLine(new Coord_t(1, 0));
             displayStoreCommands();
 
             return kick_customer;
@@ -1392,7 +1394,7 @@ namespace Moria.Core.Methods
 
             if (store.turns_left_before_closing >= dg.game_turn)
             {
-                printMessage("The doors are locked.");
+                terminal.printMessage("The doors are locked.");
                 return;
             }
 
@@ -1402,12 +1404,12 @@ namespace Moria.Core.Methods
             var exit_store = false;
             while (!exit_store)
             {
-                moveCursor(new Coord_t(20, 9));
+                terminal.moveCursor(new Coord_t(20, 9));
 
                 // clear the msg flag just like we do in dungeon.c
                 State.Instance.message_ready_to_print = false;
 
-                if (getCommand("", out var command))
+                if (terminal.getCommand("", out var command))
                 {
                     switch (command)
                     {
@@ -1421,7 +1423,7 @@ namespace Moria.Core.Methods
                                 }
                                 else
                                 {
-                                    printMessage("Entire inventory is shown.");
+                                    terminal.printMessage("Entire inventory is shown.");
                                 }
                             }
                             else
@@ -1463,7 +1465,7 @@ namespace Moria.Core.Methods
                             exit_store = storeSellAnItem(store_id, ref current_top_item_id);
                             break;
                         default:
-                            terminalBellSound();
+                            terminal.terminalBellSound();
                             break;
                     }
                 }

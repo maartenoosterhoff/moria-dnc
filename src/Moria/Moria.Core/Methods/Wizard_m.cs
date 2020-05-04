@@ -10,7 +10,6 @@ using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -39,6 +38,7 @@ namespace Moria.Core.Methods
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
         private readonly ITreasure treasure;
         private readonly IEventPublisher eventPublisher;
 
@@ -51,6 +51,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
             ITreasure treasure,
 
             IEventPublisher eventPublisher
@@ -64,6 +65,7 @@ namespace Moria.Core.Methods
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
+            this.terminal = terminal;
             this.treasure = treasure;
             this.eventPublisher = eventPublisher;
         }
@@ -77,8 +79,8 @@ namespace Moria.Core.Methods
 
             if (game.noscore == 0)
             {
-                printMessage("Wizard mode is for debugging and experimenting.");
-                answer = getInputConfirmation("The game will not be scored if you enter wizard mode. Are you sure?");
+                this.terminal.printMessage("Wizard mode is for debugging and experimenting.");
+                answer = this.terminal.getInputConfirmation("The game will not be scored if you enter wizard mode. Are you sure?");
             }
 
             if (game.noscore != 0 || answer)
@@ -163,9 +165,9 @@ namespace Moria.Core.Methods
                 var input = string.Empty;
                 //vtype_t input = { 0 };
 
-                putStringClearToEOL("Go to which level (0-99) ? ", new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL("Go to which level (0-99) ? ", new Coord_t(0, 0));
 
-                if (getStringInput(out input, new Coord_t(0, 27), 10))
+                if (this.terminal.getStringInput(out input, new Coord_t(0, 27), 10))
                 {
                     this.helpers.stringToNumber(input, out i);
                 }
@@ -182,7 +184,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                messageLineClear();
+                this.terminal.messageLineClear();
             }
         }
 
@@ -260,8 +262,8 @@ namespace Moria.Core.Methods
             int number;
             //vtype_t input = { '\0' };
 
-            putStringClearToEOL("(3 - 118) Strength     = ", new Coord_t(0, 0));
-            if (getStringInput(out var input, new Coord_t(0, 25), 3))
+            this.terminal.putStringClearToEOL("(3 - 118) Strength     = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out var input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -275,8 +277,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(3 - 118) Intelligence = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 3))
+            this.terminal.putStringClearToEOL("(3 - 118) Intelligence = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -290,8 +292,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(3 - 118) Wisdom       = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 3))
+            this.terminal.putStringClearToEOL("(3 - 118) Wisdom       = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -305,8 +307,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(3 - 118) Dexterity    = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 3))
+            this.terminal.putStringClearToEOL("(3 - 118) Dexterity    = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -320,8 +322,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(3 - 118) Constitution = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 3))
+            this.terminal.putStringClearToEOL("(3 - 118) Constitution = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -335,8 +337,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(3 - 118) Charisma     = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 3))
+            this.terminal.putStringClearToEOL("(3 - 118) Charisma     = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 2 && number < 119)
@@ -350,8 +352,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(1 - 32767) Hit points = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 5))
+            this.terminal.putStringClearToEOL("(1 - 32767) Hit points = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 5))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > 0 && number <= SHRT_MAX)
@@ -368,8 +370,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("(0 - 32767) Mana       = ", new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, 25), 5))
+            this.terminal.putStringClearToEOL("(0 - 32767) Mana       = ", new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, 25), 5))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number <= SHRT_MAX)
@@ -389,8 +391,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  Gold = ", py.misc.au);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 7))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 7))
             {
                 var valid_number = this.helpers.stringToNumber(input, out var new_gold);
                 if (valid_number && new_gold > -1)
@@ -408,8 +410,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  (0-200) Searching = ", py.misc.chance_in_search);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out var new_gold);
                 if (valid_number && number > -1 && number < 201)
@@ -426,8 +428,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  (-1-18) Stealth = ", py.misc.stealth_factor);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -2 && number < 19)
@@ -444,8 +446,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  (0-200) Disarming = ", py.misc.disarm);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
@@ -462,8 +464,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  (0-100) Save = ", py.misc.saving_throw);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
@@ -480,8 +482,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  (0-200) Base to hit = ", py.misc.bth);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
@@ -498,8 +500,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  (0-200) Bows/Throwing = ", py.misc.bth_with_bows);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1 && number < 201)
@@ -516,8 +518,8 @@ namespace Moria.Core.Methods
             //(void)sprintf(input, "Current=%d  Weight = ", py.misc.weight);
             number = input.Length;
             //number = (int)strlen(input);
-            putStringClearToEOL(input, new Coord_t(0, 0));
-            if (getStringInput(out input, new Coord_t(0, number), 3))
+            this.terminal.putStringClearToEOL(input, new Coord_t(0, 0));
+            if (this.terminal.getStringInput(out input, new Coord_t(0, number), 3))
             {
                 var valid_number = this.helpers.stringToNumber(input, out number);
                 if (valid_number && number > -1)
@@ -530,7 +532,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            while (getCommand("Alter speed? (+/-)", out var inputChar))
+            while (this.terminal.getCommand("Alter speed? (+/-)", out var inputChar))
             {
                 if (inputChar == '+')
                 {
@@ -559,10 +561,10 @@ namespace Moria.Core.Methods
 
             var msg = $"{label} ID ({id_str}): ";
             //std::string msg = label + " ID (" + id_str.str() + "): ";
-            putStringClearToEOL(msg, new Coord_t(0, 0));
+            this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
 
             //vtype_t input = { 0 };
-            if (!getStringInput(out var input, new Coord_t(0, (int)msg.Length), 3))
+            if (!this.terminal.getStringInput(out var input, new Coord_t(0, (int)msg.Length), 3))
             {
                 return false;
             }
@@ -574,7 +576,7 @@ namespace Moria.Core.Methods
 
             if (given_id < start_id || given_id > end_id)
             {
-                putStringClearToEOL("Invalid ID. Must be " + id_str, new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL("Invalid ID. Must be " + id_str, new Coord_t(0, 0));
                 return false;
             }
             id = given_id;
@@ -628,7 +630,7 @@ namespace Moria.Core.Methods
         {
             //vtype_t input = { 0 };
 
-            printMessage("Warning: This routine can cause a fatal error.");
+            this.terminal.printMessage("Warning: This routine can cause a fatal error.");
 
             var forge = new Inventory_t();
             var item = forge;
@@ -638,8 +640,8 @@ namespace Moria.Core.Methods
             itemReplaceInscription(item, "wizard item");
             item.identification = Config.identification.ID_KNOWN2 | Config.identification.ID_STORE_BOUGHT;
 
-            putStringClearToEOL("Tval   : ", new Coord_t(0, 0));
-            if (!getStringInput(out var input, new Coord_t(0, 9), 3))
+            this.terminal.putStringClearToEOL("Tval   : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out var input, new Coord_t(0, 9), 3))
             {
                 return;
             }
@@ -648,15 +650,15 @@ namespace Moria.Core.Methods
                 item.category_id = (uint)number;
             }
 
-            putStringClearToEOL("Tchar  : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 1))
+            this.terminal.putStringClearToEOL("Tchar  : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 1))
             {
                 return;
             }
             item.sprite = (uint)input[0];
 
-            putStringClearToEOL("Subval : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 5))
+            this.terminal.putStringClearToEOL("Subval : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 5))
             {
                 return;
             }
@@ -665,8 +667,8 @@ namespace Moria.Core.Methods
                 item.sub_category_id = (uint)number;
             }
 
-            putStringClearToEOL("Weight : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 5))
+            this.terminal.putStringClearToEOL("Weight : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 5))
             {
                 return;
             }
@@ -675,8 +677,8 @@ namespace Moria.Core.Methods
                 item.weight = (uint)number;
             }
 
-            putStringClearToEOL("Number : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 5))
+            this.terminal.putStringClearToEOL("Number : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 5))
             {
                 return;
             }
@@ -685,8 +687,8 @@ namespace Moria.Core.Methods
                 item.items_count = (uint)number;
             }
 
-            putStringClearToEOL("Damage (dice): ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 15), 3))
+            this.terminal.putStringClearToEOL("Damage (dice): ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 15), 3))
             {
                 return;
             }
@@ -695,8 +697,8 @@ namespace Moria.Core.Methods
                 item.damage.SetDice((uint) number);
             }
 
-            putStringClearToEOL("Damage (sides): ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 16), 3))
+            this.terminal.putStringClearToEOL("Damage (sides): ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 16), 3))
             {
                 return;
             }
@@ -705,8 +707,8 @@ namespace Moria.Core.Methods
                 item.damage.SetSides((uint) number);
             }
 
-            putStringClearToEOL("+To hit: ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 3))
+            this.terminal.putStringClearToEOL("+To hit: ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 3))
             {
                 return;
             }
@@ -715,8 +717,8 @@ namespace Moria.Core.Methods
                 item.to_hit = (int)number;
             }
 
-            putStringClearToEOL("+To dam: ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 3))
+            this.terminal.putStringClearToEOL("+To dam: ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 3))
             {
                 return;
             }
@@ -725,8 +727,8 @@ namespace Moria.Core.Methods
                 item.to_damage = (int)number;
             }
 
-            putStringClearToEOL("AC     : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 3))
+            this.terminal.putStringClearToEOL("AC     : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 3))
             {
                 return;
             }
@@ -735,8 +737,8 @@ namespace Moria.Core.Methods
                 item.ac = (int)number;
             }
 
-            putStringClearToEOL("+To AC : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 3))
+            this.terminal.putStringClearToEOL("+To AC : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 3))
             {
                 return;
             }
@@ -745,8 +747,8 @@ namespace Moria.Core.Methods
                 item.to_ac = (int)number;
             }
 
-            putStringClearToEOL("P1     : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 5))
+            this.terminal.putStringClearToEOL("P1     : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 5))
             {
                 return;
             }
@@ -755,8 +757,8 @@ namespace Moria.Core.Methods
                 item.misc_use = (int)number;
             }
 
-            putStringClearToEOL("Flags (In HEX, eg 0x01020304): ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 16), 8))
+            this.terminal.putStringClearToEOL("Flags (In HEX, eg 0x01020304): ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 16), 8))
             {
                 return;
             }
@@ -776,8 +778,8 @@ namespace Moria.Core.Methods
 
             item.flags = (uint)input_number;
 
-            putStringClearToEOL("Cost : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 9), 8))
+            this.terminal.putStringClearToEOL("Cost : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 9), 8))
             {
                 return;
             }
@@ -786,8 +788,8 @@ namespace Moria.Core.Methods
                 item.cost = input_number;
             }
 
-            putStringClearToEOL("Level : ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 10), 3))
+            this.terminal.putStringClearToEOL("Level : ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 10), 3))
             {
                 return;
             }
@@ -796,7 +798,7 @@ namespace Moria.Core.Methods
                 item.depth_first_found = (uint)number;
             }
 
-            if (getInputConfirmation("Allocate?"))
+            if (this.terminal.getInputConfirmation("Allocate?"))
             {
                 var dg = State.Instance.dg;
                 var game = State.Instance.game;
@@ -815,11 +817,11 @@ namespace Moria.Core.Methods
                 game.treasure.list[number] = forge;
                 tile.treasure_id = (uint)number;
 
-                printMessage("Allocated.");
+                this.terminal.printMessage("Allocated.");
             }
             else
             {
-                printMessage("Aborted.");
+                this.terminal.printMessage("Aborted.");
             }
         }
     }

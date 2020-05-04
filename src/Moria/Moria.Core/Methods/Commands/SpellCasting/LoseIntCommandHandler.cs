@@ -5,6 +5,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 {
     public class LoseIntCommandHandler : ICommandHandler<LoseIntCommand>
     {
+        private readonly ITerminal terminal;
+
+        public LoseIntCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         public void Handle(LoseIntCommand command)
         {
             this.spellLoseINT();
@@ -19,11 +28,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             if (!py.flags.sustain_int)
             {
                 Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.INT);
-                Ui_io_m.printMessage("You become very dizzy.");
+                this.terminal.printMessage("You become very dizzy.");
             }
             else
             {
-                Ui_io_m.printMessage("You become dizzy for a moment,  it passes.");
+                this.terminal.printMessage("You become dizzy for a moment,  it passes.");
             }
         }
     }

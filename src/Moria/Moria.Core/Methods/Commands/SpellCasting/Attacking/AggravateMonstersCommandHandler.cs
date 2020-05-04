@@ -7,6 +7,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<AggravateMonstersCommand>,
         ICommandHandler<AggravateMonstersCommand, bool>
     {
+        private readonly ITerminal terminal;
+
+        public AggravateMonstersCommandHandler(ITerminal terminal)
+        {
+            this.terminal = terminal;
+        }
+
         void ICommandHandler<AggravateMonstersCommand>.Handle(AggravateMonstersCommand command)
         {
             this.spellAggravateMonsters(
@@ -40,7 +47,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
             if (aggravated)
             {
-                Ui_io_m.printMessage("You hear a sudden stirring in the distance!");
+                this.terminal.printMessage("You hear a sudden stirring in the distance!");
             }
 
             return aggravated;

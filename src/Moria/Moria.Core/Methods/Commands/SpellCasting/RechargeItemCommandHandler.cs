@@ -10,26 +10,29 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IUiInventory uiInventory;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         public RechargeItemCommandHandler(
             IUiInventory uiInventory,
             IInventoryManager inventoryManager,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.uiInventory = uiInventory;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         void ICommandHandler<RechargeItemCommand>.Handle(RechargeItemCommand command)
         {
-            throw new System.NotImplementedException();
+            this.spellRechargeItem(command.NumberOfCharges);
         }
 
         bool ICommandHandler<RechargeItemCommand, bool>.Handle(RechargeItemCommand command)
         {
-            throw new System.NotImplementedException();
+            return this.spellRechargeItem(command.NumberOfCharges);
         }
 
         // Recharge a wand, staff, or rod.  Sometimes the item breaks. -RAK-
@@ -39,7 +42,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             int item_pos_start = 0, item_pos_end = 0;
             if (!this.inventoryManager.inventoryFindRange((int)Treasure_c.TV_STAFF, (int)Treasure_c.TV_WAND, out item_pos_start, out item_pos_end))
             {
-                Ui_io_m.printMessage("You have nothing to recharge.");
+                this.terminal.printMessage("You have nothing to recharge.");
                 return false;
             }
 
@@ -70,7 +73,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 
             if (fail_chance == 1)
             {
-                Ui_io_m.printMessage("There is a bright flash of light.");
+                this.terminal.printMessage("There is a bright flash of light.");
                 this.inventoryManager.inventoryDestroyItem(item_id);
             }
             else

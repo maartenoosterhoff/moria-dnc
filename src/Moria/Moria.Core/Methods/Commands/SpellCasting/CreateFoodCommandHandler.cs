@@ -7,14 +7,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     {
         private readonly IDungeonPlacer dungeonPlacer;
         private readonly IInventoryManager inventoryManager;
+        private readonly ITerminal terminal;
 
         public CreateFoodCommandHandler(
             IDungeonPlacer dungeonPlacer,
-            IInventoryManager inventoryManager
+            IInventoryManager inventoryManager,
+            ITerminal terminal
         )
         {
             this.dungeonPlacer = dungeonPlacer;
             this.inventoryManager = inventoryManager;
+            this.terminal = terminal;
         }
 
         public void Handle(CreateFoodCommand command)
@@ -39,7 +42,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 // set player_free_turn so that scroll/spell points won't be used
                 game.player_free_turn = true;
 
-                Ui_io_m.printMessage("There is already an object under you.");
+                this.terminal.printMessage("There is already an object under you.");
 
                 return;
             }

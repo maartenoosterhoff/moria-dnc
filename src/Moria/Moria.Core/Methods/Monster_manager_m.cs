@@ -5,7 +5,6 @@ using System;
 using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -25,19 +24,22 @@ namespace Moria.Core.Methods
             IDice dice,
             IDungeon dungeon,
             IRnd rnd,
-            IStd std
+            IStd std,
+            ITerminal terminal
         )
         {
             this.dice = dice;
             this.dungeon = dungeon;
             this.rnd = rnd;
             this.std = std;
+            this.terminal = terminal;
         }
 
         private readonly IDice dice;
         private readonly IDungeon dungeon;
         private readonly IRnd rnd;
         private readonly IStd std;
+        private readonly ITerminal terminal;
 
         // Returns a pointer to next free space -RAK-
         // Returns -1 if could not allocate a monster.
@@ -343,7 +345,7 @@ namespace Moria.Core.Methods
         // Return true if any monsters were deleted, false if could not delete any monsters.
         public bool compactMonsters()
         {
-            printMessage("Compacting monsters...");
+            this.terminal.printMessage("Compacting monsters...");
 
             var cur_dis = 66;
 

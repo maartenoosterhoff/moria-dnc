@@ -13,18 +13,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeonLos dungeonLos;
         private readonly IInventory inventory;
         private readonly ISpells spells;
+        private readonly ITerminal terminal;
 
         public BreathCommandHandler(
             IDungeon dungeon,
             IDungeonLos dungeonLos,
             IInventory inventory,
-            ISpells spells
+            ISpells spells,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.dungeonLos = dungeonLos;
             this.inventory = inventory;
             this.spells = spells;
+            this.terminal = terminal;
         }
 
         public void Handle(BreathCommand command)
@@ -56,13 +59,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             {
                 for (location.x = coord.x - 2; location.x <= coord.x + 2; location.x++)
                 {
-                    if (dungeon.coordInBounds(location) && dungeon.coordDistanceBetween(coord, location) <= max_distance && dungeonLos.los(coord, location))
+                    if (this.dungeon.coordInBounds(location) && this.dungeon.coordDistanceBetween(coord, location) <= max_distance && this.dungeonLos.los(coord, location))
                     {
                         var tile = dg.floor[location.y][location.x];
 
                         if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id]))
                         {
-                            dungeon.dungeonDeleteObject(location);
+                            this.dungeon.dungeonDeleteObject(location);
                         }
 
                         if (tile.feature_id <= Dungeon_tile_c.MAX_OPEN_SPACE)
@@ -72,7 +75,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             // be visible until the blindness takes effect
                             if (Ui_m.coordInsidePanel(location) && (py.flags.status & Config.player_status.PY_BLIND) == 0u)
                             {
-                                Ui_io_m.panelPutTile('*', location);
+                                this.terminal.panelPutTile('*', location);
                             }
 
                             if (tile.creature_id > 1)
@@ -91,7 +94,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                     damage = damage / 4;
                                 }
 
-                                damage = damage / (dungeon.coordDistanceBetween(location, coord) + 1);
+                                damage = damage / (this.dungeon.coordDistanceBetween(location, coord) + 1);
 
                                 // can not call monsterTakeHit here, since player does not
                                 // get experience for kill
@@ -116,20 +119,20 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                     // It ate an already processed monster. Handle normally.
                                     if (monster_id < tile.creature_id)
                                     {
-                                        dungeon.dungeonDeleteMonster((int)tile.creature_id);
+                                        this.dungeon.dungeonDeleteMonster((int)tile.creature_id);
                                     }
                                     else
                                     {
                                         // If it eats this monster, an already processed monster
                                         // will take its place, causing all kinds of havoc.
                                         // Delay the kill a bit.
-                                        dungeon.dungeonDeleteMonsterFix1((int)tile.creature_id);
+                                        this.dungeon.dungeonDeleteMonsterFix1((int)tile.creature_id);
                                     }
                                 }
                             }
                             else if (tile.creature_id == 1)
                             {
-                                var damage = damage_hp / (dungeon.coordDistanceBetween(location, coord) + 1);
+                                var damage = damage_hp / (this.dungeon.coordDistanceBetween(location, coord) + 1);
 
                                 // let's do at least one point of damage
                                 // prevents rnd.randomNumber(0) problem with damagePoisonedGas, also
@@ -141,19 +144,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                 switch ((MagicSpellFlags)spell_type)
                                 {
                                     case MagicSpellFlags.Lightning:
-                                        inventory.damageLightningBolt(damage, spell_name);
+                                        this.inventory.damageLightningBolt(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.PoisonGas:
-                                        inventory.damagePoisonedGas(damage, spell_name);
+                                        this.inventory.damagePoisonedGas(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.Acid:
-                                        inventory.damageAcid(damage, spell_name);
+                                        this.inventory.damageAcid(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.Frost:
-                                        inventory.damageCold(damage, spell_name);
+                                        this.inventory.damageCold(damage, spell_name);
                                         break;
                                     case MagicSpellFlags.Fire:
-                                        inventory.damageFire(damage, spell_name);
+                                        this.inventory.damageFire(damage, spell_name);
                                         break;
                                     default:
                                         break;
@@ -165,16 +168,16 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             }
 
             // show the ball of gas
-            Ui_io_m.putQIO();
+            this.terminal.putQIO();
 
             var spot = new Coord_t(0, 0);
             for (spot.y = coord.y - 2; spot.y <= coord.y + 2; spot.y++)
             {
                 for (spot.x = coord.x - 2; spot.x <= coord.x + 2; spot.x++)
                 {
-                    if (dungeon.coordInBounds(spot) && Ui_m.coordInsidePanel(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance)
+                    if (this.dungeon.coordInBounds(spot) && Ui_m.coordInsidePanel(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                     {
-                        dungeon.dungeonLiteSpot(spot);
+                        this.dungeon.dungeonLiteSpot(spot);
                     }
                 }
             }

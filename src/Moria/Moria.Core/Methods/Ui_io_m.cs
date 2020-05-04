@@ -11,52 +11,107 @@ using static Moria.Core.Constants.Types_c;
 
 namespace Moria.Core.Methods
 {
-    public static class Ui_io_m
+    public interface ITerminal
     {
-        public static void SetDependencies(
-            IGameSave gameSave,
+        void flushInputBuffer();
+        void printMessage(string msg);
 
-            IEventPublisher eventPublisher
+        void putQIO();
+
+        void panelPutTile(char ch, Coord_t coord);
+
+        bool getCommand(string prompt, out char command);
+
+        bool terminalInitialize();
+        int terminalBellSound();
+
+        void terminalRestoreScreen();
+
+        void terminalSaveScreen();
+
+        void eraseLine(Coord_t coord);
+
+        void putString(string out_str, Coord_t coord);
+
+        void waitForContinueKey(int line_number);
+
+        bool getStringInput(out string in_str, Coord_t coord, int slen);
+
+        char getKeyInput();
+
+        void clearScreen();
+
+        void clearToBottom(int row);
+
+        void moveCursor(Coord_t coord);
+
+        void putStringClearToEOL(string str, Coord_t coord);
+
+        void panelMoveCursor(Coord_t coord);
+
+        void addChar(char ch, Coord_t coord);
+
+        bool getInputConfirmation(string prompt);
+
+        void messageLineClear();
+
+        void getDefaultPlayerName(out string buffer);
+
+        int getConsoleWidth();
+
+        void printMessageNoCommandInterrupt(string msg);
+
+        void terminalRestore();
+
+        bool checkForNonBlockingKeyPress(int microseconds);
+    }
+
+    public class Ui_io_m : ITerminal
+    {
+        private readonly IConsoleWrapper console;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IGameSave gameSave;
+
+        public Ui_io_m(
+            IConsoleWrapper console,
+            IEventPublisher eventPublisher,
+            IGameSave gameSave
         )
         {
-            Ui_io_m.gameSave = gameSave;
-
-            Ui_io_m.eventPublisher = eventPublisher;
+            this.console = console;
+            this.eventPublisher = eventPublisher;
+            this.gameSave = gameSave;
         }
 
-        private static IGameSave gameSave;
+        //private readonly IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
 
-        private static IEventPublisher eventPublisher;
+        private char CTRL_KEY(char x) => (char)(x & 0x1F);
 
-        private static readonly IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
-
-        private static char CTRL_KEY(char x) => (char)(x & 0x1F);
-
-        private static bool isprint(char c)
+        private bool isprint(char c)
         {
             const string keys = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
             const string specialKeys = @"!""#$%&'()*+,-./:;<=>?@[\]^_`{|}~";
             return keys.IndexOf(c) >= 0 || specialKeys.IndexOf(c) >= 0;
         }
 
-        public static void mvcur(int y, int x) => move(y, x);
+        public void mvcur(int y, int x) => this.move(y, x);
 
-        private static void initscr()
+        private void initscr()
         {
-            console.clear();
-            console.move(0,0);
+            this.console.clear();
+            this.console.move(0,0);
         }
 
-        private static void refresh()
+        private void refresh()
         {
             // Do... nothing?
         }
 
-        public static int getConsoleWidth() => console.WindowWidth;
+        public int getConsoleWidth() => this.console.WindowWidth;
 
-        private static bool getch(out char c) => getch(out c, TimeSpan.MaxValue/*.FromMilliseconds(10)*/);
+        private bool getch(out char c) => this.getch(out c, TimeSpan.MaxValue/*.FromMilliseconds(10)*/);
 
-        private static bool getch(out char c, TimeSpan timeout)
+        private bool getch(out char c, TimeSpan timeout)
         {
             var duration = TimeSpan.Zero;
             while (!Console.KeyAvailable && duration <= timeout)
@@ -74,7 +129,7 @@ namespace Moria.Core.Methods
             var input = Console.ReadKey(true);
             if ((input.Modifiers & ConsoleModifiers.Control) == ConsoleModifiers.Control)
             {
-                c = CTRL_KEY(input.KeyChar);
+                c = this.CTRL_KEY(input.KeyChar);
                 return true;
             }
 
@@ -82,49 +137,49 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        private static void move(int y, int x)
+        private void move(int y, int x)
         {
-            console.move(y, x);
+            this.console.move(y, x);
         }
 
-        private static void mvaddch(int y, int x, char c)
+        private void mvaddch(int y, int x, char c)
         {
-            console.move(y, x);
-            console.addch(c);
+            this.console.move(y, x);
+            this.console.addch(c);
         }
 
-        private static void mvaddstr(int y, int x, string s)
+        private void mvaddstr(int y, int x, string s)
         {
-            console.move(y, x);
-            console.addstr(s);
+            this.console.move(y, x);
+            this.console.addstr(s);
         }
 
-        private static void addch(char c)
+        private void addch(char c)
         {
-            console.addch(c);
+            this.console.addch(c);
         }
 
-        private static void addstr(string s)
+        private void addstr(string s)
         {
-            console.addstr(s);
+            this.console.addstr(s);
         }
 
-        private static void getyx(out int y, out int x)
+        private void getyx(out int y, out int x)
         {
-            console.getyx(out y, out x);
+            this.console.getyx(out y, out x);
         }
 
-        private static void clear() => console.clear();
+        private void clear() => this.console.clear();
 
-        private static void clrtoeol(int y, int x)
+        private void clrtoeol(int y, int x)
         {
-            move(y, x);
+            this.move(y, x);
             var length = 79 - x;
-            addstr(new string(' ', length));
-            move(y, x);
+            this.addstr(new string(' ', length));
+            this.move(y, x);
         }
 
-        private static void moriaTerminalInitialize()
+        private void moriaTerminalInitialize()
         {
             Console.TreatControlCAsInput = true;
 
@@ -146,12 +201,12 @@ namespace Moria.Core.Methods
         }
 
         // initializes the terminal / curses routines
-        public static bool terminalInitialize()
+        public bool terminalInitialize()
         {
-            initscr();
+            this.initscr();
 
             // Check we have enough screen. -CJS-
-            if (console.WindowHeight < 24 || console.WindowWidth < 80)
+            if (this.console.WindowHeight < 24 || this.console.WindowWidth < 80)
             //if (LINES < 24 || COLS < 80)
             {
                 Console.WriteLine("Screen too small for moria.");
@@ -166,16 +221,16 @@ namespace Moria.Core.Methods
             //    return false;
             //}
 
-            moriaTerminalInitialize();
+            this.moriaTerminalInitialize();
 
-            clear();
-            refresh();
+            this.clear();
+            this.refresh();
 
             return true;
         }
 
         // Put the terminal in the original mode. -CJS-
-        public static void terminalRestore()
+        public void terminalRestore()
         {
             //if (!curses_on)
             //{
@@ -183,12 +238,12 @@ namespace Moria.Core.Methods
             //}
 
             // Dump any remaining buffer
-            putQIO();
+            this.putQIO();
 
             // this moves curses to bottom right corner
             var y = 0;
             var x = 0;
-            getyx(out y, out x);
+            this.getyx(out y, out x);
             //getyx(stdscr, y, x);
             //mvcur(y, x, Console.WindowHeight - 1, 0);
 
@@ -199,24 +254,24 @@ namespace Moria.Core.Methods
             //curses_on = false;
         }
 
-        public static void terminalSaveScreen()
+        public void terminalSaveScreen()
         {
-            console.saveTerminal();
+            this.console.saveTerminal();
         }
 
-        public static void terminalRestoreScreen()
+        public void terminalRestoreScreen()
         {
-            console.restoreTerminal();
+            this.console.restoreTerminal();
         }
 
-        public static int terminalBellSound()
+        public int terminalBellSound()
         {
-            putQIO();
+            this.putQIO();
 
             // The player can turn off beeps if they find them annoying.
             if (Config.options.error_beep_sound)
             {
-                console.beep();
+                this.console.beep();
                 //return write(1, "\007", 1);
                 return 1;
             }
@@ -225,66 +280,67 @@ namespace Moria.Core.Methods
         }
 
         // Dump the IO buffer to terminal -RAK-
-        public static void putQIO()
+        public void putQIO()
         {
             // Let inventoryExecuteCommand() know something has changed.
             State.Instance.screen_has_changed = true;
 
-            refresh();
+            this.refresh();
         }
 
         // Flush the buffer -RAK-
-        public static void flushInputBuffer()
+        public void flushInputBuffer()
         {
             if (State.Instance.eof_flag != 0)
             {
                 return;
             }
 
-            while (checkForNonBlockingKeyPress(0))
+            while (this.checkForNonBlockingKeyPress(0))
             {
             }
         }
 
         // Clears screen
-        public static void clearScreen()
+        public void clearScreen()
         {
             if (State.Instance.message_ready_to_print)
             {
-                printMessage(/*CNIL*/null);
+                this.printMessage(/*CNIL*/null);
             }
-            clear();
+
+            this.clear();
         }
 
-        private static void clearLine(int row)
+        private void clearLine(int row)
         {
-            move(row, 0);
-            addstr(new string(' ', console.WindowWidth));
-            move(row, 0);
+            this.move(row, 0);
+            this.addstr(new string(' ', this.console.WindowWidth));
+            this.move(row, 0);
         }
 
-        public static void clearToBottom(int row)
+        public void clearToBottom(int row)
         {
-            while (row < console.WindowHeight)
+            while (row < this.console.WindowHeight)
             {
-                clearLine(row);
+                this.clearLine(row);
                 row++;
             }
 
-            move(row, 0);
+            this.move(row, 0);
 
             //clrtobot(); // see above
         }
 
         // move cursor to a given y, x position
-        public static void moveCursor(Coord_t coord)
+        public void moveCursor(Coord_t coord)
         {
-            move(coord.y, coord.x);
+            this.move(coord.y, coord.x);
         }
 
-        public static void addChar(char ch, Coord_t coord)
+        public void addChar(char ch, Coord_t coord)
         {
-            mvaddch(coord.y, coord.x, ch);
+            this.mvaddch(coord.y, coord.x, ch);
             //if (mvaddch(coord.y, coord.x, ch) == ERR)
             //{
             //    abort();
@@ -292,7 +348,7 @@ namespace Moria.Core.Methods
         }
 
         // Dump IO to buffer -RAK-
-        public static void putString(string out_str, Coord_t coord)
+        public void putString(string out_str, Coord_t coord)
         {
             out_str = out_str ?? string.Empty;
             // truncate the string, to make sure that it won't go past right edge of screen.
@@ -311,7 +367,7 @@ namespace Moria.Core.Methods
             //(void)strncpy(str, out_str, (size_t)(79 - coord.x));
             //str[79 - coord.x] = '\0';
 
-            mvaddstr(coord.y, coord.x, str);
+            this.mvaddstr(coord.y, coord.x, str);
             //if (mvaddstr(coord.y, coord.x, str) == ERR)
             //{
             //    abort();
@@ -319,32 +375,32 @@ namespace Moria.Core.Methods
         }
 
         // Outputs a line to a given y, x position -RAK-
-        public static void putStringClearToEOL(string str, Coord_t coord)
+        public void putStringClearToEOL(string str, Coord_t coord)
         {
             if (coord.y == MSG_LINE && State.Instance.message_ready_to_print)
             {
-                printMessage(/*CNIL*/ null);
+                this.printMessage(/*CNIL*/ null);
             }
 
             //move(coord.y, coord.x);
-            clrtoeol(coord.y, coord.x);
-            putString(str, coord);
+            this.clrtoeol(coord.y, coord.x);
+            this.putString(str, coord);
         }
 
         // Clears given line of text -RAK-
-        public static void eraseLine(Coord_t coord)
+        public void eraseLine(Coord_t coord)
         {
             if (coord.y == MSG_LINE && State.Instance.message_ready_to_print)
             {
-                printMessage(/*CNIL*/null);
+                this.printMessage(/*CNIL*/null);
             }
 
             //move(coord.y, coord.x);
-            clrtoeol(coord.y, coord.x);
+            this.clrtoeol(coord.y, coord.x);
         }
 
         // Moves the cursor to a given interpolated y, x position -RAK-
-        public static void panelMoveCursor(Coord_t coord)
+        public void panelMoveCursor(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -352,7 +408,7 @@ namespace Moria.Core.Methods
             var y = coord.y - dg.panel.row_prt;
             var x = coord.x - dg.panel.col_prt;
 
-            move(y, x);
+            this.move(y, x);
             //if (move(coord.y, coord.x) == ERR)
             //{
             //    abort();
@@ -361,7 +417,7 @@ namespace Moria.Core.Methods
 
         // Outputs a char to a given interpolated y, x position -RAK-
         // sign bit of a character used to indicate standout mode. -CJS
-        public static void panelPutTile(char ch, Coord_t coord)
+        public void panelPutTile(char ch, Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -369,29 +425,29 @@ namespace Moria.Core.Methods
             var y = coord.y - dg.panel.row_prt;
             var x = coord.x - dg.panel.col_prt;
 
-            mvaddch(y, x, ch);
+            this.mvaddch(y, x, ch);
             //if (mvaddch(coord.y, coord.x, ch) == ERR)
             //{
             //    abort();
             //}
         }
 
-        private static Coord_t currentCursorPosition()
+        private Coord_t currentCursorPosition()
         {
-            getyx(out var y, out var x);
+            this.getyx(out var y, out var x);
             //getyx(stdscr, y, x);
             return new Coord_t(y, x);
         }
 
         // messageLinePrintMessage will print a line of text to the message line (0,0).
         // first clearing the line of any text!
-        private static void messageLinePrintMessage(string message)
+        private void messageLinePrintMessage(string message)
         {
             // save current cursor position
-            var coord = currentCursorPosition();
+            var coord = this.currentCursorPosition();
 
             // move to beginning of message line, and clear it
-            clrtoeol(0, 0);
+            this.clrtoeol(0, 0);
 
             // truncate message if it's too long!
             //message.resize(79);
@@ -400,29 +456,29 @@ namespace Moria.Core.Methods
                 message = message.Substring(0, 79);
             }
 
-            addstr(message);
+            this.addstr(message);
 
             // restore cursor to old position
-            move(coord.y, coord.x);
+            this.move(coord.y, coord.x);
         }
 
         // deleteMessageLine will delete all text from the message line (0,0).
         // The current cursor position will be maintained.
-        public static void messageLineClear()
+        public void messageLineClear()
         {
             // save current cursor position
-            var coord = currentCursorPosition();
+            var coord = this.currentCursorPosition();
 
             // move to beginning of message line, and clear it
-            clrtoeol(0, 0);
+            this.clrtoeol(0, 0);
 
             // restore cursor to old position
-            move(coord.y, coord.x);
+            this.move(coord.y, coord.x);
         }
 
         // Outputs message to top line of screen
         // These messages are kept for later reference.
-        public static void printMessage(string msg)
+        public void printMessage(string msg)
         {
             var new_len = 0;
             var old_len = 0;
@@ -455,12 +511,12 @@ namespace Moria.Core.Methods
                         old_len = 73;
                     }
 
-                    putString(" -more-", new Coord_t((int)MSG_LINE, old_len));
+                    this.putString(" -more-", new Coord_t((int)MSG_LINE, old_len));
 
                     char in_char;
                     do
                     {
-                        in_char = getKeyInput();
+                        in_char = this.getKeyInput();
                     } while (in_char != ' ' && in_char != ESCAPE && in_char != '\n' && in_char != '\r');
                 }
                 else
@@ -472,7 +528,7 @@ namespace Moria.Core.Methods
             if (!combine_messages)
             {
                 //move((int)MSG_LINE, 0);
-                clrtoeol((int)MSG_LINE, 0);
+                this.clrtoeol((int)MSG_LINE, 0);
             }
 
             // Make the null string a special case. -CJS-
@@ -492,7 +548,7 @@ namespace Moria.Core.Methods
 
             if (combine_messages)
             {
-                putString(msg, new Coord_t((int)MSG_LINE, old_len + 2));
+                this.putString(msg, new Coord_t((int)MSG_LINE, old_len + 2));
                 //strcat(State.Instance.messages[State.Instance.last_message_id], "  ");
                 //strcat(State.Instance.messages[State.Instance.last_message_id], msg);
                 State.Instance.messages[State.Instance.last_message_id] += "  ";
@@ -501,7 +557,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                messageLinePrintMessage(msg);
+                this.messageLinePrintMessage(msg);
                 State.Instance.last_message_id++;
 
                 if (State.Instance.last_message_id >= MESSAGE_HISTORY_SIZE)
@@ -519,14 +575,14 @@ namespace Moria.Core.Methods
         }
 
         // Print a message so as not to interrupt a counted command. -CJS-
-        public static void printMessageNoCommandInterrupt(string msg)
+        public void printMessageNoCommandInterrupt(string msg)
         {
             var game = State.Instance.game;
 
             // Save command count value
             var i = game.command_count;
 
-            printMessage(msg);
+            this.printMessage(msg);
 
             // Restore count value
             game.command_count = i;
@@ -537,14 +593,14 @@ namespace Moria.Core.Methods
         // This silently consumes ^R to redraw the screen and reset the
         // terminal, so that this operation can always be performed at
         // any input prompt. getKeyInput() never returns ^R.
-        public static char getKeyInput()
+        public char getKeyInput()
         {
-            putQIO();               // Dump IO buffer
+            this.putQIO();               // Dump IO buffer
             State.Instance.game.command_count = 0; // Just to be safe -CJS-
 
             while (true)
             {
-                getch(out var ch);
+                this.getch(out var ch);
                 //int ch = getch();
 
                 // some machines may not sign extend.
@@ -556,15 +612,15 @@ namespace Moria.Core.Methods
 
                     State.Instance.eof_flag++;
 
-                    refresh();
+                    this.refresh();
 
                     if (!State.Instance.game.character_generated || State.Instance.game.character_saved)
                     {
-                        eventPublisher.Publish(new EndGameCommand());
+                        this.eventPublisher.Publish(new EndGameCommand());
                         //endGame();
                     }
 
-                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    this.eventPublisher.Publish(new DisturbCommand(true, false));
                     //playerDisturb(1, 0);
 
                     if (State.Instance.eof_flag > 100)
@@ -574,13 +630,14 @@ namespace Moria.Core.Methods
 
                         State.Instance.game.character_died_from = "(end of input: panic saved)";
                         //(void)strcpy(game.character_died_from, "(end of input: panic saved)");
-                        if (!gameSave.saveGame())
+                        if (!this.gameSave.saveGame())
                         {
                             State.Instance.game.character_died_from = "panic: unexpected eof";
                             //(void)strcpy(game.character_died_from, "panic: unexpected eof");
                             State.Instance.game.character_is_dead = true;
                         }
-                        eventPublisher.Publish(new EndGameCommand());
+
+                        this.eventPublisher.Publish(new EndGameCommand());
                         //endGame();
                     }
                     return ESCAPE;
@@ -592,39 +649,39 @@ namespace Moria.Core.Methods
                 }
 
                 //(void)wrefresh(curscr); // TOMAYBE
-                moriaTerminalInitialize();
+                this.moriaTerminalInitialize();
             }
         }
 
         // Prompts (optional) and returns ord value of input char
         // Function returns false if <ESCAPE> is input
-        public static bool getCommand(string prompt, out char command)
+        public bool getCommand(string prompt, out char command)
         {
             if (!string.IsNullOrEmpty(prompt))
             {
-                putStringClearToEOL(prompt, new Coord_t(0, 0));
+                this.putStringClearToEOL(prompt, new Coord_t(0, 0));
             }
-            command = getKeyInput();
+            command = this.getKeyInput();
 
-            messageLineClear();
+            this.messageLineClear();
 
             return command != ESCAPE;
         }
 
         // Gets a string terminated by <RETURN>
         // Function returns false if <ESCAPE> is input
-        public static bool getStringInput(out string in_str, Coord_t coord, int slen)
+        public bool getStringInput(out string in_str, Coord_t coord, int slen)
         {
             var in_str_value = "";
-            move(coord.y, coord.x);
+            this.move(coord.y, coord.x);
             //(void)move(coord.y, coord.x);
 
             for (var i = slen; i > 0; i--)
             {
-                addch(' ');
+                this.addch(' ');
             }
 
-            move(coord.y, coord.x);
+            this.move(coord.y, coord.x);
             //(void)move(coord.y, coord.x);
 
             var start_col = coord.x;
@@ -643,7 +700,7 @@ namespace Moria.Core.Methods
 
             while (!flag && !aborted)
             {
-                int key = getKeyInput();
+                int key = this.getKeyInput();
                 switch (key)
                 {
                     case ESCAPE:
@@ -658,21 +715,21 @@ namespace Moria.Core.Methods
                         if (coord.x > start_col)
                         {
                             coord.x--;
-                            putString(" ", coord);
-                            moveCursor(coord);
+                            this.putString(" ", coord);
+                            this.moveCursor(coord);
                             p--;
                             in_str_value = in_str_value.Substring(0, in_str_value.Length - 1);
                             //*--p = '\0';
                         }
                         break;
                     default:
-                        if (!isprint((char)key) || coord.x > end_col)
+                        if (!this.isprint((char)key) || coord.x > end_col)
                         {
-                            terminalBellSound();
+                            this.terminalBellSound();
                         }
                         else
                         {
-                            mvaddch(coord.y, coord.x, (char)key);
+                            this.mvaddch(coord.y, coord.x, (char)key);
                             p++;
                             in_str_value += (char)key;
                             //*p++ = (char)key;
@@ -701,41 +758,41 @@ namespace Moria.Core.Methods
         }
 
         // Used to verify a choice - user gets the chance to abort choice. -CJS-
-        public static bool getInputConfirmation(string prompt)
+        public bool getInputConfirmation(string prompt)
         {
-            putStringClearToEOL(prompt, new Coord_t(0, 0));
+            this.putStringClearToEOL(prompt, new Coord_t(0, 0));
 
-            getyx(out var y, out var x);
+            this.getyx(out var y, out var x);
             //getyx(stdscr, y, x);
 
             if (x > 73)
             {
-                move(0, 73);
+                this.move(0, 73);
             }
             else if (y != 0)
             {
                 // use `y` to prevent compiler warning.
             }
 
-            addstr(" [y/n]");
+            this.addstr(" [y/n]");
 
             var input = ' ';
             while (input == ' ')
             {
-                input = getKeyInput();
+                input = this.getKeyInput();
             }
 
-            messageLineClear();
+            this.messageLineClear();
 
             return input == 'Y' || input == 'y';
         }
 
         // Pauses for user response before returning -RAK-
-        public static void waitForContinueKey(int line_number)
+        public void waitForContinueKey(int line_number)
         {
-            putStringClearToEOL("[ press any key to continue ]", new Coord_t(line_number, 23));
-            getKeyInput();
-            eraseLine(new Coord_t(line_number, 0));
+            this.putStringClearToEOL("[ press any key to continue ]", new Coord_t(line_number, 23));
+            this.getKeyInput();
+            this.eraseLine(new Coord_t(line_number, 0));
         }
 
         // Provides for a timeout on input. Does a non-blocking read, consuming the data if
@@ -748,10 +805,10 @@ namespace Moria.Core.Methods
         //
         // In systems which can only sleep for whole number of seconds, you might sleep by
         // writing a lot of nulls to the terminal, and waiting for them to drain, or you
-        // might hack a static accumulation of times to wait. When the accumulation reaches
+        // might hack a accumulation of times to wait. When the accumulation reaches
         // a certain point, sleep for a second. There would need to be a way of resetting
         // the count, with a call made for commands like run or rest.
-        public static bool checkForNonBlockingKeyPress(int microseconds)
+        public bool checkForNonBlockingKeyPress(int microseconds)
         {
             ////# ifdef _WIN32
             //(void)microseconds;
@@ -759,7 +816,7 @@ namespace Moria.Core.Methods
             //// Ugly non-blocking read...Ugh! -MRC-
             //timeout(8);
             return false;
-            return getch(out var result);
+            return this.getch(out var result);
             //int result = getch();
             //timeout(-1);
 
@@ -789,7 +846,7 @@ namespace Moria.Core.Methods
         }
 
         // Find a default user name from the system.
-        public static void getDefaultPlayerName(out string buffer)
+        public void getDefaultPlayerName(out string buffer)
         {
             buffer = Environment.UserName;
             //// Gotta have some name
@@ -832,7 +889,7 @@ namespace Moria.Core.Methods
         //#undef open
 
         //// open a file just as does fopen, but allow a leading ~ to specify a home directory
-        //public static FILE* tfopen(string file, string mode)
+        //public FILE* tfopen(string file, string mode)
         //{
         //    char expanded[1024];
         //    if (tilde(file, expanded))
@@ -844,7 +901,7 @@ namespace Moria.Core.Methods
         //}
 
         //// open a file just as does open, but expand a leading ~ into a home directory name
-        //public static int topen(string file, int flags, int mode)
+        //public int topen(string file, int flags, int mode)
         //{
         //    char expanded[1024];
         //    if (tilde(file, expanded))
@@ -856,7 +913,7 @@ namespace Moria.Core.Methods
         //}
 
 //        // expands a tilde at the beginning of a file name to a users home directory
-//        public static bool tilde(string file, ref string expanded)
+//        public bool tilde(string file, ref string expanded)
 //        {
 //            if (file == nullptr)
 //            {

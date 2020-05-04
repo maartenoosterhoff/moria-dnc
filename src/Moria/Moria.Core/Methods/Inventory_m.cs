@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -37,19 +36,22 @@ namespace Moria.Core.Methods
             IGameObjects gameObjects,
             IDungeon dungeon,
             IInventoryManager inventoryManager,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.gameObjects = gameObjects;
             this.dungeon = dungeon;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         private readonly IGameObjects gameObjects;
         private readonly IDungeon dungeon;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         // Drops an item from inventory to given location -RAK-
         public void inventoryDropItem(int item_id, bool drop_all)
@@ -101,7 +103,7 @@ namespace Moria.Core.Methods
                 itemDescription(ref prt1, game.treasure.list[treasure_id], true);
                 prt2 = $"Dropped {prt1}";
                 //(void)sprintf(prt2, "Dropped %s", prt1);
-                printMessage(prt2);
+                this.terminal.printMessage(prt2);
             }
 
             py.flags.status |= Config.player_status.PY_STR_WGT;
@@ -123,7 +125,7 @@ namespace Moria.Core.Methods
 
                 if (py.flags.blind < 1)
                 {
-                    printMessage("Your light dims.");
+                    this.terminal.printMessage("Your light dims.");
                 }
                 else
                 {
@@ -153,7 +155,7 @@ namespace Moria.Core.Methods
                 {
                     itemAppendToInscription(item, Config.identification.ID_EMPTY);
                 }
-                printMessage("Energy drains from your pack!");
+                this.terminal.printMessage("Energy drains from your pack!");
             }
             else
             {
@@ -341,7 +343,7 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, py.inventory[item_id], false);
                 msg = $"Your {description} resists damage!";
                 //(void)sprintf(msg, "Your %s resists damage!", description);
-                printMessage(msg);
+                this.terminal.printMessage(msg);
             }
             else if (py.inventory[item_id].ac + py.inventory[item_id].to_ac > 0)
             {
@@ -350,7 +352,7 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, py.inventory[item_id], false);
                 msg = $"Your {description} is damaged!";
                 //(void)sprintf(msg, "Your %s is damaged!", description);
-                printMessage(msg);
+                this.terminal.printMessage(msg);
 
                 py.inventory[item_id].to_ac--;
                 playerRecalculateBonuses();
@@ -502,7 +504,7 @@ namespace Moria.Core.Methods
 
             if (this.inventoryManager.inventoryDamageItem(this.setCorrodableItems, 5) > 0)
             {
-                printMessage("There is an acrid smell coming from your pack.");
+                this.terminal.printMessage("There is an acrid smell coming from your pack.");
             }
         }
 
@@ -535,7 +537,7 @@ namespace Moria.Core.Methods
 
             if (this.inventoryManager.inventoryDamageItem(this.setFlammableItems, 3) > 0)
             {
-                printMessage("There is smoke coming from your pack!");
+                this.terminal.printMessage("There is smoke coming from your pack!");
             }
         }
 
@@ -558,7 +560,7 @@ namespace Moria.Core.Methods
 
             if (this.inventoryManager.inventoryDamageItem(this.setFrostDestroyableItems, 5) > 0)
             {
-                printMessage("Something shatters inside your pack!");
+                this.terminal.printMessage("Something shatters inside your pack!");
             }
         }
 
@@ -576,7 +578,7 @@ namespace Moria.Core.Methods
 
             if (this.inventoryManager.inventoryDamageItem(this.setLightningDestroyableItems, 3) > 0)
             {
-                printMessage("There are sparks coming from your pack!");
+                this.terminal.printMessage("There are sparks coming from your pack!");
             }
         }
 
@@ -601,7 +603,7 @@ namespace Moria.Core.Methods
 
             if (this.inventoryManager.inventoryDamageItem(this.setAcidAffectedItems, 3) > 0)
             {
-                printMessage("There is an acrid smell coming from your pack!");
+                this.terminal.printMessage("There is an acrid smell coming from your pack!");
             }
         }
     }

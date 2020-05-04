@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Game_files_m;
@@ -22,14 +21,17 @@ namespace Moria.Core.Methods
     {
         private readonly IGame game;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         public Character_m(
             IGame game,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.game = game;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         // Generates character's stats -JWT-
@@ -164,15 +166,15 @@ namespace Moria.Core.Methods
         // shown during the character creation screens.
         private void displayCharacterRaces()
         {
-            clearToBottom(20);
-            putString("Choose a race (? for Help):", new Coord_t(20, 2));
+            this.terminal.clearToBottom(20);
+            this.terminal.putString("Choose a race (? for Help):", new Coord_t(20, 2));
 
             var coord = new Coord_t(21, 2);
 
             for (var i = 0; i < PLAYER_MAX_RACES; i++)
             {
                 var description = $"{(char)(i + 'a')}) {Library.Instance.Player.character_races[i].name}";
-                putString(description, coord);
+                this.terminal.putString(description, coord);
 
                 coord.x += 15;
                 if (coord.x > 70)
@@ -192,9 +194,9 @@ namespace Moria.Core.Methods
 
             while (true)
             {
-                moveCursor(new Coord_t(20, 30));
+                this.terminal.moveCursor(new Coord_t(20, 30));
 
-                var input = getKeyInput();
+                var input = this.terminal.getKeyInput();
                 race_id = input - 'a';
 
                 if (race_id < PLAYER_MAX_RACES && race_id >= 0)
@@ -208,23 +210,23 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    terminalBellSound();
+                    this.terminal.terminalBellSound();
                 }
             }
 
             State.Instance.py.misc.race_id = (uint)race_id;
 
-            putString(Library.Instance.Player.character_races[race_id].name, new Coord_t(3, 15));
+            this.terminal.putString(Library.Instance.Player.character_races[race_id].name, new Coord_t(3, 15));
         }
 
         // Will print the history of a character -JWT-
         private void displayCharacterHistory()
         {
-            putString("Character Background", new Coord_t(14, 27));
+            this.terminal.putString("Character Background", new Coord_t(14, 27));
 
             for (var i = 0; i < 4; i++)
             {
-                putStringClearToEOL(State.Instance.py.misc.history[i], new Coord_t(i + 15, 10));
+                this.terminal.putStringClearToEOL(State.Instance.py.misc.history[i], new Coord_t(i + 15, 10));
             }
         }
 
@@ -360,28 +362,28 @@ namespace Moria.Core.Methods
         // Gets the character's gender -JWT-
         void characterSetGender()
         {
-            clearToBottom(20);
-            putString("Choose a sex (? for Help):", new Coord_t(20, 2));
-            putString("m) Male       f) Female", new Coord_t(21, 2));
+            this.terminal.clearToBottom(20);
+            this.terminal.putString("Choose a sex (? for Help):", new Coord_t(20, 2));
+            this.terminal.putString("m) Male       f) Female", new Coord_t(21, 2));
 
             var is_set = false;
             while (!is_set)
             {
-                moveCursor(new Coord_t(20, 29));
+                this.terminal.moveCursor(new Coord_t(20, 29));
 
                 // speed not important here
-                var input = getKeyInput();
+                var input = this.terminal.getKeyInput();
 
                 if (input == 'f' || input == 'F')
                 {
                     playerSetGender(false);
-                    putString("Female", new Coord_t(4, 15));
+                    this.terminal.putString("Female", new Coord_t(4, 15));
                     is_set = true;
                 }
                 else if (input == 'm' || input == 'M')
                 {
                     playerSetGender(true);
-                    putString("Male", new Coord_t(4, 15));
+                    this.terminal.putString("Male", new Coord_t(4, 15));
                     is_set = true;
                 }
                 else if (input == '?')
@@ -390,7 +392,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    terminalBellSound();
+                    this.terminal.terminalBellSound();
                 }
             }
         }
@@ -435,8 +437,8 @@ namespace Moria.Core.Methods
 
             uint mask = 0x1;
 
-            clearToBottom(20);
-            putString("Choose a class (? for Help):", new Coord_t(20, 2));
+            this.terminal.clearToBottom(20);
+            this.terminal.putString("Choose a class (? for Help):", new Coord_t(20, 2));
 
             for (uint i = 0; i < PLAYER_MAX_CLASSES; i++)
             {
@@ -444,7 +446,7 @@ namespace Moria.Core.Methods
                 {
                     var description = $"{(char)(class_id + 'a')}) {Library.Instance.Player.classes[(int)i].title}";
                     // (void)sprintf(description, "%c) %s", class_id + 'a', classes[i].title);
-                    putString(description, coord);
+                    this.terminal.putString(description, coord);
                     class_list[class_id] = i;
 
                     coord.x += 15;
@@ -468,8 +470,8 @@ namespace Moria.Core.Methods
 
             var klass = Library.Instance.Player.classes[(int)py.misc.class_id];
 
-            clearToBottom(20);
-            putString(klass.title, new Coord_t(5, 15));
+            this.terminal.clearToBottom(20);
+            this.terminal.putString(klass.title, new Coord_t(5, 15));
 
             // Adjust the stats for the class adjustment -RAK-
             py.stats.max[(int)PlayerAttr.STR] = this.createModifyPlayerStat(py.stats.max[(int)PlayerAttr.STR], klass.strength);
@@ -543,9 +545,9 @@ namespace Moria.Core.Methods
 
             while (!is_set)
             {
-                moveCursor(new Coord_t(20, 31));
+                this.terminal.moveCursor(new Coord_t(20, 31));
 
-                var input = getKeyInput();
+                var input = this.terminal.getKeyInput();
                 var class_id = input - 'a';
 
                 if (class_id < class_count && class_id >= 0)
@@ -559,7 +561,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    terminalBellSound();
+                    this.terminal.terminalBellSound();
                 }
             }
         }
@@ -623,12 +625,12 @@ namespace Moria.Core.Methods
                 printCharacterVitalStatistics();
                 printCharacterStats();
 
-                clearToBottom(20);
-                putString("Hit space to re-roll or ESC to accept characteristics: ", new Coord_t(20, 2));
+                this.terminal.clearToBottom(20);
+                this.terminal.putString("Hit space to re-roll or ESC to accept characteristics: ", new Coord_t(20, 2));
 
                 while (true)
                 {
-                    var input = getKeyInput();
+                    var input = this.terminal.getKeyInput();
                     if (input == ESCAPE)
                     {
                         done = true;
@@ -639,7 +641,7 @@ namespace Moria.Core.Methods
                     {
                         break;
                     }
-                    terminalBellSound();
+                    this.terminal.terminalBellSound();
                 }
             }
 
@@ -650,12 +652,12 @@ namespace Moria.Core.Methods
             printCharacterAbilities();
             getCharacterName();
 
-            putStringClearToEOL("[ press any key to continue, or Q to exit ]", new Coord_t(23, 17));
-            if (getKeyInput() == 'Q')
+            this.terminal.putStringClearToEOL("[ press any key to continue, or Q to exit ]", new Coord_t(23, 17));
+            if (this.terminal.getKeyInput() == 'Q')
             {
                 this.game.exitProgram();
             }
-            eraseLine(new Coord_t(23, 0));
+            this.terminal.eraseLine(new Coord_t(23, 0));
         }
     }
 }

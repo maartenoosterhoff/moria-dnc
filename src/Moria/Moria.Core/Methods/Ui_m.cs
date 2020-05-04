@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Player_m;
@@ -20,16 +19,19 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDungeon dungeon,
+            ITerminal terminal,
 
             IEventPublisher eventPublisher
         )
         {
             Ui_m.dungeon = dungeon;
+            Ui_m.terminal = terminal;
 
             Ui_m.eventPublisher = eventPublisher;
         }
 
         private static IDungeon dungeon;
+        private static ITerminal terminal;
 
         private static IEventPublisher eventPublisher;
 
@@ -131,7 +133,7 @@ namespace Moria.Core.Methods
             // Top to bottom
             for (coord.y = dg.panel.top; coord.y <= dg.panel.bottom; coord.y++)
             {
-                eraseLine(new Coord_t(line, 13));
+                terminal.eraseLine(new Coord_t(line, 13));
                 line++;
 
                 // Left to right
@@ -140,7 +142,7 @@ namespace Moria.Core.Methods
                     var ch = dungeon.caveGetTileSymbol(coord);
                     if (ch != ' ')
                     {
-                        panelPutTile(ch, coord);
+                        terminal.panelPutTile(ch, coord);
                     }
                 }
             }
@@ -149,7 +151,7 @@ namespace Moria.Core.Methods
         // Draws entire screen -RAK-
         public static void drawCavePanel()
         {
-            clearScreen();
+            terminal.clearScreen();
             printCharacterStatsBlock();
             drawDungeonPanel();
             printCharacterCurrentDepth();
@@ -226,8 +228,8 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var text = string.Empty;
             statsAsString(py.stats.used[stat], out text);
-            putString(stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
-            putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
+            terminal.putString(stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
+            terminal.putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
         }
 
         // Print character info in given row, column -RAK-
@@ -235,10 +237,10 @@ namespace Moria.Core.Methods
         public static void printCharacterInfoInField(string info, Coord_t coord)
         {
             // blank out the current field space
-            putString(blank_string.Substring(0, BLANK_LENGTH - 13), coord);
+            terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 13), coord);
             //putString(&blank_string[BLANK_LENGTH - 13], coord);
 
-            putString(info, coord);
+            terminal.putString(info, coord);
         }
 
         // Print long number with header at given row, column
@@ -247,7 +249,7 @@ namespace Moria.Core.Methods
             var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %6d", header, num);
-            putString(str, coord);
+            terminal.putString(str, coord);
         }
 
         // Print long number (7 digits of space) with header at given row, column
@@ -256,7 +258,7 @@ namespace Moria.Core.Methods
             var str = $"{header}: {num,7:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %7d", header, num);
-            putString(str, coord);
+            terminal.putString(str, coord);
         }
 
         // Print number with header at given row, column -RAK-
@@ -265,7 +267,7 @@ namespace Moria.Core.Methods
             var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %6d", header, num);
-            putString(str, coord);
+            terminal.putString(str, coord);
         }
 
         // Print long number at given row, column
@@ -274,7 +276,7 @@ namespace Moria.Core.Methods
             var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%6d", num);
-            putString(str, coord);
+            terminal.putString(str, coord);
         }
 
         // Print number at given row, column -RAK-
@@ -283,7 +285,7 @@ namespace Moria.Core.Methods
             var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%6d", num);
-            putString(str, coord);
+            terminal.putString(str, coord);
         }
 
         // Prints title of character -RAK-
@@ -354,7 +356,7 @@ namespace Moria.Core.Methods
                 //(void)sprintf(depths, "%d feet", depth);
             }
 
-            putStringClearToEOL(depths, new Coord_t(23, 65));
+            terminal.putStringClearToEOL(depths, new Coord_t(23, 65));
         }
 
         // Prints status of hunger -RAK-
@@ -363,15 +365,15 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_WEAK) != 0u)
             {
-                putString("Weak  ", new Coord_t(23, 0));
+                terminal.putString("Weak  ", new Coord_t(23, 0));
             }
             else if ((py.flags.status & Config.player_status.PY_HUNGRY) != 0u)
             {
-                putString("Hungry", new Coord_t(23, 0));
+                terminal.putString("Hungry", new Coord_t(23, 0));
             }
             else
             {
-                putString(blank_string.Substring(0, BLANK_LENGTH - 6), new Coord_t(23, 0));
+                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 6), new Coord_t(23, 0));
                 //putString(&blank_string[BLANK_LENGTH - 6], new Coord_t(23, 0));
             }
         }
@@ -382,11 +384,11 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_BLIND) != 0u)
             {
-                putString("Blind", new Coord_t(23, 7));
+                terminal.putString("Blind", new Coord_t(23, 7));
             }
             else
             {
-                putString(blank_string.Substring(0, BLANK_LENGTH - 5), new Coord_t(23, 7));
+                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 5), new Coord_t(23, 7));
                 //putString(&blank_string[BLANK_LENGTH - 5], new Coord_t(23, 7));
             }
         }
@@ -397,11 +399,11 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_CONFUSED) != 0u)
             {
-                putString("Confused", new Coord_t(23, 13));
+                terminal.putString("Confused", new Coord_t(23, 13));
             }
             else
             {
-                putString(blank_string.Substring(BLANK_LENGTH - 8), new Coord_t(23, 13));
+                terminal.putString(blank_string.Substring(BLANK_LENGTH - 8), new Coord_t(23, 13));
                 //putString(&blank_string[BLANK_LENGTH - 8], new Coord_t(23, 13));
             }
         }
@@ -412,12 +414,12 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_FEAR) != 0u)
             {
-                putString("Afraid", new Coord_t(23, 22));
+                terminal.putString("Afraid", new Coord_t(23, 22));
             }
             else
             {
                 //putString(&blank_string[BLANK_LENGTH - 6], new Coord_t(23, 22));
-                putString(blank_string.Substring(BLANK_LENGTH - 6), new Coord_t(23, 22));
+                terminal.putString(blank_string.Substring(BLANK_LENGTH - 6), new Coord_t(23, 22));
             }
         }
 
@@ -427,11 +429,11 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_POISONED) != 0u)
             {
-                putString("Poisoned", new Coord_t(23, 29));
+                terminal.putString("Poisoned", new Coord_t(23, 29));
             }
             else
             {
-                putString(blank_string.Substring(0, BLANK_LENGTH - 8), new Coord_t(23, 29));
+                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 8), new Coord_t(23, 29));
                 //putString(&blank_string[BLANK_LENGTH - 8], new Coord_t(23, 29));
             }
         }
@@ -445,7 +447,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.paralysis > 1)
             {
-                putString("Paralysed", new Coord_t(23, 38));
+                terminal.putString("Paralysed", new Coord_t(23, 38));
                 return;
             }
 
@@ -470,7 +472,7 @@ namespace Moria.Core.Methods
                     //(void)strcpy(rest_string, "Rest");
                 }
 
-                putString(rest_string, new Coord_t(23, 38));
+                terminal.putString(rest_string, new Coord_t(23, 38));
 
                 return;
             }
@@ -493,11 +495,11 @@ namespace Moria.Core.Methods
 
                 py.flags.status |= Config.player_status.PY_REPEAT;
 
-                putString(repeat_string, new Coord_t(23, 38));
+                terminal.putString(repeat_string, new Coord_t(23, 38));
 
                 if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u)
                 {
-                    putString("Search", new Coord_t(23, 38));
+                    terminal.putString("Search", new Coord_t(23, 38));
                 }
 
                 return;
@@ -505,12 +507,12 @@ namespace Moria.Core.Methods
 
             if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u)
             {
-                putString("Searching", new Coord_t(23, 38));
+                terminal.putString("Searching", new Coord_t(23, 38));
                 return;
             }
 
             // "repeat 999" is 10 characters
-            putString(blank_string.Substring(0, BLANK_LENGTH - 10), new Coord_t(23, 38));
+            terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 10), new Coord_t(23, 38));
             //putString(&blank_string[BLANK_LENGTH - 10], new Coord_t(23, 38});
         }
 
@@ -528,24 +530,24 @@ namespace Moria.Core.Methods
 
             if (speed > 1)
             {
-                putString("Very Slow", new Coord_t(23, 49));
+                terminal.putString("Very Slow", new Coord_t(23, 49));
             }
             else if (speed == 1)
             {
-                putString("Slow     ", new Coord_t(23, 49));
+                terminal.putString("Slow     ", new Coord_t(23, 49));
             }
             else if (speed == 0)
             {
-                putString(blank_string.Substring(0, BLANK_LENGTH - 9), new Coord_t(23, 49));
+                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 9), new Coord_t(23, 49));
                 //putString(&blank_string[BLANK_LENGTH - 9], new Coord_t(23, 49));
             }
             else if (speed == -1)
             {
-                putString("Fast     ", new Coord_t(23, 49));
+                terminal.putString("Fast     ", new Coord_t(23, 49));
             }
             else
             {
-                putString("Very Fast", new Coord_t(23, 49));
+                terminal.putString("Very Fast", new Coord_t(23, 49));
             }
         }
 
@@ -557,12 +559,12 @@ namespace Moria.Core.Methods
 
             if (py.flags.new_spells_to_learn == 0)
             {
-                putString(blank_string.Substring(BLANK_LENGTH - 5), new Coord_t(23, 59));
+                terminal.putString(blank_string.Substring(BLANK_LENGTH - 5), new Coord_t(23, 59));
                 //putString(&blank_string[BLANK_LENGTH - 5], new Coord_t(23, 59));
             }
             else
             {
-                putString("Study", new Coord_t(23, 59));
+                terminal.putString("Study", new Coord_t(23, 59));
             }
         }
 
@@ -574,24 +576,24 @@ namespace Moria.Core.Methods
             {
                 if (game.wizard_mode)
                 {
-                    putString("Is wizard  ", new Coord_t(22, 0));
+                    terminal.putString("Is wizard  ", new Coord_t(22, 0));
                 }
                 else
                 {
-                    putString("Was wizard ", new Coord_t(22, 0));
+                    terminal.putString("Was wizard ", new Coord_t(22, 0));
                 }
             }
             else if ((game.noscore & 0x1) != 0)
             {
-                putString("Resurrected", new Coord_t(22, 0));
+                terminal.putString("Resurrected", new Coord_t(22, 0));
             }
             else if ((game.noscore & 0x4) != 0)
             {
-                putString("Duplicate", new Coord_t(22, 0));
+                terminal.putString("Duplicate", new Coord_t(22, 0));
             }
             else if (game.total_winner)
             {
-                putString("*Winner*   ", new Coord_t(22, 0));
+                terminal.putString("*Winner*   ", new Coord_t(22, 0));
             }
         }
 
@@ -667,22 +669,22 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var py = State.Instance.py;
 
-            clearScreen();
+            terminal.clearScreen();
 
-            putString("Name        :", new Coord_t(2, 1));
-            putString("Race        :", new Coord_t(3, 1));
-            putString("Sex         :", new Coord_t(4, 1));
-            putString("Class       :", new Coord_t(5, 1));
+            terminal.putString("Name        :", new Coord_t(2, 1));
+            terminal.putString("Race        :", new Coord_t(3, 1));
+            terminal.putString("Sex         :", new Coord_t(4, 1));
+            terminal.putString("Class       :", new Coord_t(5, 1));
 
             if (!game.character_generated)
             {
                 return;
             }
 
-            putString(py.misc.name, new Coord_t(2, 15));
-            putString(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(3, 15));
-            putString(playerGetGenderLabel(), new Coord_t(4, 15));
-            putString(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(5, 15));
+            terminal.putString(py.misc.name, new Coord_t(2, 15));
+            terminal.putString(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(3, 15));
+            terminal.putString(playerGetGenderLabel(), new Coord_t(4, 15));
+            terminal.putString(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(5, 15));
         }
 
         // Prints the following information on the screen. -JWT-
@@ -692,13 +694,13 @@ namespace Moria.Core.Methods
             for (var i = 0; i < 6; i++)
             {
                 statsAsString(py.stats.used[i], out var buf);
-                putString(stat_names[i], new Coord_t(2 + i, 61));
-                putString(buf, new Coord_t(2 + i, 66));
+                terminal.putString(stat_names[i], new Coord_t(2 + i, 61));
+                terminal.putString(buf, new Coord_t(2 + i, 66));
 
                 if (py.stats.max[i] > py.stats.current[i])
                 {
                     statsAsString(py.stats.max[i], out buf);
-                    putString(buf, new Coord_t(2 + i, 73));
+                    terminal.putString(buf, new Coord_t(2 + i, 73));
                 }
             }
 
@@ -757,7 +759,7 @@ namespace Moria.Core.Methods
 
             if (py.misc.level >= PLAYER_MAX_LEVEL)
             {
-                putStringClearToEOL("Exp to Adv.: *******", new Coord_t(12, 28));
+                terminal.putStringClearToEOL("Exp to Adv.: *******", new Coord_t(12, 28));
             }
             else
             {
@@ -776,7 +778,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
             var class_level_adj = Library.Instance.Player.class_level_adj;
-            clearToBottom(14);
+            terminal.clearToBottom(14);
 
             var xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level;
             var xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level;
@@ -803,27 +805,27 @@ namespace Moria.Core.Methods
             //vtype_t xinfra = { '\0' };
             //(void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
 
-            putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
-            putString("Fighting    :", new Coord_t(16, 1));
-            putString(statRating(12, xbth), new Coord_t(16, 15));
-            putString("Bows/Throw  :", new Coord_t(17, 1));
-            putString(statRating(12, xbthb), new Coord_t(17, 15));
-            putString("Saving Throw:", new Coord_t(18, 1));
-            putString(statRating(6, xsave), new Coord_t(18, 15));
+            terminal.putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
+            terminal.putString("Fighting    :", new Coord_t(16, 1));
+            terminal.putString(statRating(12, xbth), new Coord_t(16, 15));
+            terminal.putString("Bows/Throw  :", new Coord_t(17, 1));
+            terminal.putString(statRating(12, xbthb), new Coord_t(17, 15));
+            terminal.putString("Saving Throw:", new Coord_t(18, 1));
+            terminal.putString(statRating(6, xsave), new Coord_t(18, 15));
 
-            putString("Stealth     :", new Coord_t(16, 28));
-            putString(statRating(1, xstl), new Coord_t(16, 42));
-            putString("Disarming   :", new Coord_t(17, 28));
-            putString(statRating(8, xdis), new Coord_t(17, 42));
-            putString("Magic Device:", new Coord_t(18, 28));
-            putString(statRating(6, xdev), new Coord_t(18, 42));
+            terminal.putString("Stealth     :", new Coord_t(16, 28));
+            terminal.putString(statRating(1, xstl), new Coord_t(16, 42));
+            terminal.putString("Disarming   :", new Coord_t(17, 28));
+            terminal.putString(statRating(8, xdis), new Coord_t(17, 42));
+            terminal.putString("Magic Device:", new Coord_t(18, 28));
+            terminal.putString(statRating(6, xdev), new Coord_t(18, 42));
 
-            putString("Perception  :", new Coord_t(16, 55));
-            putString(statRating(3, xfos), new Coord_t(16, 69));
-            putString("Searching   :", new Coord_t(17, 55));
-            putString(statRating(6, xsrh), new Coord_t(17, 69));
-            putString("Infra-Vision:", new Coord_t(18, 55));
-            putString(xinfra, new Coord_t(18, 69));
+            terminal.putString("Perception  :", new Coord_t(16, 55));
+            terminal.putString(statRating(3, xfos), new Coord_t(16, 69));
+            terminal.putString("Searching   :", new Coord_t(17, 55));
+            terminal.putString(statRating(6, xsrh), new Coord_t(17, 69));
+            terminal.putString("Infra-Vision:", new Coord_t(18, 55));
+            terminal.putString(xinfra, new Coord_t(18, 69));
         }
 
         // Used to display the character on the screen. -RAK-
@@ -840,21 +842,21 @@ namespace Moria.Core.Methods
         public static void getCharacterName()
         {
             var py = State.Instance.py;
-            putStringClearToEOL("Enter your player's name  [press <RETURN> when finished]", new Coord_t(21, 2));
+            terminal.putStringClearToEOL("Enter your player's name  [press <RETURN> when finished]", new Coord_t(21, 2));
 
-            putString(blank_string.Substring(0, BLANK_LENGTH - 23), new Coord_t(2, 15));
+            terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 23), new Coord_t(2, 15));
             //putString(&blank_string[BLANK_LENGTH - 23], new Coord_t(2, 15));
 
-            var getStringInputResult = getStringInput(out var name, new Coord_t(2, 15), 23);
+            var getStringInputResult = terminal.getStringInput(out var name, new Coord_t(2, 15), 23);
             py.misc.name = name;
             if (!getStringInputResult || string.IsNullOrEmpty(py.misc.name))
             {
-                getDefaultPlayerName(out var defaultName);
+                terminal.getDefaultPlayerName(out var defaultName);
                 py.misc.name = defaultName;
-                putString(py.misc.name, new Coord_t(2, 15));
+                terminal.putString(py.misc.name, new Coord_t(2, 15));
             }
 
-            clearToBottom(20);
+            terminal.clearToBottom(20);
         }
 
         // Changes the name of the character -JWT-
@@ -868,18 +870,18 @@ namespace Moria.Core.Methods
 
             while (!flag)
             {
-                putStringClearToEOL("<f>ile character description. <c>hange character name.", new Coord_t(21, 2));
+                terminal.putStringClearToEOL("<f>ile character description. <c>hange character name.", new Coord_t(21, 2));
 
-                switch (getKeyInput())
+                switch (terminal.getKeyInput())
                 {
                     case 'c':
                         getCharacterName();
                         flag = true;
                         break;
                     case 'f':
-                        putStringClearToEOL("File name:", new Coord_t(0, 0));
+                        terminal.putStringClearToEOL("File name:", new Coord_t(0, 0));
 
-                        if (getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
+                        if (terminal.getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
                         {
                             if (outputPlayerCharacterToFile(temp))
                             {
@@ -894,7 +896,7 @@ namespace Moria.Core.Methods
                         flag = true;
                         break;
                     default:
-                        terminalBellSound();
+                        terminal.terminalBellSound();
                         break;
                 }
             }
@@ -926,9 +928,9 @@ namespace Moria.Core.Methods
                 consecutive_offset = (int)Config.spells.NAME_OFFSET_PRAYERS;
             }
 
-            eraseLine(new Coord_t(1, col));
-            putString("Name", new Coord_t(1, col + 5));
-            putString("Lv Mana Fail", new Coord_t(1, col + 35));
+            terminal.eraseLine(new Coord_t(1, col));
+            terminal.putString("Name", new Coord_t(1, col + 5));
+            terminal.putString("Lv Mana Fail", new Coord_t(1, col + 35));
 
             // only show the first 22 choices
             if (number_of_choices > 22)
@@ -985,7 +987,7 @@ namespace Moria.Core.Methods
                 //    spell.mana_required,
                 //    spellChanceOfSuccess(spell_id),
                 //    p);
-                putStringClearToEOL(out_val, new Coord_t(2 + i, col));
+                terminal.putStringClearToEOL(out_val, new Coord_t(2 + i, col));
             }
         }
 
@@ -998,7 +1000,7 @@ namespace Moria.Core.Methods
             var msg = $"Welcome to level {(int)py.misc.level}";
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "Welcome to level %d.", (int)py.misc.level);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             playerCalculateHitPoints();
 

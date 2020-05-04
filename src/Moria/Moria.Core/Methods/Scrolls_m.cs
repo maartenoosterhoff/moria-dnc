@@ -11,7 +11,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
 
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -37,6 +37,7 @@ namespace Moria.Core.Methods
             Scrolls_m.monsterManager = monsterManager;
             Scrolls_m.playerMagic = playerMagic;
             Scrolls_m.rnd = rnd;
+            Scrolls_m.terminal = terminal;
             Scrolls_m.uiInventory = uiInventory;
 
             Scrolls_m.eventPublisher = eventPublisher;
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -59,31 +61,31 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.flags.blind > 0)
             {
-                printMessage("You can't see to read the scroll.");
+                terminal.printMessage("You can't see to read the scroll.");
                 return false;
             }
 
             if (helpers.playerNoLight())
             {
-                printMessage("You have no light to read by.");
+                terminal.printMessage("You have no light to read by.");
                 return false;
             }
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are too confused to read a scroll.");
+                terminal.printMessage("You are too confused to read a scroll.");
                 return false;
             }
 
             if (py.pack.unique_items == 0)
             {
-                printMessage("You are not carrying anything!");
+                terminal.printMessage("You are not carrying anything!");
                 return false;
             }
 
             if (!inventoryManager.inventoryFindRange((int)TV_SCROLL1, (int)TV_SCROLL2, out item_pos_start, out item_pos_end))
             {
-                printMessage("You are not carrying any scrolls!");
+                terminal.printMessage("You are not carrying any scrolls!");
                 return false;
             }
 
@@ -181,7 +183,7 @@ namespace Moria.Core.Methods
 
             var msg = $"Your {desc} glows faintly!";
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             var toHit = item.to_hit;
             var command = new EnchantItemCommand(toHit, 10);
@@ -196,7 +198,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessage("The enchantment fails.");
+                terminal.printMessage("The enchantment fails.");
             }
 
             return true;
@@ -219,7 +221,7 @@ namespace Moria.Core.Methods
 
             var msg = $"Your {desc} glows faintly!";
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             int scroll_type;
 
@@ -247,7 +249,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessage("The enchantment fails.");
+                terminal.printMessage("The enchantment fails.");
             }
 
             return true;
@@ -271,7 +273,7 @@ namespace Moria.Core.Methods
             itemDescription(ref desc, item, false);
 
             var msg = $"Your {desc} glows faintly!";
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             var toAc = item.to_ac;
             var command = new EnchantItemCommand(toAc, 10);
@@ -286,7 +288,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessage("The enchantment fails.");
+                terminal.printMessage("The enchantment fails.");
             }
 
             return true;
@@ -296,7 +298,7 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            printMessage("This is an identify scroll.");
+            terminal.printMessage("This is an identify scroll.");
 
             is_used_up = eventPublisher.PublishWithOutputBool(new IdentifyItemCommand());
             //is_used_up = spellIdentifyItem();
@@ -320,7 +322,7 @@ namespace Moria.Core.Methods
             if (eventPublisher.PublishWithOutputBool(new RemoveCurseFromAllItemsCommand()))
             //if (spellRemoveCurseFromAllItems())
             {
-                printMessage("You feel as if someone is watching over you.");
+                terminal.printMessage("You feel as if someone is watching over you.");
                 return true;
             }
             return false;
@@ -360,7 +362,7 @@ namespace Moria.Core.Methods
 
             if (!py.flags.confuse_monster)
             {
-                printMessage("Your hands begin to glow.");
+                terminal.printMessage("Your hands begin to glow.");
                 py.flags.confuse_monster = true;
                 return true;
             }
@@ -384,7 +386,7 @@ namespace Moria.Core.Methods
 
             var msg = $"Your {desc} glows brightly!";
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             var enchanted = false;
 
@@ -436,7 +438,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessage("The enchantment fails.");
+                terminal.printMessage("The enchantment fails.");
             }
 
             return true;
@@ -459,7 +461,7 @@ namespace Moria.Core.Methods
 
             var msg = $"Your {desc} glows black, fades.";
             //(void)sprintf(msg, "Your %s glows black, fades.", desc);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             itemRemoveMagicNaming(item);
 
@@ -497,7 +499,7 @@ namespace Moria.Core.Methods
 
             var msg = $"Your {desc} glows brightly!";
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             var enchanted = false;
 
@@ -522,7 +524,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessage("The enchantment fails.");
+                terminal.printMessage("The enchantment fails.");
             }
 
             return true;
@@ -600,7 +602,7 @@ namespace Moria.Core.Methods
 
             var msg = $"Your {desc} glows black, fades.";
             //(void)sprintf(msg, "Your %s glows black, fades.", desc);
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             itemRemoveMagicNaming(item);
 
@@ -637,7 +639,7 @@ namespace Moria.Core.Methods
             {
                 py.flags.word_of_recall = 25 + rnd.randomNumber(30);
             }
-            printMessage("The air about you becomes charged.");
+            terminal.printMessage("The air about you becomes charged.");
         }
 
         // Scrolls for the reading -RAK-
@@ -750,7 +752,7 @@ namespace Moria.Core.Methods
                         //identified = spellDetectSecretDoorssWithinVicinity();
                         break;
                     case 19:
-                        printMessage("This is a mass genocide scroll.");
+                        terminal.printMessage("This is a mass genocide scroll.");
                         eventPublisher.Publish(new MassGenocideCommand());
                         //spellMassGenocide();
                         identified = true;
@@ -760,7 +762,7 @@ namespace Moria.Core.Methods
                         //identified = spellDetectInvisibleCreaturesWithinVicinity();
                         break;
                     case 21:
-                        printMessage("There is a high pitched humming noise.");
+                        terminal.printMessage("There is a high pitched humming noise.");
                         eventPublisher.Publish(new AggravateMonstersCommand(20));
                         //spellAggravateMonsters(20);
                         identified = true;
@@ -778,13 +780,13 @@ namespace Moria.Core.Methods
                         //identified = spellSurroundPlayerWithDoors();
                         break;
                     case 25:
-                        printMessage("This is a Recharge-Item scroll.");
+                        terminal.printMessage("This is a Recharge-Item scroll.");
                         used_up = eventPublisher.PublishWithOutputBool(new RechargeItemCommand(60));
                         //used_up = spellRechargeItem(60);
                         identified = true;
                         break;
                     case 26:
-                        printMessage("This is a genocide scroll.");
+                        terminal.printMessage("This is a genocide scroll.");
                         eventPublisher.Publish(new GenocideCommand());
                         //spellGenocide();
                         identified = true;
@@ -844,7 +846,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     default:
-                        printMessage("Internal error in scroll()");
+                        terminal.printMessage("Internal error in scroll()");
                         break;
                 }
             }

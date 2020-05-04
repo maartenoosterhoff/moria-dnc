@@ -10,7 +10,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ISpells spells,
+            ITerminal terminal,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -38,6 +38,7 @@ namespace Moria.Core.Methods
             Player_pray_m.playerMagic = playerMagic;
             Player_pray_m.rnd = rnd;
             Player_pray_m.spells = spells;
+            Player_pray_m.terminal = terminal;
             Player_pray_m.uiInventory = uiInventory;
 
             Player_pray_m.eventPublisher = eventPublisher;
@@ -50,6 +51,7 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static ISpells spells;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -59,37 +61,37 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.flags.blind > 0)
             {
-                printMessage("You can't see to read your prayer!");
+                terminal.printMessage("You can't see to read your prayer!");
                 return false;
             }
 
             if (helpers.playerNoLight())
             {
-                printMessage("You have no light to read by.");
+                terminal.printMessage("You have no light to read by.");
                 return false;
             }
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are too confused.");
+                terminal.printMessage("You are too confused.");
                 return false;
             }
 
             if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells != Config.spells.SPELL_TYPE_PRIEST)
             {
-                printMessage("Pray hard enough and your prayers may be answered.");
+                terminal.printMessage("Pray hard enough and your prayers may be answered.");
                 return false;
             }
 
             if (py.pack.unique_items == 0)
             {
-                printMessage("But you are not carrying anything!");
+                terminal.printMessage("But you are not carrying anything!");
                 return false;
             }
 
             if (!inventoryManager.inventoryFindRange((int)TV_PRAYER_BOOK, TV_NEVER, out item_pos_begin, out item_pos_end))
             {
-                printMessage("You are not carrying any Holy Books!");
+                terminal.printMessage("You are not carrying any Holy Books!");
                 return false;
             }
 
@@ -308,7 +310,7 @@ namespace Moria.Core.Methods
             var result = spells.castSpellGetId("Recite which prayer?", item_id, ref choice, ref chance);
             if (result < 0)
             {
-                printMessage("You don't know any prayers in that book.");
+                terminal.printMessage("You don't know any prayers in that book.");
                 return;
             }
             if (result == 0)
@@ -318,7 +320,7 @@ namespace Moria.Core.Methods
 
             if (rnd.randomNumber(100) < chance)
             {
-                printMessage("You lost your concentration!");
+                terminal.printMessage("You lost your concentration!");
                 return;
             }
 
@@ -343,13 +345,13 @@ namespace Moria.Core.Methods
             {
                 if (spell.mana_required > py.misc.current_mana)
                 {
-                    printMessage("You faint from fatigue!");
+                    terminal.printMessage("You faint from fatigue!");
                     py.flags.paralysis = (int)rnd.randomNumber(5 * (int)(spell.mana_required - py.misc.current_mana));
                     py.misc.current_mana = 0;
                     py.misc.current_mana_fraction = 0;
                     if (rnd.randomNumber(3) == 1)
                     {
-                        printMessage("You have damaged your health!");
+                        terminal.printMessage("You have damaged your health!");
                         playerStatRandomDecrease((int)PlayerAttr.CON);
                     }
                 }

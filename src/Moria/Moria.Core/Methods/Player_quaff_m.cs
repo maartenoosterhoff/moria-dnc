@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_eat_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -22,6 +21,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -32,6 +32,7 @@ namespace Moria.Core.Methods
             Player_quaff_m.inventoryManager = inventoryManager;
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
+            Player_quaff_m.terminal = terminal;
             Player_quaff_m.uiInventory = uiInventory;
 
             Player_quaff_m.eventPublisher = eventPublisher;
@@ -42,6 +43,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -66,7 +68,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Strength:
                         if (playerStatRandomIncrease((int)PlayerAttr.STR))
                         {
-                            printMessage("Wow!  What bulging muscles!");
+                            terminal.printMessage("Wow!  What bulging muscles!");
                             identified = true;
                         }
                         break;
@@ -78,14 +80,14 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.RestoreStrength:
                         if (playerStatRestore((int)PlayerAttr.STR))
                         {
-                            printMessage("You feel warm all over.");
+                            terminal.printMessage("You feel warm all over.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Intelligence:
                         if (playerStatRandomIncrease((int)PlayerAttr.INT))
                         {
-                            printMessage("Aren't you brilliant!");
+                            terminal.printMessage("Aren't you brilliant!");
                             identified = true;
                         }
                         break;
@@ -97,14 +99,14 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.RestoreIntelligence:
                         if (playerStatRestore((int)PlayerAttr.INT))
                         {
-                            printMessage("You have have a warm feeling.");
+                            terminal.printMessage("You have have a warm feeling.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Wisdom:
                         if (playerStatRandomIncrease((int)PlayerAttr.WIS))
                         {
-                            printMessage("You suddenly have a profound thought!");
+                            terminal.printMessage("You suddenly have a profound thought!");
                             identified = true;
                         }
                         break;
@@ -116,14 +118,14 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.RestoreWisdom:
                         if (playerStatRestore((int)PlayerAttr.WIS))
                         {
-                            printMessage("You feel your wisdom returning.");
+                            terminal.printMessage("You feel your wisdom returning.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Charisma:
                         if (playerStatRandomIncrease((int)PlayerAttr.CHR))
                         {
-                            printMessage("Gee, ain't you cute!");
+                            terminal.printMessage("Gee, ain't you cute!");
                             identified = true;
                         }
                         break;
@@ -135,7 +137,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.RestoreCharisma:
                         if (playerStatRestore((int)PlayerAttr.CHR))
                         {
-                            printMessage("You feel your looks returning.");
+                            terminal.printMessage("You feel your looks returning.");
                             identified = true;
                         }
                         break;
@@ -166,7 +168,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Constitution:
                         if (playerStatRandomIncrease((int)PlayerAttr.CON))
                         {
-                            printMessage("You feel tingly for a moment.");
+                            terminal.printMessage("You feel tingly for a moment.");
                             identified = true;
                         }
                         break;
@@ -180,7 +182,7 @@ namespace Moria.Core.Methods
                             }
                             py.misc.exp += (int)exp;
 
-                            printMessage("You feel more experienced.");
+                            terminal.printMessage("You feel more experienced.");
                             displayCharacterExperience();
                             identified = true;
                         }
@@ -189,7 +191,7 @@ namespace Moria.Core.Methods
                         if (!py.flags.free_action)
                         {
                             // paralysis must == 0, otherwise could not drink potion
-                            printMessage("You fall asleep.");
+                            terminal.printMessage("You fall asleep.");
                             py.flags.paralysis += rnd.randomNumber(4) + 4;
                             identified = true;
                         }
@@ -197,7 +199,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Blindness:
                         if (py.flags.blind == 0)
                         {
-                            printMessage("You are covered by a veil of darkness.");
+                            terminal.printMessage("You are covered by a veil of darkness.");
                             identified = true;
                         }
                         py.flags.blind += rnd.randomNumber(100) + 100;
@@ -205,7 +207,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Confusion:
                         if (py.flags.confused == 0)
                         {
-                            printMessage("Hey!  This is good stuff!  * Hick! *");
+                            terminal.printMessage("Hey!  This is good stuff!  * Hick! *");
                             identified = true;
                         }
                         py.flags.confused += rnd.randomNumber(20) + 12;
@@ -213,7 +215,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Poison:
                         if (py.flags.poisoned == 0)
                         {
-                            printMessage("You feel very sick.");
+                            terminal.printMessage("You feel very sick.");
                             identified = true;
                         }
                         py.flags.poisoned += rnd.randomNumber(15) + 10;
@@ -235,21 +237,21 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Dexterity:
                         if (playerStatRandomIncrease((int)PlayerAttr.DEX))
                         {
-                            printMessage("You feel more limber!");
+                            terminal.printMessage("You feel more limber!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.RestoreDexterity:
                         if (playerStatRestore((int)PlayerAttr.DEX))
                         {
-                            printMessage("You feel less clumsy.");
+                            terminal.printMessage("You feel less clumsy.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.RestoreConstitution:
                         if (playerStatRestore((int)PlayerAttr.CON))
                         {
-                            printMessage("You feel your health returning!");
+                            terminal.printMessage("You feel your health returning!");
                             identified = true;
                         }
                         break;
@@ -266,7 +268,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.LoseExperience:
                         if (py.misc.exp > 0)
                         {
-                            printMessage("You feel your memories fade.");
+                            terminal.printMessage("You feel your memories fade.");
 
                             // Lose between 1/5 and 2/5 of your experience
                             var exp = py.misc.exp / 5;
@@ -294,7 +296,7 @@ namespace Moria.Core.Methods
                         }
                         py.flags.paralysis = 4;
 
-                        printMessage("The potion makes you vomit!");
+                        terminal.printMessage("The potion makes you vomit!");
                         identified = true;
                         break;
                     case PotionSpellTypes.Invulnerability:
@@ -357,7 +359,7 @@ namespace Moria.Core.Methods
                         if (py.misc.current_mana < py.misc.mana)
                         {
                             py.misc.current_mana = py.misc.mana;
-                            printMessage("Your feel your head clear.");
+                            terminal.printMessage("Your feel your head clear.");
                             printCharacterCurrentMana();
                             identified = true;
                         }
@@ -365,14 +367,14 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.InfraVision:
                         if (py.flags.timed_infra == 0)
                         {
-                            printMessage("Your eyes begin to tingle.");
+                            terminal.printMessage("Your eyes begin to tingle.");
                             identified = true;
                         }
                         py.flags.timed_infra += 100 + rnd.randomNumber(100);
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
-                        printMessage("Internal error in potion()");
+                        terminal.printMessage("Internal error in potion()");
                         break;
                 }
             }
@@ -390,14 +392,14 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0)
             {
-                printMessage("But you are not carrying anything.");
+                terminal.printMessage("But you are not carrying anything.");
                 return;
             }
 
             int item_pos_begin = 0, item_pos_end = 0;
             if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, out item_pos_begin, out item_pos_end))
             {
-                printMessage("You are not carrying any potions.");
+                terminal.printMessage("You are not carrying any potions.");
                 return;
             }
 
@@ -414,7 +416,7 @@ namespace Moria.Core.Methods
 
             if (item.flags == 0)
             {
-                printMessage("You feel less thirsty.");
+                terminal.printMessage("You feel less thirsty.");
                 identified = true;
             }
             else

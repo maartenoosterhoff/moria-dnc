@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -23,7 +22,8 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IInventoryManager inventoryManager,
             IRnd rnd,
-            IStd std
+            IStd std,
+            ITerminal terminal
         )
         {
             Player_bash_m.dice = dice;
@@ -33,6 +33,7 @@ namespace Moria.Core.Methods
             Player_bash_m.inventoryManager = inventoryManager;
             Player_bash_m.rnd = rnd;
             Player_bash_m.std = std;
+            Player_bash_m.terminal = terminal;
         }
 
         private static IDice dice;
@@ -42,6 +43,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IRnd rnd;
         private static IStd std;
+        private static ITerminal terminal;
 
         // Bash open a door or chest -RAK-
         // Note: Affected by strength and weight of character
@@ -76,7 +78,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are confused.");
+                terminal.printMessage("You are confused.");
                 dir = rnd.getRandomDirection();
             }
 
@@ -107,19 +109,19 @@ namespace Moria.Core.Methods
                 {
                     // Can't give free turn, or else player could try
                     // directions until they find the invisible creature
-                    printMessage("You bash it, but nothing interesting happens.");
+                    terminal.printMessage("You bash it, but nothing interesting happens.");
                 }
                 return;
             }
 
             if (tile.feature_id < MIN_CAVE_WALL)
             {
-                printMessage("You bash at empty space.");
+                terminal.printMessage("You bash at empty space.");
                 return;
             }
 
             // same message for wall as for secret door
-            printMessage("You bash it, but nothing interesting happens.");
+            terminal.printMessage("You bash it, but nothing interesting happens.");
         }
 
         // Make a bash attack on someone. -CJS-
@@ -166,7 +168,7 @@ namespace Moria.Core.Methods
                 var msg = $"You hit {name}.";
                 //vtype_t msg = { '\0' };
                 //(void)sprintf(msg, "You hit %s.", name);
-                printMessage(msg);
+                terminal.printMessage(msg);
 
                 var damage = dice.diceRoll(py.inventory[(int)PlayerEquipment.Arm].damage);
                 damage = playerWeaponCriticalBlow((int)(py.inventory[(int)PlayerEquipment.Arm].weight / 4 + py.stats.used[(int)PlayerAttr.STR]), 0, damage, (int)PlayerClassLevelAdj.BTH);
@@ -183,7 +185,7 @@ namespace Moria.Core.Methods
                 {
                     msg = $"You have slain {name}.";
                     //(void)sprintf(msg, "You have slain %s.", name);
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                     displayCharacterExperience();
                 }
                 else
@@ -219,7 +221,7 @@ namespace Moria.Core.Methods
                         msg = $"{name} ignores your bash!";
                         //(void)sprintf(msg, "%s ignores your bash!", name);
                     }
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                 }
             }
             else
@@ -227,12 +229,12 @@ namespace Moria.Core.Methods
                 var msg = $"You miss {name}.";
                 //vtype_t msg = { '\0' };
                 //(void)sprintf(msg, "You miss %s.", name);
-                printMessage(msg);
+                terminal.printMessage(msg);
             }
 
             if (rnd.randomNumber(150) > py.stats.used[(int)PlayerAttr.DEX])
             {
-                printMessage("You are off balance.");
+                terminal.printMessage("You are off balance.");
                 py.flags.paralysis = (int)(1 + rnd.randomNumber(2));
             }
         }
@@ -243,7 +245,7 @@ namespace Moria.Core.Methods
             // Is a Coward?
             if (py.flags.afraid > 0)
             {
-                printMessage("You are afraid!");
+                terminal.printMessage("You are afraid!");
                 return;
             }
 
@@ -255,7 +257,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             var game = State.Instance.game;
 
-            printMessageNoCommandInterrupt("You smash into the door!");
+            terminal.printMessageNoCommandInterrupt("You smash into the door!");
 
             var chance = (int)(py.stats.used[(int)PlayerAttr.STR] + py.misc.weight / 2);
 
@@ -263,7 +265,7 @@ namespace Moria.Core.Methods
             var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
             if (rnd.randomNumber(chance * (20 + abs_misc_use)) < 10 * (chance - abs_misc_use))
             {
-                printMessage("The door crashes open!");
+                terminal.printMessage("The door crashes open!");
 
                 inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, game.treasure.list[tile.treasure_id]);
 
@@ -286,14 +288,14 @@ namespace Moria.Core.Methods
 
             if (rnd.randomNumber(150) > py.stats.used[(int)PlayerAttr.DEX])
             {
-                printMessage("You are off-balance.");
+                terminal.printMessage("You are off-balance.");
                 py.flags.paralysis = (int)(1 + rnd.randomNumber(2));
                 return;
             }
 
             if (game.command_count == 0)
             {
-                printMessage("The door holds firm.");
+                terminal.printMessage("The door holds firm.");
             }
         }
 
@@ -301,8 +303,8 @@ namespace Moria.Core.Methods
         {
             if (rnd.randomNumber(10) == 1)
             {
-                printMessage("You have destroyed the chest.");
-                printMessage("and its contents!");
+                terminal.printMessage("You have destroyed the chest.");
+                terminal.printMessage("and its contents!");
 
                 item.id = Config.dungeon_objects.OBJ_RUINED_CHEST;
                 item.flags = 0;
@@ -312,14 +314,14 @@ namespace Moria.Core.Methods
 
             if ((item.flags & Config.treasure_chests.CH_LOCKED) != 0u && rnd.randomNumber(10) == 1)
             {
-                printMessage("The lock breaks open!");
+                terminal.printMessage("The lock breaks open!");
 
                 item.flags &= ~Config.treasure_chests.CH_LOCKED;
 
                 return;
             }
 
-            printMessageNoCommandInterrupt("The chest holds firm.");
+            terminal.printMessageNoCommandInterrupt("The chest holds firm.");
         }
 
     }

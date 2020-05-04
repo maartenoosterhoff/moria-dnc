@@ -8,6 +8,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
     public class DetectInvisibleCreaturesWithinVicinityCommandHandler :
         ICommandHandler<DetectInvisibleCreaturesWithinVicinityCommand, bool>
     {
+        private readonly ITerminal terminal;
+
+        public DetectInvisibleCreaturesWithinVicinityCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         public bool Handle(DetectInvisibleCreaturesWithinVicinityCommand command)
         {
             return this.spellDetectInvisibleCreaturesWithinVicinity();
@@ -28,7 +37,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
                     monster.lit = true;
 
                     // works correctly even if hallucinating
-                    Ui_io_m.panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
+                    this.terminal.panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
 
                     detected = true;
                 }
@@ -36,8 +45,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
 
             if (detected)
             {
-                Ui_io_m.printMessage("You sense the presence of invisible creatures!");
-                Ui_io_m.printMessage(/*CNIL*/null);
+                this.terminal.printMessage("You sense the presence of invisible creatures!");
+                this.terminal.printMessage(/*CNIL*/null);
 
                 // must unlight every monster just lighted
                 Monster_m.updateMonsters(false);

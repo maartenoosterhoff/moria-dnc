@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -18,7 +17,8 @@ namespace Moria.Core.Methods
             IDungeonPlacer dungeonPlacer,
             IGame game,
             IHelpers helpers,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             Player_tunnel_m.dice = dice;
@@ -27,6 +27,7 @@ namespace Moria.Core.Methods
             Player_tunnel_m.game = game;
             Player_tunnel_m.helpers = helpers;
             Player_tunnel_m.rnd = rnd;
+            Player_tunnel_m.terminal = terminal;
         }
 
         private static IDice dice;
@@ -35,6 +36,7 @@ namespace Moria.Core.Methods
         private static IGame game;
         private static IHelpers helpers;
         private static IRnd rnd;
+        private static ITerminal terminal;
 
         // Don't let the player tunnel somewhere illegal, this is necessary to
         // prevent the player from getting a free attack by trying to tunnel
@@ -49,11 +51,11 @@ namespace Moria.Core.Methods
 
                 if (treasure_id == 0)
                 {
-                    printMessage("Tunnel through what?  Empty air?!?");
+                    terminal.printMessage("Tunnel through what?  Empty air?!?");
                 }
                 else
                 {
-                    printMessage("You can't tunnel through that.");
+                    terminal.printMessage("You can't tunnel through that.");
                 }
 
                 return false;
@@ -101,11 +103,11 @@ namespace Moria.Core.Methods
 
             if (playerTunnelWall(coord, digging_ability, i))
             {
-                printMessage("You have finished the tunnel.");
+                terminal.printMessage("You have finished the tunnel.");
             }
             else
             {
-                printMessageNoCommandInterrupt("You tunnel into the granite wall.");
+                terminal.printMessageNoCommandInterrupt("You tunnel into the granite wall.");
             }
         }
 
@@ -115,11 +117,11 @@ namespace Moria.Core.Methods
 
             if (playerTunnelWall(coord, digging_ability, i))
             {
-                printMessage("You have finished the tunnel.");
+                terminal.printMessage("You have finished the tunnel.");
             }
             else
             {
-                printMessageNoCommandInterrupt("You tunnel into the magma intrusion.");
+                terminal.printMessageNoCommandInterrupt("You tunnel into the magma intrusion.");
             }
         }
 
@@ -129,11 +131,11 @@ namespace Moria.Core.Methods
 
             if (playerTunnelWall(coord, digging_ability, i))
             {
-                printMessage("You have finished the tunnel.");
+                terminal.printMessage("You have finished the tunnel.");
             }
             else
             {
-                printMessageNoCommandInterrupt("You tunnel into the quartz vein.");
+                terminal.printMessageNoCommandInterrupt("You tunnel into the quartz vein.");
             }
         }
 
@@ -142,7 +144,7 @@ namespace Moria.Core.Methods
             if (digging_ability > rnd.randomNumber(180))
             {
                 dungeon.dungeonDeleteObject(coord);
-                printMessage("You have removed the rubble.");
+                terminal.printMessage("You have removed the rubble.");
 
                 if (rnd.randomNumber(10) == 1)
                 {
@@ -150,7 +152,7 @@ namespace Moria.Core.Methods
 
                     if (dungeon.caveTileVisible(coord))
                     {
-                        printMessage("You have found something!");
+                        terminal.printMessage("You have found something!");
                     }
                 }
 
@@ -158,7 +160,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessageNoCommandInterrupt("You dig in the rubble.");
+                terminal.printMessageNoCommandInterrupt("You dig in the rubble.");
             }
         }
 
@@ -179,7 +181,7 @@ namespace Moria.Core.Methods
                     dungeonDigQuartzWall(coord, digging_ability);
                     break;
                 case TILE_BOUNDARY_WALL:
-                    printMessage("This seems to be permanent rock.");
+                    terminal.printMessage("This seems to be permanent rock.");
                     break;
                 default:
                     return false;
@@ -234,7 +236,7 @@ namespace Moria.Core.Methods
                         else if (game.treasure.list[tile.treasure_id].category_id == TV_SECRET_DOOR)
                         {
                             // Found secret door!
-                            printMessageNoCommandInterrupt("You tunnel into the granite wall.");
+                            terminal.printMessageNoCommandInterrupt("You tunnel into the granite wall.");
                             playerSearch(py.pos, py.misc.chance_in_search);
                         }
                         else
@@ -253,7 +255,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            printMessage("You dig with your hands, making no progress.");
+            terminal.printMessage("You dig with your hands, making no progress.");
         }
     }
 }

@@ -5,6 +5,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 {
     public class LoseDexCommandHandler : ICommandHandler<LoseDexCommand>
     {
+        private readonly ITerminal terminal;
+
+        public LoseDexCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         public void Handle(LoseDexCommand command)
         {
             this.spellLoseDEX();
@@ -19,11 +28,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             if (!py.flags.sustain_dex)
             {
                 Player_stats_m.playerStatRandomDecrease((int)PlayerAttr.DEX);
-                Ui_io_m.printMessage("You feel very sore.");
+                this.terminal.printMessage("You feel very sore.");
             }
             else
             {
-                Ui_io_m.printMessage("You feel sore for a moment,  it passes.");
+                this.terminal.printMessage("You feel sore for a moment,  it passes.");
             }
         }
     }

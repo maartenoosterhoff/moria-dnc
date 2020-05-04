@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
@@ -21,7 +20,8 @@ namespace Moria.Core.Methods
             IGame game,
             IHelpers helpers,
             IMonsterManager monsterManager,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             Player_traps_m.dice = dice;
@@ -30,6 +30,7 @@ namespace Moria.Core.Methods
             Player_traps_m.helpers = helpers;
             Player_traps_m.monsterManager = monsterManager;
             Player_traps_m.rnd = rnd;
+            Player_traps_m.terminal = terminal;
         }
 
         private static IDice dice;
@@ -38,6 +39,7 @@ namespace Moria.Core.Methods
         private static IHelpers helpers;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
+        private static ITerminal terminal;
 
         private static int playerTrapDisarmAbility()
         {
@@ -75,7 +77,7 @@ namespace Moria.Core.Methods
 
             if (total + 100 - level > rnd.randomNumber(100))
             {
-                printMessage("You have disarmed the trap.");
+                terminal.printMessage("You have disarmed the trap.");
                 py.misc.exp += misc_use;
                 dungeon.dungeonDeleteObject(coord);
 
@@ -91,11 +93,11 @@ namespace Moria.Core.Methods
             // avoid rnd.randomNumber(0) call
             if (total > 5 && rnd.randomNumber(total) > 5)
             {
-                printMessageNoCommandInterrupt("You failed to disarm the trap.");
+                terminal.printMessageNoCommandInterrupt("You failed to disarm the trap.");
                 return;
             }
 
-            printMessage("You set the trap off!");
+            terminal.printMessage("You set the trap off!");
 
             // make sure we move onto the trap even if confused
             py.flags.confused = 0;
@@ -111,7 +113,7 @@ namespace Moria.Core.Methods
             if (!spellItemIdentified(item))
             {
                 game.player_free_turn = true;
-                printMessage("I don't see a trap.");
+                terminal.printMessage("I don't see a trap.");
 
                 return;
             }
@@ -133,7 +135,7 @@ namespace Moria.Core.Methods
                         item.special_name_id = (int)SpecialNameIds.SN_DISARMED;
                     }
 
-                    printMessage("You have disarmed the chest.");
+                    terminal.printMessage("You have disarmed the chest.");
 
                     spellItemIdentifyAndRemoveRandomInscription(item);
                     py.misc.exp += level;
@@ -142,18 +144,18 @@ namespace Moria.Core.Methods
                 }
                 else if (total > 5 && rnd.randomNumber(total) > 5)
                 {
-                    printMessageNoCommandInterrupt("You failed to disarm the chest.");
+                    terminal.printMessageNoCommandInterrupt("You failed to disarm the chest.");
                 }
                 else
                 {
-                    printMessage("You set a trap off!");
+                    terminal.printMessage("You set a trap off!");
                     spellItemIdentifyAndRemoveRandomInscription(item);
                     chestTrap(coord);
                 }
                 return;
             }
 
-            printMessage("The chest was not trapped.");
+            terminal.printMessage("The chest was not trapped.");
             game.player_free_turn = true;
         }
 
@@ -208,7 +210,7 @@ namespace Moria.Core.Methods
 
             if (no_disarm)
             {
-                printMessage("I do not see anything to disarm there.");
+                terminal.printMessage("I do not see anything to disarm there.");
                 game.player_free_turn = true;
             }
         }
@@ -217,11 +219,11 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            printMessage("A small needle has pricked you!");
+            terminal.printMessage("A small needle has pricked you!");
 
             if (py.flags.sustain_str)
             {
-                printMessage("You are unaffected.");
+                terminal.printMessage("You are unaffected.");
                 return;
             }
 
@@ -229,12 +231,12 @@ namespace Moria.Core.Methods
 
             playerTakesHit(dice.diceRoll(new Dice_t(1, 4)), "a poison needle");
 
-            printMessage("You feel weakened!");
+            terminal.printMessage("You feel weakened!");
         }
 
         private static void chestPoison()
         {
-            printMessage("A small needle has pricked you!");
+            terminal.printMessage("A small needle has pricked you!");
 
             playerTakesHit(dice.diceRoll(new Dice_t(1, 6)), "a poison needle");
 
@@ -244,15 +246,15 @@ namespace Moria.Core.Methods
         private static void chestParalysed()
         {
             var py = State.Instance.py;
-            printMessage("A puff of yellow gas surrounds you!");
+            terminal.printMessage("A puff of yellow gas surrounds you!");
 
             if (py.flags.free_action)
             {
-                printMessage("You are unaffected.");
+                terminal.printMessage("You are unaffected.");
                 return;
             }
 
-            printMessage("You choke and pass out.");
+            terminal.printMessage("You choke and pass out.");
             py.flags.paralysis = (int)(10 + rnd.randomNumber(20));
         }
 
@@ -270,7 +272,7 @@ namespace Moria.Core.Methods
 
         private static void chestExplode(Coord_t coord)
         {
-            printMessage("There is a sudden explosion!");
+            terminal.printMessage("There is a sudden explosion!");
 
             dungeon.dungeonDeleteObject(coord);
 

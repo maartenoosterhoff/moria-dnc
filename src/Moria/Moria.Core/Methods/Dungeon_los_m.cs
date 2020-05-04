@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -23,19 +22,22 @@ namespace Moria.Core.Methods
             IGame game,
             IHelpers helpers,
             IRecall recall,
-            IStd std
+            IStd std,
+            ITerminal terminal
         )
         {
             this.game = game;
             this.helpers = helpers;
             this.recall = recall;
             this.std = std;
+            this.terminal = terminal;
         }
 
         private IGame game;
         private readonly IHelpers helpers;
         private IRecall recall;
         private IStd std;
+        private readonly ITerminal terminal;
 
 
         // A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
@@ -327,13 +329,13 @@ namespace Moria.Core.Methods
 
             if (py.flags.blind > 0)
             {
-                printMessage("You can't see a damn thing!");
+                this.terminal.printMessage("You can't see a damn thing!");
                 return;
             }
 
             if (py.flags.image > 0)
             {
-                printMessage("You can't believe what you are seeing! It's like a dream!");
+                this.terminal.printMessage("You can't believe what you are seeing! It's like a dream!");
                 return;
             }
 
@@ -429,7 +431,7 @@ namespace Moria.Core.Methods
 
             if (abort)
             {
-                printMessage("--Aborting look--");
+                this.terminal.printMessage("--Aborting look--");
                 return;
             }
 
@@ -437,20 +439,20 @@ namespace Moria.Core.Methods
             {
                 if (dir == 5)
                 {
-                    printMessage("That's all you see.");
+                    this.terminal.printMessage("That's all you see.");
                 }
                 else
                 {
-                    printMessage("That's all you see in that direction.");
+                    this.terminal.printMessage("That's all you see in that direction.");
                 }
             }
             else if (dir == 5)
             {
-                printMessage("You see nothing of interest.");
+                this.terminal.printMessage("You see nothing of interest.");
             }
             else
             {
-                printMessage("You see nothing of interest in that direction.");
+                this.terminal.printMessage("You see nothing of interest in that direction.");
             }
         }
 
@@ -590,7 +592,7 @@ namespace Moria.Core.Methods
             {
                 var error_message = $"Illegal call to lookSee({coord.y}, {coord.x})";
                 //(void)sprintf(error_message, "Illegal call to lookSee(%d, %d)", coord.y, coord.x);
-                printMessage(error_message);
+                this.terminal.printMessage(error_message);
             }
 
             string description = null;
@@ -637,16 +639,16 @@ namespace Moria.Core.Methods
                 msg = $"{description} {prefix} {creatureName}. [(r)ecall]";
                 //(void)sprintf(msg, "%s %s %s. [(r)ecall]", description, isVowel(creatures_list[j].name[0]) ? "an" : "a", creatures_list[j].name);
                 description = "It is on";
-                putStringClearToEOL(msg, new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
 
-                panelMoveCursor(coord);
-                query = getKeyInput();
+                this.terminal.panelMoveCursor(coord);
+                query = this.terminal.getKeyInput();
 
                 if (query == 'r' || query == 'R')
                 {
-                    terminalSaveScreen();
+                    this.terminal.terminalSaveScreen();
                     query = (char) this.recall.memoryRecall(j);
-                    terminalRestoreScreen();
+                    this.terminal.terminalRestoreScreen();
                 }
             }
 
@@ -672,10 +674,10 @@ namespace Moria.Core.Methods
                         msg = $"{description} {obj_string} ---pause---";
                         //(void)sprintf(msg, "%s %s ---pause---", description, obj_string);
                         description = "It is in";
-                        putStringClearToEOL(msg, new Coord_t(0, 0));
+                        this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
 
-                        panelMoveCursor(coord);
-                        query = getKeyInput();
+                        this.terminal.panelMoveCursor(coord);
+                        query = this.terminal.getKeyInput();
                     }
                 }
 
@@ -719,9 +721,9 @@ namespace Moria.Core.Methods
                     {
                         msg = $"{description} {wall_description} ---pause---";
                         //(void)sprintf(msg, "%s %s ---pause---", description, wall_description);
-                        putStringClearToEOL(msg, new Coord_t(0, 0));
-                        panelMoveCursor(coord);
-                        query = getKeyInput();
+                        this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
+                        this.terminal.panelMoveCursor(coord);
+                        query = this.terminal.getKeyInput();
                     }
                 }
             }

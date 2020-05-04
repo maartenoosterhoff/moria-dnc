@@ -12,14 +12,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
     {
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly ITerminal terminal;
 
         public DestroyDoorsTrapsInDirectionCommandHandler(
             IDungeon dungeon,
-            IHelpers helpers
+            IHelpers helpers,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.terminal = terminal;
         }
 
         void ICommandHandler<DestroyDoorsTrapsInDirectionCommand>.Handle(DestroyDoorsTrapsInDirectionCommand command)
@@ -71,13 +74,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
                         if (this.dungeon.dungeonDeleteObject(coord))
                         {
                             destroyed = true;
-                            Ui_io_m.printMessage("There is a bright flash of light!");
+                            this.terminal.printMessage("There is a bright flash of light!");
                         }
                     }
                     else if (item.category_id == Treasure_c.TV_CHEST && item.flags != 0)
                     {
                         destroyed = true;
-                        Ui_io_m.printMessage("Click!");
+                        this.terminal.printMessage("Click!");
 
                         item.flags &= ~(Config.treasure_chests.CH_TRAPPED | Config.treasure_chests.CH_LOCKED);
                         item.special_name_id = (int)SpecialNameIds.SN_UNLOCKED;

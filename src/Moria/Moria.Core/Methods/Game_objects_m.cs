@@ -4,7 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -21,15 +20,18 @@ namespace Moria.Core.Methods
     {
         public Game_objects_m(
             IDungeon dungeon,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         private readonly IDungeon dungeon;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         // If too many objects on floor level, delete some of them-RAK-
         private void compactObjects()
@@ -38,7 +40,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var py = State.Instance.py;
 
-            printMessage("Compacting objects...");
+            this.terminal.printMessage("Compacting objects...");
 
             var counter = 0;
             var current_distance = 66;

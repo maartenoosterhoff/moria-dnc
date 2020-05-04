@@ -10,7 +10,6 @@ using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Store_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IInventory inventory,
             IMonsterManager monsterManager,
             IRnd rnd,
+            ITerminal terminal,
 
             IEventPublisher eventPublisher
         )
@@ -37,6 +37,7 @@ namespace Moria.Core.Methods
             Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
+            Player_move_m.terminal = terminal;
 
             Player_move_m.eventPublisher = eventPublisher;
         }
@@ -48,17 +49,18 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
+        private static ITerminal terminal;
 
         private static IEventPublisher eventPublisher;
 
         private static void trapOpenPit(Inventory_t item, int dam)
         {
             var py = State.Instance.py;
-            printMessage("You fell into a pit!");
+            terminal.printMessage("You fell into a pit!");
 
             if (py.flags.free_fall)
             {
-                printMessage("You gently float down.");
+                terminal.printMessage("You gently float down.");
                 return;
             }
 
@@ -79,22 +81,22 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, item, true);
                 playerTakesHit(dam, description);
 
-                printMessage("An arrow hits you.");
+                terminal.printMessage("An arrow hits you.");
                 return;
             }
 
-            printMessage("An arrow barely misses you.");
+            terminal.printMessage("An arrow barely misses you.");
         }
 
         private static void trapCoveredPit(Inventory_t item, int dam, Coord_t coord)
         {
             var py = State.Instance.py;
 
-            printMessage("You fell into a covered pit.");
+            terminal.printMessage("You fell into a covered pit.");
 
             if (py.flags.free_fall)
             {
-                printMessage("You gently float down.");
+                terminal.printMessage("You gently float down.");
             }
             else
             {
@@ -115,11 +117,11 @@ namespace Moria.Core.Methods
             dg.generate_new_level = true;
             dg.current_level++;
 
-            printMessage("You fell through a trap door!");
+            terminal.printMessage("You fell through a trap door!");
 
             if (py.flags.free_fall)
             {
-                printMessage("You gently float down.");
+                terminal.printMessage("You gently float down.");
             }
             else
             {
@@ -130,7 +132,7 @@ namespace Moria.Core.Methods
             }
 
             // Force the messages to display before starting to generate the next level.
-            printMessage(/*CNIL*/null);
+            terminal.printMessage(/*CNIL*/null);
         }
 
         private static void trapSleepingGas()
@@ -142,16 +144,16 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            printMessage("A strange white mist surrounds you!");
+            terminal.printMessage("A strange white mist surrounds you!");
 
             if (py.flags.free_action)
             {
-                printMessage("You are unaffected.");
+                terminal.printMessage("You are unaffected.");
                 return;
             }
 
             py.flags.paralysis += rnd.randomNumber(10) + 4;
-            printMessage("You fall asleep.");
+            terminal.printMessage("You fall asleep.");
         }
 
         private static void trapHiddenObject(Coord_t coord)
@@ -160,7 +162,7 @@ namespace Moria.Core.Methods
 
             dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
 
-            printMessage("Hmmm, there was something under this rock.");
+            terminal.printMessage("Hmmm, there was something under this rock.");
         }
 
         private static void trapStrengthDart(Inventory_t item, int dam)
@@ -177,16 +179,16 @@ namespace Moria.Core.Methods
                     itemDescription(ref description, item, true);
                     playerTakesHit(dam, description);
 
-                    printMessage("A small dart weakens you!");
+                    terminal.printMessage("A small dart weakens you!");
                 }
                 else
                 {
-                    printMessage("A small dart hits you.");
+                    terminal.printMessage("A small dart hits you.");
                 }
             }
             else
             {
-                printMessage("A small dart barely misses you.");
+                terminal.printMessage("A small dart barely misses you.");
             }
         }
 
@@ -196,7 +198,7 @@ namespace Moria.Core.Methods
 
             game.teleport_player = true;
 
-            printMessage("You hit a teleport trap!");
+            terminal.printMessage("You hit a teleport trap!");
 
             // Light up the teleport trap, before we teleport away.
             dungeon.dungeonMoveCharacterLight(coord, coord);
@@ -209,12 +211,12 @@ namespace Moria.Core.Methods
             dungeon.dungeonDeleteObject(coord);
             dungeonPlacer.dungeonPlaceRubble(coord);
 
-            printMessage("You are hit by falling rock.");
+            terminal.printMessage("You are hit by falling rock.");
         }
 
         private static void trapCorrodeGas()
         {
-            printMessage("A strange red gas surrounds you.");
+            terminal.printMessage("A strange red gas surrounds you.");
 
             inventory.damageCorrodingGas("corrosion gas");
         }
@@ -238,21 +240,21 @@ namespace Moria.Core.Methods
 
         private static void trapFire(int dam)
         {
-            printMessage("You are enveloped in flames!");
+            terminal.printMessage("You are enveloped in flames!");
 
             inventory.damageFire(dam, "a fire trap");
         }
 
         private static void trapAcid(int dam)
         {
-            printMessage("You are splashed with acid!");
+            terminal.printMessage("You are splashed with acid!");
 
             inventory.damageAcid(dam, "an acid trap");
         }
 
         private static void trapPoisonGas(int dam)
         {
-            printMessage("A pungent green gas surrounds you!");
+            terminal.printMessage("A pungent green gas surrounds you!");
 
             inventory.damagePoisonedGas(dam, "a poison gas trap");
         }
@@ -260,7 +262,7 @@ namespace Moria.Core.Methods
         private static void trapBlindGas()
         {
             var py = State.Instance.py;
-            printMessage("A black gas surrounds you!");
+            terminal.printMessage("A black gas surrounds you!");
 
             py.flags.blind += rnd.randomNumber(50) + 50;
         }
@@ -268,7 +270,7 @@ namespace Moria.Core.Methods
         private static void trapConfuseGas()
         {
             var py = State.Instance.py;
-            printMessage("A gas of scintillating colors surrounds you!");
+            terminal.printMessage("A gas of scintillating colors surrounds you!");
 
             py.flags.confused += rnd.randomNumber(15) + 15;
         }
@@ -284,11 +286,11 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, item, true);
                 playerTakesHit(dam, description);
 
-                printMessage("A small dart hits you!");
+                terminal.printMessage("A small dart hits you!");
 
                 if (py.flags.free_action)
                 {
-                    printMessage("You are unaffected.");
+                    terminal.printMessage("You are unaffected.");
                 }
                 else
                 {
@@ -297,7 +299,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                printMessage("A small dart barely misses you.");
+                terminal.printMessage("A small dart barely misses you.");
             }
         }
 
@@ -316,16 +318,16 @@ namespace Moria.Core.Methods
                     itemDescription(ref description, item, true);
                     playerTakesHit(dam, description);
 
-                    printMessage("A small dart saps your health!");
+                    terminal.printMessage("A small dart saps your health!");
                 }
                 else
                 {
-                    printMessage("A small dart hits you.");
+                    terminal.printMessage("A small dart hits you.");
                 }
             }
             else
             {
-                printMessage("A small dart barely misses you.");
+                terminal.printMessage("A small dart barely misses you.");
             }
         }
 
@@ -427,7 +429,7 @@ namespace Moria.Core.Methods
 
                 default:
                     // All cases are handled, so this should never be reached!
-                    printMessage("Unknown trap value.");
+                    terminal.printMessage("Unknown trap value.");
                     break;
             }
         }
@@ -492,7 +494,7 @@ namespace Moria.Core.Methods
                 printCharacterGoldValue();
                 dungeon.dungeonDeleteObject(coord);
 
-                printMessage(msg);
+                terminal.printMessage(msg);
 
                 return;
             }
@@ -508,7 +510,7 @@ namespace Moria.Core.Methods
                     // change the period to a question mark
                     description = description.Substring(0, description.Length - 1) + "?";
                     //description[strlen(description) - 1] = '?';
-                    pickup = getInputConfirmation("Pick up " + description);
+                    pickup = terminal.getInputConfirmation("Pick up " + description);
                 }
 
                 // Check to see if it will change the players speed.
@@ -519,7 +521,7 @@ namespace Moria.Core.Methods
                     // change the period to a question mark
                     //description[strlen(description) - 1] = '?';
                     description = description.Substring(0, description.Length - 1) + "?";
-                    pickup = getInputConfirmation("Exceed your weight limit to pick up " + description);
+                    pickup = terminal.getInputConfirmation("Exceed your weight limit to pick up " + description);
                 }
 
                 // Attempt to pick up an object.
@@ -530,7 +532,7 @@ namespace Moria.Core.Methods
                     itemDescription(ref description, py.inventory[locn], true);
                     msg = $"You have {description} ({(char)(locn + 'a')})";
                     //(void)sprintf(msg, "You have %s (%c)", description, locn + 'a');
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                     dungeon.dungeonDeleteObject(coord);
                 }
             }
@@ -539,7 +541,7 @@ namespace Moria.Core.Methods
                 itemDescription(ref description, item, true);
                 msg = $"You can't carry {description}";
                 //(void)sprintf(msg, "You can't carry %s", description);
-                printMessage(msg);
+                terminal.printMessage(msg);
             }
         }
 
@@ -671,11 +673,11 @@ namespace Moria.Core.Methods
                     {
                         if (game.treasure.list[tile.treasure_id].category_id == TV_RUBBLE)
                         {
-                            printMessage("There is rubble blocking your way.");
+                            terminal.printMessage("There is rubble blocking your way.");
                         }
                         else if (game.treasure.list[tile.treasure_id].category_id == TV_CLOSED_DOOR)
                         {
-                            printMessage("There is a closed door blocking your way.");
+                            terminal.printMessage("There is a closed door blocking your way.");
                         }
                     }
                     else

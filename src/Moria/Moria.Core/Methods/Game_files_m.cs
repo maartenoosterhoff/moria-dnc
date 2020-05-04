@@ -7,7 +7,6 @@ using System.Linq;
 using Moria.Core.Resources;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -18,6 +17,7 @@ namespace Moria.Core.Methods
             IGameObjectsPush gameObjectsPush,
             IHelpers helpers,
             IInventoryManager inventoryManager,
+            ITerminal terminal,
             ITreasure treasure
         )
         {
@@ -25,6 +25,7 @@ namespace Moria.Core.Methods
             Game_files_m.gameObjectsPush = gameObjectsPush;
             Game_files_m.helpers = helpers;
             Game_files_m.inventoryManager = inventoryManager;
+            Game_files_m.terminal = terminal;
             Game_files_m.treasure = treasure;
         }
 
@@ -32,6 +33,7 @@ namespace Moria.Core.Methods
         private static IGameObjectsPush gameObjectsPush;
         private static IHelpers helpers;
         private static IInventoryManager inventoryManager;
+        private static ITerminal terminal;
         private static ITreasure treasure;
 
         ////  initializeScoreFile
@@ -50,16 +52,16 @@ namespace Moria.Core.Methods
         // Attempt to open and print the file containing the intro splash screen text -RAK-
         public static void displaySplashScreen()
         {
-            clearScreen();
+            terminal.clearScreen();
             var lines = DataFilesResource.splash.Split(new[] { Environment.NewLine, "\r", "\n" }, StringSplitOptions.None);
             var i = 0;
             foreach (var line in lines)
             {
-                putString(line, new Coord_t(i, 0));
+                terminal.putString(line, new Coord_t(i, 0));
                 i++;
             }
 
-            waitForContinueKey(23);
+            terminal.waitForContinueKey(23);
 
             /*
             vtype_t in_line = { '\0' };
@@ -90,24 +92,24 @@ namespace Moria.Core.Methods
             //    return;
             //}
 
-            terminalSaveScreen();
+            terminal.terminalSaveScreen();
 
             var lines = helpText.Split(new[] {Environment.NewLine, "\r", "\n"}, StringSplitOptions.None)
                 .ToList();
 
             while (lines.Any())
             {
-                clearScreen();
+                terminal.clearScreen();
                 for (var i = 0; i < 23 && lines.Count > 0; i++)
                 {
                     var line = lines[0];
                     lines.RemoveAt(0);
-                    putString(line, new Coord_t(i, 0));
+                    terminal.putString(line, new Coord_t(i, 0));
                 }
 
 
-                putStringClearToEOL("[ press any key to continue ]", new Coord_t(23, 23));
-                var input = getKeyInput();
+                terminal.putStringClearToEOL("[ press any key to continue ]", new Coord_t(23, 23));
+                var input = terminal.getKeyInput();
                 if (input == ESCAPE)
                 {
                     break;
@@ -143,7 +145,7 @@ namespace Moria.Core.Methods
 
                         */
 
-            terminalRestoreScreen();
+            terminal.terminalRestoreScreen();
         }
 
         // Open and display a "death" text file
@@ -165,7 +167,7 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i < 23 && i < lines.Length; i++)
             {
-                putString(lines[i], new Coord_t(i, 0));
+                terminal.putString(lines[i], new Coord_t(i, 0));
             }
 
 
@@ -204,8 +206,8 @@ namespace Moria.Core.Methods
             var input = string.Empty;
             //obj_desc_t input = { 0 };
 
-            putStringClearToEOL("Produce objects on what level?: ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 32), 10))
+            terminal.putStringClearToEOL("Produce objects on what level?: ", new Coord_t(0, 0));
+            if (!terminal.getStringInput(out input, new Coord_t(0, 32), 10))
             {
                 return;
             }
@@ -215,8 +217,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            putStringClearToEOL("Produce how many objects?: ", new Coord_t(0, 0));
-            if (!getStringInput(out input, new Coord_t(0, 27), 10))
+            terminal.putStringClearToEOL("Produce how many objects?: ", new Coord_t(0, 0));
+            if (!terminal.getStringInput(out input, new Coord_t(0, 27), 10))
             {
                 return;
             }
@@ -228,7 +230,7 @@ namespace Moria.Core.Methods
 
             if (count < 1 || level < 0 || level > 1200)
             {
-                putStringClearToEOL("Parameters no good.", new Coord_t(0, 0));
+                terminal.putStringClearToEOL("Parameters no good.", new Coord_t(0, 0));
                 return;
             }
 
@@ -237,14 +239,14 @@ namespace Moria.Core.Methods
                 count = 10000;
             }
 
-            var small_objects = getInputConfirmation("Small objects only?");
+            var small_objects = terminal.getInputConfirmation("Small objects only?");
 
-            putStringClearToEOL("File name: ", new Coord_t(0, 0));
+            terminal.putStringClearToEOL("File name: ", new Coord_t(0, 0));
 
             var filename = string.Empty;
             //vtype_t filename = { 0 };
 
-            if (!getStringInput(out filename, new Coord_t(0, 11), 64))
+            if (!terminal.getStringInput(out filename, new Coord_t(0, 11), 64))
             {
                 return;
             }
@@ -262,9 +264,9 @@ namespace Moria.Core.Methods
 
             input = $"{count:d}";
             //(void)sprintf(input, "%d", count);
-            putStringClearToEOL(input +  " random objects being produced...", new Coord_t(0, 0));
+            terminal.putStringClearToEOL(input +  " random objects being produced...", new Coord_t(0, 0));
 
-            putQIO();
+            terminal.putQIO();
 
             //(void)fprintf(file_ptr, "*** Random Object Sampling:\n");
             //(void)fprintf(file_ptr, "*** %d objects\n", count);
@@ -298,7 +300,7 @@ namespace Moria.Core.Methods
 
             //(void)fclose(file_ptr);
 
-            putStringClearToEOL("Completed.", new Coord_t(0, 0));
+            terminal.putStringClearToEOL("Completed.", new Coord_t(0, 0));
         }
 
         //// Write character sheet to the file

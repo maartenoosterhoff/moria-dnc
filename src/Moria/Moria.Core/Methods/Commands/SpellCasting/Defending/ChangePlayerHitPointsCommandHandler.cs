@@ -6,6 +6,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
         ICommandHandler<ChangePlayerHitPointsCommand>,
         ICommandHandler<ChangePlayerHitPointsCommand, bool>
     {
+        private readonly ITerminal terminal;
+
+        public ChangePlayerHitPointsCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
+
         void ICommandHandler<ChangePlayerHitPointsCommand>.Handle(ChangePlayerHitPointsCommand command)
         {
             this.spellChangePlayerHitPoints(command.Adjustment);
@@ -39,22 +48,22 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
             {
                 if (adjustment == 0)
                 {
-                    Ui_io_m.printMessage("You feel a little better.");
+                    this.terminal.printMessage("You feel a little better.");
                 }
                 else
                 {
-                    Ui_io_m.printMessage("You feel better.");
+                    this.terminal.printMessage("You feel better.");
                 }
             }
             else
             {
                 if (adjustment < 7)
                 {
-                    Ui_io_m.printMessage("You feel much better.");
+                    this.terminal.printMessage("You feel much better.");
                 }
                 else
                 {
-                    Ui_io_m.printMessage("You feel very good.");
+                    this.terminal.printMessage("You feel very good.");
                 }
             }
 

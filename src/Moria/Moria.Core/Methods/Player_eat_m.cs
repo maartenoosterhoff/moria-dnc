@@ -6,7 +6,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -31,6 +31,7 @@ namespace Moria.Core.Methods
             Player_eat_m.inventoryManager = inventoryManager;
             Player_eat_m.playerMagic = playerMagic;
             Player_eat_m.rnd = rnd;
+            Player_eat_m.terminal = terminal;
             Player_eat_m.uiInventory = uiInventory;
 
             Player_eat_m.eventPublisher = eventPublisher;
@@ -41,6 +42,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -55,19 +57,17 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0)
             {
-                printMessage("But you are not carrying anything.");
+                terminal.printMessage("But you are not carrying anything.");
                 return;
             }
 
-            int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out item_pos_start, out item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out var item_pos_start, out var item_pos_end))
             {
-                printMessage("You are not carrying any food.");
+                terminal.printMessage("You are not carrying any food.");
                 return;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Eat what?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Eat what?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
@@ -90,22 +90,22 @@ namespace Moria.Core.Methods
                     case FoodMagicTypes.Blindness:
                         py.flags.blind += rnd.randomNumber(250) + 10 * (int)item.depth_first_found + 100;
                         drawCavePanel();
-                        printMessage("A veil of darkness surrounds you.");
+                        terminal.printMessage("A veil of darkness surrounds you.");
                         identified = true;
                         break;
                     case FoodMagicTypes.Paranoia:
                         py.flags.afraid += rnd.randomNumber(10) + (int)item.depth_first_found;
-                        printMessage("You feel terrified!");
+                        terminal.printMessage("You feel terrified!");
                         identified = true;
                         break;
                     case FoodMagicTypes.Confusion:
                         py.flags.confused += rnd.randomNumber(10) + (int)item.depth_first_found;
-                        printMessage("You feel drugged.");
+                        terminal.printMessage("You feel drugged.");
                         identified = true;
                         break;
                     case FoodMagicTypes.Hallucination:
                         py.flags.image += rnd.randomNumber(200) + 25 * (int)item.depth_first_found + 200;
-                        printMessage("You feel drugged.");
+                        terminal.printMessage("You feel drugged.");
                         identified = true;
                         break;
                     case FoodMagicTypes.CurePoison:
@@ -157,42 +157,42 @@ namespace Moria.Core.Methods
                     case FoodMagicTypes.RestoreSTR:
                         if (playerStatRestore((int)PlayerAttr.STR))
                         {
-                            printMessage("You feel your strength returning.");
+                            terminal.printMessage("You feel your strength returning.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreCON:
                         if (playerStatRestore((int)PlayerAttr.CON))
                         {
-                            printMessage("You feel your health returning.");
+                            terminal.printMessage("You feel your health returning.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreINT:
                         if (playerStatRestore((int)PlayerAttr.INT))
                         {
-                            printMessage("Your head spins a moment.");
+                            terminal.printMessage("Your head spins a moment.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreWIS:
                         if (playerStatRestore((int)PlayerAttr.WIS))
                         {
-                            printMessage("You feel your wisdom returning.");
+                            terminal.printMessage("You feel your wisdom returning.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreDEX:
                         if (playerStatRestore((int)PlayerAttr.DEX))
                         {
-                            printMessage("You feel more dexterous.");
+                            terminal.printMessage("You feel more dexterous.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreCHR:
                         if (playerStatRestore((int)PlayerAttr.CHR))
                         {
-                            printMessage("Your skin stops itching.");
+                            terminal.printMessage("Your skin stops itching.");
                             identified = true;
                         }
                         break;
@@ -249,7 +249,7 @@ namespace Moria.Core.Methods
 */
                     default:
                         // All cases are handled, so this should never be reached!
-                        printMessage("Internal error in playerEat()");
+                        terminal.printMessage("Internal error in playerEat()");
                         break;
                 }
             }
@@ -296,7 +296,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.food > Config.player.PLAYER_FOOD_MAX)
             {
-                printMessage("You are bloated from overeating.");
+                terminal.printMessage("You are bloated from overeating.");
 
                 // Calculate how much of amount is responsible for the bloating. Give the
                 // player food credit for 1/50, and also slow them for that many turns.
@@ -320,7 +320,7 @@ namespace Moria.Core.Methods
             }
             else if (py.flags.food > Config.player.PLAYER_FOOD_FULL)
             {
-                printMessage("You are full.");
+                terminal.printMessage("You are full.");
             }
         }
 

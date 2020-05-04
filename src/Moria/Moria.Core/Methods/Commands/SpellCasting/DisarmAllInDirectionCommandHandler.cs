@@ -12,14 +12,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     {
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly ITerminal terminal;
 
         public DisarmAllInDirectionCommandHandler(
             IDungeon dungeon,
-            IHelpers helpers
+            IHelpers helpers,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.terminal = terminal;
         }
 
         void ICommandHandler<DisarmAllInDirectionCommand>.Handle(DisarmAllInDirectionCommand command)
@@ -80,7 +83,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                     else if (item.category_id == Treasure_c.TV_CHEST && item.flags != 0)
                     {
                         disarmed = true;
-                        Ui_io_m.printMessage("Click!");
+                        this.terminal.printMessage("Click!");
 
                         item.flags &= ~(Config.treasure_chests.CH_TRAPPED | Config.treasure_chests.CH_LOCKED);
                         item.special_name_id = (int)SpecialNameIds.SN_UNLOCKED;

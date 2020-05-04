@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -25,6 +24,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
             IUiInventory uiInventory
         )
         {
@@ -36,6 +36,7 @@ namespace Moria.Core.Methods
             Player_throw_m.inventoryManager = inventoryManager;
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
+            Player_throw_m.terminal = terminal;
             Player_throw_m.uiInventory = uiInventory;
         }
 
@@ -47,6 +48,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static void inventoryThrow(int item_id, out Inventory_t treasure)
@@ -221,7 +223,7 @@ namespace Moria.Core.Methods
 
                 var msg = $"The {description} disappears.";
                 //(void)sprintf(msg, "The %s disappears.", description);
-                printMessage(msg);
+                terminal.printMessage(msg);
             }
         }
 
@@ -236,7 +238,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             if (py.pack.unique_items == 0)
             {
-                printMessage("But you are not carrying anything.");
+                terminal.printMessage("But you are not carrying anything.");
                 game.player_free_turn = true;
                 return;
             }
@@ -256,7 +258,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are confused.");
+                terminal.printMessage("You are confused.");
                 dir = rnd.getRandomDirection();
             }
 
@@ -329,7 +331,7 @@ namespace Moria.Core.Methods
                                 //(void)sprintf(msg, "The %s hits the %s.", description, creatures_list[damage].name);
                                 visible = true;
                             }
-                            printMessage(msg);
+                            terminal.printMessage(msg);
 
                             tdam = playerMagic.itemMagicAbilityDamage(thrown_item, tdam, damage);
                             tdam = playerWeaponCriticalBlow((int)thrown_item.weight, tpth, tdam, (int)PlayerClassLevelAdj.BTHB);
@@ -345,13 +347,13 @@ namespace Moria.Core.Methods
                             {
                                 if (!visible)
                                 {
-                                    printMessage("You have killed something!");
+                                    terminal.printMessage("You have killed something!");
                                 }
                                 else
                                 {
                                     msg = $"You have killed the {Library.Instance.Creatures.creatures_list[damage].name}.";
                                     //(void)sprintf(msg, "You have killed the %s.", creatures_list[damage].name);
-                                    printMessage(msg);
+                                    terminal.printMessage(msg);
                                 }
                                 displayCharacterExperience();
                             }
@@ -367,8 +369,8 @@ namespace Moria.Core.Methods
 
                         if (coordInsidePanel(coord) && py.flags.blind < 1 && (tile.temporary_light || tile.permanent_light))
                         {
-                            panelPutTile(tile_char, coord);
-                            putQIO(); // show object moving
+                            terminal.panelPutTile(tile_char, coord);
+                            terminal.putQIO(); // show object moving
                         }
                     }
                 }

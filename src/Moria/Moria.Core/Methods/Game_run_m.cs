@@ -37,7 +37,6 @@ using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Scrolls_m;
 using static Moria.Core.Methods.Staffs_m;
 using static Moria.Core.Methods.Store_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -57,6 +56,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IRnd rnd,
             IStoreInventory storeInventory,
+            ITerminal terminal,
             IUiInventory uiInventory,
             IWizard wizard,
 
@@ -75,6 +75,7 @@ namespace Moria.Core.Methods
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.rnd = rnd;
             Game_run_m.storeInventory = storeInventory;
+            Game_run_m.terminal = terminal;
             Game_run_m.wizard = wizard;
             Game_run_m.uiInventory = uiInventory;
 
@@ -94,6 +95,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStoreInventory storeInventory;
+        private static ITerminal terminal;
         private static IWizard wizard;
         private static IUiInventory uiInventory;
 
@@ -189,14 +191,14 @@ namespace Moria.Core.Methods
                 // Spell and Mana based on class: Mage or Clerical realm.
                 if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
-                    clearScreen(); // makes spell list easier to read
+                    terminal.clearScreen(); // makes spell list easier to read
                     playerCalculateAllowedSpellsCount((int)PlayerAttr.INT);
                     playerGainMana((int)PlayerAttr.INT);
                 }
                 else if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_PRIEST)
                 {
                     playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
-                    clearScreen(); // force out the 'learn prayer' message
+                    terminal.clearScreen(); // force out the 'learn prayer' message
                     playerGainMana((int)PlayerAttr.WIS);
                 }
 
@@ -217,7 +219,7 @@ namespace Moria.Core.Methods
             //
             // Begin the game
             //
-            clearScreen();
+            terminal.clearScreen();
             printCharacterStatsBlock();
 
             if (generate)
@@ -424,7 +426,7 @@ namespace Moria.Core.Methods
                     if (item.misc_use == 0)
                     {
                         py.carrying_light = false;
-                        printMessage("Your light has gone out!");
+                        terminal.printMessage("Your light has gone out!");
                         eventPublisher.Publish(new DisturbCommand(false, true));
                         //playerDisturb(0, 1);
 
@@ -435,7 +437,7 @@ namespace Moria.Core.Methods
                     {
                         eventPublisher.Publish(new DisturbCommand(false, false));
                         //playerDisturb(0, 0);
-                        printMessage("Your light is growing faint.");
+                        terminal.printMessage("Your light is growing faint.");
                     }
                 }
                 else
@@ -473,7 +475,7 @@ namespace Moria.Core.Methods
             py.misc.bth += 12;
             py.misc.bth_with_bows += 12;
 
-            printMessage("You feel like a HERO!");
+            terminal.printMessage("You feel like a HERO!");
             printCharacterMaxHitPoints();
             printCharacterCurrentHitPoints();
         }
@@ -496,7 +498,7 @@ namespace Moria.Core.Methods
             py.misc.bth -= 12;
             py.misc.bth_with_bows -= 12;
 
-            printMessage("The heroism wears off.");
+            terminal.printMessage("The heroism wears off.");
             printCharacterMaxHitPoints();
         }
 
@@ -513,7 +515,7 @@ namespace Moria.Core.Methods
             py.misc.bth += 24;
             py.misc.bth_with_bows += 24;
 
-            printMessage("You feel like a SUPER HERO!");
+            terminal.printMessage("You feel like a SUPER HERO!");
             printCharacterMaxHitPoints();
             printCharacterCurrentHitPoints();
         }
@@ -537,7 +539,7 @@ namespace Moria.Core.Methods
             py.misc.bth -= 24;
             py.misc.bth_with_bows -= 24;
 
-            printMessage("The super heroism wears off.");
+            terminal.printMessage("The super heroism wears off.");
             printCharacterMaxHitPoints();
         }
 
@@ -605,7 +607,7 @@ namespace Moria.Core.Methods
                     if ((py.flags.status & Config.player_status.PY_WEAK) == 0)
                     {
                         py.flags.status |= Config.player_status.PY_WEAK;
-                        printMessage("You are getting weak from hunger.");
+                        terminal.printMessage("You are getting weak from hunger.");
                         eventPublisher.Publish(new DisturbCommand(false, false)); 
                         //playerDisturb(0, 0);
                         printCharacterHungerStatus();
@@ -614,7 +616,7 @@ namespace Moria.Core.Methods
                     if (py.flags.food < Config.player.PLAYER_FOOD_FAINT && rnd.randomNumber(8) == 1)
                     {
                         py.flags.paralysis += rnd.randomNumber(5);
-                        printMessage("You faint from the lack of food.");
+                        terminal.printMessage("You faint from the lack of food.");
                         eventPublisher.Publish(new DisturbCommand(true, false)); 
                         //playerDisturb(1, 0);
                     }
@@ -622,7 +624,7 @@ namespace Moria.Core.Methods
                 else if ((py.flags.status & Config.player_status.PY_HUNGRY) == 0)
                 {
                     py.flags.status |= Config.player_status.PY_HUNGRY;
-                    printMessage("You are getting hungry.");
+                    terminal.printMessage("You are getting hungry.");
                     eventPublisher.Publish(new DisturbCommand(false, false)); 
                     //playerDisturb(0, 0);
                     printCharacterHungerStatus();
@@ -709,7 +711,7 @@ namespace Moria.Core.Methods
                 // light creatures
                 updateMonsters(false);
 
-                printMessage("The veil of darkness lifts.");
+                terminal.printMessage("The veil of darkness lifts.");
             }
         }
 
@@ -735,7 +737,7 @@ namespace Moria.Core.Methods
                 py.flags.status &= ~Config.player_status.PY_CONFUSED;
 
                 printCharacterConfusedState();
-                printMessage("You feel less confused now.");
+                terminal.printMessage("You feel less confused now.");
 
                 if (py.flags.rest != 0)
                 {
@@ -777,7 +779,7 @@ namespace Moria.Core.Methods
                 py.flags.status &= ~Config.player_status.PY_FEAR;
 
                 printCharacterFearState();
-                printMessage("You feel bolder now.");
+                terminal.printMessage("You feel bolder now.");
                 eventPublisher.Publish(new DisturbCommand(false, false)); 
                 //playerDisturb(0, 0);
             }
@@ -806,7 +808,7 @@ namespace Moria.Core.Methods
                 py.flags.status &= ~Config.player_status.PY_POISONED;
 
                 printCharacterPoisonedState();
-                printMessage("You feel better.");
+                terminal.printMessage("You feel better.");
                 eventPublisher.Publish(new DisturbCommand(false, false)); 
                 //playerDisturb(0, 0);
 
@@ -866,7 +868,7 @@ namespace Moria.Core.Methods
                 py.flags.status |= Config.player_status.PY_FAST;
                 playerChangeSpeed(-1);
 
-                printMessage("You feel yourself moving faster.");
+                terminal.printMessage("You feel yourself moving faster.");
                 eventPublisher.Publish(new DisturbCommand(false, false)); 
                 //playerDisturb(0, 0);
             }
@@ -878,7 +880,7 @@ namespace Moria.Core.Methods
                 py.flags.status &= ~Config.player_status.PY_FAST;
                 playerChangeSpeed(1);
 
-                printMessage("You feel yourself slow down.");
+                terminal.printMessage("You feel yourself slow down.");
                 eventPublisher.Publish(new DisturbCommand(false, false)); 
                 //playerDisturb(0, 0);
             }
@@ -898,7 +900,7 @@ namespace Moria.Core.Methods
                 py.flags.status |= Config.player_status.PY_SLOW;
                 playerChangeSpeed(1);
 
-                printMessage("You feel yourself moving slower.");
+                terminal.printMessage("You feel yourself moving slower.");
                 eventPublisher.Publish(new DisturbCommand(false, false)); 
                 //playerDisturb(0, 0);
             }
@@ -910,7 +912,7 @@ namespace Moria.Core.Methods
                 py.flags.status &= ~Config.player_status.PY_SLOW;
                 playerChangeSpeed(-1);
 
-                printMessage("You feel yourself speed up.");
+                terminal.printMessage("You feel yourself speed up.");
                 eventPublisher.Publish(new DisturbCommand(false, false)); 
                 //playerDisturb(0, 0);
             }
@@ -1001,7 +1003,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.protect_evil == 0)
             {
-                printMessage("You no longer feel safe from evil.");
+                terminal.printMessage("You no longer feel safe from evil.");
             }
         }
 
@@ -1024,7 +1026,7 @@ namespace Moria.Core.Methods
                 py.misc.display_ac += 100;
 
                 printCharacterCurrentArmorClass();
-                printMessage("Your skin turns into steel!");
+                terminal.printMessage("Your skin turns into steel!");
             }
 
             py.flags.invulnerability--;
@@ -1039,7 +1041,7 @@ namespace Moria.Core.Methods
                 py.misc.display_ac -= 100;
 
                 printCharacterCurrentArmorClass();
-                printMessage("Your skin returns to normal.");
+                terminal.printMessage("Your skin returns to normal.");
             }
         }
 
@@ -1063,7 +1065,7 @@ namespace Moria.Core.Methods
                 py.misc.ac += 2;
                 py.misc.display_ac += 2;
 
-                printMessage("You feel righteous!");
+                terminal.printMessage("You feel righteous!");
                 printCharacterCurrentArmorClass();
             }
 
@@ -1080,7 +1082,7 @@ namespace Moria.Core.Methods
                 py.misc.ac -= 2;
                 py.misc.display_ac -= 2;
 
-                printMessage("The prayer has expired.");
+                terminal.printMessage("The prayer has expired.");
                 printCharacterCurrentArmorClass();
             }
         }
@@ -1099,7 +1101,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.heat_resistance == 0)
             {
-                printMessage("You no longer feel safe from flame.");
+                terminal.printMessage("You no longer feel safe from flame.");
             }
         }
 
@@ -1116,7 +1118,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.cold_resistance == 0)
             {
-                printMessage("You no longer feel safe from cold.");
+                terminal.printMessage("You no longer feel safe from cold.");
             }
         }
 
@@ -1204,12 +1206,12 @@ namespace Moria.Core.Methods
                 if (dg.current_level > 0)
                 {
                     dg.current_level = 0;
-                    printMessage("You feel yourself yanked upwards!");
+                    terminal.printMessage("You feel yourself yanked upwards!");
                 }
                 else if (py.misc.max_dungeon_depth != 0)
                 {
                     dg.current_level = (int)py.misc.max_dungeon_depth;
-                    printMessage("You feel yourself yanked downwards!");
+                    terminal.printMessage("You feel yourself yanked downwards!");
                 }
             }
             else
@@ -1299,9 +1301,9 @@ namespace Moria.Core.Methods
                     var tmp_str = $"There's something about what you {uiInventory.playerItemWearingDescription(i)}...";
                     //vtype_t tmp_str = { '\0' };
                     //(void)sprintf(tmp_str, "There's something about what you are %s...", playerItemWearingDescription(i));
-                    eventPublisher.Publish(new DisturbCommand(false, false)); 
+                    eventPublisher.Publish(new DisturbCommand(false, false));
                     //playerDisturb(0, 0);
-                    printMessage(tmp_str);
+                    terminal.printMessage(tmp_str);
                     itemAppendToInscription(item, Config.identification.ID_MAGIK);
                 }
             }
@@ -1309,7 +1311,7 @@ namespace Moria.Core.Methods
 
         public static int getCommandRepeatCount(ref char last_input_command)
         {
-            putStringClearToEOL("Repeat count:", new Coord_t(0, 0));
+            terminal.putStringClearToEOL("Repeat count:", new Coord_t(0, 0));
 
             if (last_input_command == '#')
             {
@@ -1326,27 +1328,27 @@ namespace Moria.Core.Methods
                     repeat_count /= 10;
                     text_buffer = $"{repeat_count:d}";
                     //(void)sprintf(text_buffer, "%d", (int16_t)repeat_count);
-                    putStringClearToEOL(text_buffer, new Coord_t(0, 14));
+                    terminal.putStringClearToEOL(text_buffer, new Coord_t(0, 14));
                 }
                 else if (last_input_command >= '0' && last_input_command <= '9')
                 {
                     if (repeat_count > 99)
                     {
-                        terminalBellSound();
+                        terminal.terminalBellSound();
                     }
                     else
                     {
                         repeat_count = repeat_count * 10 + last_input_command - '0';
                         text_buffer = $"{repeat_count:d}";
                         //(void)sprintf(text_buffer, "%d", repeat_count);
-                        putStringClearToEOL(text_buffer, new Coord_t(0, 14));
+                        terminal.putStringClearToEOL(text_buffer, new Coord_t(0, 14));
                     }
                 }
                 else
                 {
                     break;
                 }
-                last_input_command = getKeyInput();
+                last_input_command = terminal.getKeyInput();
             }
 
             if (repeat_count == 0)
@@ -1354,14 +1356,14 @@ namespace Moria.Core.Methods
                 repeat_count = 99;
                 text_buffer = $"{repeat_count:d}";
                 //(void)sprintf(text_buffer, "%d", repeat_count);
-                putStringClearToEOL(text_buffer, new Coord_t(0, 14));
+                terminal.putStringClearToEOL(text_buffer, new Coord_t(0, 14));
             }
 
             // a special hack to allow numbers as commands
             if (last_input_command == ' ')
             {
-                putStringClearToEOL("Command:", new Coord_t(0, 20));
-                last_input_command = getKeyInput();
+                terminal.putStringClearToEOL("Command:", new Coord_t(0, 20));
+                last_input_command = terminal.getKeyInput();
             }
 
             return repeat_count;
@@ -1375,7 +1377,7 @@ namespace Moria.Core.Methods
                 printCharacterMovementState();
             }
 
-            if (getCommand("Control-", out last_input_command))
+            if (terminal.getCommand("Control-", out last_input_command))
             {
                 if (last_input_command >= 'A' && last_input_command <= 'Z')
                 {
@@ -1388,7 +1390,7 @@ namespace Moria.Core.Methods
                 else
                 {
                     last_input_command = ' ';
-                    printMessage("Type ^ <letter> for a control char");
+                    terminal.printMessage("Type ^ <letter> for a control char");
                 }
             }
             else
@@ -1429,7 +1431,7 @@ namespace Moria.Core.Methods
                         //playerEndRunning();
                     }
 
-                    putQIO();
+                    terminal.putQIO();
                     continue;
                 }
 
@@ -1440,7 +1442,7 @@ namespace Moria.Core.Methods
                 }
 
                 // move the cursor to the players character
-                panelMoveCursor(py.pos);
+                terminal.panelMoveCursor(py.pos);
 
                 State.Instance.message_ready_to_print = false;
 
@@ -1450,7 +1452,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    last_input_command = getKeyInput();
+                    last_input_command = terminal.getKeyInput();
 
                     // Get a count for a command.
                     var repeat_count = 0;
@@ -1466,7 +1468,7 @@ namespace Moria.Core.Methods
                     }
 
                     // move cursor to player char again, in case it moved
-                    panelMoveCursor(py.pos);
+                    terminal.panelMoveCursor(py.pos);
 
                     // Commands are always converted to rogue form. -CJS-
                     if (!Config.options.use_roguelike_keys)
@@ -1480,7 +1482,7 @@ namespace Moria.Core.Methods
                         {
                             game.player_free_turn = true;
                             last_input_command = ' ';
-                            printMessage("Invalid command with a count.");
+                            terminal.printMessage("Invalid command with a count.");
                         }
                         else
                         {
@@ -1491,9 +1493,9 @@ namespace Moria.Core.Methods
                 }
 
                 // Flash the message line.
-                messageLineClear();
-                panelMoveCursor(py.pos);
-                putQIO();
+                terminal.messageLineClear();
+                terminal.panelMoveCursor(py.pos);
+                terminal.putQIO();
 
                 doCommand(last_input_command);
 
@@ -1818,9 +1820,9 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
-            flushInputBuffer();
+            terminal.flushInputBuffer();
 
-            if (getInputConfirmation("Do you really want to quit?"))
+            if (terminal.getInputConfirmation("Do you really want to quit?"))
             {
                 game.character_is_dead = true;
                 dg.generate_new_level = true;
@@ -1859,12 +1861,12 @@ namespace Moria.Core.Methods
             if (max_messages <= 1)
             {
                 // Distinguish real and recovered messages with a '>'. -CJS-
-                putString(">", new Coord_t(0, 0));
-                putStringClearToEOL(State.Instance.messages[State.Instance.last_message_id], new Coord_t(0, 1));
+                terminal.putString(">", new Coord_t(0, 0));
+                terminal.putStringClearToEOL(State.Instance.messages[State.Instance.last_message_id], new Coord_t(0, 1));
                 return;
             }
 
-            terminalSaveScreen();
+            terminal.terminalSaveScreen();
 
             var line_number = max_messages;
             var msg_id = State.Instance.last_message_id;
@@ -1873,7 +1875,7 @@ namespace Moria.Core.Methods
             {
                 max_messages--;
 
-                putStringClearToEOL(State.Instance.messages[msg_id], new Coord_t((int)max_messages, 0));
+                terminal.putStringClearToEOL(State.Instance.messages[msg_id], new Coord_t((int)max_messages, 0));
 
                 if (msg_id == 0)
                 {
@@ -1885,9 +1887,9 @@ namespace Moria.Core.Methods
                 }
             }
 
-            eraseLine(new Coord_t((int)line_number, 0));
-            waitForContinueKey((int)line_number);
-            terminalRestoreScreen();
+            terminal.eraseLine(new Coord_t((int)line_number, 0));
+            terminal.waitForContinueKey((int)line_number);
+            terminal.terminalRestoreScreen();
         }
 
         public static void commandFlipWizardMode()
@@ -1896,11 +1898,11 @@ namespace Moria.Core.Methods
             if (game.wizard_mode)
             {
                 game.wizard_mode = false;
-                printMessage("Wizard mode off.");
+                terminal.printMessage("Wizard mode off.");
             }
             else if (wizard.enterWizardMode())
             {
-                printMessage("Wizard mode on.");
+                terminal.printMessage("Wizard mode on.");
             }
 
             printCharacterWinner();
@@ -1911,22 +1913,22 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             if (game.total_winner)
             {
-                printMessage("You are a Total Winner,  your character must be retired.");
+                terminal.printMessage("You are a Total Winner,  your character must be retired.");
 
                 if (Config.options.use_roguelike_keys)
                 {
-                    printMessage("Use 'Q' to when you are ready to quit.");
+                    terminal.printMessage("Use 'Q' to when you are ready to quit.");
                 }
                 else
                 {
-                    printMessage("Use <Control>-K when you are ready to quit.");
+                    terminal.printMessage("Use <Control>-K when you are ready to quit.");
                 }
             }
             else
             {
                 game.character_died_from = "(saved)";
                 //(void)strcpy(game.character_died_from, "(saved)");
-                printMessage("Saving game...");
+                terminal.printMessage("Saving game...");
 
                 if (gameSave.saveGame())
                 {
@@ -1946,7 +1948,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.blind > 0 || helpers.playerNoLight())
             {
-                printMessage("You can't see your map.");
+                terminal.printMessage("You can't see your map.");
                 return;
             }
 
@@ -2005,7 +2007,7 @@ namespace Moria.Core.Methods
 
                     if (player_coord.x < 0 || player_coord.y < 0 || player_coord.x >= dg.width || player_coord.y >= dg.width)
                     {
-                        printMessage("You've gone past the end of your map.");
+                        terminal.printMessage("You've gone past the end of your map.");
 
                         player_coord.x -= ((dir_val - 1) % 3 - 1) * (int)SCREEN_WIDTH / 2;
                         player_coord.y += ((dir_val - 1) / 3 - 1) * (int)SCREEN_HEIGHT / 2;
@@ -2053,7 +2055,7 @@ namespace Moria.Core.Methods
                 case CTRL_KEY_E:
                     // Edit Character
                     wizard.wizardCharacterAdjustment();
-                    messageLineClear();
+                    terminal.messageLineClear();
                     break;
                 case CTRL_KEY_F:
                     // Mass Genocide, vanquish all monsters
@@ -2125,11 +2127,11 @@ namespace Moria.Core.Methods
                 default:
                     if (Config.options.use_roguelike_keys)
                     {
-                        putStringClearToEOL("Type '?' or '\\' for help.", new Coord_t(0, 0));
+                        terminal.putStringClearToEOL("Type '?' or '\\' for help.", new Coord_t(0, 0));
                     }
                     else
                     {
-                        putStringClearToEOL("Type '?' or ^H for help.", new Coord_t(0, 0));
+                        terminal.putStringClearToEOL("Type '?' or ^H for help.", new Coord_t(0, 0));
                     }
                     break;
             }
@@ -2268,9 +2270,9 @@ namespace Moria.Core.Methods
                     playerBash();
                     break;
                 case 'C': // (C)haracter description
-                    terminalSaveScreen();
+                    terminal.terminalSaveScreen();
                     changeCharacterName();
-                    terminalRestoreScreen();
+                    terminal.terminalRestoreScreen();
                     game.player_free_turn = true;
                     break;
                 case 'D': // (D)isarm trap
@@ -2287,9 +2289,9 @@ namespace Moria.Core.Methods
                     //playerGainSpells();
                     break;
                 case 'V': // (V)iew scores
-                    terminalSaveScreen();
+                    terminal.terminalSaveScreen();
                     showScoresScreen();
-                    terminalRestoreScreen();
+                    terminal.terminalRestoreScreen();
                     game.player_free_turn = true;
                     break;
                 case 'W': // (W)here are we on the map  (L)ocate on map
@@ -2406,7 +2408,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        putStringClearToEOL("Type '?' for help.", new Coord_t(0, 0));
+                        terminal.putStringClearToEOL("Type '?' for help.", new Coord_t(0, 0));
                     }
                     break;
             }
@@ -2632,25 +2634,25 @@ namespace Moria.Core.Methods
             int item_pos_start = 0, item_pos_end = 0;
             if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, (int)TV_PRAYER_BOOK, out item_pos_start, out item_pos_end))
             {
-                printMessage("You are not carrying any books.");
+                terminal.printMessage("You are not carrying any books.");
                 return;
             }
 
             if (py.flags.blind > 0)
             {
-                printMessage("You can't see to read your spell book!");
+                terminal.printMessage("You can't see to read your spell book!");
                 return;
             }
 
             if (helpers.playerNoLight())
             {
-                printMessage("You have no light to read by.");
+                terminal.printMessage("You have no light to read by.");
                 return;
             }
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are too confused.");
+                terminal.printMessage("You are too confused.");
                 return;
             }
 
@@ -2683,7 +2685,7 @@ namespace Moria.Core.Methods
 
                 if (!can_read)
                 {
-                    printMessage("You do not understand the language.");
+                    terminal.printMessage("You do not understand the language.");
                     return;
                 }
 
@@ -2701,10 +2703,10 @@ namespace Moria.Core.Methods
                     }
                 }
 
-                terminalSaveScreen();
+                terminal.terminalSaveScreen();
                 displaySpellsList(spell_index, spell_id, true, -1);
-                waitForContinueKey(0);
-                terminalRestoreScreen();
+                terminal.waitForContinueKey(0);
+                terminal.terminalRestoreScreen();
             }
         }
 
@@ -2721,14 +2723,14 @@ namespace Moria.Core.Methods
             {
                 dg.current_level--;
 
-                printMessage("You enter a maze of up staircases.");
-                printMessage("You pass through a one-way door.");
+                terminal.printMessage("You enter a maze of up staircases.");
+                terminal.printMessage("You pass through a one-way door.");
 
                 dg.generate_new_level = true;
             }
             else
             {
-                printMessage("I see no up staircase here.");
+                terminal.printMessage("I see no up staircase here.");
                 game.player_free_turn = true;
             }
         }
@@ -2746,14 +2748,14 @@ namespace Moria.Core.Methods
             {
                 dg.current_level++;
 
-                printMessage("You enter a maze of down staircases.");
-                printMessage("You pass through a one-way door.");
+                terminal.printMessage("You enter a maze of down staircases.");
+                terminal.printMessage("You pass through a one-way door.");
 
                 dg.generate_new_level = true;
             }
             else
             {
-                printMessage("I see no down staircase here.");
+                terminal.printMessage("I see no down staircase here.");
                 game.player_free_turn = true;
             }
         }
@@ -2780,7 +2782,7 @@ namespace Moria.Core.Methods
 
             if (tile.treasure_id == 0)
             {
-                printMessage("That isn't a door!");
+                terminal.printMessage("That isn't a door!");
                 return;
             }
 
@@ -2789,13 +2791,13 @@ namespace Moria.Core.Methods
             var item_id = item.category_id;
             if (item_id != TV_CLOSED_DOOR && item_id != TV_OPEN_DOOR)
             {
-                printMessage("That isn't a door!");
+                terminal.printMessage("That isn't a door!");
                 return;
             }
 
             if (item_id == TV_OPEN_DOOR)
             {
-                printMessage("The door must be closed first.");
+                terminal.printMessage("The door must be closed first.");
                 return;
             }
 
@@ -2803,12 +2805,11 @@ namespace Moria.Core.Methods
 
             if (tile.creature_id == 0)
             {
-                int item_pos_start = 0, item_pos_end = 0;
-                if (inventoryManager.inventoryFindRange((int)TV_SPIKE, TV_NEVER, out item_pos_start, out item_pos_end))
+                if (inventoryManager.inventoryFindRange((int)TV_SPIKE, TV_NEVER, out var item_pos_start, out _))
                 {
                     game.player_free_turn = false;
 
-                    printMessageNoCommandInterrupt("You jam the door with a spike.");
+                    terminal.printMessageNoCommandInterrupt("You jam the door with a spike.");
 
                     if (item.misc_use > 0)
                     {
@@ -2832,7 +2833,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    printMessage("But you have no spikes.");
+                    terminal.printMessage("But you have no spikes.");
                 }
             }
             else
@@ -2842,7 +2843,7 @@ namespace Moria.Core.Methods
                 var msg = $"The {Library.Instance.Creatures.creatures_list[(int)State.Instance.monsters[tile.creature_id].creature_id].name} is in your way!";
                 //vtype_t msg = { '\0' };
                 //(void)sprintf(msg, "The %s is in your way!", State.Instance.creatures_list[State.Instance.monsters[tile.creature_id].creature_id].name);
-                printMessage(msg);
+                terminal.printMessage(msg);
             }
         }
 
@@ -2857,14 +2858,13 @@ namespace Moria.Core.Methods
 
             if (py.inventory[(int)PlayerEquipment.Light].sub_category_id != 0)
             {
-                printMessage("But you are not using a lamp.");
+                terminal.printMessage("But you are not using a lamp.");
                 return;
             }
 
-            int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_FLASK, TV_NEVER, out item_pos_start, out item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_FLASK, TV_NEVER, out var item_pos_start, out _))
             {
-                printMessage("You have no oil.");
+                terminal.printMessage("You have no oil.");
                 return;
             }
 
@@ -2876,20 +2876,20 @@ namespace Moria.Core.Methods
             if (item.misc_use > Config.treasure.OBJECT_LAMP_MAX_CAPACITY)
             {
                 item.misc_use = (int)Config.treasure.OBJECT_LAMP_MAX_CAPACITY;
-                printMessage("Your lamp overflows, spilling oil on the ground.");
-                printMessage("Your lamp is full.");
+                terminal.printMessage("Your lamp overflows, spilling oil on the ground.");
+                terminal.printMessage("Your lamp is full.");
             }
             else if (item.misc_use > Config.treasure.OBJECT_LAMP_MAX_CAPACITY / 2)
             {
-                printMessage("Your lamp is more than half full.");
+                terminal.printMessage("Your lamp is more than half full.");
             }
             else if (item.misc_use == Config.treasure.OBJECT_LAMP_MAX_CAPACITY / 2)
             {
-                printMessage("Your lamp is half full.");
+                terminal.printMessage("Your lamp is half full.");
             }
             else
             {
-                printMessage("Your lamp is less than half full.");
+                terminal.printMessage("Your lamp is less than half full.");
             }
 
             itemTypeRemainingCountDescription(item_pos_start);
@@ -2975,7 +2975,7 @@ namespace Moria.Core.Methods
 
                 // Check for interrupts to find or rest.
                 var microseconds = py.running_tracker != 0 ? 0 : 10000;
-                if ((game.command_count > 0 || py.running_tracker != 0 || py.flags.rest != 0) && checkForNonBlockingKeyPress(microseconds))
+                if ((game.command_count > 0 || py.running_tracker != 0 || py.flags.rest != 0) && terminal.checkForNonBlockingKeyPress(microseconds))
                 {
                     eventPublisher.Publish(new DisturbCommand(false, false));
                     //playerDisturb(0, 0);
@@ -3042,8 +3042,8 @@ namespace Moria.Core.Methods
                 {
                     // if paralyzed, resting, or dead, flush output
                     // but first move the cursor onto the player, for aesthetics
-                    panelMoveCursor(py.pos);
-                    putQIO();
+                    terminal.panelMoveCursor(py.pos);
+                    terminal.putQIO();
                 }
 
                 // Teleport?

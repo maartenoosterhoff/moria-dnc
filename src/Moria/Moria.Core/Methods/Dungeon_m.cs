@@ -6,7 +6,6 @@ using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -35,21 +34,24 @@ namespace Moria.Core.Methods
     {
         public Dungeon_m(
             IGameObjectsPush gameObjectsPush,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.gameObjectsPush = gameObjectsPush;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         private readonly IGameObjectsPush gameObjectsPush;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         public void dungeonDisplayMap()
         {
             // Save the game screen
-            terminalSaveScreen();
-            clearScreen();
+            this.terminal.terminalSaveScreen();
+            this.terminal.clearScreen();
 
             var priority = new int[256];
             priority[60] = 5;   // char '<'
@@ -69,21 +71,21 @@ namespace Moria.Core.Methods
             //char line_buffer[80];
 
             // Add screen border
-            addChar('+', new Coord_t(0, 0));
-            addChar('+', new Coord_t(0, panel_width + 1));
+            this.terminal.addChar('+', new Coord_t(0, 0));
+            this.terminal.addChar('+', new Coord_t(0, panel_width + 1));
             for (var i = 0; i < panel_width; i++)
             {
-                addChar('-', new Coord_t(0, i + 1));
-                addChar('-', new Coord_t(panel_height + 1, i + 1));
+                this.terminal.addChar('-', new Coord_t(0, i + 1));
+                this.terminal.addChar('-', new Coord_t(panel_height + 1, i + 1));
             }
             for (var i = 0; i < panel_height; i++)
             {
-                addChar('|', new Coord_t(i + 1, 0));
-                addChar('|', new Coord_t(i + 1, panel_width + 1));
+                this.terminal.addChar('|', new Coord_t(i + 1, 0));
+                this.terminal.addChar('|', new Coord_t(i + 1, panel_width + 1));
             }
-            addChar('+', new Coord_t(panel_height + 1, 0));
-            addChar('+', new Coord_t(panel_height + 1, panel_width + 1));
-            putString("Hit any key to continue", new Coord_t(23, 23));
+            this.terminal.addChar('+', new Coord_t(panel_height + 1, 0));
+            this.terminal.addChar('+', new Coord_t(panel_height + 1, panel_width + 1));
+            this.terminal.putString("Hit any key to continue", new Coord_t(23, 23));
 
             var player_y = 0;
             var player_x = 0;
@@ -99,7 +101,7 @@ namespace Moria.Core.Methods
                     {
                         line_buffer = $"|{new string(map)}|";
                         //sprintf(line_buffer, "|%s|", map);
-                        putString(line_buffer, new Coord_t(line + 1, 0));
+                        this.terminal.putString(line_buffer, new Coord_t(line + 1, 0));
                     }
                     for (var j = 0; j < panel_width; j++)
                     {
@@ -129,17 +131,17 @@ namespace Moria.Core.Methods
             {
                 line_buffer = $"|{new string(map)}|";
                 //sprintf(line_buffer, "|%s|", map);
-                putString(line_buffer, new Coord_t(line + 1, 0));
+                this.terminal.putString(line_buffer, new Coord_t(line + 1, 0));
             }
 
             // Move cursor onto player character
-            moveCursor(new Coord_t(player_y, player_x));
+            this.terminal.moveCursor(new Coord_t(player_y, player_x));
 
             // wait for any keypress
-            getKeyInput();
+            this.terminal.getKeyInput();
 
             // restore the game screen
-            terminalRestoreScreen();
+            this.terminal.terminalRestoreScreen();
         }
 
         // Checks a co-ordinate for in bounds status -RAK-
@@ -381,7 +383,7 @@ namespace Moria.Core.Methods
                                 tile.field_mark = true;
                             }
                         }
-                        panelPutTile(this.caveGetTileSymbol(location), location);
+                        this.terminal.panelPutTile(this.caveGetTileSymbol(location), location);
                     }
                 }
             }
@@ -396,7 +398,7 @@ namespace Moria.Core.Methods
             }
 
             var symbol = this.caveGetTileSymbol(coord);
-            panelPutTile(symbol, coord);
+            this.terminal.panelPutTile(symbol, coord);
         }
 
         // Normal movement
@@ -485,7 +487,7 @@ namespace Moria.Core.Methods
                 // Leftmost to rightmost do
                 for (coord.x = left; coord.x <= right; coord.x++)
                 {
-                    panelPutTile(this.caveGetTileSymbol(coord), coord);
+                    this.terminal.panelPutTile(this.caveGetTileSymbol(coord), coord);
                 }
             }
         }
@@ -506,7 +508,7 @@ namespace Moria.Core.Methods
                     for (coord.x = from.x - 1; coord.x <= from.x + 1; coord.x++)
                     {
                         dg.floor[coord.y][coord.x].temporary_light = false;
-                        panelPutTile(this.caveGetTileSymbol(coord), coord);
+                        this.terminal.panelPutTile(this.caveGetTileSymbol(coord), coord);
                     }
                 }
 
@@ -514,12 +516,12 @@ namespace Moria.Core.Methods
             }
             else if (py.running_tracker == 0 || Config.options.run_print_self)
             {
-                panelPutTile(this.caveGetTileSymbol(from), from);
+                this.terminal.panelPutTile(this.caveGetTileSymbol(from), from);
             }
 
             if (py.running_tracker == 0 || Config.options.run_print_self)
             {
-                panelPutTile('@', to);
+                this.terminal.panelPutTile('@', to);
             }
         }
 

@@ -11,16 +11,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
         private readonly ISpells spells;
+        private readonly ITerminal terminal;
 
         public FireBoltCommandHandler(
             IDungeon dungeon,
             IHelpers helpers,
-            ISpells spells
+            ISpells spells,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
             this.spells = spells;
+            this.terminal = terminal;
         }
         public void Handle(FireBoltCommand command)
         {
@@ -71,10 +74,10 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 }
                 else if (Ui_m.coordInsidePanel(coord) && py.flags.blind < 1)
                 {
-                    Ui_io_m.panelPutTile('*', coord);
+                    this.terminal.panelPutTile('*', coord);
 
                     // show the bolt
-                    Ui_io_m.putQIO();
+                    this.terminal.putQIO();
                 }
             }
         }
@@ -93,9 +96,9 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             tile.permanent_light = saved_lit_status;
 
             // draw monster and clear previous bolt
-            Ui_io_m.putQIO();
+            this.terminal.putQIO();
 
-            printBoltStrikesMonsterMessage(creature, bolt_name, monster.lit);
+            this.printBoltStrikesMonsterMessage(creature, bolt_name, monster.lit);
 
             if ((harm_type & creature.defenses) != 0)
             {
@@ -139,7 +142,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 monster_name = "it";
             }
             var msg = "The " + bolt_name + " strikes " + monster_name + ".";
-            Ui_io_m.printMessage(msg);
+            this.terminal.printMessage(msg);
         }
     }
 }

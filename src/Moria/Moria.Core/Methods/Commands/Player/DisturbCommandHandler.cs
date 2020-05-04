@@ -5,6 +5,13 @@ namespace Moria.Core.Methods.Commands.Player
 {
     public class DisturbCommandHandler : ICommandHandler<DisturbCommand>
     {
+        private readonly ITerminal terminal;
+
+        public DisturbCommandHandler(ITerminal terminal)
+        {
+            this.terminal = terminal;
+        }
+
         public void Handle(DisturbCommand command)
         {
             this.playerDisturb(
@@ -39,7 +46,7 @@ namespace Moria.Core.Methods.Commands.Player
                 Ui_m.dungeonResetView();
             }
 
-            Ui_io_m.flushInputBuffer();
+            this.terminal.flushInputBuffer();
         }
     }
 }

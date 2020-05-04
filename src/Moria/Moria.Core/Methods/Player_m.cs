@@ -14,7 +14,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_traps_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -30,6 +29,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
 
             IEventPublisher eventPublisher
         )
@@ -41,6 +41,7 @@ namespace Moria.Core.Methods
             Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
+            Player_m.terminal = terminal;
 
             Player_m.eventPublisher = eventPublisher;
         }
@@ -52,6 +53,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ITerminal terminal;
 
         private static IEventPublisher eventPublisher;
 
@@ -145,9 +147,9 @@ namespace Moria.Core.Methods
                 var rest_str = string.Empty;
                 //vtype_t rest_str = { '\0' };
 
-                putStringClearToEOL("Rest for how long? ", new Coord_t(0, 0));
+                terminal.putStringClearToEOL("Rest for how long? ", new Coord_t(0, 0));
 
-                if (getStringInput(out rest_str, new Coord_t(0, 19), 5))
+                if (terminal.getStringInput(out rest_str, new Coord_t(0, 19), 5))
                 {
                     if (rest_str[0] == '*')
                     {
@@ -175,8 +177,8 @@ namespace Moria.Core.Methods
                 printCharacterMovementState();
                 py.flags.food_digested--;
 
-                putStringClearToEOL("Press any key to stop resting...", new Coord_t(0, 0));
-                putQIO();
+                terminal.putStringClearToEOL("Press any key to stop resting...", new Coord_t(0, 0));
+                terminal.putQIO();
 
                 return;
             }
@@ -184,9 +186,9 @@ namespace Moria.Core.Methods
             // Something went wrong
             if (rest_num != 0)
             {
-                printMessage("Invalid rest count.");
+                terminal.printMessage("Invalid rest count.");
             }
-            messageLineClear();
+            terminal.messageLineClear();
 
             game.player_free_turn = true;
         }
@@ -201,7 +203,7 @@ namespace Moria.Core.Methods
             printCharacterMovementState();
 
             // flush last message, or delete "press any key" message
-            printMessage(/*CNIL*/null);
+            terminal.printMessage(/*CNIL*/null);
 
             py.flags.food_digested++;
         }
@@ -667,7 +669,7 @@ namespace Moria.Core.Methods
                 msg = $"{p}{description}";
                 //(void)sprintf(msg, "%s%s", p, description);
             }
-            printMessage(msg);
+            terminal.printMessage(msg);
 
             // For secondary weapon
             if (item_id != (int)PlayerEquipment.Auxiliary)
@@ -778,7 +780,7 @@ namespace Moria.Core.Methods
                         var msg = $"You have found {description}";
                         //obj_desc_t msg = { '\0' };
                         //(void)sprintf(msg, "You have found %s", description);
-                        printMessage(msg);
+                        terminal.printMessage(msg);
 
                         dungeon.trapChangeVisibility(spot);
                         eventPublisher.Publish(new EndRunningCommand());
@@ -788,7 +790,7 @@ namespace Moria.Core.Methods
                     {
                         // Secret door?
 
-                        printMessage("You have found a secret door.");
+                        terminal.printMessage("You have found a secret door.");
 
                         dungeon.trapChangeVisibility(spot);
                         eventPublisher.Publish(new EndRunningCommand());
@@ -804,11 +806,11 @@ namespace Moria.Core.Methods
                             if (!spellItemIdentified(item))
                             {
                                 spellItemIdentifyAndRemoveRandomInscription(item);
-                                printMessage("You have discovered a trap on the chest!");
+                                terminal.printMessage("You have discovered a trap on the chest!");
                             }
                             else
                             {
-                                printMessage("The chest is trapped!");
+                                terminal.printMessage("The chest is trapped!");
                             }
                         }
                     }
@@ -840,7 +842,7 @@ namespace Moria.Core.Methods
             {
                 if (!py.weapon_is_heavy)
                 {
-                    printMessage("You have trouble wielding such a heavy weapon.");
+                    terminal.printMessage("You have trouble wielding such a heavy weapon.");
                     py.weapon_is_heavy = true;
                     playerRecalculateBonuses();
                 }
@@ -850,7 +852,7 @@ namespace Moria.Core.Methods
                 py.weapon_is_heavy = false;
                 if (item.category_id != TV_NOTHING)
                 {
-                    printMessage("You are strong enough to wield your weapon.");
+                    terminal.printMessage("You are strong enough to wield your weapon.");
                 }
                 playerRecalculateBonuses();
             }
@@ -870,11 +872,11 @@ namespace Moria.Core.Methods
             {
                 if (py.pack.heaviness < limit)
                 {
-                    printMessage("Your pack is so heavy that it slows you down.");
+                    terminal.printMessage("Your pack is so heavy that it slows you down.");
                 }
                 else
                 {
-                    printMessage("You move more easily under the weight of your pack.");
+                    terminal.printMessage("You move more easily under the weight of your pack.");
                 }
                 playerChangeSpeed(limit - py.pack.heaviness);
                 py.pack.heaviness = (int)limit;
@@ -970,22 +972,22 @@ namespace Moria.Core.Methods
                 if (weapon_weight < 400)
                 {
                     critical = 2 * damage + 5;
-                    printMessage("It was a good hit! (x2 damage)");
+                    terminal.printMessage("It was a good hit! (x2 damage)");
                 }
                 else if (weapon_weight < 700)
                 {
                     critical = 3 * damage + 10;
-                    printMessage("It was an excellent hit! (x3 damage)");
+                    terminal.printMessage("It was an excellent hit! (x3 damage)");
                 }
                 else if (weapon_weight < 900)
                 {
                     critical = 4 * damage + 15;
-                    printMessage("It was a superb hit! (x4 damage)");
+                    terminal.printMessage("It was a superb hit! (x4 damage)");
                 }
                 else
                 {
                     critical = 5 * damage + 20;
-                    printMessage("It was a *GREAT* hit! (x5 damage)");
+                    terminal.printMessage("It was a *GREAT* hit! (x5 damage)");
                 }
             }
 
@@ -1114,13 +1116,13 @@ namespace Moria.Core.Methods
                 {
                     msg = $"You miss {name}.";
                     //(void)sprintf(msg, "You miss %s.", name);
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                     continue;
                 }
 
                 msg = $"You hit {name}.";
                 //(void)sprintf(msg, "You hit %s.", name);
-                printMessage(msg);
+                terminal.printMessage(msg);
 
                 if (item.category_id != TV_NOTHING)
                 {
@@ -1145,7 +1147,7 @@ namespace Moria.Core.Methods
                 {
                     py.flags.confuse_monster = false;
 
-                    printMessage("Your hands stop glowing.");
+                    terminal.printMessage("Your hands stop glowing.");
 
                     if ((creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0 || rnd.randomNumber(MON_MAX_LEVELS) < creature.level)
                     {
@@ -1165,7 +1167,7 @@ namespace Moria.Core.Methods
                             monster.confused_amount = (uint)(2 + rnd.randomNumber(16));
                         }
                     }
-                    printMessage(msg);
+                    terminal.printMessage(msg);
 
                     if (monster.lit && rnd.randomNumber(4) == 1)
                     {
@@ -1178,7 +1180,7 @@ namespace Moria.Core.Methods
                 {
                     msg = $"You have slain {name}.";
                     //(void)sprintf(msg, "You have slain %s.", name);
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                     displayCharacterExperience();
 
                     return;
@@ -1231,25 +1233,25 @@ namespace Moria.Core.Methods
 
                 if (py.flags.confused > 0)
                 {
-                    printMessage("You are too confused to pick the lock.");
+                    terminal.printMessage("You are too confused to pick the lock.");
                 }
                 else if (playerLockPickingSkill() - item.misc_use > rnd.randomNumber(100))
                 {
-                    printMessage("You have picked the lock.");
+                    terminal.printMessage("You have picked the lock.");
                     py.misc.exp++;
                     displayCharacterExperience();
                     item.misc_use = 0;
                 }
                 else
                 {
-                    printMessageNoCommandInterrupt("You failed to pick the lock.");
+                    terminal.printMessageNoCommandInterrupt("You failed to pick the lock.");
                 }
             }
             else if (item.misc_use < 0)
             {
                 // It's stuck
 
-                printMessage("It appears to be stuck.");
+                terminal.printMessage("It appears to be stuck.");
             }
 
             if (item.misc_use == 0)
@@ -1276,11 +1278,11 @@ namespace Moria.Core.Methods
             {
                 if (py.flags.confused > 0)
                 {
-                    printMessage("You are too confused to pick the lock.");
+                    terminal.printMessage("You are too confused to pick the lock.");
                 }
                 else if (playerLockPickingSkill() - item.depth_first_found > rnd.randomNumber(100))
                 {
-                    printMessage("You have picked the lock.");
+                    terminal.printMessage("You have picked the lock.");
 
                     py.misc.exp += (int)item.depth_first_found;
                     displayCharacterExperience();
@@ -1289,7 +1291,7 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    printMessageNoCommandInterrupt("You failed to pick the lock.");
+                    terminal.printMessageNoCommandInterrupt("You failed to pick the lock.");
                 }
             }
             else
@@ -1375,7 +1377,7 @@ namespace Moria.Core.Methods
             if (no_object)
             {
                 game.player_free_turn = true;
-                printMessage("I do not see anything you can open there.");
+                terminal.printMessage("I do not see anything you can open there.");
             }
         }
 
@@ -1415,7 +1417,7 @@ namespace Moria.Core.Methods
                         }
                         else
                         {
-                            printMessage("The door appears to be broken.");
+                            terminal.printMessage("The door appears to be broken.");
                         }
                     }
                     else
@@ -1436,7 +1438,7 @@ namespace Moria.Core.Methods
             if (no_object)
             {
                 game.player_free_turn = true;
-                printMessage("I do not see anything you can close there.");
+                terminal.printMessage("I do not see anything you can close there.");
             }
         }
 
@@ -1490,7 +1492,7 @@ namespace Moria.Core.Methods
 
             if (coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light) && tile.treasure_id != 0)
             {
-                printMessage("You have found something!");
+                terminal.printMessage("You have found something!");
             }
 
             dungeon.dungeonLiteSpot(coord);
@@ -1506,7 +1508,7 @@ namespace Moria.Core.Methods
             // Is a Coward?
             if (py.flags.afraid > 0)
             {
-                printMessage("You are too afraid!");
+                terminal.printMessage("You are too afraid!");
                 return;
             }
 
@@ -1531,7 +1533,7 @@ namespace Moria.Core.Methods
                         var msg = $"You have forgotten the {p} of {Library.Instance.Player.spell_names[i + offset]}.";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "You have forgotten the %s of %s.", p, spell_names[i + offset]);
-                        printMessage(msg);
+                        terminal.printMessage(msg);
                     }
                     else
                     {
@@ -1623,7 +1625,7 @@ namespace Moria.Core.Methods
                         var msg = $"You have remembered the {p} of {Library.Instance.Player.spell_names[order_id + offset]}.";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "You have remembered the %s of %s.", p, spell_names[order_id + offset]);
-                        printMessage(msg);
+                        terminal.printMessage(msg);
                     }
                     else
                     {
@@ -1698,7 +1700,7 @@ namespace Moria.Core.Methods
                     var msg = $"You have forgotten the {p} of {Library.Instance.Player.spell_names[order_id + offset]}.";
                     //vtype_t msg = { '\0' };
                     //(void)sprintf(msg, "You have forgotten the %s of %s.", p, spell_names[order_id + offset]);
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                 }
             }
         }
@@ -1756,7 +1758,7 @@ namespace Moria.Core.Methods
                     var msg = $"You can learn some new {magic_type_str}s now.";
                     //vtype_t msg = { '\0' };
                     //(void)sprintf(msg, "You can learn some new %ss now.", magic_type_str);
-                    printMessage(msg);
+                    terminal.printMessage(msg);
                 }
 
                 py.flags.new_spells_to_learn = (uint)new_spells;

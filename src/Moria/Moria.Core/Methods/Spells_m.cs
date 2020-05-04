@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using System;
 using Moria.Core.Data;
 using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -22,14 +21,17 @@ namespace Moria.Core.Methods
     {
         private readonly IHelpers helpers;
         private readonly IInventory inventory;
+        private readonly ITerminal terminal;
 
         public Spells_m(
             IHelpers helpers,
-            IInventory inventory
+            IInventory inventory,
+            ITerminal terminal
         )
         {
             this.helpers = helpers;
             this.inventory = inventory;
+            this.terminal = terminal;
         }
 
         // Returns spell pointer -RAK-
@@ -54,7 +56,7 @@ namespace Moria.Core.Methods
 
             var offset = Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == (int)Config.spells.SPELL_TYPE_MAGE ? (int)Config.spells.NAME_OFFSET_SPELLS : (int)Config.spells.NAME_OFFSET_PRAYERS;
 
-            while (!spell_found && getCommand(str, out var choice))
+            while (!spell_found && this.terminal.getCommand(str, out var choice))
             {
                 if (char.IsUpper(choice))
                 //if (isupper((int)choice) != 0)
@@ -82,7 +84,7 @@ namespace Moria.Core.Methods
                         var tmp_str = $"Cast {spell_names[spell_id + offset]} ({spell.mana_required} mana, {spellChanceOfSuccess(spell_id)}% fail)?";
                         //vtype_t tmp_str = { '\0' };
                         //(void)sprintf(tmp_str, "Cast %s (%d mana, %d%% fail)?", spell_names[spell_id + offset], spell.mana_required, spellChanceOfSuccess(spell_id));
-                        if (getInputConfirmation(tmp_str))
+                        if (this.terminal.getInputConfirmation(tmp_str))
                         {
                             spell_found = true;
                         }
@@ -120,7 +122,7 @@ namespace Moria.Core.Methods
                     // only do this drawing once
                     if (!redraw)
                     {
-                        terminalSaveScreen();
+                        this.terminal.terminalSaveScreen();
                         redraw = true;
                         displaySpellsList(spell_ids, number_of_choices, false, first_spell);
                     }
@@ -133,7 +135,7 @@ namespace Moria.Core.Methods
                 else
                 {
                     spell_id = -1;
-                    terminalBellSound();
+                    this.terminal.terminalBellSound();
                 }
 
                 if (spell_id == -2)
@@ -142,16 +144,16 @@ namespace Moria.Core.Methods
                     var tmp_str = $"You don't know that {spellOrPrayer}.";
                     //vtype_t tmp_str = { '\0' };
                     //(void)sprintf(tmp_str, "You don't know that %s.", (offset == Config.spells.NAME_OFFSET_SPELLS ? "spell" : "prayer"));
-                    printMessage(tmp_str);
+                    this.terminal.printMessage(tmp_str);
                 }
             }
 
             if (redraw)
             {
-                terminalRestoreScreen();
+                this.terminal.terminalRestoreScreen();
             }
 
-            messageLineClear();
+            this.terminal.messageLineClear();
 
             if (spell_found)
             {
@@ -206,11 +208,11 @@ namespace Moria.Core.Methods
             {
                 if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
                 {
-                    result = (int)(getInputConfirmation("You summon your limited strength to cast this one! Confirm?") ? 1 : 0);
+                    result = (int)(this.terminal.getInputConfirmation("You summon your limited strength to cast this one! Confirm?") ? 1 : 0);
                 }
                 else
                 {
-                    result = (int)(getInputConfirmation("The gods may think you presumptuous for this! Confirm?") ? 1 : 0);
+                    result = (int)(this.terminal.getInputConfirmation("The gods may think you presumptuous for this! Confirm?") ? 1 : 0);
                 }
             }
 
@@ -261,7 +263,7 @@ namespace Moria.Core.Methods
                     weapon_type = 0;
                     harm_type = 0;
                     destroy = this.inventory.setNull;
-                    printMessage("ERROR in spellGetAreaAffectFlags()\n");
+                    this.terminal.printMessage("ERROR in spellGetAreaAffectFlags()\n");
                     break;
             }
         }

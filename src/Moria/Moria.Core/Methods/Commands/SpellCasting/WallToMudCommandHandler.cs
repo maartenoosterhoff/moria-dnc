@@ -14,18 +14,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IDungeonPlacer dungeonPlacer;
         private readonly IHelpers helpers;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         public WallToMudCommandHandler(
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
             IHelpers helpers,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
             this.helpers = helpers;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
         void ICommandHandler<WallToMudCommand>.Handle(WallToMudCommand command)
         {
@@ -74,7 +77,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                     if (this.dungeon.caveTileVisible(coord))
                     {
                         turned = true;
-                        Ui_io_m.printMessage("The wall turns into mud.");
+                        this.terminal.printMessage("The wall turns into mud.");
                     }
                 }
                 else if (tile.treasure_id != 0 && tile.feature_id >= Dungeon_tile_c.MIN_CLOSED_SPACE)
@@ -91,18 +94,18 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         var out_val = $"The {description} turns into mud.";
                         //obj_desc_t out_val = { '\0' };
                         //(void)sprintf(out_val, "The %s turns into mud.", description);
-                        Ui_io_m.printMessage(out_val);
+                        this.terminal.printMessage(out_val);
                     }
 
                     if (game.treasure.list[tile.treasure_id].category_id == Treasure_c.TV_RUBBLE)
                     {
                         this.dungeon.dungeonDeleteObject(coord);
-                        if (rnd.randomNumber(10) == 1)
+                        if (this.rnd.randomNumber(10) == 1)
                         {
-                            dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
+                            this.dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
                             if (this.dungeon.caveTileVisible(coord))
                             {
-                                Ui_io_m.printMessage("You have found something!");
+                                this.terminal.printMessage("You have found something!");
                             }
                         }
 

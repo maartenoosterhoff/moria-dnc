@@ -8,14 +8,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
     {
         private readonly IDungeon dungeon;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
 
         public DestroyAreaCommandHandler(
             IDungeon dungeon,
-            IRnd rnd
+            IRnd rnd,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.rnd = rnd;
+            this.terminal = terminal;
         }
 
         public void Handle(DestroyAreaCommand command)
@@ -61,7 +64,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
                 }
             }
 
-            Ui_io_m.printMessage("There is a searing blast of light!");
+            this.terminal.printMessage("There is a searing blast of light!");
             State.Instance.py.flags.blind += 10 + this.rnd.randomNumber(10);
         }
 

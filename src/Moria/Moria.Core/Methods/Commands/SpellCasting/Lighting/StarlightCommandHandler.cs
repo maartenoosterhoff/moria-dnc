@@ -6,10 +6,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
     public class StarlightCommandHandler : ICommandHandler<StarlightCommand>
     {
         private readonly IEventPublisher eventPublisher;
+        private readonly ITerminal terminal;
 
-        public StarlightCommandHandler(IEventPublisher eventPublisher)
+        public StarlightCommandHandler(
+            IEventPublisher eventPublisher,
+            ITerminal terminal
+        )
         {
             this.eventPublisher = eventPublisher;
+            this.terminal = terminal;
         }
 
         public void Handle(StarlightCommand command)
@@ -23,7 +28,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
             var py = State.Instance.py;
             if (py.flags.blind < 1)
             {
-                Ui_io_m.printMessage("The end of the staff bursts into a blue shimmering light.");
+                this.terminal.printMessage("The end of the staff bursts into a blue shimmering light.");
             }
 
             for (var dir = 1; dir <= 9; dir++)

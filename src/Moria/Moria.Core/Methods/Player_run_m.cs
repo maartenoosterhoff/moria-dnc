@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_move_m;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -14,18 +13,21 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDungeon dungeon,
             IHelpers helpers,
+            ITerminal terminal,
 
             IEventPublisher eventPublisher
         )
         {
             Player_run_m.dungeon = dungeon;
             Player_run_m.helpers = helpers;
+            Player_run_m.terminal = terminal;
 
             Player_run_m.eventPublisher = eventPublisher;
         }
 
         private static IDungeon dungeon;
         private static IHelpers helpers;
+        private static ITerminal terminal;
 
         private static IEventPublisher eventPublisher;
 
@@ -262,7 +264,7 @@ namespace Moria.Core.Methods
             // Hence we must do the erasure here.
             if (!py.temporary_light_only && !Config.options.run_print_self)
             {
-                panelPutTile(dungeon.caveGetTileSymbol(py.pos), py.pos);
+                terminal.panelPutTile(dungeon.caveGetTileSymbol(py.pos), py.pos);
             }
 
             playerMove(direction, true);
@@ -284,7 +286,7 @@ namespace Moria.Core.Methods
             // prevent infinite loops in find mode, will stop after moving 100 times
             if (tracker > 100)
             {
-                printMessage("You stop running to catch your breath.");
+                terminal.printMessage("You stop running to catch your breath.");
                 eventPublisher.Publish(new EndRunningCommand());
                 //playerEndRunning();
                 return;

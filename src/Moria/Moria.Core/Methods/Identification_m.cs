@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -18,6 +17,7 @@ namespace Moria.Core.Methods
             IRecall recall,
             IRnd rnd,
             IStd std,
+            ITerminal terminal,
             IUiInventory uiInventory
         )
         {
@@ -26,6 +26,7 @@ namespace Moria.Core.Methods
             Identification_m.recall = recall;
             Identification_m.rnd = rnd;
             Identification_m.std = std;
+            Identification_m.terminal = terminal;
             Identification_m.uiInventory = uiInventory;
         }
 
@@ -34,9 +35,10 @@ namespace Moria.Core.Methods
         private static IRecall recall;
         private static IRnd rnd;
         private static IStd std;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
-        public static string objectDescription(char command)
+        private static string objectDescription(char command)
         {
             // every printing ASCII character is listed here, in the
             // order in which they appear in the ASCII character set.
@@ -243,13 +245,12 @@ namespace Moria.Core.Methods
 
         public static void identifyGameObject()
         {
-            var command = '\0';
-            if (!getCommand("Enter character to be identified :", out command))
+            if (!terminal.getCommand("Enter character to be identified :", out var command))
             {
                 return;
             }
 
-            putStringClearToEOL(objectDescription(command), new Coord_t(0, 0));
+            terminal.putStringClearToEOL(objectDescription(command), new Coord_t(0, 0));
 
             recall.recallMonsterAttributes(command);
         }
@@ -295,17 +296,17 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void clearObjectTriedFlag(int id)
+        private static void clearObjectTriedFlag(int id)
         {
             State.Instance.objects_identified[id] &= ~Config.identification.OD_TRIED;
         }
 
-        public static void setObjectTriedFlag(int id)
+        private static void setObjectTriedFlag(int id)
         {
             State.Instance.objects_identified[id] |= Config.identification.OD_TRIED;
         }
 
-        public static bool isObjectKnown(int id)
+        private static bool isObjectKnown(int id)
         {
             return (State.Instance.objects_identified[id] & Config.identification.OD_KNOWN1) != 0;
         }
@@ -330,7 +331,7 @@ namespace Moria.Core.Methods
         }
 
         // Remove an automatically generated inscription. -CJS-
-        public static void unsample(Inventory_t item)
+        private static void unsample(Inventory_t item)
         {
             // this also used to clear config::identification::ID_DAMD flag, but I think it should remain set
             item.identification &= ~(Config.identification.ID_MAGIK | Config.identification.ID_EMPTY);
@@ -377,7 +378,7 @@ namespace Moria.Core.Methods
             spellItemIdentifyAndRemoveRandomInscription(item);
         }
 
-        public static bool itemStoreBought(int identification)
+        private static bool itemStoreBought(int identification)
         {
             return (identification & Config.identification.ID_STORE_BOUGHT) != 0;
         }
@@ -444,7 +445,6 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int j;
             var py = State.Instance.py;
 
             for (var i = 0; i < py.pack.unique_items; i++)
@@ -457,6 +457,7 @@ namespace Moria.Core.Methods
                     (int)t_ptr.items_count + (int)item.items_count < 256)
                 {
                     // make *item_id the smaller number
+                    int j;
                     if (item_id > i)
                     {
                         j = item_id;
@@ -464,7 +465,7 @@ namespace Moria.Core.Methods
                         i = j;
                     }
 
-                    printMessage("You combine similar objects from the shop and dungeon.");
+                    terminal.printMessage("You combine similar objects from the shop and dungeon.");
 
                     py.inventory[item_id].items_count += py.inventory[i].items_count;
                     py.pack.unique_items--;
@@ -1057,7 +1058,7 @@ namespace Moria.Core.Methods
             //vtype_t out_val = { '\0' };
             out_val = $"You have {rem_num} charges remaining.";
             //(void)sprintf(out_val, "You have %d charges remaining.", rem_num);
-            printMessage(out_val);
+            terminal.printMessage(out_val);
         }
 
         // Describe amount of item remaining. -RAK-
@@ -1080,7 +1081,7 @@ namespace Moria.Core.Methods
             //obj_desc_t out_val = { '\0' };
             out_val = $"You have {tmp_str}";
             //(void)sprintf(out_val, "You have %s", tmp_str);
-            printMessage(out_val);
+            terminal.printMessage(out_val);
         }
 
         // Add a comment to an object description. -CJS-
@@ -1089,7 +1090,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.pack.unique_items == 0 && py.equipment_count == 0)
             {
-                printMessage("You are not carrying anything to inscribe.");
+                terminal.printMessage("You are not carrying anything to inscribe.");
                 return;
             }
 
@@ -1108,7 +1109,7 @@ namespace Moria.Core.Methods
             inscription = $"Inscribing {msg}";
             //(void)sprintf(inscription, "Inscribing %s", msg);
 
-            printMessage(inscription);
+            terminal.printMessage(inscription);
 
             if (!string.IsNullOrEmpty(py.inventory[item_id].inscription))
             //if (py.inventory[item_id].inscription[0] != '\0')
@@ -1128,9 +1129,9 @@ namespace Moria.Core.Methods
                 msg_len = 12;
             }
 
-            putStringClearToEOL(inscription, new Coord_t(0, 0));
+            terminal.putStringClearToEOL(inscription, new Coord_t(0, 0));
 
-            if (getStringInput(out inscription, new Coord_t(0, inscription.Length), msg_len))
+            if (terminal.getStringInput(out inscription, new Coord_t(0, inscription.Length), msg_len))
             {
                 itemReplaceInscription(py.inventory[item_id], inscription);
             }
@@ -1170,7 +1171,7 @@ namespace Moria.Core.Methods
 
             msg = $"{description} is in your way!";
             //(void)sprintf(msg, "%s is in your way!", description);
-            printMessage(msg);
+            terminal.printMessage(msg);
         }
     }
 }

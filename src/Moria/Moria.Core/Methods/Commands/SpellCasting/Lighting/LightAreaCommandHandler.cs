@@ -8,10 +8,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
         ICommandHandler<LightAreaCommand, bool>
     {
         private readonly IDungeon dungeon;
+        private readonly ITerminal terminal;
 
-        public LightAreaCommandHandler(IDungeon dungeon)
+        public LightAreaCommandHandler(
+            IDungeon dungeon,
+            ITerminal terminal
+        )
         {
             this.dungeon = dungeon;
+            this.terminal = terminal;
         }
 
         void ICommandHandler<LightAreaCommand>.Handle(LightAreaCommand command)
@@ -34,7 +39,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 
             if (py.flags.blind < 1)
             {
-                Ui_io_m.printMessage("You are surrounded by a white light.");
+                this.terminal.printMessage("You are surrounded by a white light.");
             }
 
             // NOTE: this is not changed anywhere. A bug or correct? -MRC-

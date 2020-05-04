@@ -46,7 +46,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
             while (!finished)
             {
-                helpers.movePosition(direction, ref coord);
+                this.helpers.movePosition(direction, ref coord);
                 distance++;
 
                 var tile = dg.floor[coord.y][coord.x];

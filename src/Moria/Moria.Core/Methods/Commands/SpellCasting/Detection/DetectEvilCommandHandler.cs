@@ -9,6 +9,14 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
         ICommandHandler<DetectEvilCommand>,
         ICommandHandler<DetectEvilCommand, bool>
     {
+        private readonly ITerminal terminal;
+
+        public DetectEvilCommandHandler(
+            ITerminal terminal
+        )
+        {
+            this.terminal = terminal;
+        }
         void ICommandHandler<DetectEvilCommand>.Handle(DetectEvilCommand command)
         {
             this.spellDetectEvil();
@@ -35,14 +43,14 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
                     detected = true;
 
                     // works correctly even if hallucinating
-                    Ui_io_m.panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
+                    this.terminal.panelPutTile((char)Library.Instance.Creatures.creatures_list[(int)monster.creature_id].sprite, new Coord_t(monster.pos.y, monster.pos.x));
                 }
             }
 
             if (detected)
             {
-                Ui_io_m.printMessage("You sense the presence of evil!");
-                Ui_io_m.printMessage(/*CNIL*/null);
+                this.terminal.printMessage("You sense the presence of evil!");
+                this.terminal.printMessage(/*CNIL*/null);
 
                 // must unlight every monster just lighted
                 Monster_m.updateMonsters(false);

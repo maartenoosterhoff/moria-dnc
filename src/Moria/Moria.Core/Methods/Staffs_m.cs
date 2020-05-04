@@ -11,7 +11,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -27,6 +26,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
+            ITerminal terminal,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -39,6 +39,7 @@ namespace Moria.Core.Methods
             Staffs_m.monsterManager = monsterManager;
             Staffs_m.playerMagic = playerMagic;
             Staffs_m.rnd = rnd;
+            Staffs_m.terminal = terminal;
             Staffs_m.uiInventory = uiInventory;
 
             Staffs_m.eventPublisher = eventPublisher;
@@ -51,6 +52,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -62,13 +64,13 @@ namespace Moria.Core.Methods
             item_pos_end = -1;
             if (py.pack.unique_items == 0)
             {
-                printMessage("But you are not carrying anything.");
+                terminal.printMessage("But you are not carrying anything.");
                 return false;
             }
 
             if (!inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, out item_pos_start, out item_pos_end))
             {
-                printMessage("You are not carrying any staffs.");
+                terminal.printMessage("You are not carrying any staffs.");
                 return false;
             }
 
@@ -102,13 +104,13 @@ namespace Moria.Core.Methods
 
             if (rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
             {
-                printMessage("You failed to use the staff properly.");
+                terminal.printMessage("You failed to use the staff properly.");
                 return false;
             }
 
             if (item.misc_use < 1)
             {
-                printMessage("The staff has no charges left.");
+                terminal.printMessage("The staff has no charges left.");
                 if (!spellItemIdentified(item))
                 {
                     itemAppendToInscription(item, Config.identification.ID_EMPTY);
@@ -231,7 +233,7 @@ namespace Moria.Core.Methods
                         {
                             if (py.flags.blind < 1)
                             {
-                                printMessage("The staff glows blue for a moment..");
+                                terminal.printMessage("The staff glows blue for a moment..");
                             }
                             identified = true;
                         }
@@ -263,7 +265,7 @@ namespace Moria.Core.Methods
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
-                        printMessage("Internal error in staffs()");
+                        terminal.printMessage("Internal error in staffs()");
                         break;
                 }
             }
@@ -343,7 +345,7 @@ namespace Moria.Core.Methods
                 switch ((WandSpellTypes)(helpers.getAndClearFirstBit(ref flags) + 1))
                 {
                     case WandSpellTypes.WandLight:
-                        printMessage("A line of blue shimmering light appears.");
+                        terminal.printMessage("A line of blue shimmering light appears.");
                         eventPublisher.Publish(new LightLineCommand(
                             py.pos, direction
                         ));
@@ -531,7 +533,7 @@ namespace Moria.Core.Methods
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
-                        printMessage("Internal error in wands()");
+                        terminal.printMessage("Internal error in wands()");
                         break;
                 }
             }
@@ -549,14 +551,14 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0)
             {
-                printMessage("But you are not carrying anything.");
+                terminal.printMessage("But you are not carrying anything.");
                 return;
             }
 
             int item_pos_start = 0, item_pos_end = 0;
             if (!inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, out item_pos_start, out item_pos_end))
             {
-                printMessage("You are not carrying any wands.");
+                terminal.printMessage("You are not carrying any wands.");
                 return;
             }
 
@@ -575,7 +577,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are confused.");
+                terminal.printMessage("You are confused.");
                 direction = rnd.getRandomDirection();
             }
 
@@ -601,13 +603,13 @@ namespace Moria.Core.Methods
 
             if (rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
             {
-                printMessage("You failed to use the wand properly.");
+                terminal.printMessage("You failed to use the wand properly.");
                 return;
             }
 
             if (item.misc_use < 1)
             {
-                printMessage("The wand has no charges left.");
+                terminal.printMessage("The wand has no charges left.");
                 if (!spellItemIdentified(item))
                 {
                     itemAppendToInscription(item, Config.identification.ID_EMPTY);

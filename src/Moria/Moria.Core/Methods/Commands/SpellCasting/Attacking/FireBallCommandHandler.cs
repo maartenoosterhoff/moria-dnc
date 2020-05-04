@@ -12,18 +12,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeonLos dungeonLos;
         private readonly IHelpers helpers;
         private readonly ISpells spells;
+        private readonly ITerminal terminal;
 
         public FireBallCommandHandler(
             IDungeon dungeon,
             IDungeonLos dungeonLos,
             IHelpers helpers,
-            ISpells spells
+            ISpells spells,
+            ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.dungeonLos = dungeonLos;
             this.helpers = helpers;
             this.spells = spells;
+            this.terminal = terminal;
         }
 
         public void Handle(FireBallCommand command)
@@ -60,11 +63,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             {
                 old_coord.y = coord.y;
                 old_coord.x = coord.x;
-                helpers.movePosition(direction, ref coord);
+                this.helpers.movePosition(direction, ref coord);
 
                 distance++;
 
-                dungeon.dungeonLiteSpot(old_coord);
+                this.dungeon.dungeonLiteSpot(old_coord);
 
                 if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE)
                 {
@@ -94,13 +97,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             spot.y = row;
                             spot.x = col;
 
-                            if (dungeon.coordInBounds(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance && dungeonLos.los(coord, spot))
+                            if (this.dungeon.coordInBounds(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance && this.dungeonLos.los(coord, spot))
                             {
                                 tile = dg.floor[spot.y][spot.x];
 
                                 if (tile.treasure_id != 0 && destroy(game.treasure.list[tile.treasure_id]))
                                 {
-                                    dungeon.dungeonDeleteObject(spot);
+                                    this.dungeon.dungeonDeleteObject(spot);
                                 }
 
                                 if (tile.feature_id <= Dungeon_tile_c.MAX_OPEN_SPACE)
@@ -135,7 +138,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                             }
                                         }
 
-                                        damage = damage / (dungeon.coordDistanceBetween(spot, coord) + 1);
+                                        damage = damage / (this.dungeon.coordDistanceBetween(spot, coord) + 1);
 
                                         if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
                                         {
@@ -145,7 +148,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                     }
                                     else if (Ui_m.coordInsidePanel(spot) && py.flags.blind < 1)
                                     {
-                                        Ui_io_m.panelPutTile('*', spot);
+                                        this.terminal.panelPutTile('*', spot);
                                     }
                                 }
                             }
@@ -153,7 +156,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     }
 
                     // show ball of whatever
-                    Ui_io_m.putQIO();
+                    this.terminal.putQIO();
 
                     for (var row = coord.y - 2; row <= coord.y + 2; row++)
                     {
@@ -162,9 +165,9 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             spot.y = row;
                             spot.x = col;
 
-                            if (dungeon.coordInBounds(spot) && Ui_m.coordInsidePanel(spot) && dungeon.coordDistanceBetween(coord, spot) <= max_distance)
+                            if (this.dungeon.coordInBounds(spot) && Ui_m.coordInsidePanel(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                             {
-                                dungeon.dungeonLiteSpot(spot);
+                                this.dungeon.dungeonLiteSpot(spot);
                             }
                         }
                     }
@@ -172,20 +175,20 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     if (total_hits == 1)
                     {
-                        Ui_io_m.printMessage("The " + spell_name + " envelops a creature!");
+                        this.terminal.printMessage("The " + spell_name + " envelops a creature!");
                     }
                     else if (total_hits > 1)
                     {
-                        Ui_io_m.printMessage("The " + spell_name + " envelops several creatures!");
+                        this.terminal.printMessage("The " + spell_name + " envelops several creatures!");
                     }
 
                     if (total_kills == 1)
                     {
-                        Ui_io_m.printMessage("There is a scream of agony!");
+                        this.terminal.printMessage("There is a scream of agony!");
                     }
                     else if (total_kills > 1)
                     {
-                        Ui_io_m.printMessage("There are several screams of agony!");
+                        this.terminal.printMessage("There are several screams of agony!");
                     }
 
                     if (total_kills >= 0)
@@ -196,10 +199,10 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 }
                 else if (Ui_m.coordInsidePanel(coord) && py.flags.blind < 1)
                 {
-                    Ui_io_m.panelPutTile('*', coord);
+                    this.terminal.panelPutTile('*', coord);
 
                     // show bolt
-                    Ui_io_m.putQIO();
+                    this.terminal.putQIO();
                 }
             }
         }

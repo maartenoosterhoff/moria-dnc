@@ -9,10 +9,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
         ICommandHandler<DarkenAreaCommand, bool>
     {
         private readonly IDungeon dungeon;
+        private readonly ITerminal terminal;
 
-        public DarkenAreaCommandHandler(IDungeon dungeon)
+        public DarkenAreaCommandHandler(
+            IDungeon dungeon,
+            ITerminal terminal
+        )
         {
             this.dungeon = dungeon;
+            this.terminal = terminal;
         }
 
         void ICommandHandler<DarkenAreaCommand>.Handle(DarkenAreaCommand command)
@@ -84,7 +89,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 
             if (darkened && py.flags.blind < 1)
             {
-                Ui_io_m.printMessage("Darkness surrounds you.");
+                this.terminal.printMessage("Darkness surrounds you.");
             }
 
             return darkened;

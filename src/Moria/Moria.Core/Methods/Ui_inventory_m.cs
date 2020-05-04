@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -26,14 +25,17 @@ namespace Moria.Core.Methods
     {
         private readonly IInventory inventory;
         private readonly IInventoryManager inventoryManager;
+        private readonly ITerminal terminal;
 
         public Ui_inventory_m(
             IInventory inventory,
-            IInventoryManager inventoryManager
+            IInventoryManager inventoryManager,
+            ITerminal terminal
         )
         {
             this.inventory = inventory;
             this.inventoryManager = inventoryManager;
+            this.terminal = terminal;
         }
 
         private void inventoryItemWeightText(out string text, int item_id)
@@ -125,19 +127,19 @@ namespace Moria.Core.Methods
                 // don't need first two spaces if in first column
                 if (column == 0)
                 {
-                    putStringClearToEOL(descriptions[i], new Coord_t(current_line, column));
+                    this.terminal.putStringClearToEOL(descriptions[i], new Coord_t(current_line, column));
                 }
                 else
                 {
-                    putString("  ", new Coord_t(current_line, column));
-                    putStringClearToEOL(descriptions[i], new Coord_t(current_line, column + 2));
+                    this.terminal.putString("  ", new Coord_t(current_line, column));
+                    this.terminal.putStringClearToEOL(descriptions[i], new Coord_t(current_line, column + 2));
                 }
 
                 if (weighted)
                 {
                     //obj_desc_t text = { '\0' };
                     this.inventoryItemWeightText(out var text, i);
-                    putStringClearToEOL(text, new Coord_t(current_line, 71));
+                    this.terminal.putStringClearToEOL(text, new Coord_t(current_line, 71));
                 }
 
                 current_line++;
@@ -291,24 +293,24 @@ namespace Moria.Core.Methods
                 // don't need first two spaces when using whole screen
                 if (column == 0)
                 {
-                    putStringClearToEOL(descriptions[line], new Coord_t(line + 1, column));
+                    this.terminal.putStringClearToEOL(descriptions[line], new Coord_t(line + 1, column));
                 }
                 else
                 {
-                    putString("  ", new Coord_t(line + 1, column));
-                    putStringClearToEOL(descriptions[line], new Coord_t(line + 1, column + 2));
+                    this.terminal.putString("  ", new Coord_t(line + 1, column));
+                    this.terminal.putStringClearToEOL(descriptions[line], new Coord_t(line + 1, column + 2));
                 }
 
                 if (weighted)
                 {
                     //obj_desc_t text = { '\0' };
                     this.inventoryItemWeightText(out var text, i);
-                    putStringClearToEOL(text, new Coord_t(line + 1, 71));
+                    this.terminal.putStringClearToEOL(text, new Coord_t(line + 1, 71));
                 }
 
                 line++;
             }
-            eraseLine(new Coord_t(line + 1, column));
+            this.terminal.eraseLine(new Coord_t(line + 1, column));
 
             return column;
         }
@@ -378,13 +380,13 @@ namespace Moria.Core.Methods
                         this.screen_left = 52;
                     }
 
-                    putStringClearToEOL("  ESC: exit", new Coord_t(1, this.screen_left));
-                    putStringClearToEOL("  w  : wear or wield object", new Coord_t(2, this.screen_left));
-                    putStringClearToEOL("  t  : take off item", new Coord_t(3, this.screen_left));
-                    putStringClearToEOL("  d  : drop object", new Coord_t(4, this.screen_left));
-                    putStringClearToEOL("  x  : exchange weapons", new Coord_t(5, this.screen_left));
-                    putStringClearToEOL("  i  : inventory of pack", new Coord_t(6, this.screen_left));
-                    putStringClearToEOL("  e  : list used equipment", new Coord_t(7, this.screen_left));
+                    this.terminal.putStringClearToEOL("  ESC: exit", new Coord_t(1, this.screen_left));
+                    this.terminal.putStringClearToEOL("  w  : wear or wield object", new Coord_t(2, this.screen_left));
+                    this.terminal.putStringClearToEOL("  t  : take off item", new Coord_t(3, this.screen_left));
+                    this.terminal.putStringClearToEOL("  d  : drop object", new Coord_t(4, this.screen_left));
+                    this.terminal.putStringClearToEOL("  x  : exchange weapons", new Coord_t(5, this.screen_left));
+                    this.terminal.putStringClearToEOL("  i  : inventory of pack", new Coord_t(6, this.screen_left));
+                    this.terminal.putStringClearToEOL("  e  : list used equipment", new Coord_t(7, this.screen_left));
 
                     line = 7;
                     break;
@@ -408,14 +410,14 @@ namespace Moria.Core.Methods
             if (line >= this.screen_base)
             {
                 this.screen_base = line + 1;
-                eraseLine(new Coord_t(this.screen_base, this.screen_left));
+                this.terminal.eraseLine(new Coord_t(this.screen_base, this.screen_left));
                 return;
             }
 
             line++;
             while (line <= this.screen_base)
             {
-                eraseLine(new Coord_t(line, this.screen_left));
+                this.terminal.eraseLine(new Coord_t(line, this.screen_left));
                 line++;
             }
         }
@@ -437,7 +439,7 @@ namespace Moria.Core.Methods
             //obj_desc_t msg = { '\0' };
             //(void)sprintf(msg, "%s %s", prompt, description);
 
-            return getInputConfirmation(msg);
+            return this.terminal.getInputConfirmation(msg);
         }
 
         private void setInventoryCommandScreenState(char command)
@@ -451,7 +453,7 @@ namespace Moria.Core.Methods
                 // and see what the user wants.
                 if (State.Instance.screen_has_changed)
                 {
-                    if (command == ' ' || !getInputConfirmation("Continuing with inventory command?"))
+                    if (command == ' ' || !this.terminal.getInputConfirmation("Continuing with inventory command?"))
                     {
                         game.doing_inventory_command = 0;
                         return;
@@ -482,14 +484,14 @@ namespace Moria.Core.Methods
 
             if (py.equipment_count == 0)
             {
-                printMessage("You are not using any equipment.");
+                this.terminal.printMessage("You are not using any equipment.");
                 // don't print message restarting inven command after taking off something, it is confusing
                 return selecting;
             }
 
             if (py.pack.unique_items >= (int)PlayerEquipment.Wield && game.doing_inventory_command == 0)
             {
-                printMessage("You will have to drop something first.");
+                this.terminal.printMessage("You will have to drop something first.");
                 return selecting;
             }
 
@@ -508,13 +510,13 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0 && py.equipment_count == 0)
             {
-                printMessage("But you're not carrying anything.");
+                this.terminal.printMessage("But you're not carrying anything.");
                 return selecting;
             }
 
             if (dg.floor[py.pos.y][py.pos.x].treasure_id != 0)
             {
-                printMessage("There's no room to drop anything here.");
+                this.terminal.printMessage("There's no room to drop anything here.");
                 return selecting;
             }
 
@@ -551,7 +553,7 @@ namespace Moria.Core.Methods
 
             if (this.wear_low > this.wear_high)
             {
-                printMessage("You have nothing to wear or wield.");
+                this.terminal.printMessage("You have nothing to wear or wield.");
                 return selecting;
             }
 
@@ -569,7 +571,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             if (py.inventory[(int)PlayerEquipment.Wield].category_id == TV_NOTHING && py.inventory[(int)PlayerEquipment.Auxiliary].category_id == TV_NOTHING)
             {
-                printMessage("But you are wielding no weapons.");
+                this.terminal.printMessage("But you are wielding no weapons.");
                 return;
             }
 
@@ -583,7 +585,7 @@ namespace Moria.Core.Methods
                 //obj_desc_t msg = { '\0' };
                 //(void)sprintf(msg, "The %s you are wielding appears to be cursed.", description);
 
-                printMessage(msg);
+                this.terminal.printMessage(msg);
 
                 return;
             }
@@ -612,11 +614,11 @@ namespace Moria.Core.Methods
                 //obj_desc_t description = { '\0' };
                 itemDescription(ref description, py.inventory[(int)PlayerEquipment.Wield], true);
 
-                printMessage(msg_label + description);
+                this.terminal.printMessage(msg_label + description);
             }
             else
             {
-                printMessage("No primary weapon.");
+                this.terminal.printMessage("No primary weapon.");
             }
 
             // this is a new weapon, so clear the heavy flag
@@ -635,11 +637,11 @@ namespace Moria.Core.Methods
                 int m;
 
                 // Note: simple loop to get id
-                for (m = from; 
-                    m <= to && 
+                for (m = from;
+                    m <= to &&
                     m < PLAYER_INVENTORY_SIZE &&
                     string.CompareOrdinal(py.inventory[m].inscription, which.ToString()) != 0
-                    //(py.inventory[m].inscription[0] != which || py.inventory[m].inscription[1] != '\0')
+                        //(py.inventory[m].inscription[0] != which || py.inventory[m].inscription[1] != '\0')
                         ;
                     m++)
                     ;
@@ -668,7 +670,7 @@ namespace Moria.Core.Methods
         private void buildCommandHeading(ref string str, int from, int to, string swap, char command, string prompt)
         {
             var fromChar = (char)(from + 'a');
-            var toChar = (char) (to + 'a');
+            var toChar = (char)(to + 'a');
 
             var list_items = string.Empty;
             if (this.screen_state == BLANK_SCR)
@@ -774,7 +776,7 @@ namespace Moria.Core.Methods
                         // Rings. Give choice over where they go.
                         do
                         {
-                            if (!getCommand("Put ring on which hand (l/r/L/R)?", out var query))
+                            if (!this.terminal.getCommand("Put ring on which hand (l/r/L/R)?", out var query))
                             {
                                 slot = -1;
                             }
@@ -798,7 +800,7 @@ namespace Moria.Core.Methods
                                 }
                                 else
                                 {
-                                    terminalBellSound();
+                                    this.terminal.terminalBellSound();
                                 }
                                 if (slot != 0 && !this.verify("Replace", slot))
                                 {
@@ -810,7 +812,7 @@ namespace Moria.Core.Methods
                     break;
                 default:
                     slot = -1;
-                    printMessage("IMPOSSIBLE: I don't see how you can use that.");
+                    this.terminal.printMessage("IMPOSSIBLE: I don't see how you can use that.");
                     break;
             }
 
@@ -840,7 +842,7 @@ namespace Moria.Core.Methods
                 //(void)strcat(item_text, "wearing ");
             }
 
-            printMessage(item_text + "appears to be cursed.");
+            this.terminal.printMessage(item_text + "appears to be cursed.");
             //printMessage(strcat(item_text, "appears to be cursed."));
         }
 
@@ -913,7 +915,7 @@ namespace Moria.Core.Methods
                 this.buildCommandHeading(ref heading_text, from, to, swap, command, prompt);
 
                 // Abort everything.
-                if (!getCommand(heading_text, out which))
+                if (!this.terminal.getCommand(heading_text, out which))
                 {
                     which = ESCAPE;
                     selecting = false;
@@ -952,7 +954,7 @@ namespace Moria.Core.Methods
 
                 if (item_id < from || item_id > to)
                 {
-                    terminalBellSound();
+                    this.terminal.terminalBellSound();
                     continue;
                 }
 
@@ -981,16 +983,16 @@ namespace Moria.Core.Methods
                     else if ((py.inventory[item_id].flags & Config.treasure_flags.TR_CURSED) != 0u)
                     {
                         item_id = -1;
-                        printMessage("Hmmm, it seems to be cursed.");
+                        this.terminal.printMessage("Hmmm, it seems to be cursed.");
                     }
                     else if (command == 't' && !this.inventory.inventoryCanCarryItemCount(py.inventory[item_id]))
                     {
                         if (dg.floor[py.pos.y][py.pos.x].treasure_id != 0)
                         {
                             item_id = -1;
-                            printMessage("You can't carry it.");
+                            this.terminal.printMessage("You can't carry it.");
                         }
-                        else if (getInputConfirmation("You can't carry it.  Drop it?"))
+                        else if (this.terminal.getInputConfirmation("You can't carry it.  Drop it?"))
                         {
                             command = 'r';
                         }
@@ -1052,13 +1054,13 @@ namespace Moria.Core.Methods
                             this.inventoryItemIsCursedMessage(slot);
                             item_id = -1;
                         }
-                        else if (py.inventory[item_id].sub_category_id == ITEM_GROUP_MIN && 
-                                 py.inventory[item_id].items_count > 1 && 
+                        else if (py.inventory[item_id].sub_category_id == ITEM_GROUP_MIN &&
+                                 py.inventory[item_id].items_count > 1 &&
                                  !this.inventory.inventoryCanCarryItemCount(py.inventory[slot]))
                         {
                             // this can happen if try to wield a torch,
                             // and have more than one in inventory
-                            printMessage("You will have to drop something first.");
+                            this.terminal.printMessage("You will have to drop something first.");
                             item_id = -1;
                         }
                     }
@@ -1147,7 +1149,7 @@ namespace Moria.Core.Methods
                         var msg = $"{text} {description} ({(char)('a' + item_id)})";
                         //obj_desc_t msg = { '\0' };
                         //(void)sprintf(msg, "%s %s (%c)", text, description, 'a' + item_id);
-                        printMessage(msg);
+                        this.terminal.printMessage(msg);
 
                         // this is a new weapon, so clear heavy flag
                         if (slot == (int)PlayerEquipment.Wield)
@@ -1158,7 +1160,7 @@ namespace Moria.Core.Methods
 
                         if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)
                         {
-                            printMessage("Oops! It feels deathly cold!");
+                            this.terminal.printMessage("Oops! It feels deathly cold!");
                             itemAppendToInscription(item, Config.identification.ID_DAMD);
 
                             // To force a cost of 0, even if unidentified.
@@ -1187,17 +1189,17 @@ namespace Moria.Core.Methods
                         msg = description.Substring(description.Length - 1) + ".";
                         //msg[strlen(description) - 1] = '.';
 
-                        putStringClearToEOL(msg, new Coord_t(0, 0));
+                        this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
 
-                        query = getKeyInput();
+                        query = this.terminal.getKeyInput();
 
                         if (query != 'y' && query != 'n')
                         {
                             if (query != ESCAPE)
                             {
-                                terminalBellSound();
+                                this.terminal.terminalBellSound();
                             }
-                            messageLineClear();
+                            this.terminal.messageLineClear();
                             item_id = -1;
                         }
                     }
@@ -1262,43 +1264,43 @@ namespace Moria.Core.Methods
                     //(void)sprintf(msg, "You are carrying %d.%d pounds. Your capacity is %d.%d pounds. In your pack is -", w_quotient, w_remainder, l_quotient, l_remainder);
                 }
 
-                putStringClearToEOL(msg, new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
             }
             else if (this.screen_state == WEAR_SCR)
             {
                 if (this.wear_high < this.wear_low)
                 {
-                    putStringClearToEOL("You have nothing you could wield.", new Coord_t(0, 0));
+                    this.terminal.putStringClearToEOL("You have nothing you could wield.", new Coord_t(0, 0));
                 }
                 else
                 {
-                    putStringClearToEOL("You could wield -", new Coord_t(0, 0));
+                    this.terminal.putStringClearToEOL("You could wield -", new Coord_t(0, 0));
                 }
             }
             else if (this.screen_state == EQUIP_SCR)
             {
                 if (State.Instance.py.equipment_count == 0)
                 {
-                    putStringClearToEOL("You are not using anything.", new Coord_t(0, 0));
+                    this.terminal.putStringClearToEOL("You are not using anything.", new Coord_t(0, 0));
                 }
                 else
                 {
-                    putStringClearToEOL("You are using -", new Coord_t(0, 0));
+                    this.terminal.putStringClearToEOL("You are using -", new Coord_t(0, 0));
                 }
             }
             else
             {
-                putStringClearToEOL("Allowed commands:", new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL("Allowed commands:", new Coord_t(0, 0));
             }
 
-            eraseLine(new Coord_t(this.screen_base, this.screen_left));
+            this.terminal.eraseLine(new Coord_t(this.screen_base, this.screen_left));
         }
 
         public void uiCommandDisplayInventory()
         {
             if (State.Instance.py.pack.unique_items == 0)
             {
-                printMessage("You are not carrying anything.");
+                this.terminal.printMessage("You are not carrying anything.");
             }
             else
             {
@@ -1311,7 +1313,7 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.equipment_count == 0)
             {
-                printMessage("You are not using any equipment.");
+                this.terminal.printMessage("You are not using any equipment.");
             }
             else
             {
@@ -1326,7 +1328,7 @@ namespace Moria.Core.Methods
 
             game.player_free_turn = true;
 
-            terminalSaveScreen();
+            this.terminal.terminalSaveScreen();
             this.setInventoryCommandScreenState(command);
 
             do
@@ -1366,7 +1368,7 @@ namespace Moria.Core.Methods
                         break;
                     default:
                         // Nonsense command
-                        terminalBellSound();
+                        this.terminal.terminalBellSound();
                         break;
                 }
 
@@ -1397,7 +1399,7 @@ namespace Moria.Core.Methods
                     }
 
                     // flush last message before clearing screen_has_changed and exiting
-                    printMessage(/*CNIL*/null);
+                    this.terminal.printMessage(/*CNIL*/null);
 
                     // This lets us know if the world changes
                     State.Instance.screen_has_changed = false;
@@ -1408,16 +1410,16 @@ namespace Moria.Core.Methods
                 {
                     this.inventoryDisplayAppropriateHeader();
 
-                    putString("e/i/t/w/x/d/?/ESC:", new Coord_t(this.screen_base, 60));
-                    command = getKeyInput();
+                    this.terminal.putString("e/i/t/w/x/d/?/ESC:", new Coord_t(this.screen_base, 60));
+                    command = this.terminal.getKeyInput();
 
-                    eraseLine(new Coord_t(this.screen_base, this.screen_left));
+                    this.terminal.eraseLine(new Coord_t(this.screen_base, this.screen_left));
                 }
             } while (command != ESCAPE);
 
             if (this.screen_state != BLANK_SCR)
             {
-                terminalRestoreScreen();
+                this.terminal.terminalRestoreScreen();
             }
 
             playerRecalculateBonuses();
@@ -1449,7 +1451,7 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items < 1 && (!full || py.equipment_count < 1))
             {
-                putStringClearToEOL("You are not carrying anything.", new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL("You are not carrying anything.", new Coord_t(0, 0));
                 return false;
             }
 
@@ -1516,13 +1518,13 @@ namespace Moria.Core.Methods
                     //);
                 }
 
-                putStringClearToEOL(description, new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL(description, new Coord_t(0, 0));
 
                 var command_finished = false;
 
                 while (!command_finished)
                 {
-                    var which = getKeyInput();
+                    var which = this.terminal.getKeyInput();
 
                     switch (which)
                     {
@@ -1540,8 +1542,8 @@ namespace Moria.Core.Methods
                                 {
                                     if (py.equipment_count == 0)
                                     {
-                                        putStringClearToEOL("But you're not using anything -more-", new Coord_t(0, 0));
-                                        getKeyInput();
+                                        this.terminal.putStringClearToEOL("But you're not using anything -more-", new Coord_t(0, 0));
+                                        this.terminal.getKeyInput();
                                     }
                                     else
                                     {
@@ -1555,20 +1557,20 @@ namespace Moria.Core.Methods
                                             while (item_id_end < py.pack.unique_items)
                                             {
                                                 item_id_end++;
-                                                eraseLine(new Coord_t(item_id_end, 0));
+                                                this.terminal.eraseLine(new Coord_t(item_id_end, 0));
                                             }
                                         }
                                         item_id_end = py.equipment_count - 1;
                                     }
 
-                                    putStringClearToEOL(description, new Coord_t(0, 0));
+                                    this.terminal.putStringClearToEOL(description, new Coord_t(0, 0));
                                 }
                                 else
                                 {
                                     if (py.pack.unique_items == 0)
                                     {
-                                        putStringClearToEOL("But you're not carrying anything -more-", new Coord_t(0, 0));
-                                        getKeyInput();
+                                        this.terminal.putStringClearToEOL("But you're not carrying anything -more-", new Coord_t(0, 0));
+                                        this.terminal.getKeyInput();
                                     }
                                     else
                                     {
@@ -1582,7 +1584,7 @@ namespace Moria.Core.Methods
                                             while (item_id_end < py.equipment_count)
                                             {
                                                 item_id_end++;
-                                                eraseLine(new Coord_t(item_id_end, 0));
+                                                this.terminal.eraseLine(new Coord_t(item_id_end, 0));
                                             }
                                         }
                                         item_id_end = py.pack.unique_items - 1;
@@ -1594,7 +1596,7 @@ namespace Moria.Core.Methods
                             if (!redraw_screen)
                             {
                                 command_finished = true;
-                                terminalSaveScreen();
+                                this.terminal.terminalSaveScreen();
                                 redraw_screen = true;
                             }
                             break;
@@ -1666,14 +1668,14 @@ namespace Moria.Core.Methods
                             else if (!string.IsNullOrEmpty(message))
                             //else if (message != nullptr)
                             {
-                                printMessage(message);
+                                this.terminal.printMessage(message);
 
                                 // Set command_finished to force redraw of the question.
                                 command_finished = true;
                             }
                             else
                             {
-                                terminalBellSound();
+                                this.terminal.terminalBellSound();
                             }
                             break;
                     }
@@ -1682,10 +1684,10 @@ namespace Moria.Core.Methods
 
             if (redraw_screen)
             {
-                terminalRestoreScreen();
+                this.terminal.terminalRestoreScreen();
             }
 
-            messageLineClear();
+            this.terminal.messageLineClear();
 
             return item_found;
         }

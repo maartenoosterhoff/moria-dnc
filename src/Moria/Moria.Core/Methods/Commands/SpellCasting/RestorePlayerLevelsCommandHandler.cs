@@ -6,6 +6,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<RestorePlayerLevelsCommand>,
         ICommandHandler<RestorePlayerLevelsCommand, bool>
     {
+        private readonly ITerminal terminal;
+
+        public RestorePlayerLevelsCommandHandler(ITerminal terminal)
+        {
+            this.terminal = terminal;
+        }
+
         void ICommandHandler<RestorePlayerLevelsCommand>.Handle(RestorePlayerLevelsCommand command)
         {
             this.spellRestorePlayerLevels();
@@ -23,7 +30,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 
             if (py.misc.max_exp > py.misc.exp)
             {
-                Ui_io_m.printMessage("You feel your life energies returning.");
+                this.terminal.printMessage("You feel your life energies returning.");
 
                 // this while loop is not redundant, ptr_exp may reduce the exp level
                 while (py.misc.exp < py.misc.max_exp)

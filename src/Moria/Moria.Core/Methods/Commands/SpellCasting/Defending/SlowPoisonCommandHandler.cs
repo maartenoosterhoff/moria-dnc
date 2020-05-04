@@ -6,6 +6,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
         ICommandHandler<SlowPoisonCommand>,
         ICommandHandler<SlowPoisonCommand, bool>
     {
+        private readonly ITerminal terminal;
+
+        public SlowPoisonCommandHandler(ITerminal terminal)
+        {
+            this.terminal = terminal;
+        }
+
         void ICommandHandler<SlowPoisonCommand>.Handle(SlowPoisonCommand command)
         {
             this.spellSlowPoison();
@@ -27,7 +34,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
                 {
                     py.flags.poisoned = 1;
                 }
-                Ui_io_m.printMessage("The effect of the poison has been reduced.");
+                this.terminal.printMessage("The effect of the poison has been reduced.");
                 return true;
             }
 

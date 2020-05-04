@@ -25,6 +25,7 @@ namespace Moria.Core.Methods
             IGameObjects gameObjects,
             IInventoryManager inventoryManager,
             IRnd rnd,
+            ITerminal terminal,
             ITreasure treasure
         )
         {
@@ -33,6 +34,7 @@ namespace Moria.Core.Methods
             this.gameObjects = gameObjects;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
+            this.terminal = terminal;
             this.treasure = treasure;
         }
 
@@ -41,6 +43,7 @@ namespace Moria.Core.Methods
         private readonly IGameObjects gameObjects;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
+        private readonly ITerminal terminal;
         private readonly ITreasure treasure;
 
         // Creates objects nearby the coordinates given -RAK-
@@ -90,7 +93,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {
-                Ui_io_m.printMessage("You feel something roll beneath your feet."); // -CJS-
+                this.terminal.printMessage("You feel something roll beneath your feet."); // -CJS-
             }
         }
 
@@ -143,7 +146,7 @@ namespace Moria.Core.Methods
 
             if (dg.floor[coord.y][coord.x].creature_id == 1)
             {
-                Ui_io_m.printMessage("You feel something roll beneath your feet.");
+                this.terminal.printMessage("You feel something roll beneath your feet.");
             }
         }
 

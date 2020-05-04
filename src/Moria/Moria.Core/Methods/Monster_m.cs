@@ -14,7 +14,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -32,6 +31,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IRnd rnd,
             IStd std,
+            ITerminal terminal,
 
             IEventPublisher eventPublisher
         )
@@ -46,6 +46,7 @@ namespace Moria.Core.Methods
             Monster_m.monsterManager = monsterManager;
             Monster_m.rnd = rnd;
             Monster_m.std = std;
+            Monster_m.terminal = terminal;
 
             Monster_m.eventPublisher = eventPublisher;
         }
@@ -60,6 +61,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IStd std;
+        private static ITerminal terminal;
 
         private static IEventPublisher eventPublisher;
 
@@ -149,7 +151,7 @@ namespace Moria.Core.Methods
         // Given speed, returns number of moves this turn. -RAK-
         // NOTE: Player must always move at least once per iteration,
         // a slowed player is handled by moving monsters faster
-        public static int monsterMovementRate(int speed)
+        private static int monsterMovementRate(int speed)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -173,7 +175,7 @@ namespace Moria.Core.Methods
         }
 
         // Makes sure a new creature gets lit up. -CJS-
-        public static bool monsterMakeVisible(Coord_t coord)
+        private static bool monsterMakeVisible(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -188,7 +190,7 @@ namespace Moria.Core.Methods
         }
 
         // Choose correct directions for monster movement -RAK-
-        public static void monsterGetMoveDirection(int monster_id, int[] directions)
+        private static void monsterGetMoveDirection(int monster_id, int[] directions)
         {
             var monsters = State.Instance.monsters;
             var py = State.Instance.py;
@@ -381,108 +383,108 @@ namespace Moria.Core.Methods
             switch (attack_id)
             {
                 case 1:
-                    printMessage(msg + "hits you.");
+                    terminal.printMessage(msg + "hits you.");
                     break;
                 case 2:
-                    printMessage(msg + "bites you.");
+                    terminal.printMessage(msg + "bites you.");
                     break;
                 case 3:
-                    printMessage(msg + "claws you.");
+                    terminal.printMessage(msg + "claws you.");
                     break;
                 case 4:
-                    printMessage(msg + "stings you.");
+                    terminal.printMessage(msg + "stings you.");
                     break;
                 case 5:
-                    printMessage(msg + "touches you.");
+                    terminal.printMessage(msg + "touches you.");
                     break;
                 case 6:
-                    printMessage(msg + "kicks you.");
+                    terminal.printMessage(msg + "kicks you.");
                     break;
                 case 7:
-                    printMessage(msg + "gazes at you.");
+                    terminal.printMessage(msg + "gazes at you.");
                     break;
                 case 8:
-                    printMessage(msg + "breathes on you.");
+                    terminal.printMessage(msg + "breathes on you.");
                     break;
                 case 9:
-                    printMessage(msg + "spits on you.");
+                    terminal.printMessage(msg + "spits on you.");
                     break;
                 case 10:
-                    printMessage(msg + "makes a horrible wail.");
+                    terminal.printMessage(msg + "makes a horrible wail.");
                     break;
                 case 11:
-                    printMessage(msg + "embraces you.");
+                    terminal.printMessage(msg + "embraces you.");
                     break;
                 case 12:
-                    printMessage(msg + "crawls on you.");
+                    terminal.printMessage(msg + "crawls on you.");
                     break;
                 case 13:
-                    printMessage(msg + "releases a cloud of spores.");
+                    terminal.printMessage(msg + "releases a cloud of spores.");
                     break;
                 case 14:
-                    printMessage(msg + "begs you for money.");
+                    terminal.printMessage(msg + "begs you for money.");
                     break;
                 case 15:
-                    printMessage("You've been slimed!");
+                    terminal.printMessage("You've been slimed!");
                     break;
                 case 16:
-                    printMessage(msg + "crushes you.");
+                    terminal.printMessage(msg + "crushes you.");
                     break;
                 case 17:
-                    printMessage(msg + "tramples you.");
+                    terminal.printMessage(msg + "tramples you.");
                     break;
                 case 18:
-                    printMessage(msg + "drools on you.");
+                    terminal.printMessage(msg + "drools on you.");
                     break;
                 case 19:
                     switch (rnd.randomNumber(9))
                     {
                         case 1:
-                            printMessage(msg + "insults you!");
+                            terminal.printMessage(msg + "insults you!");
                             break;
                         case 2:
-                            printMessage(msg + "insults your mother!");
+                            terminal.printMessage(msg + "insults your mother!");
                             break;
                         case 3:
-                            printMessage(msg + "gives you the finger!");
+                            terminal.printMessage(msg + "gives you the finger!");
                             break;
                         case 4:
-                            printMessage(msg + "humiliates you!");
+                            terminal.printMessage(msg + "humiliates you!");
                             break;
                         case 5:
-                            printMessage(msg + "wets on your leg!");
+                            terminal.printMessage(msg + "wets on your leg!");
                             break;
                         case 6:
-                            printMessage(msg + "defiles you!");
+                            terminal.printMessage(msg + "defiles you!");
                             break;
                         case 7:
-                            printMessage(msg + "dances around you!");
+                            terminal.printMessage(msg + "dances around you!");
                             break;
                         case 8:
-                            printMessage(msg + "makes obscene gestures!");
+                            terminal.printMessage(msg + "makes obscene gestures!");
                             break;
                         case 9:
-                            printMessage(msg + "moons you!!!");
+                            terminal.printMessage(msg + "moons you!!!");
                             break;
                         default:
                             break;
                     }
                     break;
                 case 99:
-                    printMessage(msg + "is repelled.");
+                    terminal.printMessage(msg + "is repelled.");
                     break;
                 default:
                     break;
             }
         }
 
-        public static void monsterConfuseOnAttack(Creature_t creature, Monster_t monster, int attack_type, string monster_name, bool visible)
+        private static void monsterConfuseOnAttack(Creature_t creature, Monster_t monster, int attack_type, string monster_name, bool visible)
         {
             var py = State.Instance.py;
 
             if (py.flags.confuse_monster && attack_type != 99)
             {
-                printMessage("Your hands stop glowing.");
+                terminal.printMessage("Your hands stop glowing.");
                 py.flags.confuse_monster = false;
 
                 var msg = string.Empty;
@@ -506,7 +508,7 @@ namespace Moria.Core.Methods
                     }
                 }
 
-                printMessage(msg);
+                terminal.printMessage(msg);
 
                 if (visible && !State.Instance.game.character_is_dead && rnd.randomNumber(4) == 1)
                 {
@@ -518,7 +520,7 @@ namespace Moria.Core.Methods
         public const int UCHAR_MAX = 255;
 
         // Make an attack on the player (chuckle.) -RAK-
-        public static void monsterAttackPlayer(int monster_id)
+        private static void monsterAttackPlayer(int monster_id)
         {
             // don't beat a dead body!
             if (State.Instance.game.character_is_dead)
@@ -627,7 +629,7 @@ namespace Moria.Core.Methods
 
                         var description = name;
                         //(void)strcpy(description, name);
-                        printMessage(description + "misses you.");
+                        terminal.printMessage(description + "misses you.");
                     }
                 }
 
@@ -642,7 +644,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void monsterOpenDoor(Tile_t tile, int monster_hp, uint move_bits, ref bool do_turn, ref bool do_move, ref uint rcmove, Coord_t coord)
+        private static void monsterOpenDoor(Tile_t tile, int monster_hp, uint move_bits, ref bool do_turn, ref bool do_move, ref uint rcmove, Coord_t coord)
         {
             var game = State.Instance.game;
 
@@ -678,7 +680,7 @@ namespace Moria.Core.Methods
 
                         if (rnd.randomNumber((monster_hp + 1) * (50 - item.misc_use)) < 40 * (monster_hp - 10 + item.misc_use))
                         {
-                            printMessage("You hear a door burst open!");
+                            terminal.printMessage("You hear a door burst open!");
                             eventPublisher.Publish(new DisturbCommand(true, false));
                             //playerDisturb(1, 0);
                             door_is_stuck = true;
@@ -721,14 +723,14 @@ namespace Moria.Core.Methods
                     item.misc_use = 1 - rnd.randomNumber(2);
                     tile.feature_id = TILE_CORR_FLOOR;
                     dungeon.dungeonLiteSpot(coord);
-                    printMessage("You hear a door burst open!");
+                    terminal.printMessage("You hear a door burst open!");
                     eventPublisher.Publish(new DisturbCommand(true, false));
                     //playerDisturb(1, 0);
                 }
             }
         }
 
-        public static void glyphOfWardingProtection(uint creature_id, uint move_bits, ref bool do_move, ref bool do_turn, Coord_t coord)
+        private static void glyphOfWardingProtection(uint creature_id, uint move_bits, ref bool do_move, ref bool do_turn, Coord_t coord)
         {
             var py = State.Instance.py;
 
@@ -736,7 +738,7 @@ namespace Moria.Core.Methods
             {
                 if (coord.y == py.pos.y && coord.x == py.pos.x)
                 {
-                    printMessage("The rune of protection is broken!");
+                    terminal.printMessage("The rune of protection is broken!");
                 }
                 dungeon.dungeonDeleteObject(coord);
                 return;
@@ -752,7 +754,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void monsterMovesOnPlayer(Monster_t monster, uint creature_id, int monster_id, uint move_bits, ref bool do_move, ref bool do_turn, ref uint rcmove, Coord_t coord)
+        private static void monsterMovesOnPlayer(Monster_t monster, uint creature_id, int monster_id, uint move_bits, ref bool do_move, ref bool do_turn, ref uint rcmove, Coord_t coord)
         {
             var creatures_list = Library.Instance.Creatures.creatures_list;
             var monsters = State.Instance.monsters;
@@ -950,7 +952,7 @@ namespace Moria.Core.Methods
                 case 8: // Light Wound
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else
                     {
@@ -960,7 +962,7 @@ namespace Moria.Core.Methods
                 case 9: // Serious Wound
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else
                     {
@@ -970,11 +972,11 @@ namespace Moria.Core.Methods
                 case 10: // Hold Person
                     if (py.flags.free_action)
                     {
-                        printMessage("You are unaffected.");
+                        terminal.printMessage("You are unaffected.");
                     }
                     else if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.paralysis > 0)
                     {
@@ -988,7 +990,7 @@ namespace Moria.Core.Methods
                 case 11: // Cause Blindness
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.blind > 0)
                     {
@@ -1002,7 +1004,7 @@ namespace Moria.Core.Methods
                 case 12: // Cause Confuse
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.confused > 0)
                     {
@@ -1016,7 +1018,7 @@ namespace Moria.Core.Methods
                 case 13: // Cause Fear
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.afraid > 0)
                     {
@@ -1030,7 +1032,7 @@ namespace Moria.Core.Methods
                 case 14: // Summon Monster
                     monster_name += "magically summons a monsters!";
                     //(void)strcat(monster_name, "magically summons a monster!");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     coord.y = py.pos.y;
                     coord.x = py.pos.x;
 
@@ -1043,7 +1045,7 @@ namespace Moria.Core.Methods
                 case 15: // Summon Undead
                     monster_name += "magically summons an undead!";
                     //(void)strcat(monster_name, "magically summons an undead!");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     coord.y = py.pos.y;
                     coord.x = py.pos.x;
 
@@ -1056,11 +1058,11 @@ namespace Moria.Core.Methods
                 case 16: // Slow Person
                     if (py.flags.free_action)
                     {
-                        printMessage("You are unaffected.");
+                        terminal.printMessage("You are unaffected.");
                     }
                     else if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects of the spell.");
+                        terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.slow > 0)
                     {
@@ -1080,13 +1082,13 @@ namespace Moria.Core.Methods
                         var msg = $"{monster_name}draws psychic energy from you!";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "%sdraws psychic energy from you!", monster_name);
-                        printMessage(msg);
+                        terminal.printMessage(msg);
 
                         if (monster.lit)
                         {
                             msg = $"{monster_name}appears healthier.";
                             //(void)sprintf(msg, "%sappears healthier.", monster_name);
-                            printMessage(msg);
+                            terminal.printMessage(msg);
                         }
 
                         var num = (rnd.randomNumber((int)level) >> 1) + 1;
@@ -1107,7 +1109,7 @@ namespace Moria.Core.Methods
                 case 20: // Breath Light
                     monster_name += "breathes lightning.";
                     //(void)strcat(monster_name, "breathes lightning.");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 4, (int)MagicSpellFlags.Lightning, death_description
@@ -1118,7 +1120,7 @@ namespace Moria.Core.Methods
                 case 21: // Breath Gas
                     monster_name += "breathes gas.";
                     //(void)strcat(monster_name, "breathes gas.");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.PoisonGas, death_description
@@ -1129,7 +1131,7 @@ namespace Moria.Core.Methods
                 case 22: // Breath Acid
                     monster_name += "breathes acid.";
                     //(void)strcat(monster_name, "breathes acid.");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Acid, death_description
@@ -1140,7 +1142,7 @@ namespace Moria.Core.Methods
                 case 23: // Breath Frost
                     monster_name += "breathes frost.";
                     //(void)strcat(monster_name, "breathes frost.");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Frost, death_description
@@ -1151,7 +1153,7 @@ namespace Moria.Core.Methods
                 case 24: // Breath Fire
                     monster_name += "breathes fire.";
                     //(void)strcat(monster_name, "breathes fire.");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Fire, death_description
@@ -1162,7 +1164,7 @@ namespace Moria.Core.Methods
                 default:
                     monster_name += "cast unknown spell.";
                     //(void)strcat(monster_name, "cast unknown spell.");
-                    printMessage(monster_name);
+                    terminal.printMessage(monster_name);
                     break;
             }
         }
@@ -1240,7 +1242,7 @@ namespace Moria.Core.Methods
             {
                 name += "casts a spell.";
                 //(void)strcat(name, "casts a spell.");
-                printMessage(name);
+                terminal.printMessage(name);
             }
 
             monsterExecuteCastingOfSpell(monster, monster_id, thrown_spell, creature.level, name, death_description);
@@ -1444,12 +1446,12 @@ namespace Moria.Core.Methods
 
                 if (i >= 0)
                 {
-                    printMessage("You hear a scream muffled by rock!");
+                    terminal.printMessage("You hear a scream muffled by rock!");
                     displayCharacterExperience();
                 }
                 else
                 {
-                    printMessage("A creature digs itself out from the rock!");
+                    terminal.printMessage("A creature digs itself out from the rock!");
                     playerTunnelWall(new Coord_t(monster.pos.y, monster.pos.x), 1, 0);
                 }
             }
@@ -1752,7 +1754,7 @@ namespace Moria.Core.Methods
                                 var msg = $"The {creatures_list[(int)monster.creature_id].name} ";
                                 //vtype_t msg = { '\0' };
                                 //(void)sprintf(msg, "The %s ", creatures_list[monster.creature_id].name);
-                                printMessage(msg + "recovers and glares at you.");
+                                terminal.printMessage(msg + "recovers and glares at you.");
                             }
                         }
                     }
@@ -1965,8 +1967,8 @@ namespace Moria.Core.Methods
 
                 printCharacterWinner();
 
-                printMessage("*** CONGRATULATIONS *** You have won the game.");
-                printMessage("You cannot save this game, but you may retire when ready.");
+                terminal.printMessage("*** CONGRATULATIONS *** You have won the game.");
+                terminal.printMessage("You cannot save this game, but you may retire when ready.");
             }
 
             if (dropped_item_id == 0)
@@ -1999,7 +2001,7 @@ namespace Moria.Core.Methods
 
         public static void printMonsterActionText(string name, string action)
         {
-            printMessage(name + " " + action);
+            terminal.printMessage(name + " " + action);
         }
 
         public static string monsterNameDescription(string real_name, bool is_lit)
@@ -2076,11 +2078,11 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_str)
                     {
-                        printMessage("You feel weaker for a moment, but it passes.");
+                        terminal.printMessage("You feel weaker for a moment, but it passes.");
                     }
                     else if (rnd.randomNumber(2) == 1)
                     {
-                        printMessage("You feel weaker.");
+                        terminal.printMessage("You feel weaker.");
                         playerStatRandomDecrease((int)PlayerAttr.STR);
                     }
                     else
@@ -2094,7 +2096,7 @@ namespace Moria.Core.Methods
                     {
                         if (py.flags.confused < 1)
                         {
-                            printMessage("You feel confused.");
+                            terminal.printMessage("You feel confused.");
                             py.flags.confused += rnd.randomNumber((int)creature_level);
                         }
                         else
@@ -2112,11 +2114,11 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects!");
+                        terminal.printMessage("You resist the effects!");
                     }
                     else if (py.flags.afraid < 1)
                     {
-                        printMessage("You are suddenly afraid!");
+                        terminal.printMessage("You are suddenly afraid!");
                         py.flags.afraid += 3 + rnd.randomNumber((int)creature_level);
                     }
                     else
@@ -2126,23 +2128,23 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 5: // Fire attack
-                    printMessage("You are enveloped in flames!");
+                    terminal.printMessage("You are enveloped in flames!");
                     inventory.damageFire(damage, death_description);
                     break;
                 case 6: // Acid attack
-                    printMessage("You are covered in acid!");
+                    terminal.printMessage("You are covered in acid!");
                     inventory.damageAcid(damage, death_description);
                     break;
                 case 7: // Cold attack
-                    printMessage("You are covered with frost!");
+                    terminal.printMessage("You are covered with frost!");
                     inventory.damageCold(damage, death_description);
                     break;
                 case 8: // Lightning attack
-                    printMessage("Lightning strikes you!");
+                    terminal.printMessage("Lightning strikes you!");
                     inventory.damageLightningBolt(damage, death_description);
                     break;
                 case 9: // Corrosion attack
-                    printMessage("A stinging red gas swirls about you.");
+                    terminal.printMessage("A stinging red gas swirls about you.");
                     inventory.damageCorrodingGas(death_description);
                     playerTakesHit(damage, death_description);
                     break;
@@ -2151,7 +2153,7 @@ namespace Moria.Core.Methods
                     if (py.flags.blind < 1)
                     {
                         py.flags.blind += 10 + rnd.randomNumber((int)creature_level);
-                        printMessage("Your eyes begin to sting.");
+                        terminal.printMessage("Your eyes begin to sting.");
                     }
                     else
                     {
@@ -2163,18 +2165,18 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (playerSavingThrow())
                     {
-                        printMessage("You resist the effects!");
+                        terminal.printMessage("You resist the effects!");
                     }
                     else if (py.flags.paralysis < 1)
                     {
                         if (py.flags.free_action)
                         {
-                            printMessage("You are unaffected.");
+                            terminal.printMessage("You are unaffected.");
                         }
                         else
                         {
                             py.flags.paralysis = (int)(rnd.randomNumber((int)creature_level) + 3);
-                            printMessage("You are paralyzed.");
+                            terminal.printMessage("You are paralyzed.");
                         }
                     }
                     else
@@ -2185,7 +2187,7 @@ namespace Moria.Core.Methods
                 case 12: // Steal Money
                     if (py.flags.paralysis < 1 && rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
                     {
-                        printMessage("You quickly protect your money pouch!");
+                        terminal.printMessage("You quickly protect your money pouch!");
                     }
                     else
                     {
@@ -2198,12 +2200,12 @@ namespace Moria.Core.Methods
                         {
                             py.misc.au -= gold;
                         }
-                        printMessage("Your purse feels lighter.");
+                        terminal.printMessage("Your purse feels lighter.");
                         printCharacterGoldValue();
                     }
                     if (rnd.randomNumber(2) == 1)
                     {
-                        printMessage("There is a puff of smoke!");
+                        terminal.printMessage("There is a puff of smoke!");
                         eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
                         //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
@@ -2211,34 +2213,34 @@ namespace Moria.Core.Methods
                 case 13: // Steal Object
                     if (py.flags.paralysis < 1 && rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
                     {
-                        printMessage("You grab hold of your backpack!");
+                        terminal.printMessage("You grab hold of your backpack!");
                     }
                     else
                     {
                         inventoryManager.inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
-                        printMessage("Your backpack feels lighter.");
+                        terminal.printMessage("Your backpack feels lighter.");
                     }
                     if (rnd.randomNumber(2) == 1)
                     {
-                        printMessage("There is a puff of smoke!");
+                        terminal.printMessage("There is a puff of smoke!");
                         eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
                         //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 14: // Poison
                     playerTakesHit(damage, death_description);
-                    printMessage("You feel very sick.");
+                    terminal.printMessage("You feel very sick.");
                     py.flags.poisoned += rnd.randomNumber((int)creature_level) + 5;
                     break;
                 case 15: // Lose dexterity
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_dex)
                     {
-                        printMessage("You feel clumsy for a moment, but it passes.");
+                        terminal.printMessage("You feel clumsy for a moment, but it passes.");
                     }
                     else
                     {
-                        printMessage("You feel more clumsy.");
+                        terminal.printMessage("You feel more clumsy.");
                         playerStatRandomDecrease((int)PlayerAttr.DEX);
                     }
                     break;
@@ -2246,20 +2248,20 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_con)
                     {
-                        printMessage("Your body resists the effects of the disease.");
+                        terminal.printMessage("Your body resists the effects of the disease.");
                     }
                     else
                     {
-                        printMessage("Your health is damaged!");
+                        terminal.printMessage("Your health is damaged!");
                         playerStatRandomDecrease((int)PlayerAttr.CON);
                     }
                     break;
                 case 17: // Lose intelligence
                     playerTakesHit(damage, death_description);
-                    printMessage("You have trouble thinking clearly.");
+                    terminal.printMessage("You have trouble thinking clearly.");
                     if (py.flags.sustain_int)
                     {
-                        printMessage("But your mind quickly clears.");
+                        terminal.printMessage("But your mind quickly clears.");
                     }
                     else
                     {
@@ -2270,16 +2272,16 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_wis)
                     {
-                        printMessage("Your wisdom is sustained.");
+                        terminal.printMessage("Your wisdom is sustained.");
                     }
                     else
                     {
-                        printMessage("Your wisdom is drained.");
+                        terminal.printMessage("Your wisdom is drained.");
                         playerStatRandomDecrease((int)PlayerAttr.WIS);
                     }
                     break;
                 case 19: // Lose experience
-                    printMessage("You feel your life draining away!");
+                    terminal.printMessage("You feel your life draining away!");
                     eventPublisher.Publish(new LoseExpCommand(
                         damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT
                     ));
@@ -2292,7 +2294,7 @@ namespace Moria.Core.Methods
                 case 21: // Disenchant
                     if (inventoryManager.executeDisenchantAttack())
                     {
-                        printMessage("There is a static feeling in the air.");
+                        terminal.printMessage("There is a static feeling in the air.");
                         playerRecalculateBonuses();
                     }
                     else
@@ -2304,7 +2306,7 @@ namespace Moria.Core.Methods
                     if (inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out item_pos_start, out item_pos_end))
                     {
                         inventoryManager.inventoryDestroyItem(item_pos_start);
-                        printMessage("It got at your rations!");
+                        terminal.printMessage("It got at your rations!");
                     }
                     else
                     {
@@ -2328,6 +2330,5 @@ namespace Moria.Core.Methods
 
             return noticed;
         }
-
     }
 }

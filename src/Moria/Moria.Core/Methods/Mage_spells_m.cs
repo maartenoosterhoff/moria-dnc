@@ -13,7 +13,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -28,6 +27,7 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ISpells spells,
+            ITerminal terminal,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -40,6 +40,7 @@ namespace Moria.Core.Methods
             Mage_spells_m.playerMagic = playerMagic;
             Mage_spells_m.rnd = rnd;
             Mage_spells_m.spells = spells;
+            Mage_spells_m.terminal = terminal;
             Mage_spells_m.uiInventory = uiInventory;
 
             Mage_spells_m.eventPublisher = eventPublisher;
@@ -52,6 +53,7 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static ISpells spells;
+        private static ITerminal terminal;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -61,25 +63,25 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             if (py.flags.blind > 0)
             {
-                printMessage("You can't see to read your spell book!");
+                terminal.printMessage("You can't see to read your spell book!");
                 return false;
             }
 
             if (helpers.playerNoLight())
             {
-                printMessage("You have no light to read by.");
+                terminal.printMessage("You have no light to read by.");
                 return false;
             }
 
             if (py.flags.confused > 0)
             {
-                printMessage("You are too confused.");
+                terminal.printMessage("You are too confused.");
                 return false;
             }
 
             if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells != Config.spells.SPELL_TYPE_MAGE)
             {
-                printMessage("You can't cast spells!");
+                terminal.printMessage("You can't cast spells!");
                 return false;
             }
 
@@ -334,15 +336,13 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int i = 0, j = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, TV_NEVER, out i, out j))
+            if (!inventoryManager.inventoryFindRange((int)TV_MAGIC_BOOK, TV_NEVER, out var i, out var j))
             {
-                printMessage("But you are not carrying any spell-books!");
+                terminal.printMessage("But you are not carrying any spell-books!");
                 return;
             }
 
-            var item_val = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_val, "Use which spell-book?", i, j, null/*CNIL*/, /*CNIL*/null))
             {
                 return;
             }
@@ -351,7 +351,7 @@ namespace Moria.Core.Methods
             var result = spells.castSpellGetId("Cast which spell?", item_val, ref choice, ref chance);
             if (result < 0)
             {
-                printMessage("You don't know any spells in that book.");
+                terminal.printMessage("You don't know any spells in that book.");
                 return;
             }
             if (result == 0)
@@ -365,7 +365,7 @@ namespace Moria.Core.Methods
 
             if (rnd.randomNumber(100) < chance)
             {
-                printMessage("You failed to get the spell off!");
+                terminal.printMessage("You failed to get the spell off!");
             }
             else
             {
@@ -382,7 +382,7 @@ namespace Moria.Core.Methods
 
             if (magic_spell.mana_required > py.misc.current_mana)
             {
-                printMessage("You faint from the effort!");
+                terminal.printMessage("You faint from the effort!");
 
                 py.flags.paralysis = rnd.randomNumber(5 * ((int)magic_spell.mana_required - py.misc.current_mana));
                 py.misc.current_mana = 0;
@@ -390,7 +390,7 @@ namespace Moria.Core.Methods
 
                 if (rnd.randomNumber(3) == 1)
                 {
-                    printMessage("You have damaged your health!");
+                    terminal.printMessage("You have damaged your health!");
                     playerStatRandomDecrease((int)PlayerAttr.CON);
                 }
             }
