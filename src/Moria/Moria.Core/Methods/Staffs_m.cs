@@ -464,7 +464,10 @@ namespace Moria.Core.Methods
                         //identified = spellBuildWall(coord, direction);
                         break;
                     case WandSpellTypes.CloneMonster:
-                        identified = spellCloneMonster(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new CloneMonsterCommand(
+                            coord, direction
+                        ));
+                        //identified = spellCloneMonster(coord, direction);
                         break;
                     case WandSpellTypes.TeleportAway:
                         identified = eventPublisher.PublishWithOutputBool(new TeleportAwayMonsterInDirectionCommand(

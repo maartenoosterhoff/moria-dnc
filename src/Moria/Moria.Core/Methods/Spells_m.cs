@@ -4,16 +4,9 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using Moria.Core.Data;
-using Moria.Core.Methods.Commands.SpellCasting.Defending;
-using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Constants.Inventory_c;
-using static Moria.Core.Constants.Monster_c;
-using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -22,31 +15,19 @@ namespace Moria.Core.Methods
     public static class Spells_m
     {
         public static void SetDependencies(
-            IDice dice,
-            IDungeon dungeon,
             IHelpers helpers,
             IInventory inventory,
-            IInventoryManager inventoryManager,
-            IRnd rnd,
-            IUiInventory uiInventory
+            IRnd rnd
         )
         {
-            Spells_m.dice = dice;
-            Spells_m.dungeon = dungeon;
             Spells_m.helpers = helpers;
             Spells_m.inventory = inventory;
-            Spells_m.inventoryManager = inventoryManager;
             Spells_m.rnd = rnd;
-            Spells_m.uiInventory = uiInventory;
         }
 
-        private static IDice dice;
-        private static IDungeon dungeon;
         private static IHelpers helpers;
         private static IInventory inventory;
-        private static IInventoryManager inventoryManager;
         private static IRnd rnd;
-        private static IUiInventory uiInventory;
 
         // Returns spell pointer -RAK-
         public static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
@@ -284,44 +265,6 @@ namespace Moria.Core.Methods
                     break;
             }
         }
-
-        
-
-        
-
-        // Replicate a creature -RAK-
-        public static bool spellCloneMonster(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-            var distance = 0;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                if (distance > Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-                }
-                else if (tile.creature_id > 1)
-                {
-                    State.Instance.monsters[tile.creature_id].sleep_count = 0;
-
-                    // monptr of 0 is safe here, since can't reach here from creatures
-                    return monsterMultiply(coord, (int)State.Instance.monsters[tile.creature_id].creature_id, 0);
-                }
-            }
-
-            return false;
-        }
-
-        
-
-        
 
         // Lose a strength point. -RAK-
         public static void spellLoseSTR()
