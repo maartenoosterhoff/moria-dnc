@@ -5,7 +5,6 @@ using System.Linq;
 using Moria.Core.Methods.Commands;
 using SimpleInjector;
 using static Moria.Core.Constants.Version_c;
-using static Moria.Core.Methods.Ui_io_m;
 
 namespace Moria.Core.Methods
 {
@@ -45,7 +44,7 @@ Options:
             //    return 1;
             //}
 
-            if (!terminalInitialize())
+            if (!Ui_io_m.terminalInitialize())
             {
                 return 1;
             }
@@ -58,7 +57,7 @@ Options:
                 switch (args[0][1])
                 {
                     case 'v':
-                        terminalRestore();
+                        Ui_io_m.terminalRestore();
                         Console.WriteLine("{0:d}.{1:d}.{2:d}", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
                         //printf("%d.%d.%d\n", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
                         return 0;
@@ -85,7 +84,7 @@ Options:
 
                         if (!parseGameSeed(container.GetInstance<IHelpers>(), argsList[0], ref seed))
                         {
-                            terminalRestore();
+                            Ui_io_m.terminalRestore();
                             Console.WriteLine("Game seed must be a decimal number between 1 and 2147483647.");
                             return -1;
                         }
@@ -95,7 +94,7 @@ Options:
                         State.Instance.game.to_be_wizard = true;
                         break;
                     default:
-                        terminalRestore();
+                        Ui_io_m.terminalRestore();
 
                         Console.WriteLine("Robert A. Koeneke's classic dungeon crawler.");
                         Console.WriteLine("Moria-DNC {0:d}.{1:d}.{2:d} is released under a GPL v2 license.", CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_PATCH);
@@ -397,6 +396,10 @@ Options:
 
             Ui_m.SetDependencies(
                 container.GetInstance<IDungeon>(),
+                container.GetInstance<IEventPublisher>()
+            );
+
+            Ui_io_m.SetDependencies(
                 container.GetInstance<IEventPublisher>()
             );
 

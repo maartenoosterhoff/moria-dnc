@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Utils;
@@ -9,12 +10,20 @@ using static Moria.Core.Constants.Types_c;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Game_death_m;
-using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
     public static class Ui_io_m
     {
+        public static void SetDependencies(
+            IEventPublisher eventPublisher
+        )
+        {
+            Ui_io_m.eventPublisher = eventPublisher;
+        }
+
+        private static IEventPublisher eventPublisher;
+
         private static IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
 
         public static bool isprint(char c)
@@ -547,7 +556,8 @@ namespace Moria.Core.Methods
                         endGame();
                     }
 
-                    playerDisturb(1, 0);
+                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    //playerDisturb(1, 0);
 
                     if (State.Instance.eof_flag > 100)
                     {

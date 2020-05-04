@@ -12,7 +12,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Identification_m;
-using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Ui_io_m;
@@ -97,42 +96,7 @@ namespace Moria.Core.Methods
             }
             return "Female";
         }
-
         
-
-        
-
-
-
-        // Something happens to disturb the player. -CJS-
-        // The first arg indicates a major disturbance, which affects search.
-        // The second arg indicates a light change.
-        public static void playerDisturb(int major_disturbance, int light_disturbance)
-        {
-            var game = State.Instance.game;
-            var py = State.Instance.py;
-
-            game.command_count = 0;
-
-            if (major_disturbance != 0 && (py.flags.status & Config.player_status.PY_SEARCH) != 0u)
-            {
-                playerSearchOff();
-            }
-
-            if (py.flags.rest != 0)
-            {
-                playerRestOff();
-            }
-
-            if (light_disturbance != 0 || py.running_tracker != 0)
-            {
-                py.running_tracker = 0;
-                dungeonResetView();
-            }
-
-            flushInputBuffer();
-        }
-
         // Search Mode enhancement -RAK-
         public static void playerSearchOn()
         {
@@ -718,7 +682,8 @@ namespace Moria.Core.Methods
         public static bool playerTestBeingHit(int base_to_hit, int level, int plus_to_hit, int armor_class, int attack_type_id)
         {
             var py = State.Instance.py;
-            playerDisturb(1, 0);
+            eventPublisher.Publish(new DisturbCommand(true, false));
+            //playerDisturb(1, 0);
 
             // `plus_to_hit` could be less than 0 if player wielding weapon too heavy for them
             var hit_chance = base_to_hit + plus_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + level * Library.Instance.Player.class_level_adj[(int)py.misc.class_id][attack_type_id];

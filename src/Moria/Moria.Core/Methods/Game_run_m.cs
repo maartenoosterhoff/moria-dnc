@@ -421,21 +421,24 @@ namespace Moria.Core.Methods
                     {
                         py.carrying_light = false;
                         printMessage("Your light has gone out!");
-                        playerDisturb(0, 1);
+                        eventPublisher.Publish(new DisturbCommand(false, true));
+                        //playerDisturb(0, 1);
 
                         // unlight creatures
                         updateMonsters(false);
                     }
                     else if (item.misc_use < 40 && rnd.randomNumber(5) == 1 && py.flags.blind < 1)
                     {
-                        playerDisturb(0, 0);
+                        eventPublisher.Publish(new DisturbCommand(false, false));
+                        //playerDisturb(0, 0);
                         printMessage("Your light is growing faint.");
                     }
                 }
                 else
                 {
                     py.carrying_light = false;
-                    playerDisturb(0, 1);
+                    eventPublisher.Publish(new DisturbCommand(false, true));
+                    //playerDisturb(0, 1);
 
                     // unlight creatures
                     updateMonsters(false);
@@ -445,7 +448,8 @@ namespace Moria.Core.Methods
             {
                 item.misc_use--;
                 py.carrying_light = true;
-                playerDisturb(0, 1);
+                eventPublisher.Publish(new DisturbCommand(false, true));
+                //playerDisturb(0, 1);
 
                 // light creatures
                 updateMonsters(false);
@@ -457,7 +461,8 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             py.flags.status |= Config.player_status.PY_HERO;
-            playerDisturb(0, 0);
+            eventPublisher.Publish(new DisturbCommand(false, false));
+            //playerDisturb(0, 0);
 
             py.misc.max_hp += 10;
             py.misc.current_hp += 10;
@@ -474,7 +479,8 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             py.flags.status &= ~Config.player_status.PY_HERO;
-            playerDisturb(0, 0);
+            eventPublisher.Publish(new DisturbCommand(false, false));
+            //playerDisturb(0, 0);
 
             py.misc.max_hp -= 10;
             if (py.misc.current_hp > py.misc.max_hp)
@@ -495,7 +501,8 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             py.flags.status |= Config.player_status.PY_SHERO;
-            playerDisturb(0, 0);
+            eventPublisher.Publish(new DisturbCommand(false, false)); 
+            //playerDisturb(0, 0);
 
             py.misc.max_hp += 20;
             py.misc.current_hp += 20;
@@ -512,7 +519,9 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             py.flags.status &= ~Config.player_status.PY_SHERO;
-            playerDisturb(0, 0);
+            //eventPublisher.Publish(new DisturbCommand(false, false)); 
+            eventPublisher.Publish(new DisturbCommand(false, false)); 
+            //playerDisturb(0, 0);
 
             py.misc.max_hp -= 20;
             if (py.misc.current_hp > py.misc.max_hp)
@@ -593,7 +602,8 @@ namespace Moria.Core.Methods
                     {
                         py.flags.status |= Config.player_status.PY_WEAK;
                         printMessage("You are getting weak from hunger.");
-                        playerDisturb(0, 0);
+                        eventPublisher.Publish(new DisturbCommand(false, false)); 
+                        //playerDisturb(0, 0);
                         printCharacterHungerStatus();
                     }
 
@@ -601,14 +611,16 @@ namespace Moria.Core.Methods
                     {
                         py.flags.paralysis += rnd.randomNumber(5);
                         printMessage("You faint from the lack of food.");
-                        playerDisturb(1, 0);
+                        eventPublisher.Publish(new DisturbCommand(true, false)); 
+                        //playerDisturb(1, 0);
                     }
                 }
                 else if ((py.flags.status & Config.player_status.PY_HUNGRY) == 0)
                 {
                     py.flags.status |= Config.player_status.PY_HUNGRY;
                     printMessage("You are getting hungry.");
-                    playerDisturb(0, 0);
+                    eventPublisher.Publish(new DisturbCommand(false, false)); 
+                    //playerDisturb(0, 0);
                     printCharacterHungerStatus();
                 }
             }
@@ -625,7 +637,8 @@ namespace Moria.Core.Methods
             if (py.flags.food < 0)
             {
                 playerTakesHit(-py.flags.food / 16, "starvation"); // -CJS-
-                playerDisturb(1, 0);
+                eventPublisher.Publish(new DisturbCommand(true, false)); 
+                //playerDisturb(1, 0);
             }
 
             return regen_amount;
@@ -671,7 +684,8 @@ namespace Moria.Core.Methods
 
                 drawDungeonPanel();
                 printCharacterBlindStatus();
-                playerDisturb(0, 1);
+                eventPublisher.Publish(new DisturbCommand(false, true)); 
+                //playerDisturb(0, 1);
 
                 // unlight creatures
                 updateMonsters(false);
@@ -685,7 +699,8 @@ namespace Moria.Core.Methods
 
                 printCharacterBlindStatus();
                 drawDungeonPanel();
-                playerDisturb(0, 1);
+                eventPublisher.Publish(new DisturbCommand(false, true)); 
+                //playerDisturb(0, 1);
 
                 // light creatures
                 updateMonsters(false);
@@ -759,7 +774,8 @@ namespace Moria.Core.Methods
 
                 printCharacterFearState();
                 printMessage("You feel bolder now.");
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
             }
         }
 
@@ -787,7 +803,8 @@ namespace Moria.Core.Methods
 
                 printCharacterPoisonedState();
                 printMessage("You feel better.");
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
 
                 return;
             }
@@ -827,7 +844,8 @@ namespace Moria.Core.Methods
             }
 
             playerTakesHit(damage, "poison");
-            playerDisturb(1, 0);
+            eventPublisher.Publish(new DisturbCommand(true, false)); 
+            //playerDisturb(1, 0);
         }
 
         public static void playerUpdateFastness()
@@ -845,7 +863,8 @@ namespace Moria.Core.Methods
                 playerChangeSpeed(-1);
 
                 printMessage("You feel yourself moving faster.");
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
             }
 
             py.flags.fast--;
@@ -856,7 +875,8 @@ namespace Moria.Core.Methods
                 playerChangeSpeed(1);
 
                 printMessage("You feel yourself slow down.");
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
             }
         }
 
@@ -875,7 +895,8 @@ namespace Moria.Core.Methods
                 playerChangeSpeed(1);
 
                 printMessage("You feel yourself moving slower.");
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
             }
 
             py.flags.slow--;
@@ -886,7 +907,8 @@ namespace Moria.Core.Methods
                 playerChangeSpeed(-1);
 
                 printMessage("You feel yourself speed up.");
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
             }
         }
 
@@ -957,7 +979,8 @@ namespace Moria.Core.Methods
             // when paralysis true, you can not see any movement that occurs
             py.flags.paralysis--;
 
-            playerDisturb(1, 0);
+            eventPublisher.Publish(new DisturbCommand(true, false)); 
+            //playerDisturb(1, 0);
         }
 
         // Protection from evil counter
@@ -990,7 +1013,8 @@ namespace Moria.Core.Methods
             if ((py.flags.status & Config.player_status.PY_INVULN) == 0)
             {
                 py.flags.status |= Config.player_status.PY_INVULN;
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
 
                 py.misc.ac += 100;
                 py.misc.display_ac += 100;
@@ -1004,7 +1028,8 @@ namespace Moria.Core.Methods
             if (py.flags.invulnerability == 0)
             {
                 py.flags.status &= ~Config.player_status.PY_INVULN;
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
 
                 py.misc.ac -= 100;
                 py.misc.display_ac -= 100;
@@ -1026,7 +1051,8 @@ namespace Moria.Core.Methods
             if ((py.flags.status & Config.player_status.PY_BLESSED) == 0)
             {
                 py.flags.status |= Config.player_status.PY_BLESSED;
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
 
                 py.misc.bth += 5;
                 py.misc.bth_with_bows += 5;
@@ -1042,7 +1068,8 @@ namespace Moria.Core.Methods
             if (py.flags.blessed == 0)
             {
                 py.flags.status &= ~Config.player_status.PY_BLESSED;
-                playerDisturb(0, 0);
+                eventPublisher.Publish(new DisturbCommand(false, false)); 
+                //playerDisturb(0, 0);
 
                 py.misc.bth -= 5;
                 py.misc.bth_with_bows -= 5;
@@ -1268,7 +1295,8 @@ namespace Moria.Core.Methods
                     var tmp_str = $"There's something about what you {uiInventory.playerItemWearingDescription(i)}...";
                     //vtype_t tmp_str = { '\0' };
                     //(void)sprintf(tmp_str, "There's something about what you are %s...", playerItemWearingDescription(i));
-                    playerDisturb(0, 0);
+                    eventPublisher.Publish(new DisturbCommand(false, false)); 
+                    //playerDisturb(0, 0);
                     printMessage(tmp_str);
                     itemAppendToInscription(item, Config.identification.ID_MAGIK);
                 }
@@ -2944,7 +2972,8 @@ namespace Moria.Core.Methods
                 var microseconds = py.running_tracker != 0 ? 0 : 10000;
                 if ((game.command_count > 0 || py.running_tracker != 0 || py.flags.rest != 0) && checkForNonBlockingKeyPress(microseconds))
                 {
-                    playerDisturb(0, 0);
+                    eventPublisher.Publish(new DisturbCommand(false, false));
+                    //playerDisturb(0, 0);
                 }
 
                 playerUpdateHallucination();
@@ -2961,7 +2990,8 @@ namespace Moria.Core.Methods
                 // Random teleportation
                 if (py.flags.teleport && rnd.randomNumber(100) == 1)
                 {
-                    playerDisturb(0, 0);
+                    eventPublisher.Publish(new DisturbCommand(false, false));
+                    //playerDisturb(0, 0);
                     eventPublisher.Publish(new TeleportCommand(40));
                     //playerTeleport(40);
                 }

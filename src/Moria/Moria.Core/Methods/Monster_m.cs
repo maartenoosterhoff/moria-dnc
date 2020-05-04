@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
@@ -125,7 +126,8 @@ namespace Moria.Core.Methods
                 // Light it up.
                 if (!monster.lit)
                 {
-                    playerDisturb(1, 0);
+                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    //playerDisturb(1, 0);
                     monster.lit = true;
                     dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
 
@@ -572,7 +574,8 @@ namespace Moria.Core.Methods
 
                 if (playerTestAttackHits((int)attack_type, creature.level))
                 {
-                    playerDisturb(1, 0);
+                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    //playerDisturb(1, 0);
 
                     // can not strcat to name because the creature may have multiple attacks.
                     var description = name;
@@ -619,7 +622,8 @@ namespace Moria.Core.Methods
                 {
                     if (attack_desc >= 1 && attack_desc <= 3 || attack_desc == 6)
                     {
-                        playerDisturb(1, 0);
+                        eventPublisher.Publish(new DisturbCommand(true, false));
+                        //playerDisturb(1, 0);
 
                         var description = name;
                         //(void)strcpy(description, name);
@@ -675,7 +679,8 @@ namespace Moria.Core.Methods
                         if (rnd.randomNumber((monster_hp + 1) * (50 - item.misc_use)) < 40 * (monster_hp - 10 + item.misc_use))
                         {
                             printMessage("You hear a door burst open!");
-                            playerDisturb(1, 0);
+                            eventPublisher.Publish(new DisturbCommand(true, false));
+                            //playerDisturb(1, 0);
                             door_is_stuck = true;
                             do_move = true;
                         }
@@ -717,7 +722,8 @@ namespace Moria.Core.Methods
                     tile.feature_id = TILE_CORR_FLOOR;
                     dungeon.dungeonLiteSpot(coord);
                     printMessage("You hear a door burst open!");
-                    playerDisturb(1, 0);
+                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    //playerDisturb(1, 0);
                 }
             }
         }
@@ -1068,7 +1074,8 @@ namespace Moria.Core.Methods
                 case 17: // Drain Mana
                     if (py.misc.current_mana > 0)
                     {
-                        playerDisturb(1, 0);
+                        eventPublisher.Publish(new DisturbCommand(true, false));
+                        //playerDisturb(1, 0);
 
                         var msg = $"{monster_name}draws psychic energy from you!";
                         //vtype_t msg = { '\0' };
@@ -1224,7 +1231,8 @@ namespace Moria.Core.Methods
             // all except spellTeleportAwayMonster() and drain mana spells always disturb
             if (thrown_spell > 6 && thrown_spell != 17)
             {
-                playerDisturb(1, 0);
+                eventPublisher.Publish(new DisturbCommand(true, false));
+                //playerDisturb(1, 0);
             }
 
             // save some code/data space here, with a small time penalty
