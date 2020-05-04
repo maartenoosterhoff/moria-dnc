@@ -27,7 +27,7 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
 
         // Returns spell pointer -RAK-
-        public static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
+        private static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
         {
             var py = State.Instance.py;
             var magic_spells = Library.Instance.Player.magic_spells;
