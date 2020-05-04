@@ -55,7 +55,7 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        public static bool staffPlayerIsCarrying(ref int item_pos_start, ref int item_pos_end)
+        private static bool staffPlayerIsCarrying(ref int item_pos_start, ref int item_pos_end)
         {
             var py = State.Instance.py;
             if (py.pack.unique_items == 0)
@@ -73,7 +73,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool staffPlayerCanUse(Inventory_t item)
+        private static bool staffPlayerCanUse(Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -117,7 +117,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool staffDischarge(Inventory_t item)
+        private static bool staffDischarge(Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -283,8 +283,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }
@@ -321,7 +320,7 @@ namespace Moria.Core.Methods
             itemChargesRemainingDescription(item_id);
         }
 
-        public static bool wandDischarge(Inventory_t item, int direction)
+        private static bool wandDischarge(Inventory_t item, int direction)
         {
             var py = State.Instance.py;
             var spell_names = Library.Instance.Player.spell_names;
@@ -560,8 +559,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
             {
                 return;
             }
