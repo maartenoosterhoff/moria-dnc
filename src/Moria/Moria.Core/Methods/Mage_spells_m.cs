@@ -118,7 +118,10 @@ namespace Moria.Core.Methods
                     //spellLightArea(py.pos);
                     break;
                 case MageSpellId.CureLightWounds:
-                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        dice.diceRoll(new Dice_t(4, 4))
+                    ));
+                    //spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
                     break;
                 case MageSpellId.FindHiddenTrapsDoors:
                     eventPublisher.PublishWithOutputBool(new DetectSecretDoorsWithinVicinityCommand());

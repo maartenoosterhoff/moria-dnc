@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -20,7 +21,9 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_eat_m.dice = dice;
@@ -29,6 +32,8 @@ namespace Moria.Core.Methods
             Player_eat_m.playerMagic = playerMagic;
             Player_eat_m.rnd = rnd;
             Player_eat_m.uiInventory = uiInventory;
+
+            Player_eat_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -37,6 +42,8 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         // Eat some food. -RAK-
         public static void playerEat()
@@ -188,13 +195,22 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case FoodMagicTypes.FirstAid:
-                        identified = spellChangePlayerHitPoints(rnd.randomNumber(6));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            rnd.randomNumber(6)
+                        ));
+                        //identified = spellChangePlayerHitPoints(rnd.randomNumber(6));
                         break;
                     case FoodMagicTypes.MinorCures:
-                        identified = spellChangePlayerHitPoints(rnd.randomNumber(12));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            rnd.randomNumber(12)
+                        ));
+                        //identified = spellChangePlayerHitPoints(rnd.randomNumber(12));
                         break;
                     case FoodMagicTypes.LightCures:
-                        identified = spellChangePlayerHitPoints(rnd.randomNumber(18));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            rnd.randomNumber(18)
+                        ));
+                        //identified = spellChangePlayerHitPoints(rnd.randomNumber(18));
                         break;
                     /*
 #if 0 // 25 is no longer used
@@ -204,7 +220,10 @@ namespace Moria.Core.Methods
 #endif
 */
                     case FoodMagicTypes.MajorCures:
-                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 12)));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            dice.diceRoll(new Dice_t(3, 12))
+                        ));
+                        //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 12)));
                         break;
                     case FoodMagicTypes.PoisonousFood:
                         playerTakesHit(rnd.randomNumber(18), "poisonous food.");

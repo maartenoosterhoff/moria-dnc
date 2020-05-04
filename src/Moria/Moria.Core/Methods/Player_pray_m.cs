@@ -109,7 +109,10 @@ namespace Moria.Core.Methods
                     //spellDetectEvil();
                     break;
                 case PriestSpellTypes.CureLightWounds:
-                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 3)));
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        dice.diceRoll(new Dice_t(3, 3))
+                    ));
+                    //spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 3)));
                     break;
                 case PriestSpellTypes.Bless:
                     playerMagic.playerBless(rnd.randomNumber(12) + 12);
@@ -148,7 +151,10 @@ namespace Moria.Core.Methods
                     //playerTeleport((int)py.misc.level * 3);
                     break;
                 case PriestSpellTypes.CureMediumWounds:
-                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        dice.diceRoll(new Dice_t(4, 4))
+                    ));
+                    //spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 4)));
                     break;
                 case PriestSpellTypes.Chant:
                     playerMagic.playerBless(rnd.randomNumber(24) + 24);
@@ -189,7 +195,10 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case PriestSpellTypes.CureSeriousWounds:
-                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(8, 4)));
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        dice.diceRoll(new Dice_t(8, 4))
+                    ));
+                    //spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(8, 4)));
                     break;
                 case PriestSpellTypes.SenseInvisible:
                     playerMagic.playerDetectInvisible(rnd.randomNumber(24) + 24);
@@ -205,7 +214,10 @@ namespace Moria.Core.Methods
                     spellMapCurrentArea();
                     break;
                 case PriestSpellTypes.CureCriticalWounds:
-                    spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(16, 4)));
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        dice.diceRoll(new Dice_t(16, 4))
+                    ));
+                    //spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(16, 4)));
                     break;
                 case PriestSpellTypes.TurnUndead:
                     eventPublisher.Publish(new TurnUndeadCommand());
@@ -221,7 +233,10 @@ namespace Moria.Core.Methods
                     //spellDispelCreature((int)Config.monsters_defense.CD_UNDEAD, (int)(3 * py.misc.level));
                     break;
                 case PriestSpellTypes.Heal:
-                    spellChangePlayerHitPoints(200);
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        200
+                    ));
+                    //spellChangePlayerHitPoints(200);
                     break;
                 case PriestSpellTypes.DispelEvil:
                     eventPublisher.Publish(new DispelCreatureCommand(
@@ -236,7 +251,10 @@ namespace Moria.Core.Methods
                 case PriestSpellTypes.HolyWord:
                     playerMagic.playerRemoveFear();
                     playerMagic.playerCurePoison();
-                    spellChangePlayerHitPoints(1000);
+                    eventPublisher.Publish(new ChangePlayerHitPointsCommand(
+                        1000
+                    ));
+                    //spellChangePlayerHitPoints(1000);
 
                     for (var i = (int)PlayerAttr.STR; i <= (int)PlayerAttr.CHR; i++)
                     {

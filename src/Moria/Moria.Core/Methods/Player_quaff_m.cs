@@ -136,16 +136,28 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case PotionSpellTypes.CureLightWounds:
-                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(2, 7)));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            dice.diceRoll(new Dice_t(2, 7))
+                        ));
+                        //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(2, 7)));
                         break;
                     case PotionSpellTypes.CureSeriousWounds:
-                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 7)));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            dice.diceRoll(new Dice_t(4, 7))
+                        ));
+                        //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 7)));
                         break;
                     case PotionSpellTypes.CureCriticalWounds:
-                        identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(6, 7)));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            dice.diceRoll(new Dice_t(6, 7))
+                        ));
+                        //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(6, 7)));
                         break;
                     case PotionSpellTypes.Healing:
-                        identified = spellChangePlayerHitPoints(1000);
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            1000
+                        ));
+                        //identified = spellChangePlayerHitPoints(1000);
                         break;
                     case PotionSpellTypes.Constitution:
                         if (playerStatRandomIncrease((int)PlayerAttr.CON))

@@ -197,7 +197,10 @@ namespace Moria.Core.Methods
                         //identified = spellSleepAllMonsters();
                         break;
                     case StaffSpellTypes.CureLightWounds:
-                        identified = spellChangePlayerHitPoints(rnd.randomNumber(8));
+                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                            rnd.randomNumber(8)
+                        ));
+                        //identified = spellChangePlayerHitPoints(rnd.randomNumber(8));
                         break;
                     case StaffSpellTypes.DetectInvisible:
                         identified = eventPublisher.PublishWithOutputBool(new DetectInvisibleCreaturesWithinVicinityCommand());

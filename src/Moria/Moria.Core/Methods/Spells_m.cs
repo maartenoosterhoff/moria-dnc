@@ -857,63 +857,6 @@ namespace Moria.Core.Methods
             updateMonsters(false);
         }
 
-        
-
-        // Change players hit points in some manner -RAK-
-        public static bool spellChangePlayerHitPoints(int adjustment)
-        {
-            var py = State.Instance.py;
-            if (py.misc.current_hp >= py.misc.max_hp)
-            {
-                return false;
-            }
-
-            py.misc.current_hp += adjustment;
-            if (py.misc.current_hp > py.misc.max_hp)
-            {
-                py.misc.current_hp = py.misc.max_hp;
-                py.misc.current_hp_fraction = 0;
-            }
-            printCharacterCurrentHitPoints();
-
-            adjustment = adjustment / 5;
-
-            if (adjustment < 3)
-            {
-                if (adjustment == 0)
-                {
-                    printMessage("You feel a little better.");
-                }
-                else
-                {
-                    printMessage("You feel better.");
-                }
-            }
-            else
-            {
-                if (adjustment < 7)
-                {
-                    printMessage("You feel much better.");
-                }
-                else
-                {
-                    printMessage("You feel very good.");
-                }
-            }
-
-            return true;
-        }
-
-        
-
-        
-
-        
-
-        
-
-        
-
         // Lose a strength point. -RAK-
         public static void spellLoseSTR()
         {
