@@ -54,7 +54,7 @@ namespace Moria.Core.Methods
 
         // Note: naming of all the scroll functions needs verifying -MRC-
 
-        public static bool playerCanReadScroll(ref int item_pos_start, ref int item_pos_end)
+        private static bool playerCanReadScroll(ref int item_pos_start, ref int item_pos_end)
         {
             var py = State.Instance.py;
             if (py.flags.blind > 0)
@@ -90,7 +90,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        static int inventoryItemIdOfCursedEquipment()
+        private static int inventoryItemIdOfCursedEquipment()
         {
             var py = State.Instance.py;
 
@@ -164,7 +164,7 @@ namespace Moria.Core.Methods
             return item_id;
         }
 
-        public static bool scrollEnchantWeaponToHit()
+        private static bool scrollEnchantWeaponToHit()
         {
             var py = State.Instance.py;
             var item = py.inventory[(int)PlayerEquipment.Wield];
@@ -174,13 +174,12 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows faintly!";
+            var msg = $"Your {desc} glows faintly!";
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
             printMessage(msg);
 
@@ -203,7 +202,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool scrollEnchantWeaponToDamage()
+        private static bool scrollEnchantWeaponToDamage()
         {
             var py = State.Instance.py;
             var item = py.inventory[(int)PlayerEquipment.Wield];
@@ -213,13 +212,12 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows faintly!";
+            var msg = $"Your {desc} glows faintly!";
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
             printMessage(msg);
 
@@ -255,7 +253,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool scrollEnchantItemToAC()
+        private static bool scrollEnchantItemToAC()
         {
             var py = State.Instance.py;
             var item_id = inventoryItemIdOfCursedEquipment();
@@ -267,13 +265,12 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows faintly!";
+            var msg = $"Your {desc} glows faintly!";
             printMessage(msg);
 
             var toAc = item.to_ac;
@@ -295,7 +292,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static int scrollIdentifyItem(int item_id, ref bool is_used_up)
+        private static int scrollIdentifyItem(int item_id, ref bool is_used_up)
         {
             var py = State.Instance.py;
 
@@ -318,7 +315,7 @@ namespace Moria.Core.Methods
             return item_id;
         }
 
-        public static bool scrollRemoveCurse()
+        private static bool scrollRemoveCurse()
         {
             if (eventPublisher.PublishWithOutputBool(new RemoveCurseFromAllItemsCommand()))
             //if (spellRemoveCurseFromAllItems())
@@ -329,7 +326,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static bool scrollSummonMonster()
+        private static bool scrollSummonMonster()
         {
             var py = State.Instance.py;
             var identified = false;
@@ -345,7 +342,7 @@ namespace Moria.Core.Methods
             return identified;
         }
 
-        public static void scrollTeleportLevel()
+        private static void scrollTeleportLevel()
         {
             var dg = State.Instance.dg;
 
@@ -357,7 +354,7 @@ namespace Moria.Core.Methods
             dg.generate_new_level = true;
         }
 
-        public static bool scrollConfuseMonster()
+        private static bool scrollConfuseMonster()
         {
             var py = State.Instance.py;
 
@@ -370,7 +367,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static bool scrollEnchantWeapon()
+        private static bool scrollEnchantWeapon()
         {
             var py = State.Instance.py;
             var item = py.inventory[(int)PlayerEquipment.Wield];
@@ -380,13 +377,12 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows brightly!";
+            var msg = $"Your {desc} glows brightly!";
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
             printMessage(msg);
 
@@ -446,7 +442,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool scrollCurseWeapon()
+        private static bool scrollCurseWeapon()
         {
             var py = State.Instance.py;
             var item = py.inventory[(int)PlayerEquipment.Wield];
@@ -456,13 +452,12 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows black, fades.";
+            var msg = $"Your {desc} glows black, fades.";
             //(void)sprintf(msg, "Your %s glows black, fades.", desc);
             printMessage(msg);
 
@@ -482,7 +477,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool scrollEnchantArmor()
+        private static bool scrollEnchantArmor()
         {
             var py = State.Instance.py;
 
@@ -495,13 +490,12 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows brightly!";
+            var msg = $"Your {desc} glows brightly!";
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
             printMessage(msg);
 
@@ -534,7 +528,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool scrollCurseArmor()
+        private static bool scrollCurseArmor()
         {
             var py = State.Instance.py;
             int item_id;
@@ -599,13 +593,12 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            var msg = string.Empty;
             var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
             itemDescription(ref desc, item, false);
 
-            msg = $"Your {desc} glows black, fades.";
+            var msg = $"Your {desc} glows black, fades.";
             //(void)sprintf(msg, "Your %s glows black, fades.", desc);
             printMessage(msg);
 
@@ -621,7 +614,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        public static bool scrollSummonUndead()
+        private static bool scrollSummonUndead()
         {
             var py = State.Instance.py;
             var identified = false;
@@ -637,7 +630,7 @@ namespace Moria.Core.Methods
             return identified;
         }
 
-        public static void scrollWordOfRecall()
+        private static void scrollWordOfRecall()
         {
             var py = State.Instance.py;
             if (py.flags.word_of_recall == 0)
