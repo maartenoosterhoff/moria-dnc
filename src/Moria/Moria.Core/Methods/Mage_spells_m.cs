@@ -209,7 +209,10 @@ namespace Moria.Core.Methods
                 case MageSpellId.WallToMud:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
                     {
-                        spellWallToMud(py.pos, dir);
+                        eventPublisher.Publish(new WallToMudCommand(
+                            py.pos, dir
+                        ));
+                        //spellWallToMud(py.pos, dir);
                     }
                     break;
                 case MageSpellId.CreateFood:

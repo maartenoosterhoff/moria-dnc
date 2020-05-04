@@ -390,7 +390,10 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.StoneToMud:
-                        identified = spellWallToMud(coord, direction);
+                        identified = eventPublisher.PublishWithOutputBool(new WallToMudCommand(
+                            coord, direction
+                        ));
+                        //identified = spellWallToMud(coord, direction);
                         break;
                     case WandSpellTypes.Polymorph:
                         identified = eventPublisher.PublishWithOutputBool(new PolymorphMonsterCommand(

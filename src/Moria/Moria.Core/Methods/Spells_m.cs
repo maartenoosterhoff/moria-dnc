@@ -539,8 +539,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Recharge which item?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Recharge which item?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return false;
             }
@@ -585,120 +584,6 @@ namespace Moria.Core.Methods
 
             return true;
         }
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        // Turn stone to mud, delete wall. -RAK-
-        public static bool spellWallToMud(Coord_t coord, int direction)
-        {
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
-            var distance = 0;
-            var turned = false;
-            var finished = false;
-
-            while (!finished)
-            {
-                helpers.movePosition(direction, ref coord);
-                distance++;
-
-                var tile = dg.floor[coord.y][coord.x];
-
-                // note, this ray can move through walls as it turns them to mud
-                if (distance == Config.treasure.OBJECT_BOLTS_MAX_RANGE)
-                {
-                    finished = true;
-                }
-
-                if (tile.feature_id >= MIN_CAVE_WALL && tile.feature_id != TILE_BOUNDARY_WALL)
-                {
-                    finished = true;
-
-                    playerTunnelWall(coord, 1, 0);
-
-                    if (dungeon.caveTileVisible(coord))
-                    {
-                        turned = true;
-                        printMessage("The wall turns into mud.");
-                    }
-                }
-                else if (tile.treasure_id != 0 && tile.feature_id >= MIN_CLOSED_SPACE)
-                {
-                    finished = true;
-
-                    if (coordInsidePanel(coord) && dungeon.caveTileVisible(coord))
-                    {
-                        turned = true;
-
-                        var description = string.Empty;
-                        itemDescription(ref description, game.treasure.list[tile.treasure_id], false);
-
-                        var out_val = $"The {description} turns into mud.";
-                        //obj_desc_t out_val = { '\0' };
-                        //(void)sprintf(out_val, "The %s turns into mud.", description);
-                        printMessage(out_val);
-                    }
-
-                    if (game.treasure.list[tile.treasure_id].category_id == TV_RUBBLE)
-                    {
-                        dungeon.dungeonDeleteObject(coord);
-                        if (rnd.randomNumber(10) == 1)
-                        {
-                            dungeonPlacer.dungeonPlaceRandomObjectAt(coord, false);
-                            if (dungeon.caveTileVisible(coord))
-                            {
-                                printMessage("You have found something!");
-                            }
-                        }
-                        dungeon.dungeonLiteSpot(coord);
-                    }
-                    else
-                    {
-                        dungeon.dungeonDeleteObject(coord);
-                    }
-                }
-
-                if (tile.creature_id > 1)
-                {
-                    var monster = State.Instance.monsters[tile.creature_id];
-                    var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
-
-                    if ((creature.defenses & Config.monsters_defense.CD_STONE) != 0)
-                    {
-                        var name = monsterNameDescription(creature.name, monster.lit);
-
-                        // Should get these messages even if the monster is not visible.
-                        var creature_id = monsterTakeHit((int)tile.creature_id, 100);
-                        if (creature_id >= 0)
-                        {
-                            State.Instance.creature_recall[creature_id].defenses |= Config.monsters_defense.CD_STONE;
-                            printMonsterActionText(name, "dissolves!");
-                            displayCharacterExperience(); // print msg before calling prt_exp
-                        }
-                        else
-                        {
-                            State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_STONE;
-                            printMonsterActionText(name, "grunts in pain!");
-                        }
-                        finished = true;
-                    }
-                }
-            }
-
-            return turned;
-        }
-
-        
-
-        
 
         // Create a wall. -RAK-
         public static bool spellBuildWall(Coord_t coord, int direction)
