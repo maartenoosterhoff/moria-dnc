@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.States;
@@ -936,7 +937,10 @@ namespace Moria.Core.Methods
                     //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     break;
                 case 7: // Teleport To
-                    spellTeleportPlayerTo(new Coord_t(monster.pos.y, monster.pos.x));
+                    eventPublisher.Publish(new TeleportPlayerToCommand(
+                        new Coord_t(monster.pos.y, monster.pos.x)
+                    ));
+                    //spellTeleportPlayerTo(new Coord_t(monster.pos.y, monster.pos.x));
                     break;
                 case 8: // Light Wound
                     if (playerSavingThrow())
