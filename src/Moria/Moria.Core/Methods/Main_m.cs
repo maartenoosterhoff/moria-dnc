@@ -200,14 +200,6 @@ Options:
                 container.GetInstance<IEventPublisher>()
             );
 
-            Game_death_m.SetDependencies(
-                container.GetInstance<IGame>(),
-                container.GetInstance<IGameSave>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IUiInventory>(),
-                container.GetInstance<IEventPublisher>()
-            );
-
             Game_files_m.SetDependencies(
                 container.GetInstance<IGameObjects>(),
                 container.GetInstance<IGameObjectsPush>(),

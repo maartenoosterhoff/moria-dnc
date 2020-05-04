@@ -6,6 +6,7 @@ using Moria.Core.Structures.Enumerations;
 using Moria.Core.Utils;
 using System;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands;
 using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
@@ -17,7 +18,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Game_death_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Mage_spells_m;
@@ -160,7 +160,8 @@ namespace Moria.Core.Methods
             {
                 if (!wizard.enterWizardMode())
                 {
-                    endGame();
+                    eventPublisher.Publish(new EndGameCommand());
+                    //endGame();
                 }
             }
 
@@ -254,7 +255,8 @@ namespace Moria.Core.Methods
             }
 
             // Character gets buried.
-            endGame();
+            eventPublisher.Publish(new EndGameCommand());
+            //endGame();
         }
 
         // Init players with some belongings -RAK-
@@ -1928,7 +1930,8 @@ namespace Moria.Core.Methods
 
                 if (gameSave.saveGame())
                 {
-                    endGame();
+                    eventPublisher.Publish(new EndGameCommand());
+                    //endGame();
                 }
 
                 game.character_died_from = "(alive and well)";

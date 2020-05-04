@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading;
 using Moria.Core.Configs;
+using Moria.Core.Methods.Commands;
 using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Utils;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Types_c;
-using static Moria.Core.Methods.Game_death_m;
 
 namespace Moria.Core.Methods
 {
@@ -560,7 +560,8 @@ namespace Moria.Core.Methods
 
                     if (!State.Instance.game.character_generated || State.Instance.game.character_saved)
                     {
-                        endGame();
+                        eventPublisher.Publish(new EndGameCommand());
+                        //endGame();
                     }
 
                     eventPublisher.Publish(new DisturbCommand(true, false));
@@ -579,7 +580,8 @@ namespace Moria.Core.Methods
                             //(void)strcpy(game.character_died_from, "panic: unexpected eof");
                             State.Instance.game.character_is_dead = true;
                         }
-                        endGame();
+                        eventPublisher.Publish(new EndGameCommand());
+                        //endGame();
                     }
                     return ESCAPE;
                 }
