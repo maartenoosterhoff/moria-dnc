@@ -368,16 +368,11 @@ Options:
             Spells_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
-                container.GetInstance<IDungeonLos>(),
-                container.GetInstance<IDungeonPlacer>(),
-                container.GetInstance<IGameObjects>(),
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
-                container.GetInstance<IUiInventory>(),
-                container.GetInstance<IEventPublisher>()
+                container.GetInstance<IUiInventory>()
                     );
 
             Staffs_m.SetDependencies(

@@ -2060,7 +2060,8 @@ namespace Moria.Core.Methods
                     break;
                 case ':':
                     // Light up current panel
-                    spellMapCurrentArea();
+                    eventPublisher.Publish(new MapCurrentAreaCommand());
+                    //spellMapCurrentArea();
                     break;
                 case CTRL_KEY_T:
                     // Random player teleportation

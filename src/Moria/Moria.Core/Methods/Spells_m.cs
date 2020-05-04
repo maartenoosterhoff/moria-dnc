@@ -24,47 +24,29 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IDungeon dungeon,
-            IDungeonLos dungeonLos,
-            IDungeonPlacer dungeonPlacer,
-            IGameObjects gameObjects,
             IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
-            IMonsterManager monsterManager,
             IRnd rnd,
-            IUiInventory uiInventory,
-
-            IEventPublisher eventPublisher
+            IUiInventory uiInventory
         )
         {
             Spells_m.dice = dice;
             Spells_m.dungeon = dungeon;
-            Spells_m.dungeonLos = dungeonLos;
-            Spells_m.dungeonPlacer = dungeonPlacer;
-            Spells_m.gameObjects = gameObjects;
             Spells_m.helpers = helpers;
             Spells_m.inventory = inventory;
             Spells_m.inventoryManager = inventoryManager;
-            Spells_m.monsterManager = monsterManager;
             Spells_m.rnd = rnd;
             Spells_m.uiInventory = uiInventory;
-
-            Spells_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
         private static IDungeon dungeon;
-        private static IDungeonLos dungeonLos;
-        private static IDungeonPlacer dungeonPlacer;
-        private static IGameObjects gameObjects;
         private static IHelpers helpers;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
-        private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static IUiInventory uiInventory;
-
-        private static IEventPublisher eventPublisher;
 
         // Returns spell pointer -RAK-
         public static bool spellGetId(int[] spell_ids, int number_of_choices, ref int spell_id, ref int spell_chance, string prompt, int first_spell)
@@ -254,57 +236,9 @@ namespace Moria.Core.Methods
             return result;
         }
 
-        public static void dungeonLightAreaAroundFloorTile(Coord_t coord)
-        {
-            var dg = State.Instance.dg;
-            var game = State.Instance.game;
 
-            var spot = new Coord_t(0, 0);
 
-            for (spot.y = coord.y - 1; spot.y <= coord.y + 1; spot.y++)
-            {
-                for (spot.x = coord.x - 1; spot.x <= coord.x + 1; spot.x++)
-                {
-                    var tile = dg.floor[spot.y][spot.x];
 
-                    if (tile.feature_id >= MIN_CAVE_WALL)
-                    {
-                        tile.permanent_light = true;
-                    }
-                    else if (tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id >= TV_MIN_VISIBLE &&
-                             game.treasure.list[tile.treasure_id].category_id <= TV_MAX_VISIBLE)
-                    {
-                        tile.field_mark = true;
-                    }
-                }
-            }
-        }
-
-        // Map the current area plus some -RAK-
-        public static void spellMapCurrentArea()
-        {
-            var dg = State.Instance.dg;
-
-            var row_min = dg.panel.top - rnd.randomNumber(10);
-            var row_max = dg.panel.bottom + rnd.randomNumber(10);
-            var col_min = dg.panel.left - rnd.randomNumber(20);
-            var col_max = dg.panel.right + rnd.randomNumber(20);
-
-            var coord = new Coord_t(0, 0);
-
-            for (coord.y = row_min; coord.y <= row_max; coord.y++)
-            {
-                for (coord.x = col_min; coord.x <= col_max; coord.x++)
-                {
-                    if (dungeon.coordInBounds(coord) && dg.floor[coord.y][coord.x].feature_id <= MAX_CAVE_FLOOR)
-                    {
-                        dungeonLightAreaAroundFloorTile(coord);
-                    }
-                }
-            }
-
-            drawDungeonPanel();
-        }
 
         // Identify an object -RAK-
         public static bool spellIdentifyItem()
@@ -785,6 +719,5 @@ namespace Moria.Core.Methods
 
             return false;
         }
-
     }
 }

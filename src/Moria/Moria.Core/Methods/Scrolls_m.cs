@@ -709,7 +709,8 @@ namespace Moria.Core.Methods
                         identified = scrollConfuseMonster();
                         break;
                     case 12:
-                        spellMapCurrentArea();
+                        eventPublisher.Publish(new MapCurrentAreaCommand());
+                        //spellMapCurrentArea();
                         identified = true;
                         break;
                     case 13:

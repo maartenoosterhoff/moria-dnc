@@ -211,7 +211,8 @@ namespace Moria.Core.Methods
                     //spellEarthquake();
                     break;
                 case PriestSpellTypes.SenseSurroundings:
-                    spellMapCurrentArea();
+                    eventPublisher.Publish(new MapCurrentAreaCommand());
+                    //spellMapCurrentArea();
                     break;
                 case PriestSpellTypes.CureCriticalWounds:
                     eventPublisher.Publish(new ChangePlayerHitPointsCommand(
