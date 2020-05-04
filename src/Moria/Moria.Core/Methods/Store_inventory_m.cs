@@ -6,7 +6,6 @@ using static Moria.Core.Constants.Identification_c;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 
 namespace Moria.Core.Methods
 {
@@ -25,6 +24,7 @@ namespace Moria.Core.Methods
         public Store_inventory_m(
             IGameObjects gameObjects,
             IGameObjectsPush gameObjectsPush,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IRnd rnd,
             ITreasure treasure
@@ -32,6 +32,7 @@ namespace Moria.Core.Methods
         {
             this.gameObjects = gameObjects;
             this.gameObjectsPush = gameObjectsPush;
+            this.identification = identification;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
             this.treasure = treasure;
@@ -39,6 +40,7 @@ namespace Moria.Core.Methods
 
         private readonly IGameObjects gameObjects;
         private readonly IGameObjectsPush gameObjectsPush;
+        private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
         private readonly ITreasure treasure;
@@ -141,7 +143,7 @@ namespace Moria.Core.Methods
 
         private int getWeaponArmorBuyPrice(Inventory_t item)
         {
-            if (!spellItemIdentified(item))
+            if (!this.identification.spellItemIdentified(item))
             {
                 return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
@@ -166,7 +168,7 @@ namespace Moria.Core.Methods
 
         private int getAmmoBuyPrice(Inventory_t item)
         {
-            if (!spellItemIdentified(item))
+            if (!this.identification.spellItemIdentified(item))
             {
                 return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
@@ -183,7 +185,7 @@ namespace Moria.Core.Methods
 
         private int getPotionScrollBuyPrice(Inventory_t item)
         {
-            if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
                 return 20;
             }
@@ -194,7 +196,7 @@ namespace Moria.Core.Methods
         private int getFoodBuyPrice(Inventory_t item)
         {
             if (item.sub_category_id < ITEM_SINGLE_STACK_MIN + MAX_MUSHROOMS &&
-                !itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                !this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
                 return 1;
             }
@@ -205,7 +207,7 @@ namespace Moria.Core.Methods
         private int getRingAmuletBuyPrice(Inventory_t item)
         {
             // player does not know what type of ring/amulet this is
-            if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
                 return 45;
             }
@@ -213,7 +215,7 @@ namespace Moria.Core.Methods
             // player knows what type of ring, but does not know whether it
             // is cursed or not, if refuse to buy cursed objects here, then
             // player can use this to 'identify' cursed objects
-            if (!spellItemIdentified(item))
+            if (!this.identification.spellItemIdentified(item))
             {
                 return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
@@ -223,7 +225,7 @@ namespace Moria.Core.Methods
 
         private int getWandStaffBuyPrice(Inventory_t item)
         {
-            if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
                 if (item.category_id == TV_WAND)
                 {
@@ -233,7 +235,7 @@ namespace Moria.Core.Methods
                 return 70;
             }
 
-            if (spellItemIdentified(item))
+            if (this.identification.spellItemIdentified(item))
             {
                 return item.cost + item.cost / 20 * item.misc_use;
             }
@@ -243,7 +245,7 @@ namespace Moria.Core.Methods
 
         private int getPickShovelBuyPrice(Inventory_t item)
         {
-            if (!spellItemIdentified(item))
+            if (!this.identification.spellItemIdentified(item))
             {
                 return Library.Instance.Treasure.game_objects[(int)item.id].cost;
             }
@@ -478,7 +480,7 @@ namespace Moria.Core.Methods
                     {
                         // equivalent to calling spellIdentifyItem(),
                         // except will not change the objects_identified array.
-                        itemIdentifyAsStoreBought(item);
+                        this.identification.itemIdentifyAsStoreBought(item);
 
                         var dummy = 0;
                         this.storeCarryItem(store_id, out dummy, item);

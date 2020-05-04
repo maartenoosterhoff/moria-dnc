@@ -8,14 +8,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<IdentifyItemCommand>,
         ICommandHandler<IdentifyItemCommand, bool>
     {
+        private readonly IIdentification identification;
         private readonly ITerminal terminal;
         private readonly IUiInventory uiInventory;
 
         public IdentifyItemCommandHandler(
+            IIdentification identification,
             ITerminal terminal,
             IUiInventory uiInventory
         )
         {
+            this.identification = identification;
             this.terminal = terminal;
             this.uiInventory = uiInventory;
         }
@@ -39,14 +42,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 return false;
             }
 
-            Identification_m.itemIdentify(py.inventory[item_id], ref item_id);
+            this.identification.itemIdentify(py.inventory[item_id], ref item_id);
 
             var item = py.inventory[item_id];
-            Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
+            this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
 
-            var description = string.Empty;
             //obj_desc_t description = { '\0' };
-            Identification_m.itemDescription(ref description, item, true);
+            this.identification.itemDescription(out var description, item, true);
 
             string msg;
             //obj_desc_t msg = { '\0' };

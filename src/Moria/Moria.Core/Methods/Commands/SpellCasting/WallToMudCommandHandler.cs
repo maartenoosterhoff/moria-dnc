@@ -13,6 +13,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IDungeon dungeon;
         private readonly IDungeonPlacer dungeonPlacer;
         private readonly IHelpers helpers;
+        private readonly IIdentification identification;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
 
@@ -20,6 +21,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
             IHelpers helpers,
+            IIdentification identification,
             IRnd rnd,
             ITerminal terminal
         )
@@ -27,6 +29,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
             this.helpers = helpers;
+            this.identification = identification;
             this.rnd = rnd;
             this.terminal = terminal;
         }
@@ -88,8 +91,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                     {
                         turned = true;
 
-                        var description = string.Empty;
-                        Identification_m.itemDescription(ref description, game.treasure.list[tile.treasure_id], false);
+                        this.identification.itemDescription(out var description, game.treasure.list[tile.treasure_id], false);
 
                         var out_val = $"The {description} turns into mud.";
                         //obj_desc_t out_val = { '\0' };

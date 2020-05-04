@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_m;
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
             IGame game,
             IGameObjects gameObjects,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -33,6 +33,7 @@ namespace Moria.Core.Methods
             Player_throw_m.game = game;
             Player_throw_m.gameObjects = gameObjects;
             Player_throw_m.helpers = helpers;
+            Player_throw_m.identification = identification;
             Player_throw_m.inventoryManager = inventoryManager;
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
@@ -45,6 +46,7 @@ namespace Moria.Core.Methods
         private static IGame game;
         private static IGameObjects gameObjects;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -216,10 +218,9 @@ namespace Moria.Core.Methods
             }
             else
             {
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
                 //obj_desc_t msg = { '\0' };
-                itemDescription(ref description, item, false);
+                identification.itemDescription(out var description, item, false);
 
                 var msg = $"The {description} disappears.";
                 //(void)sprintf(msg, "The %s disappears.", description);
@@ -254,7 +255,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            itemTypeRemainingCountDescription(item_id);
+            identification.itemTypeRemainingCountDescription(item_id);
 
             if (py.flags.confused > 0)
             {
@@ -311,11 +312,10 @@ namespace Moria.Core.Methods
                         {
                             var damage = (int)m_ptr.creature_id;
 
-                            var description = string.Empty;
                             string msg;
                             //obj_desc_t description = { '\0' };
                             //obj_desc_t msg = { '\0' };
-                            itemDescription(ref description, thrown_item, false);
+                            identification.itemDescription(out var description, thrown_item, false);
 
                             // Does the player know what they're fighting?
                             bool visible;

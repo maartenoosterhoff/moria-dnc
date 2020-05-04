@@ -10,7 +10,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -22,6 +21,7 @@ namespace Moria.Core.Methods
             IDice dice,
             IGame game,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -35,6 +35,7 @@ namespace Moria.Core.Methods
             Staffs_m.dice = dice;
             Staffs_m.game = game;
             Staffs_m.helpers = helpers;
+            Staffs_m.identification = identification;
             Staffs_m.inventoryManager = inventoryManager;
             Staffs_m.monsterManager = monsterManager;
             Staffs_m.playerMagic = playerMagic;
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
         private static IDice dice;
         private static IGame game;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
@@ -111,9 +113,9 @@ namespace Moria.Core.Methods
             if (item.misc_use < 1)
             {
                 terminal.printMessage("The staff has no charges left.");
-                if (!spellItemIdentified(item))
+                if (!identification.spellItemIdentified(item))
                 {
-                    itemAppendToInscription(item, Config.identification.ID_EMPTY);
+                    identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
                 }
                 return false;
             }
@@ -305,22 +307,22 @@ namespace Moria.Core.Methods
 
             if (identified)
             {
-                if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
 
                     displayCharacterExperience();
 
-                    itemIdentify(py.inventory[item_id], ref item_id);
+                    identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }
             }
-            else if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                itemSetAsTried(item);
+                identification.itemSetAsTried(item);
             }
 
-            itemChargesRemainingDescription(item_id);
+            identification.itemChargesRemainingDescription(item_id);
         }
 
         private static bool wandDischarge(Inventory_t item, int direction)
@@ -610,9 +612,9 @@ namespace Moria.Core.Methods
             if (item.misc_use < 1)
             {
                 terminal.printMessage("The wand has no charges left.");
-                if (!spellItemIdentified(item))
+                if (!identification.spellItemIdentified(item))
                 {
-                    itemAppendToInscription(item, Config.identification.ID_EMPTY);
+                    identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
                 }
                 return;
             }
@@ -621,21 +623,21 @@ namespace Moria.Core.Methods
 
             if (identified)
             {
-                if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
                     displayCharacterExperience();
 
-                    itemIdentify(py.inventory[item_id], ref item_id);
+                    identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }
             }
-            else if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                itemSetAsTried(item);
+                identification.itemSetAsTried(item);
             }
 
-            itemChargesRemainingDescription(item_id);
+            identification.itemChargesRemainingDescription(item_id);
         }
 
     }

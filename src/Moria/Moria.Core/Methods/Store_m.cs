@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -20,6 +19,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies
         (
             IHelpers helpers,
+            IIdentification identification,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IStd std,
@@ -30,6 +30,7 @@ namespace Moria.Core.Methods
         )
         {
             Store_m.helpers = helpers;
+            Store_m.identification = identification;
             Store_m.inventory = inventory;
             Store_m.inventoryManager = inventoryManager;
             Store_m.std = std;
@@ -40,6 +41,7 @@ namespace Moria.Core.Methods
         }
 
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IStd std;
@@ -189,9 +191,8 @@ namespace Moria.Core.Methods
                     item.items_count = 1;
                 }
 
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out var description, item, true);
 
                 // Restore the number of items
                 item.items_count = (uint)current_item_count;
@@ -1074,9 +1075,8 @@ namespace Moria.Core.Methods
 
                     storeInventory.storeDestroyItem(store_id, item_id, true);
 
-                    var description = string.Empty;
                     //obj_desc_t description = { '\0' };
-                    itemDescription(ref description, py.inventory[new_item_id], true);
+                    identification.itemDescription(out var description, py.inventory[new_item_id], true);
 
                     var msg = $"You have {description:s} ({(char)(new_item_id + 'a'):c}";
                     //obj_desc_t msg = { '\0' };
@@ -1294,8 +1294,7 @@ namespace Moria.Core.Methods
             var sold_item = new Inventory_t();
             inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
-            var description = string.Empty;
-            itemDescription(ref description, sold_item, true);
+            identification.itemDescription(out var description, sold_item, true);
 
             var msg = $"Selling {description:s} ({(char)(item_id + 'a'):c}";
             //obj_desc_t msg = { '\0' };
@@ -1331,16 +1330,16 @@ namespace Moria.Core.Methods
                 py.misc.au += price;
 
                 // identify object in inventory to set objects_identified array
-                itemIdentify(py.inventory[item_id], ref item_id);
+                identification.itemIdentify(py.inventory[item_id], ref item_id);
 
                 // retake sold_item so that it will be identified
                 inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
                 // call spellItemIdentifyAndRemoveRandomInscription for store item, so charges/pluses are known
-                spellItemIdentifyAndRemoveRandomInscription(sold_item);
+                identification.spellItemIdentifyAndRemoveRandomInscription(sold_item);
                 inventoryManager.inventoryDestroyItem(item_id);
 
-                itemDescription(ref description, sold_item, true);
+                identification.itemDescription(out description, sold_item, true);
                 msg = $"You've sold {description:s}";
                 //(void)sprintf(msg, "You've sold %s", description);
                 terminal.printMessage(msg);

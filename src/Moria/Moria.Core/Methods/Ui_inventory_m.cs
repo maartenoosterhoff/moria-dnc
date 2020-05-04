@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
@@ -23,16 +22,19 @@ namespace Moria.Core.Methods
 
     public class Ui_inventory_m : IUiInventory
     {
+        private readonly IIdentification identification;
         private readonly IInventory inventory;
         private readonly IInventoryManager inventoryManager;
         private readonly ITerminal terminal;
 
         public Ui_inventory_m(
+            IIdentification identification,
             IInventory inventory,
             IInventoryManager inventoryManager,
             ITerminal terminal
         )
         {
+            this.identification = identification;
             this.inventory = inventory;
             this.inventoryManager = inventoryManager;
             this.terminal = terminal;
@@ -80,9 +82,8 @@ namespace Moria.Core.Methods
                     continue;
                 }
 
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, py.inventory[i], true);
+                this.identification.itemDescription(out var description, py.inventory[i], true);
 
                 // Truncate if too long.
                 if (description.Length > lim)
@@ -246,9 +247,8 @@ namespace Moria.Core.Methods
                 // Get position
                 var position_description = this.itemPositionDescription(i, (uint)py.inventory[i].weight);
 
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, py.inventory[i], true);
+                this.identification.itemDescription(out var description, py.inventory[i], true);
 
                 // Truncate if necessary
                 if (description.Length > lim)
@@ -427,9 +427,8 @@ namespace Moria.Core.Methods
         private bool verify(string prompt, int item)
         {
             var py = State.Instance.py;
-            var description = string.Empty;
             //obj_desc_t description = { '\0' };
-            itemDescription(ref description, py.inventory[item], true);
+            this.identification.itemDescription(out var description, py.inventory[item], true);
 
             // change the period to a question mark
             description = description.Substring(0, description.Length - 1) + "?";
@@ -577,9 +576,8 @@ namespace Moria.Core.Methods
 
             if ((py.inventory[(int)PlayerEquipment.Wield].flags & Config.treasure_flags.TR_CURSED) != 0u)
             {
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, py.inventory[(int)PlayerEquipment.Wield], false);
+                this.identification.itemDescription(out var description, py.inventory[(int)PlayerEquipment.Wield], false);
 
                 var msg = $"The {description} you are wielding appears to be cursed.";
                 //obj_desc_t msg = { '\0' };
@@ -606,13 +604,12 @@ namespace Moria.Core.Methods
 
             if (py.inventory[(int)PlayerEquipment.Wield].category_id != TV_NOTHING)
             {
-                var msg_label = "Primary weapon   : ";
+                const string msg_label = "Primary weapon   : ";
                 //obj_desc_t msg_label = { '\0' };
                 //(void)strcpy(msg_label, "Primary weapon   : ");
 
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, py.inventory[(int)PlayerEquipment.Wield], true);
+                this.identification.itemDescription(out var description, py.inventory[(int)PlayerEquipment.Wield], true);
 
                 this.terminal.printMessage(msg_label + description);
             }
@@ -823,9 +820,8 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            var description = string.Empty;
             //obj_desc_t description = { '\0' };
-            itemDescription(ref description, py.inventory[item_id], false);
+            this.identification.itemDescription(out var description, py.inventory[item_id], false);
 
             var item_text = $"The {description} you are ";
             //obj_desc_t item_text = { '\0' };
@@ -1130,9 +1126,8 @@ namespace Moria.Core.Methods
                             text = "You are wearing";
                         }
 
-                        var description = string.Empty;
                         //obj_desc_t description = { '\0' };
-                        itemDescription(ref description, saved_item, true);
+                        this.identification.itemDescription(out var description, saved_item, true);
 
                         // Get the right equipment letter.
                         item_to_take_off = (int)PlayerEquipment.Wield;
@@ -1161,7 +1156,7 @@ namespace Moria.Core.Methods
                         if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)
                         {
                             this.terminal.printMessage("Oops! It feels deathly cold!");
-                            itemAppendToInscription(item, Config.identification.ID_DAMD);
+                            this.identification.itemAppendToInscription(item, Config.identification.ID_DAMD);
 
                             // To force a cost of 0, even if unidentified.
                             item.cost = -1;
@@ -1177,9 +1172,8 @@ namespace Moria.Core.Methods
 
                     if (py.inventory[item_id].items_count > 1)
                     {
-                        var description = string.Empty;
                         //obj_desc_t description = { '\0' };
-                        itemDescription(ref description, py.inventory[item_id], true);
+                        this.identification.itemDescription(out var description, py.inventory[item_id], true);
                         description = description.Substring(0, description.Length - 1) + "?";
                         //description[strlen(description) - 1] = '?';
 

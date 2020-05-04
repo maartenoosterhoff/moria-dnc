@@ -19,7 +19,6 @@ using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Game_files_m;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_bash_m;
@@ -51,6 +50,7 @@ namespace Moria.Core.Methods
             IGame game,
             IGameSave gameSave,
             IHelpers helpers,
+            IIdentification identification,
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
@@ -71,6 +71,7 @@ namespace Moria.Core.Methods
             Game_run_m.game = game;
             Game_run_m.gameSave = gameSave;
             Game_run_m.helpers = helpers;
+            Game_run_m.identification = identification;
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
@@ -92,6 +93,7 @@ namespace Moria.Core.Methods
         private static IGame game;
         private static IGameSave gameSave;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
@@ -217,7 +219,7 @@ namespace Moria.Core.Methods
                 generate = true;
             }
 
-            magicInitializeItemNames();
+            identification.magicInitializeItemNames();
 
             //
             // Begin the game
@@ -282,7 +284,7 @@ namespace Moria.Core.Methods
                 inventoryManager.inventoryItemCopyTo((int)item_id, item);
 
                 // this makes it spellItemIdentifyAndRemoveRandomInscription and itemSetAsIdentified
-                itemIdentifyAsStoreBought(item);
+                identification.itemIdentifyAsStoreBought(item);
 
                 // must set this bit to display to_hit/to_damage for stiletto
                 if (item.category_id == TV_SWORD)
@@ -1307,7 +1309,7 @@ namespace Moria.Core.Methods
                     eventPublisher.Publish(new DisturbCommand(false, false));
                     //playerDisturb(0, 0);
                     terminal.printMessage(tmp_str);
-                    itemAppendToInscription(item, Config.identification.ID_MAGIK);
+                    identification.itemAppendToInscription(item, Config.identification.ID_MAGIK);
                 }
             }
         }
@@ -2180,7 +2182,7 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case '{': // ({) inscribe an object
-                    itemInscribe();
+                    identification.itemInscribe();
                     game.player_free_turn = true;
                     break;
                 case '!':    // (!) escape to the shell
@@ -2238,7 +2240,7 @@ namespace Moria.Core.Methods
                     playerFindInitialize(9);
                     break;
                 case '/': // (/) identify a symbol
-                    identifyGameObject();
+                    identification.identifyGameObject();
                     game.player_free_turn = true;
                     break;
                 case '.': // (.) stay in one place (5)
@@ -2606,7 +2608,7 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            if (spellItemIdentified(item))
+            if (identification.spellItemIdentified(item))
             {
                 return false;
             }
@@ -2895,7 +2897,7 @@ namespace Moria.Core.Methods
                 terminal.printMessage("Your lamp is less than half full.");
             }
 
-            itemTypeRemainingCountDescription(item_pos_start);
+            identification.itemTypeRemainingCountDescription(item_pos_start);
             inventoryManager.inventoryDestroyItem(item_pos_start);
         }
 

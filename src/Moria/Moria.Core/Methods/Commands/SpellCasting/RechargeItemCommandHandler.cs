@@ -8,18 +8,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<RechargeItemCommand, bool>
     {
         private readonly IUiInventory uiInventory;
+        private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
 
         public RechargeItemCommandHandler(
             IUiInventory uiInventory,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IRnd rnd,
             ITerminal terminal
         )
         {
             this.uiInventory = uiInventory;
+            this.identification = identification;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
             this.terminal = terminal;
@@ -81,12 +84,12 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 number_of_charges = number_of_charges / ((int)item.depth_first_found + 2) + 1;
                 item.misc_use += 2 + this.rnd.randomNumber(number_of_charges);
 
-                if (Identification_m.spellItemIdentified(item))
+                if (this.identification.spellItemIdentified(item))
                 {
-                    Identification_m.spellItemRemoveIdentification(item);
+                    this.identification.spellItemRemoveIdentification(item);
                 }
 
-                Identification_m.itemIdentificationClearEmpty(item);
+                this.identification.itemIdentificationClearEmpty(item);
             }
 
             return true;

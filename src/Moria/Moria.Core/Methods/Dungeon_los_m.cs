@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -21,6 +20,7 @@ namespace Moria.Core.Methods
         public Dungeon_los_m(
             IGame game,
             IHelpers helpers,
+            IIdentification identification,
             IRecall recall,
             IStd std,
             ITerminal terminal
@@ -28,15 +28,17 @@ namespace Moria.Core.Methods
         {
             this.game = game;
             this.helpers = helpers;
+            this.identification = identification;
             this.recall = recall;
             this.std = std;
             this.terminal = terminal;
         }
 
-        private IGame game;
+        private readonly IGame game;
         private readonly IHelpers helpers;
-        private IRecall recall;
-        private IStd std;
+        private readonly IIdentification identification;
+        private readonly IRecall recall;
+        private readonly IStd std;
         private readonly ITerminal terminal;
 
 
@@ -302,14 +304,14 @@ namespace Moria.Core.Methods
 
         // Intended to be indexed by dir/2, since is only
         // relevant to horizontal or vertical directions.
-        int[] los_dir_set_fxy = { 0, 1, 0, 0, -1 };
-        int[] los_dir_set_fxx = { 0, 0, -1, 1, 0 };
-        int[] los_dir_set_fyy = { 0, 0, 1, -1, 0 };
-        int[] los_dir_set_fyx = { 0, 1, 0, 0, -1 };
+        readonly int[] los_dir_set_fxy = { 0, 1, 0, 0, -1 };
+        readonly int[] los_dir_set_fxx = { 0, 0, -1, 1, 0 };
+        readonly int[] los_dir_set_fyy = { 0, 0, 1, -1, 0 };
+        readonly int[] los_dir_set_fyx = { 0, 1, 0, 0, -1 };
 
         // Map diagonal-dir/2 to a normal-dir/2.
-        int[] los_map_diagonals1 = { 1, 3, 0, 2, 4 };
-        int[] los_map_diagonals2 = { 2, 1, 0, 4, 3 };
+        readonly int[] los_map_diagonals1 = { 1, 3, 0, 2, 4 };
+        readonly int[] los_map_diagonals2 = { 2, 1, 0, 4, 3 };
 
         private const int GRADF = 10000;  // Any sufficiently big number will do
 
@@ -668,8 +670,7 @@ namespace Moria.Core.Methods
 
                     if (this.los_rocks_and_objects == 0 && game.treasure.list[tile.treasure_id].category_id != TV_INVIS_TRAP)
                     {
-                        var obj_string = string.Empty;
-                        itemDescription(ref obj_string, game.treasure.list[tile.treasure_id], true);
+                        this.identification.itemDescription(out var obj_string, game.treasure.list[tile.treasure_id], true);
 
                         msg = $"{description} {obj_string} ---pause---";
                         //(void)sprintf(msg, "%s %s ---pause---", description, obj_string);

@@ -6,7 +6,6 @@ using System;
 using Moria.Core.Methods.Commands.SpellCasting;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -34,6 +33,7 @@ namespace Moria.Core.Methods
         private readonly IDungeonPlacer dungeonPlacer;
         private readonly IGameObjects gameObjects;
         private readonly IHelpers helpers;
+        private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
@@ -47,6 +47,7 @@ namespace Moria.Core.Methods
             IDungeonPlacer dungeonPlacer,
             IGameObjects gameObjects,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -61,6 +62,7 @@ namespace Moria.Core.Methods
             this.dungeonPlacer = dungeonPlacer;
             this.gameObjects = gameObjects;
             this.helpers = helpers;
+            this.identification = identification;
             this.inventoryManager = inventoryManager;
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
@@ -618,7 +620,7 @@ namespace Moria.Core.Methods
                     this.treasure.magicTreasureMagicalAbility(free_treasure_id, dg.current_level);
 
                     // auto identify the item
-                    itemIdentify(game.treasure.list[free_treasure_id], ref free_treasure_id);
+                    this.identification.itemIdentify(game.treasure.list[free_treasure_id], ref free_treasure_id);
 
                     i = 9;
                 }
@@ -637,7 +639,7 @@ namespace Moria.Core.Methods
 
             item.id = Config.dungeon_objects.OBJ_WIZARD;
             item.special_name_id = 0;
-            itemReplaceInscription(item, "wizard item");
+            this.identification.itemReplaceInscription(item, "wizard item");
             item.identification = Config.identification.ID_KNOWN2 | Config.identification.ID_STORE_BOUGHT;
 
             this.terminal.putStringClearToEOL("Tval   : ", new Coord_t(0, 0));

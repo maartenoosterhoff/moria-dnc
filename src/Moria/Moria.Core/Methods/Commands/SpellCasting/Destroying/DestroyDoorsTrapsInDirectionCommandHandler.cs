@@ -12,16 +12,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
     {
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly IIdentification identification;
         private readonly ITerminal terminal;
 
         public DestroyDoorsTrapsInDirectionCommandHandler(
             IDungeon dungeon,
             IHelpers helpers,
+            IIdentification identification,
             ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.identification = identification;
             this.terminal = terminal;
         }
 
@@ -85,7 +88,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
                         item.flags &= ~(Config.treasure_chests.CH_TRAPPED | Config.treasure_chests.CH_LOCKED);
                         item.special_name_id = (int)SpecialNameIds.SN_UNLOCKED;
 
-                        Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
+                        this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     }
                 }
             } while (distance <= Config.treasure.OBJECT_BOLTS_MAX_RANGE || tile.feature_id <= Dungeon_tile_c.MAX_OPEN_SPACE);

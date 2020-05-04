@@ -9,9 +9,60 @@ using static Moria.Core.Constants.Treasure_c;
 
 namespace Moria.Core.Methods
 {
-    public static class Identification_m
+    public interface IIdentification
     {
-        public static void SetDependencies(
+        void itemIdentify(Inventory_t item, ref int item_id);
+
+        void spellItemIdentifyAndRemoveRandomInscription(Inventory_t item);
+
+        void itemDescription(out string description, Inventory_t item, bool add_prefix);
+
+        bool spellItemIdentified(Inventory_t item);
+
+        void spellItemRemoveIdentification(Inventory_t item);
+
+        void itemIdentificationClearEmpty(Inventory_t item);
+
+        void itemSetAsIdentified(int category_id, int sub_category_id);
+
+        void itemSetAsTried(Inventory_t item);
+
+        bool itemSetColorlessAsIdentified(int category_id, int sub_category_id, int identification);
+
+        void itemTypeRemainingCountDescription(int item_id);
+
+        void itemAppendToInscription(Inventory_t item, uint item_ident_type);
+
+        void itemIdentifyAsStoreBought(Inventory_t item);
+
+        int objectPositionOffset(int category_id, int sub_category_id);
+
+        void identifyGameObject();
+
+        void itemInscribe();
+
+        void magicInitializeItemNames();
+
+        void itemChargesRemainingDescription(int item_id);
+
+        void objectBlockedByMonster(int monster_id);
+
+        void itemReplaceInscription(Inventory_t item, string inscription);
+
+        void itemRemoveMagicNaming(Inventory_t item);
+    }
+
+    public class Identification_m : IIdentification
+    {
+        private readonly IHelpers helpers;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IRecall recall;
+        private readonly IRnd rnd;
+        private readonly IStd std;
+        private readonly ITerminal terminal;
+        private readonly IUiInventory uiInventory;
+
+        public Identification_m(
             IHelpers helpers,
             IInventoryManager inventoryManager,
             IRecall recall,
@@ -21,24 +72,16 @@ namespace Moria.Core.Methods
             IUiInventory uiInventory
         )
         {
-            Identification_m.helpers = helpers;
-            Identification_m.inventoryManager = inventoryManager;
-            Identification_m.recall = recall;
-            Identification_m.rnd = rnd;
-            Identification_m.std = std;
-            Identification_m.terminal = terminal;
-            Identification_m.uiInventory = uiInventory;
+            this.helpers = helpers;
+            this.inventoryManager = inventoryManager;
+            this.recall = recall;
+            this.rnd = rnd;
+            this.std = std;
+            this.terminal = terminal;
+            this.uiInventory = uiInventory;
         }
 
-        private static IHelpers helpers;
-        private static IInventoryManager inventoryManager;
-        private static IRecall recall;
-        private static IRnd rnd;
-        private static IStd std;
-        private static ITerminal terminal;
-        private static IUiInventory uiInventory;
-
-        private static string objectDescription(char command)
+        private string objectDescription(char command)
         {
             // every printing ASCII character is listed here, in the
             // order in which they appear in the ASCII character set.
@@ -243,31 +286,31 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void identifyGameObject()
+        public void identifyGameObject()
         {
-            if (!terminal.getCommand("Enter character to be identified :", out var command))
+            if (!this.terminal.getCommand("Enter character to be identified :", out var command))
             {
                 return;
             }
 
-            terminal.putStringClearToEOL(objectDescription(command), new Coord_t(0, 0));
+            this.terminal.putStringClearToEOL(this.objectDescription(command), new Coord_t(0, 0));
 
-            recall.recallMonsterAttributes(command);
+            this.recall.recallMonsterAttributes(command);
         }
 
         // Initialize all Potions, wands, staves, scrolls, etc.
-        public static void magicInitializeItemNames()
+        public void magicInitializeItemNames()
         {
             var game = State.Instance.game;
 
-            rnd.seedSet(game.magic_seed);
+            this.rnd.seedSet(game.magic_seed);
 
-            Library.Instance.Tables.initializeItemNames(rnd);
+            Library.Instance.Tables.initializeItemNames(this.rnd);
 
-            rnd.seedResetToOldSeed();
+            this.rnd.seedResetToOldSeed();
         }
 
-        public static int objectPositionOffset(int category_id, int sub_category_id)
+        public int objectPositionOffset(int category_id, int sub_category_id)
         {
             switch ((uint)category_id)
             {
@@ -296,25 +339,25 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void clearObjectTriedFlag(int id)
+        private void clearObjectTriedFlag(int id)
         {
             State.Instance.objects_identified[id] &= ~Config.identification.OD_TRIED;
         }
 
-        private static void setObjectTriedFlag(int id)
+        private void setObjectTriedFlag(int id)
         {
             State.Instance.objects_identified[id] |= Config.identification.OD_TRIED;
         }
 
-        private static bool isObjectKnown(int id)
+        private bool isObjectKnown(int id)
         {
             return (State.Instance.objects_identified[id] & Config.identification.OD_KNOWN1) != 0;
         }
 
         // Remove "Secret" symbol for identity of object
-        public static void itemSetAsIdentified(int category_id, int sub_category_id)
+        public void itemSetAsIdentified(int category_id, int sub_category_id)
         {
-            var id = objectPositionOffset(category_id, sub_category_id);
+            var id = this.objectPositionOffset(category_id, sub_category_id);
 
             if (id < 0)
             {
@@ -327,16 +370,16 @@ namespace Moria.Core.Methods
             State.Instance.objects_identified[id] |= Config.identification.OD_KNOWN1;
 
             // clear the tried flag, since it is now known
-            clearObjectTriedFlag(id);
+            this.clearObjectTriedFlag(id);
         }
 
         // Remove an automatically generated inscription. -CJS-
-        private static void unsample(Inventory_t item)
+        private void unsample(Inventory_t item)
         {
             // this also used to clear config::identification::ID_DAMD flag, but I think it should remain set
             item.identification &= ~(Config.identification.ID_MAGIK | Config.identification.ID_EMPTY);
 
-            var id = objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
+            var id = this.objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
 
             if (id < 0)
             {
@@ -347,53 +390,53 @@ namespace Moria.Core.Methods
             id += (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
             // clear the tried flag, since it is now known
-            clearObjectTriedFlag(id);
+            this.clearObjectTriedFlag(id);
         }
 
         // Remove "Secret" symbol for identity of plusses
-        public static void spellItemIdentifyAndRemoveRandomInscription(Inventory_t item)
+        public void spellItemIdentifyAndRemoveRandomInscription(Inventory_t item)
         {
-            unsample(item);
+            this.unsample(item);
             item.identification |= Config.identification.ID_KNOWN2;
         }
 
-        public static bool spellItemIdentified(Inventory_t item)
+        public bool spellItemIdentified(Inventory_t item)
         {
             return (item.identification & Config.identification.ID_KNOWN2) != 0;
         }
 
-        public static void spellItemRemoveIdentification(Inventory_t item)
+        public void spellItemRemoveIdentification(Inventory_t item)
         {
             item.identification &= ~Config.identification.ID_KNOWN2;
         }
 
-        public static void itemIdentificationClearEmpty(Inventory_t item)
+        public void itemIdentificationClearEmpty(Inventory_t item)
         {
             item.identification &= ~Config.identification.ID_EMPTY;
         }
 
-        public static void itemIdentifyAsStoreBought(Inventory_t item)
+        public void itemIdentifyAsStoreBought(Inventory_t item)
         {
             item.identification |= Config.identification.ID_STORE_BOUGHT;
-            spellItemIdentifyAndRemoveRandomInscription(item);
+            this.spellItemIdentifyAndRemoveRandomInscription(item);
         }
 
-        private static bool itemStoreBought(int identification)
+        private bool itemStoreBought(int identification)
         {
             return (identification & Config.identification.ID_STORE_BOUGHT) != 0;
         }
 
         // Items which don't have a 'color' are always known / itemSetAsIdentified(),
         // so that they can be carried in order in the inventory.
-        public static bool itemSetColorlessAsIdentified(int category_id, int sub_category_id, int identification)
+        public bool itemSetColorlessAsIdentified(int category_id, int sub_category_id, int identification)
         {
-            var id = objectPositionOffset(category_id, sub_category_id);
+            var id = this.objectPositionOffset(category_id, sub_category_id);
 
             if (id < 0)
             {
                 return Config.identification.OD_KNOWN1 != 0u;
             }
-            if (itemStoreBought(identification))
+            if (this.itemStoreBought(identification))
             {
                 return Config.identification.OD_KNOWN1 != 0u;
             }
@@ -401,13 +444,13 @@ namespace Moria.Core.Methods
             id <<= 6;
             id += sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
-            return isObjectKnown(id);
+            return this.isObjectKnown(id);
         }
 
         // Somethings been sampled -CJS-
-        public static void itemSetAsTried(Inventory_t item)
+        public void itemSetAsTried(Inventory_t item)
         {
-            var id = objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
+            var id = this.objectPositionOffset((int)item.category_id, (int)item.sub_category_id);
 
             if (id < 0)
             {
@@ -417,24 +460,24 @@ namespace Moria.Core.Methods
             id <<= 6;
             id += (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
-            setObjectTriedFlag(id);
+            this.setObjectTriedFlag(id);
         }
 
         // Somethings been identified.
         // Extra complexity by CJS so that it can merge store/dungeon objects when appropriate.
-        public static void itemIdentify(Inventory_t item, ref int item_id)
+        public void itemIdentify(Inventory_t item, ref int item_id)
         {
             if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)
             {
-                itemAppendToInscription(item, Config.identification.ID_DAMD);
+                this.itemAppendToInscription(item, Config.identification.ID_DAMD);
             }
 
-            if (itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            if (this.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
                 return;
             }
 
-            itemSetAsIdentified((int)item.category_id, (int)item.sub_category_id);
+            this.itemSetAsIdentified((int)item.category_id, (int)item.sub_category_id);
 
             var cat_id = (int)item.category_id;
             var sub_cat_id = (int)item.sub_category_id;
@@ -465,7 +508,7 @@ namespace Moria.Core.Methods
                         i = j;
                     }
 
-                    terminal.printMessage("You combine similar objects from the shop and dungeon.");
+                    this.terminal.printMessage("You combine similar objects from the shop and dungeon.");
 
                     py.inventory[item_id].items_count += py.inventory[i].items_count;
                     py.pack.unique_items--;
@@ -475,19 +518,19 @@ namespace Moria.Core.Methods
                         py.inventory[j] = py.inventory[j + 1];
                     }
 
-                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[j]);
+                    this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, py.inventory[j]);
                 }
             }
         }
 
         // If an object has lost magical properties,
         // remove the appropriate portion of the name. -CJS-
-        public static void itemRemoveMagicNaming(Inventory_t item)
+        public void itemRemoveMagicNaming(Inventory_t item)
         {
             item.special_name_id = (int)SpecialNameIds.SN_NULL;
         }
 
-        public static int bowDamageValue(int misc_use)
+        public int bowDamageValue(int misc_use)
         {
             if (misc_use == 1 || misc_use == 2)
             {
@@ -508,7 +551,7 @@ namespace Moria.Core.Methods
         // The `add_prefix` param indicates that an article must be added.
         // Note that since out_val can easily exceed 80 characters, itemDescription
         // must always be called with a obj_desc_t as the first parameter.
-        public static void itemDescription(ref string description, Inventory_t item, bool add_prefix)
+        public void itemDescription(out string description, Inventory_t item, bool add_prefix)
         {
             var indexx = (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
@@ -519,7 +562,7 @@ namespace Moria.Core.Methods
             var damstr = string.Empty;
 
             var append_name = false;
-            var modify = !itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
+            var modify = !this.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
             var misc_type = ItemMiscUse.Ignored;
 
             switch (item.category_id)
@@ -539,7 +582,7 @@ namespace Moria.Core.Methods
                 case TV_SPIKE:
                     break;
                 case TV_BOW:
-                    damstr = $" (x{bowDamageValue(item.misc_use)})";
+                    damstr = $" (x{this.bowDamageValue(item.misc_use)})";
                     //(void)sprintf(damstr, " (x%d)", bowDamageValue(item.misc_use));
                     break;
                 case TV_HAFTED:
@@ -760,7 +803,7 @@ namespace Moria.Core.Methods
                 else if (tmp_val[0] == '&')
                 {
                     // eliminate the '& ' at the beginning
-                    tmp_val = tmp_val.Substring(2);
+                    description = tmp_val.Substring(2);
                     //(void)strcpy(description, &tmp_val[2]);
                 }
                 else
@@ -776,7 +819,7 @@ namespace Moria.Core.Methods
             // TODO(cook): `spellItemIdentified()` is called several times in this
             // function, but `item` is immutable, so we should be able to call and
             // assign it once, then use that value everywhere below.
-            if (item.special_name_id != (int)SpecialNameIds.SN_NULL && spellItemIdentified(item))
+            if (item.special_name_id != (int)SpecialNameIds.SN_NULL && this.spellItemIdentified(item))
             {
                 tmp_val += " ";
                 tmp_val += Library.Instance.Treasure.special_item_names[(int)item.special_name_id];
@@ -791,10 +834,10 @@ namespace Moria.Core.Methods
                 //(void)strcat(tmp_val, damstr);
             }
 
-            if (spellItemIdentified(item))
+            if (this.spellItemIdentified(item))
             {
-                var abs_to_hit = (int)std.std_abs(std.std_intmax_t(item.to_hit));
-                var abs_to_damage = (int)std.std_abs(std.std_intmax_t(item.to_damage));
+                var abs_to_hit = (int) this.std.std_abs(this.std.std_intmax_t(item.to_hit));
+                var abs_to_damage = (int) this.std.std_abs(this.std.std_intmax_t(item.to_damage));
 
                 if ((item.identification & Config.identification.ID_SHOW_HIT_DAM) != 0)
                 {
@@ -830,14 +873,14 @@ namespace Moria.Core.Methods
             }
 
             // Crowns have a zero base AC, so make a special test for them.
-            var abs_to_ac = (int)std.std_abs(std.std_intmax_t(item.to_ac));
+            var abs_to_ac = (int) this.std.std_abs(this.std.std_intmax_t(item.to_ac));
             if (item.ac != 0 || item.category_id == TV_HELM)
             {
                 tmp_str = $" [{item.ac}";
                 //(void)sprintf(tmp_str, " [%d", item.ac);
                 tmp_val += tmp_str;
                 //(void)strcat(tmp_val, tmp_str);
-                if (spellItemIdentified(item))
+                if (this.spellItemIdentified(item))
                 {
                     // originally used %+d, but several machines don't support it
                     tmp_str = string.Format(
@@ -852,7 +895,7 @@ namespace Moria.Core.Methods
                 tmp_val += "]";
                 //(void)strcat(tmp_val, "]");
             }
-            else if (item.to_ac != 0 && spellItemIdentified(item))
+            else if (item.to_ac != 0 && this.spellItemIdentified(item))
             {
                 // originally used %+d, but several machines don't support it
                 tmp_str = string.Format(
@@ -885,9 +928,9 @@ namespace Moria.Core.Methods
             {
                 // NOOP
             }
-            else if (spellItemIdentified(item))
+            else if (this.spellItemIdentified(item))
             {
-                var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
+                var abs_misc_use = (int) this.std.std_abs(this.std.std_intmax_t(item.misc_use));
 
                 if (misc_type == ItemMiscUse.ZPlusses)
                 {
@@ -932,7 +975,7 @@ namespace Moria.Core.Methods
                 // use &tmp_val[1], so that & does not appear in output
                 if (item.items_count > 1)
                 {
-                    description += string.Format("{0}{1}", (int)item.items_count, tmp_val.Substring(1));
+                    description = string.Format("{0}{1}", (int)item.items_count, tmp_val.Substring(1));
                     //(void)sprintf(description, "%d%s", (int)item.items_count, &tmp_val[1]);
                 }
                 else if (item.items_count < 1)
@@ -940,7 +983,7 @@ namespace Moria.Core.Methods
                     description = string.Format("{0}{1}", "no more", tmp_val.Substring(1));
                     //(void)sprintf(description, "%s%s", "no more", &tmp_val[1]);
                 }
-                else if (helpers.isVowel(tmp_val[2]))
+                else if (this.helpers.isVowel(tmp_val[2]))
                 {
                     description = $"an{tmp_val.Substring(1)}";
                     //(void)sprintf(description, "an%s", &tmp_val[1]);
@@ -977,13 +1020,13 @@ namespace Moria.Core.Methods
 
             tmp_str = string.Empty;
 
-            if ((indexx = objectPositionOffset((int)item.category_id, (int)item.sub_category_id)) >= 0)
+            if ((indexx = this.objectPositionOffset((int)item.category_id, (int)item.sub_category_id)) >= 0)
             {
                 indexx <<= 6;
                 indexx += (int)item.sub_category_id & ((int)ITEM_SINGLE_STACK_MIN - 1);
 
                 // don't print tried string for store bought items
-                if ((State.Instance.objects_identified[indexx] & Config.identification.OD_TRIED) != 0 && !itemStoreBought((int)item.identification))
+                if ((State.Instance.objects_identified[indexx] & Config.identification.OD_TRIED) != 0 && !this.itemStoreBought((int)item.identification))
                 {
                     tmp_str = "tried ";
                     //(void)strcat(tmp_str, "tried ");
@@ -1043,11 +1086,11 @@ namespace Moria.Core.Methods
         }
 
         // Describe number of remaining charges. -RAK-
-        public static void itemChargesRemainingDescription(int item_id)
+        public void itemChargesRemainingDescription(int item_id)
         {
             var py = State.Instance.py;
 
-            if (!spellItemIdentified(py.inventory[item_id]))
+            if (!this.spellItemIdentified(py.inventory[item_id]))
             {
                 return;
             }
@@ -1058,11 +1101,11 @@ namespace Moria.Core.Methods
             //vtype_t out_val = { '\0' };
             out_val = $"You have {rem_num} charges remaining.";
             //(void)sprintf(out_val, "You have %d charges remaining.", rem_num);
-            terminal.printMessage(out_val);
+            this.terminal.printMessage(out_val);
         }
 
         // Describe amount of item remaining. -RAK-
-        public static void itemTypeRemainingCountDescription(int item_id)
+        public void itemTypeRemainingCountDescription(int item_id)
         {
             var py = State.Instance.py;
 
@@ -1070,9 +1113,8 @@ namespace Moria.Core.Methods
 
             item.items_count--;
 
-            var tmp_str = string.Empty;
             //obj_desc_t tmp_str = { '\0' };
-            itemDescription(ref tmp_str, item, true);
+            this.itemDescription(out var tmp_str, item, true);
 
             item.items_count++;
 
@@ -1081,35 +1123,33 @@ namespace Moria.Core.Methods
             //obj_desc_t out_val = { '\0' };
             out_val = $"You have {tmp_str}";
             //(void)sprintf(out_val, "You have %s", tmp_str);
-            terminal.printMessage(out_val);
+            this.terminal.printMessage(out_val);
         }
 
         // Add a comment to an object description. -CJS-
-        public static void itemInscribe()
+        public void itemInscribe()
         {
             var py = State.Instance.py;
             if (py.pack.unique_items == 0 && py.equipment_count == 0)
             {
-                terminal.printMessage("You are not carrying anything to inscribe.");
+                this.terminal.printMessage("You are not carrying anything to inscribe.");
                 return;
             }
 
             var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
+            if (!this.uiInventory.inventoryGetInputForItemId(out item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
             {
                 return;
             }
 
-            var msg = string.Empty;
             //obj_desc_t msg = { '\0' };
-            itemDescription(ref msg, py.inventory[item_id], true);
+            this.itemDescription(out var msg, py.inventory[item_id], true);
 
-            var inscription = string.Empty;
             //obj_desc_t inscription = { '\0' };
-            inscription = $"Inscribing {msg}";
+            var inscription = $"Inscribing {msg}";
             //(void)sprintf(inscription, "Inscribing %s", msg);
 
-            terminal.printMessage(inscription);
+            this.terminal.printMessage(inscription);
 
             if (!string.IsNullOrEmpty(py.inventory[item_id].inscription))
             //if (py.inventory[item_id].inscription[0] != '\0')
@@ -1129,31 +1169,30 @@ namespace Moria.Core.Methods
                 msg_len = 12;
             }
 
-            terminal.putStringClearToEOL(inscription, new Coord_t(0, 0));
+            this.terminal.putStringClearToEOL(inscription, new Coord_t(0, 0));
 
-            if (terminal.getStringInput(out inscription, new Coord_t(0, inscription.Length), msg_len))
+            if (this.terminal.getStringInput(out inscription, new Coord_t(0, inscription.Length), msg_len))
             {
-                itemReplaceInscription(py.inventory[item_id], inscription);
+                this.itemReplaceInscription(py.inventory[item_id], inscription);
             }
         }
 
         // Append an additional comment to an object description. -CJS-
-        public static void itemAppendToInscription(Inventory_t item, uint item_ident_type)
+        public void itemAppendToInscription(Inventory_t item, uint item_ident_type)
         {
             item.identification |= item_ident_type;
         }
 
         // Replace any existing comment in an object description with a new one. -CJS-
-        public static void itemReplaceInscription(Inventory_t item, string inscription)
+        public void itemReplaceInscription(Inventory_t item, string inscription)
         {
             item.inscription = inscription;
             //(void)strcpy(item.inscription, inscription);
         }
 
-        public static void objectBlockedByMonster(int monster_id)
+        public void objectBlockedByMonster(int monster_id)
         {
-            var description = string.Empty;
-            var msg = string.Empty;
+            string description;
 
             var monster = State.Instance.monsters[monster_id];
             var name = Library.Instance.Creatures.creatures_list[(int)monster.creature_id].name;
@@ -1169,9 +1208,9 @@ namespace Moria.Core.Methods
                 //(void)strcpy(description, "Something");
             }
 
-            msg = $"{description} is in your way!";
+            var msg = $"{description} is in your way!";
             //(void)sprintf(msg, "%s is in your way!", description);
-            terminal.printMessage(msg);
+            this.terminal.printMessage(msg);
         }
     }
 }

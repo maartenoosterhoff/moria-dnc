@@ -4,7 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
@@ -19,6 +18,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IGame game,
             IHelpers helpers,
+            IIdentification identification,
             IMonsterManager monsterManager,
             IRnd rnd,
             ITerminal terminal
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
             Player_traps_m.dungeon = dungeon;
             Player_traps_m.game = game;
             Player_traps_m.helpers = helpers;
+            Player_traps_m.identification = identification;
             Player_traps_m.monsterManager = monsterManager;
             Player_traps_m.rnd = rnd;
             Player_traps_m.terminal = terminal;
@@ -37,6 +38,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IGame game;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static ITerminal terminal;
@@ -110,7 +112,7 @@ namespace Moria.Core.Methods
             var game = State.Instance.game;
             var py = State.Instance.py;
 
-            if (!spellItemIdentified(item))
+            if (!identification.spellItemIdentified(item))
             {
                 game.player_free_turn = true;
                 terminal.printMessage("I don't see a trap.");
@@ -137,7 +139,7 @@ namespace Moria.Core.Methods
 
                     terminal.printMessage("You have disarmed the chest.");
 
-                    spellItemIdentifyAndRemoveRandomInscription(item);
+                    identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     py.misc.exp += level;
 
                     displayCharacterExperience();
@@ -149,7 +151,7 @@ namespace Moria.Core.Methods
                 else
                 {
                     terminal.printMessage("You set a trap off!");
-                    spellItemIdentifyAndRemoveRandomInscription(item);
+                    identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     chestTrap(coord);
                 }
                 return;
@@ -182,7 +184,7 @@ namespace Moria.Core.Methods
             if (tile.creature_id > 1 && tile.treasure_id != 0 &&
                 (game.treasure.list[tile.treasure_id].category_id == TV_VIS_TRAP || game.treasure.list[tile.treasure_id].category_id == TV_CHEST))
             {
-                objectBlockedByMonster((int)tile.creature_id);
+                identification.objectBlockedByMonster((int)tile.creature_id);
             }
             else if (tile.treasure_id != 0)
             {

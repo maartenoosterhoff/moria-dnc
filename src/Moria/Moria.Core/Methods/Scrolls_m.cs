@@ -1,4 +1,5 @@
-﻿using Moria.Core.Configs;
+﻿using System.Transactions;
+using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
@@ -9,7 +10,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
@@ -21,6 +21,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
@@ -33,6 +34,7 @@ namespace Moria.Core.Methods
         {
             Scrolls_m.dice = dice;
             Scrolls_m.helpers = helpers;
+            Scrolls_m.identification = identification;
             Scrolls_m.inventoryManager = inventoryManager;
             Scrolls_m.monsterManager = monsterManager;
             Scrolls_m.playerMagic = playerMagic;
@@ -45,6 +47,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IPlayerMagic playerMagic;
@@ -176,10 +179,9 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows faintly!";
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
@@ -214,10 +216,9 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows faintly!";
             //(void)sprintf(msg, "Your %s glows faintly!", desc);
@@ -267,10 +268,9 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows faintly!";
             terminal.printMessage(msg);
@@ -379,10 +379,9 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows brightly!";
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
@@ -454,16 +453,15 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows black, fades.";
             //(void)sprintf(msg, "Your %s glows black, fades.", desc);
             terminal.printMessage(msg);
 
-            itemRemoveMagicNaming(item);
+            identification.itemRemoveMagicNaming(item);
 
             item.to_hit = (int)(-rnd.randomNumber(5) - rnd.randomNumber(5));
             item.to_damage = (int)(-rnd.randomNumber(5) - rnd.randomNumber(5));
@@ -492,10 +490,9 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows brightly!";
             //(void)sprintf(msg, "Your %s glows brightly!", desc);
@@ -595,16 +592,15 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            var desc = string.Empty;
             //obj_desc_t msg = { '\0' };
             //obj_desc_t desc = { '\0' };
-            itemDescription(ref desc, item, false);
+            identification.itemDescription(out var desc, item, false);
 
             var msg = $"Your {desc} glows black, fades.";
             //(void)sprintf(msg, "Your %s glows black, fades.", desc);
             terminal.printMessage(msg);
 
-            itemRemoveMagicNaming(item);
+            identification.itemRemoveMagicNaming(item);
 
             item.flags = Config.treasure_flags.TR_CURSED;
             item.to_hit = 0;
@@ -855,23 +851,23 @@ namespace Moria.Core.Methods
 
             if (identified)
             {
-                if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
                     displayCharacterExperience();
 
-                    itemIdentify(py.inventory[item_id], ref item_id);
+                    identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }
             }
-            else if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                itemSetAsTried(item);
+                identification.itemSetAsTried(item);
             }
 
             if (used_up)
             {
-                itemTypeRemainingCountDescription(item_id);
+                identification.itemTypeRemainingCountDescription(item_id);
                 inventoryManager.inventoryDestroyItem(item_id);
             }
         }

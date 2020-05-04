@@ -11,7 +11,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Ui_m;
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IGame game,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -38,6 +38,7 @@ namespace Moria.Core.Methods
             Player_m.dungeon = dungeon;
             Player_m.game = game;
             Player_m.helpers = helpers;
+            Player_m.identification = identification;
             Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
@@ -50,6 +51,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IGame game;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -444,7 +446,7 @@ namespace Moria.Core.Methods
                     py.misc.magical_ac += item.to_ac;
                     py.misc.ac += item.ac;
 
-                    if (spellItemIdentified(item))
+                    if (identification.spellItemIdentified(item))
                     {
                         py.misc.display_to_hit += item.to_hit;
 
@@ -653,9 +655,8 @@ namespace Moria.Core.Methods
                 p = "Was wearing ";
             }
 
-            var description = string.Empty;
             //obj_desc_t description = { '\0' };
-            itemDescription(ref description, item, true);
+            identification.itemDescription(out var description, item, true);
 
             string msg;
             //obj_desc_t msg = { '\0' };
@@ -773,9 +774,8 @@ namespace Moria.Core.Methods
                     {
                         // Trap on floor?
 
-                        var description = string.Empty;
                         //obj_desc_t description = { '\0' };
-                        itemDescription(ref description, item, true);
+                        identification.itemDescription(out var description, item, true);
 
                         var msg = $"You have found {description}";
                         //obj_desc_t msg = { '\0' };
@@ -803,9 +803,9 @@ namespace Moria.Core.Methods
                         // mask out the treasure bits
                         if ((item.flags & Config.treasure_chests.CH_TRAPPED) > 1)
                         {
-                            if (!spellItemIdentified(item))
+                            if (!identification.spellItemIdentified(item))
                             {
-                                spellItemIdentifyAndRemoveRandomInscription(item);
+                                identification.spellItemIdentifyAndRemoveRandomInscription(item);
                                 terminal.printMessage("You have discovered a trap on the chest!");
                             }
                             else
@@ -1303,7 +1303,7 @@ namespace Moria.Core.Methods
             {
                 item.flags &= ~Config.treasure_chests.CH_LOCKED;
                 item.special_name_id = (int)SpecialNameIds.SN_EMPTY;
-                spellItemIdentifyAndRemoveRandomInscription(item);
+                identification.spellItemIdentifyAndRemoveRandomInscription(item);
                 item.cost = 0;
             }
 
@@ -1352,7 +1352,7 @@ namespace Moria.Core.Methods
 
             if (tile.creature_id > 1 && tile.treasure_id != 0 && (item.category_id == TV_CLOSED_DOOR || item.category_id == TV_CHEST))
             {
-                objectBlockedByMonster((int)tile.creature_id);
+                identification.objectBlockedByMonster((int)tile.creature_id);
             }
             else if (tile.treasure_id != 0)
             {
@@ -1422,7 +1422,7 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        objectBlockedByMonster((int)tile.creature_id);
+                        identification.objectBlockedByMonster((int)tile.creature_id);
                     }
                 }
                 else

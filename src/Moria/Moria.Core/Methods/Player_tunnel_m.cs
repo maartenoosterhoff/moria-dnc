@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Identification_m;
 
 namespace Moria.Core.Methods
 {
@@ -17,6 +16,7 @@ namespace Moria.Core.Methods
             IDungeonPlacer dungeonPlacer,
             IGame game,
             IHelpers helpers,
+            IIdentification identification,
             IRnd rnd,
             ITerminal terminal
         )
@@ -26,6 +26,7 @@ namespace Moria.Core.Methods
             Player_tunnel_m.dungeonPlacer = dungeonPlacer;
             Player_tunnel_m.game = game;
             Player_tunnel_m.helpers = helpers;
+            Player_tunnel_m.identification = identification;
             Player_tunnel_m.rnd = rnd;
             Player_tunnel_m.terminal = terminal;
         }
@@ -35,6 +36,7 @@ namespace Moria.Core.Methods
         private static IDungeonPlacer dungeonPlacer;
         private static IGame game;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IRnd rnd;
         private static ITerminal terminal;
 
@@ -215,7 +217,7 @@ namespace Moria.Core.Methods
 
             if (tile.creature_id > 1)
             {
-                objectBlockedByMonster((int)tile.creature_id);
+                identification.objectBlockedByMonster((int)tile.creature_id);
                 playerAttackPosition(coord);
                 return;
             }

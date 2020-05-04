@@ -11,14 +11,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
         ICommandHandler<DestroyAdjacentDoorsTrapsCommand, bool>
     {
         private readonly IDungeon dungeon;
+        private readonly IIdentification identification;
         private readonly ITerminal terminal;
 
         public DestroyAdjacentDoorsTrapsCommandHandler(
             IDungeon dungeon,
+            IIdentification identification,
             ITerminal terminal
         )
         {
             this.dungeon = dungeon;
+            this.identification = identification;
             this.terminal = terminal;
         }
 
@@ -72,7 +75,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Destroying
                         destroyed = true;
 
                         if (this.terminal != null) this.terminal.printMessage("You have disarmed the chest.");
-                        Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
+                        this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     }
                 }
             }

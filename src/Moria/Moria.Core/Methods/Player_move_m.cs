@@ -6,7 +6,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_run_m;
@@ -22,6 +21,7 @@ namespace Moria.Core.Methods
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
             IHelpers helpers,
+            IIdentification identification,
             IInventory inventory,
             IMonsterManager monsterManager,
             IRnd rnd,
@@ -34,6 +34,7 @@ namespace Moria.Core.Methods
             Player_move_m.dungeon = dungeon;
             Player_move_m.dungeonPlacer = dungeonPlacer;
             Player_move_m.helpers = helpers;
+            Player_move_m.identification = identification;
             Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
@@ -46,6 +47,7 @@ namespace Moria.Core.Methods
         private static IDungeon dungeon;
         private static IDungeonPlacer dungeonPlacer;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
@@ -64,9 +66,8 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            var description = string.Empty;
             //obj_desc_t description = { '\0' };
-            itemDescription(ref description, item, true);
+            identification.itemDescription(out var description, item, true);
             playerTakesHit(dam, description);
         }
 
@@ -76,9 +77,8 @@ namespace Moria.Core.Methods
 
             if (playerTestBeingHit(125, 0, 0, py.misc.ac + py.misc.magical_ac, (int)CLASS_MISC_HIT))
             {
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out var description, item, true);
                 playerTakesHit(dam, description);
 
                 terminal.printMessage("An arrow hits you.");
@@ -100,9 +100,8 @@ namespace Moria.Core.Methods
             }
             else
             {
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out var description, item, true);
                 playerTakesHit(dam, description);
             }
 
@@ -125,9 +124,8 @@ namespace Moria.Core.Methods
             }
             else
             {
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out var description, item, true);
                 playerTakesHit(dam, description);
             }
 
@@ -174,9 +172,8 @@ namespace Moria.Core.Methods
                 {
                     playerStatRandomDecrease((int)PlayerAttr.STR);
 
-                    var description = string.Empty;
                     //obj_desc_t description = { '\0' };
-                    itemDescription(ref description, item, true);
+                    identification.itemDescription(out var description, item, true);
                     playerTakesHit(dam, description);
 
                     terminal.printMessage("A small dart weakens you!");
@@ -281,9 +278,8 @@ namespace Moria.Core.Methods
 
             if (playerTestBeingHit(125, 0, 0, py.misc.ac + py.misc.magical_ac, (int)CLASS_MISC_HIT))
             {
-                var description = string.Empty;
                 //obj_desc_t description = { '\0' };
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out var description, item, true);
                 playerTakesHit(dam, description);
 
                 terminal.printMessage("A small dart hits you!");
@@ -313,9 +309,8 @@ namespace Moria.Core.Methods
                 {
                     playerStatRandomDecrease((int)PlayerAttr.CON);
 
-                    var description = string.Empty;
                     //obj_desc_t description = { '\0' };
-                    itemDescription(ref description, item, true);
+                    identification.itemDescription(out var description, item, true);
                     playerTakesHit(dam, description);
 
                     terminal.printMessage("A small dart saps your health!");
@@ -487,7 +482,7 @@ namespace Moria.Core.Methods
             {
                 py.misc.au += item.cost;
 
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out description, item, true);
                 msg = $"You have found {item.cost} gold pieces worth of {description}";
                 //(void)sprintf(msg, "You have found %d gold pieces worth of %s", item.cost, description);
 
@@ -505,7 +500,7 @@ namespace Moria.Core.Methods
                 // Okay,  pick it up
                 if (pickup && Config.options.prompt_to_pickup)
                 {
-                    itemDescription(ref description, item, true);
+                    identification.itemDescription(out description, item, true);
 
                     // change the period to a question mark
                     description = description.Substring(0, description.Length - 1) + "?";
@@ -516,7 +511,7 @@ namespace Moria.Core.Methods
                 // Check to see if it will change the players speed.
                 if (pickup && !inventory.inventoryCanCarryItem(item))
                 {
-                    itemDescription(ref description, item, true);
+                    identification.itemDescription(out description, item, true);
 
                     // change the period to a question mark
                     //description[strlen(description) - 1] = '?';
@@ -529,7 +524,7 @@ namespace Moria.Core.Methods
                 {
                     var locn = inventory.inventoryCarryItem(item);
 
-                    itemDescription(ref description, py.inventory[locn], true);
+                    identification.itemDescription(out description, py.inventory[locn], true);
                     msg = $"You have {description} ({(char)(locn + 'a')})";
                     //(void)sprintf(msg, "You have %s (%c)", description, locn + 'a');
                     terminal.printMessage(msg);
@@ -538,7 +533,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                itemDescription(ref description, item, true);
+                identification.itemDescription(out description, item, true);
                 msg = $"You can't carry {description}";
                 //(void)sprintf(msg, "You can't carry %s", description);
                 terminal.printMessage(msg);

@@ -7,10 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
     public class DetectTrapsWithinVicinityCommandHandler : ICommandHandler<DetectTrapsWithinVicinityCommand, bool>, ICommandHandler<DetectTrapsWithinVicinityCommand>
     {
         private readonly IDungeon dungeon;
+        private readonly IIdentification identification;
 
-        public DetectTrapsWithinVicinityCommandHandler(IDungeon dungeon)
+        public DetectTrapsWithinVicinityCommandHandler(
+            IDungeon dungeon,
+            IIdentification identification
+        )
         {
             this.dungeon = dungeon;
+            this.identification = identification;
         }
 
         void ICommandHandler<DetectTrapsWithinVicinityCommand>.Handle(DetectTrapsWithinVicinityCommand command)
@@ -52,7 +57,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
                     else if (game.treasure.list[tile.treasure_id].category_id == Treasure_c.TV_CHEST)
                     {
                         var item = game.treasure.list[tile.treasure_id];
-                        Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
+                        this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     }
                 }
             }

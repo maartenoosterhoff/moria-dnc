@@ -4,7 +4,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
@@ -35,6 +34,7 @@ namespace Moria.Core.Methods
         public Inventory_m(
             IGameObjects gameObjects,
             IDungeon dungeon,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IRnd rnd,
             ITerminal terminal
@@ -42,6 +42,7 @@ namespace Moria.Core.Methods
         {
             this.gameObjects = gameObjects;
             this.dungeon = dungeon;
+            this.identification = identification;
             this.inventoryManager = inventoryManager;
             this.rnd = rnd;
             this.terminal = terminal;
@@ -49,6 +50,7 @@ namespace Moria.Core.Methods
 
         private readonly IGameObjects gameObjects;
         private readonly IDungeon dungeon;
+        private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
@@ -98,10 +100,8 @@ namespace Moria.Core.Methods
                     item.items_count--;
                 }
 
-                var prt1 = string.Empty;
-                var prt2 = string.Empty;
-                itemDescription(ref prt1, game.treasure.list[treasure_id], true);
-                prt2 = $"Dropped {prt1}";
+                this.identification.itemDescription(out var prt1, game.treasure.list[treasure_id], true);
+                var prt2 = $"Dropped {prt1}";
                 //(void)sprintf(prt2, "Dropped %s", prt1);
                 this.terminal.printMessage(prt2);
             }
@@ -151,9 +151,9 @@ namespace Moria.Core.Methods
             {
                 monster_hp += (int)creature_level * item.misc_use;
                 item.misc_use = 0;
-                if (!spellItemIdentified(item))
+                if (!this.identification.spellItemIdentified(item))
                 {
-                    itemAppendToInscription(item, Config.identification.ID_EMPTY);
+                    this.identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
                 }
                 this.terminal.printMessage("Energy drains from your pack!");
             }
@@ -193,8 +193,8 @@ namespace Moria.Core.Methods
 
                 // only stack if both or neither are identified
                 // TODO(cook): is it correct that they should be equal to each other, regardless of true/false value?
-                var inventory_item_is_colorless = itemSetColorlessAsIdentified((int)py.inventory[i].category_id, (int)py.inventory[i].sub_category_id, (int)py.inventory[i].identification);
-                var item_is_colorless = itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
+                var inventory_item_is_colorless = this.identification.itemSetColorlessAsIdentified((int)py.inventory[i].category_id, (int)py.inventory[i].sub_category_id, (int)py.inventory[i].identification);
+                var item_is_colorless = this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification);
                 var identification = inventory_item_is_colorless == item_is_colorless;
 
                 if (same_character && same_category && same_number && same_group && identification)
@@ -232,8 +232,8 @@ namespace Moria.Core.Methods
         public int inventoryCarryItem(Inventory_t new_item)
         {
             var py = State.Instance.py;
-            var is_known = itemSetColorlessAsIdentified((int)new_item.category_id, (int)new_item.sub_category_id, (int)new_item.identification);
-            var is_always_known = objectPositionOffset((int)new_item.category_id, (int)new_item.sub_category_id) == -1;
+            var is_known = this.identification.itemSetColorlessAsIdentified((int)new_item.category_id, (int)new_item.sub_category_id, (int)new_item.identification);
+            var is_always_known = this.identification.objectPositionOffset((int)new_item.category_id, (int)new_item.sub_category_id) == -1;
 
             int slot_id;
 
@@ -246,7 +246,7 @@ namespace Moria.Core.Methods
                 var not_too_many_items = (int)(item.items_count + new_item.items_count) < 256;
 
                 // only stack if both or neither are identified
-                var same_known_status = itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification) == is_known;
+                var same_known_status = this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification) == is_known;
 
                 if (is_same_category && new_item.sub_category_id >= ITEM_SINGLE_STACK_MIN && not_too_many_items &&
                     (new_item.sub_category_id < ITEM_GROUP_MIN || item.misc_use == new_item.misc_use) && same_known_status)
@@ -331,8 +331,8 @@ namespace Moria.Core.Methods
 
             var item_id = items[this.rnd.randomNumber(items_count) - 1];
 
-            var description = string.Empty;
-            var msg = string.Empty;
+            string description;
+            string msg;
             //obj_desc_t description = { '\0' };
             //obj_desc_t msg = { '\0' };
 
@@ -340,7 +340,7 @@ namespace Moria.Core.Methods
             {
                 minus = true;
 
-                itemDescription(ref description, py.inventory[item_id], false);
+                this.identification.itemDescription(out description, py.inventory[item_id], false);
                 msg = $"Your {description} resists damage!";
                 //(void)sprintf(msg, "Your %s resists damage!", description);
                 this.terminal.printMessage(msg);
@@ -349,7 +349,7 @@ namespace Moria.Core.Methods
             {
                 minus = true;
 
-                itemDescription(ref description, py.inventory[item_id], false);
+                this.identification.itemDescription(out description, py.inventory[item_id], false);
                 msg = $"Your {description} is damaged!";
                 //(void)sprintf(msg, "Your %s is damaged!", description);
                 this.terminal.printMessage(msg);

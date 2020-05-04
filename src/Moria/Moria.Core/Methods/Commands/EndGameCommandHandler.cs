@@ -12,6 +12,7 @@ namespace Moria.Core.Methods.Commands
         private readonly IGame game;
         private readonly IGameSave gameSave;
         private readonly IHelpers helpers;
+        private readonly IIdentification identification;
         private readonly ITerminal terminal;
         private readonly IUiInventory uiInventory;
         private readonly IEventPublisher eventPublisher;
@@ -20,6 +21,7 @@ namespace Moria.Core.Methods.Commands
             IGame game,
             IGameSave gameSave,
             IHelpers helpers,
+            IIdentification identification,
             ITerminal terminal,
             IUiInventory uiInventory,
 
@@ -29,6 +31,7 @@ namespace Moria.Core.Methods.Commands
             this.game = game;
             this.gameSave = gameSave;
             this.helpers = helpers;
+            this.identification = identification;
             this.terminal = terminal;
             this.uiInventory = uiInventory;
             this.eventPublisher = eventPublisher;
@@ -186,8 +189,8 @@ namespace Moria.Core.Methods.Commands
             {
                 foreach (var item in State.Instance.py.inventory)
                 {
-                    Identification_m.itemSetAsIdentified((int)item.category_id, (int)item.sub_category_id);
-                    Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
+                    this.identification.itemSetAsIdentified((int)item.category_id, (int)item.sub_category_id);
+                    this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
                 }
 
                 Player_m.playerRecalculateBonuses();

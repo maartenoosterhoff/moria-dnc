@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using Moria.Core.Resources;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Identification_m;
 
 namespace Moria.Core.Methods
 {
@@ -16,6 +15,7 @@ namespace Moria.Core.Methods
             IGameObjects gameObjects,
             IGameObjectsPush gameObjectsPush,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             ITerminal terminal,
             ITreasure treasure
@@ -24,6 +24,7 @@ namespace Moria.Core.Methods
             Game_files_m.gameObjects = gameObjects;
             Game_files_m.gameObjectsPush = gameObjectsPush;
             Game_files_m.helpers = helpers;
+            Game_files_m.identification = identification;
             Game_files_m.inventoryManager = inventoryManager;
             Game_files_m.terminal = terminal;
             Game_files_m.treasure = treasure;
@@ -32,6 +33,7 @@ namespace Moria.Core.Methods
         private static IGameObjects gameObjects;
         private static IGameObjectsPush gameObjectsPush;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static ITerminal terminal;
         private static ITreasure treasure;
@@ -284,15 +286,15 @@ namespace Moria.Core.Methods
 
                 treasure.magicTreasureMagicalAbility(treasure_id, level);
 
-                var item = game.treasure.list[treasure_id];
-                itemIdentifyAsStoreBought(item);
+                var item = game.treasure.list[treasure_id]; 
+                identification.itemIdentifyAsStoreBought(item);
 
                 if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)
                 {
-                    itemAppendToInscription(item, Config.identification.ID_DAMD);
+                    identification.itemAppendToInscription(item, Config.identification.ID_DAMD);
                 }
 
-                itemDescription(ref input, item, true);
+                identification.itemDescription(out input, item, true);
                 //(void)fprintf(file_ptr, "%d %s\n", item.depth_first_found, input);
             }
 

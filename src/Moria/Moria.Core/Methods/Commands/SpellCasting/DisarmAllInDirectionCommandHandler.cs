@@ -12,16 +12,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     {
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly IIdentification identification;
         private readonly ITerminal terminal;
 
         public DisarmAllInDirectionCommandHandler(
             IDungeon dungeon,
             IHelpers helpers,
+            IIdentification identification,
             ITerminal terminal
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.identification = identification;
             this.terminal = terminal;
         }
 
@@ -64,7 +67,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 
                     if (item.category_id == Treasure_c.TV_INVIS_TRAP || item.category_id == Treasure_c.TV_VIS_TRAP)
                     {
-                        if (dungeon.dungeonDeleteObject(coord))
+                        if (this.dungeon.dungeonDeleteObject(coord))
                         {
                             disarmed = true;
                         }
@@ -77,7 +80,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                     else if (item.category_id == Treasure_c.TV_SECRET_DOOR)
                     {
                         tile.field_mark = true;
-                        dungeon.trapChangeVisibility(coord);
+                        this.dungeon.trapChangeVisibility(coord);
                         disarmed = true;
                     }
                     else if (item.category_id == Treasure_c.TV_CHEST && item.flags != 0)
@@ -88,12 +91,12 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         item.flags &= ~(Config.treasure_chests.CH_TRAPPED | Config.treasure_chests.CH_LOCKED);
                         item.special_name_id = (int)SpecialNameIds.SN_UNLOCKED;
 
-                        Identification_m.spellItemIdentifyAndRemoveRandomInscription(item);
+                        this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     }
                 }
 
                 // move must be at end because want to light up current spot
-                helpers.movePosition(direction, ref coord);
+                this.helpers.movePosition(direction, ref coord);
 
                 distance++;
             } while (distance <= Config.treasure.OBJECT_BOLTS_MAX_RANGE && tile.feature_id <= Dungeon_tile_c.MAX_OPEN_SPACE);

@@ -5,7 +5,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Ui_m;
@@ -18,6 +17,7 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IDice dice,
             IHelpers helpers,
+            IIdentification identification,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -29,6 +29,7 @@ namespace Moria.Core.Methods
         {
             Player_quaff_m.dice = dice;
             Player_quaff_m.helpers = helpers;
+            Player_quaff_m.identification = identification;
             Player_quaff_m.inventoryManager = inventoryManager;
             Player_quaff_m.playerMagic = playerMagic;
             Player_quaff_m.rnd = rnd;
@@ -40,6 +41,7 @@ namespace Moria.Core.Methods
 
         private static IDice dice;
         private static IHelpers helpers;
+        private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
@@ -426,23 +428,23 @@ namespace Moria.Core.Methods
 
             if (identified)
             {
-                if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
                     displayCharacterExperience();
 
-                    itemIdentify(py.inventory[item_id], ref item_id);
+                    identification.itemIdentify(py.inventory[item_id], ref item_id);
                     item = py.inventory[item_id];
                 }
             }
-            else if (!itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                itemSetAsTried(item);
+                identification.itemSetAsTried(item);
             }
 
             playerIngestFood(item.misc_use);
-            itemTypeRemainingCountDescription(item_id);
+            identification.itemTypeRemainingCountDescription(item_id);
             inventoryManager.inventoryDestroyItem(item_id);
         }
     }
