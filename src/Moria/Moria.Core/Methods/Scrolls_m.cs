@@ -748,7 +748,8 @@ namespace Moria.Core.Methods
                         break;
                     case 21:
                         printMessage("There is a high pitched humming noise.");
-                        spellAggravateMonsters(20);
+                        eventPublisher.Publish(new AggravateMonstersCommand(20));
+                        //spellAggravateMonsters(20);
                         identified = true;
                         break;
                     case 22:

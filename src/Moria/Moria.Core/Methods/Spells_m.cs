@@ -343,30 +343,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        // Get all the monsters on the level pissed off. -RAK-
-        public static bool spellAggravateMonsters(int affect_distance)
-        {
-            var aggravated = false;
-
-            for (var id = State.Instance.next_free_monster_id - 1; id >= Config.monsters.MON_MIN_INDEX_ID; id--)
-            {
-                var monster = State.Instance.monsters[id];
-                monster.sleep_count = 0;
-
-                if (monster.distance_from_player <= affect_distance && monster.speed < 2)
-                {
-                    monster.speed++;
-                    aggravated = true;
-                }
-            }
-
-            if (aggravated)
-            {
-                printMessage("You hear a sudden stirring in the distance!");
-            }
-
-            return aggravated;
-        }
+        
 
         // Surround the fool with traps (chuckle) -RAK-
         public static bool spellSurroundPlayerWithTraps()

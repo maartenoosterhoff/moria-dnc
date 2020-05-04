@@ -2272,7 +2272,8 @@ namespace Moria.Core.Methods
                     spellLoseEXP(damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT);
                     break;
                 case 20: // Aggravate monster
-                    spellAggravateMonsters(20);
+                    eventPublisher.Publish(new AggravateMonstersCommand(20));
+                    //spellAggravateMonsters(20);
                     break;
                 case 21: // Disenchant
                     if (inventoryManager.executeDisenchantAttack())
