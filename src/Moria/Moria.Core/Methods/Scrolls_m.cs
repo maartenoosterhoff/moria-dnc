@@ -768,7 +768,8 @@ namespace Moria.Core.Methods
                         break;
                     case 25:
                         printMessage("This is a Recharge-Item scroll.");
-                        used_up = spellRechargeItem(60);
+                        used_up = eventPublisher.PublishWithOutputBool(new RechargeItemCommand(60));
+                        //used_up = spellRechargeItem(60);
                         identified = true;
                         break;
                     case 26:

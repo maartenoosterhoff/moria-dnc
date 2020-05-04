@@ -236,12 +236,6 @@ namespace Moria.Core.Methods
             return result;
         }
 
-
-
-
-
-        
-
         // Return flags for given type area affect -RAK-
         public static void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type, out Func<Inventory_t, bool> destroy)
         {
@@ -291,72 +285,7 @@ namespace Moria.Core.Methods
             }
         }
 
-
-
         
-
-        
-
-        
-
-        
-
-        // Recharge a wand, staff, or rod.  Sometimes the item breaks. -RAK-
-        public static bool spellRechargeItem(int number_of_charges)
-        {
-            var py = State.Instance.py;
-            int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_WAND, ref item_pos_start, ref item_pos_end))
-            {
-                printMessage("You have nothing to recharge.");
-                return false;
-            }
-
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Recharge which item?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
-            {
-                return false;
-            }
-
-            var item = py.inventory[item_id];
-
-            // recharge  I = recharge(20) = 1/6  failure for empty 10th level wand
-            // recharge II = recharge(60) = 1/10 failure for empty 10th level wand
-            //
-            // make it harder to recharge high level, and highly charged wands,
-            // note that `fail_chance` can be negative, so check its value before
-            // trying to call rnd.randomNumber().
-            var fail_chance = number_of_charges + 50 - (int)item.depth_first_found - item.misc_use;
-
-            // Automatic failure.
-            if (fail_chance < 19)
-            {
-                fail_chance = 1;
-            }
-            else
-            {
-                fail_chance = rnd.randomNumber(fail_chance / 10);
-            }
-
-            if (fail_chance == 1)
-            {
-                printMessage("There is a bright flash of light.");
-                inventoryManager.inventoryDestroyItem(item_id);
-            }
-            else
-            {
-                number_of_charges = number_of_charges / ((int)item.depth_first_found + 2) + 1;
-                item.misc_use += 2 + rnd.randomNumber(number_of_charges);
-
-                if (spellItemIdentified(item))
-                {
-                    spellItemRemoveIdentification(item);
-                }
-
-                itemIdentificationClearEmpty(item);
-            }
-
-            return true;
-        }
 
         // Create a wall. -RAK-
         public static bool spellBuildWall(Coord_t coord, int direction)

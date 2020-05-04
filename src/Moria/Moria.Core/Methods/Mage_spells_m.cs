@@ -220,7 +220,8 @@ namespace Moria.Core.Methods
                     //spellCreateFood();
                     break;
                 case MageSpellId.RechargeItem1:
-                    spellRechargeItem(20);
+                    eventPublisher.Publish(new RechargeItemCommand(20));
+                    //spellRechargeItem(20);
                     break;
                 case MageSpellId.Sleep2:
                     monsterSleep(py.pos);
@@ -278,7 +279,8 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case MageSpellId.RechargeItem2:
-                    spellRechargeItem(60);
+                    eventPublisher.Publish(new RechargeItemCommand(60));
+                    //spellRechargeItem(60);
                     break;
                 case MageSpellId.TeleportOther:
                     if (game.getDirectionWithMemory(/*CNIL*/null, ref dir))
