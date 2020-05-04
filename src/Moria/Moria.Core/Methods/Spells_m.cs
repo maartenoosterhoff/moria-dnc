@@ -5,7 +5,6 @@ using Moria.Core.Structures.Enumerations;
 using System;
 using Moria.Core.Data;
 using static Moria.Core.Methods.Mage_spells_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -15,6 +14,8 @@ namespace Moria.Core.Methods
 
         void spellGetAreaAffectFlags(int spell_type, out uint weapon_type, out int harm_type,
             out Func<Inventory_t, bool> destroy);
+
+        void displaySpellsList(int[] spell_ids, int number_of_choices, bool comment, int non_consecutive);
     }
 
     public class Spells_m : ISpells
@@ -32,6 +33,95 @@ namespace Moria.Core.Methods
             this.helpers = helpers;
             this.inventory = inventory;
             this.terminal = terminal;
+        }
+
+        // Print list of spells -RAK-
+        // if non_consecutive is  -1: spells numbered consecutively from 'a' to 'a'+num
+        //                       >=0: spells numbered by offset from non_consecutive
+        public void displaySpellsList(int[] spell_ids, int number_of_choices, bool comment, int non_consecutive)
+        {
+            var py = State.Instance.py;
+            int col;
+            if (comment)
+            {
+                col = 22;
+            }
+            else
+            {
+                col = 31;
+            }
+
+            int consecutive_offset;
+            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            {
+                consecutive_offset = (int)Config.spells.NAME_OFFSET_SPELLS;
+            }
+            else
+            {
+                consecutive_offset = (int)Config.spells.NAME_OFFSET_PRAYERS;
+            }
+
+            this.terminal.eraseLine(new Coord_t(1, col));
+            this.terminal.putString("Name", new Coord_t(1, col + 5));
+            this.terminal.putString("Lv Mana Fail", new Coord_t(1, col + 35));
+
+            // only show the first 22 choices
+            if (number_of_choices > 22)
+            {
+                number_of_choices = 22;
+            }
+
+            for (var i = 0; i < number_of_choices; i++)
+            {
+                var spell_id = spell_ids[i];
+                var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
+
+                var p = string.Empty;
+                if (!comment)
+                {
+                    p = "";
+                }
+                else if ((py.flags.spells_forgotten & (1L << spell_id)) != 0)
+                {
+                    p = " forgotten";
+                }
+                else if ((py.flags.spells_learnt & (1L << spell_id)) == 0)
+                {
+                    p = " unknown";
+                }
+                else if ((py.flags.spells_worked & (1L << spell_id)) == 0)
+                {
+                    p = " untried";
+                }
+                else
+                {
+                    p = "";
+                }
+
+                // determine whether or not to leave holes in character choices, non_consecutive -1
+                // when learning spells, consecutive_offset>=0 when asking which spell to cast.
+                char spell_char;
+                if (non_consecutive == -1)
+                {
+                    spell_char = (char)('a' + i);
+                }
+                else
+                {
+                    spell_char = (char)('a' + spell_id - non_consecutive);
+                }
+
+                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset].PadRight(30)}{spell.level_required,2:d} {spell.mana_required,4:d} {spellChanceOfSuccess(spell_id),3:d}%{p}";
+                //vtype_t out_val = { '\0' };
+                //(void)sprintf(out_val,
+                //    "  %c) %-30s%2d %4d %3d%%%s",
+                //    spell_char,
+                //    Library.Instance.Player.spell_names[spell_id + consecutive_offset],
+                //    spell.level_required,
+                //    spell.mana_required,
+                //    spellChanceOfSuccess(spell_id),
+                //    p);
+                this.terminal.putStringClearToEOL(out_val, new Coord_t(2 + i, col));
+            }
         }
 
         // Returns spell pointer -RAK-
@@ -124,7 +214,7 @@ namespace Moria.Core.Methods
                     {
                         this.terminal.terminalSaveScreen();
                         redraw = true;
-                        displaySpellsList(spell_ids, number_of_choices, false, first_spell);
+                        this.displaySpellsList(spell_ids, number_of_choices, false, first_spell);
                     }
                 }
                 else if (char.IsLetter(choice))

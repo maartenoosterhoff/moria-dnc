@@ -199,6 +199,7 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
+                container.GetInstance<ISpells>(),
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<IUiInventory>(),

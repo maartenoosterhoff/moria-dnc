@@ -11,16 +11,19 @@ namespace Moria.Core.Methods.Commands.Spells
     {
         private readonly IHelpers helpers;
         private readonly IRnd rnd;
+        private readonly ISpells spells;
         private readonly ITerminal terminal;
 
         public GainSpellsCommandHandler(
             IHelpers helpers,
             IRnd rnd,
+            ISpells spells,
             ITerminal terminal
         )
         {
             this.helpers = helpers;
             this.rnd = rnd;
+            this.spells = spells;
             this.terminal = terminal;
         }
 
@@ -127,7 +130,7 @@ namespace Moria.Core.Methods.Commands.Spells
             {
                 // get to choose which mage spells will be learned
                 this.terminal.terminalSaveScreen();
-                Ui_m.displaySpellsList(spell_bank, spell_id, false, -1);
+                this.spells.displaySpellsList(spell_bank, spell_id, false, -1);
 
                 while (new_spells != 0 && this.terminal.getCommand("Learn which spell?", out var query))
                 {
@@ -151,7 +154,7 @@ namespace Moria.Core.Methods.Commands.Spells
                         spell_id--;
 
                         this.terminal.eraseLine(new Coord_t(c + 1, 31));
-                        Ui_m.displaySpellsList(spell_bank, spell_id, false, -1);
+                        this.spells.displaySpellsList(spell_bank, spell_id, false, -1);
                     }
                     else
                     {

@@ -55,6 +55,7 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
             IRnd rnd,
+            ISpells spells,
             IStoreInventory storeInventory,
             ITerminal terminal,
             IUiInventory uiInventory,
@@ -74,6 +75,7 @@ namespace Moria.Core.Methods
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.rnd = rnd;
+            Game_run_m.spells = spells;
             Game_run_m.storeInventory = storeInventory;
             Game_run_m.terminal = terminal;
             Game_run_m.wizard = wizard;
@@ -94,6 +96,7 @@ namespace Moria.Core.Methods
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
+        private static ISpells spells;
         private static IStoreInventory storeInventory;
         private static ITerminal terminal;
         private static IWizard wizard;
@@ -2704,7 +2707,7 @@ namespace Moria.Core.Methods
                 }
 
                 terminal.terminalSaveScreen();
-                displaySpellsList(spell_index, spell_id, true, -1);
+                spells.displaySpellsList(spell_index, spell_id, true, -1);
                 terminal.waitForContinueKey(0);
                 terminal.terminalRestoreScreen();
             }

@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
@@ -35,14 +34,15 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        private static string[] stat_names = new[] {
+        private static string[] stat_names = {
             "STR : ", "INT : ", "WIS : ", "DEX : ", "CON : ", "CHR : "
         };
 
-        private static readonly int BLANK_LENGTH = 24;
+        private const int BLANK_LENGTH = 24;
+
         //#define BLANK_LENGTH 24
 
-        private static string blank_string = "                        ";
+        private static readonly string blank_string = "                        ";
 
         // Calculates current boundaries -RAK-
         private static void panelBounds()
@@ -862,7 +862,6 @@ namespace Moria.Core.Methods
         // Changes the name of the character -JWT-
         public static void changeCharacterName()
         {
-            var temp = string.Empty;
             //vtype_t temp = { '\0' };
             var flag = false;
 
@@ -881,6 +880,7 @@ namespace Moria.Core.Methods
                     case 'f':
                         terminal.putStringClearToEOL("File name:", new Coord_t(0, 0));
 
+                        string temp;
                         if (terminal.getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
                         {
                             if (outputPlayerCharacterToFile(temp))
@@ -899,95 +899,6 @@ namespace Moria.Core.Methods
                         terminal.terminalBellSound();
                         break;
                 }
-            }
-        }
-
-        // Print list of spells -RAK-
-        // if non_consecutive is  -1: spells numbered consecutively from 'a' to 'a'+num
-        //                       >=0: spells numbered by offset from non_consecutive
-        public static void displaySpellsList(int[] spell_ids, int number_of_choices, bool comment, int non_consecutive)
-        {
-            var py = State.Instance.py;
-            int col;
-            if (comment)
-            {
-                col = 22;
-            }
-            else
-            {
-                col = 31;
-            }
-
-            int consecutive_offset;
-            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
-            {
-                consecutive_offset = (int)Config.spells.NAME_OFFSET_SPELLS;
-            }
-            else
-            {
-                consecutive_offset = (int)Config.spells.NAME_OFFSET_PRAYERS;
-            }
-
-            terminal.eraseLine(new Coord_t(1, col));
-            terminal.putString("Name", new Coord_t(1, col + 5));
-            terminal.putString("Lv Mana Fail", new Coord_t(1, col + 35));
-
-            // only show the first 22 choices
-            if (number_of_choices > 22)
-            {
-                number_of_choices = 22;
-            }
-
-            for (var i = 0; i < number_of_choices; i++)
-            {
-                var spell_id = spell_ids[i];
-                var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
-
-                var p = string.Empty;
-                if (!comment)
-                {
-                    p = "";
-                }
-                else if ((py.flags.spells_forgotten & (1L << spell_id)) != 0)
-                {
-                    p = " forgotten";
-                }
-                else if ((py.flags.spells_learnt & (1L << spell_id)) == 0)
-                {
-                    p = " unknown";
-                }
-                else if ((py.flags.spells_worked & (1L << spell_id)) == 0)
-                {
-                    p = " untried";
-                }
-                else
-                {
-                    p = "";
-                }
-
-                // determine whether or not to leave holes in character choices, non_consecutive -1
-                // when learning spells, consecutive_offset>=0 when asking which spell to cast.
-                char spell_char;
-                if (non_consecutive == -1)
-                {
-                    spell_char = (char)('a' + i);
-                }
-                else
-                {
-                    spell_char = (char)('a' + spell_id - non_consecutive);
-                }
-
-                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset].PadRight(30)}{spell.level_required,2:d} {spell.mana_required,4:d} {spellChanceOfSuccess(spell_id),3:d}%{p}";
-                //vtype_t out_val = { '\0' };
-                //(void)sprintf(out_val,
-                //    "  %c) %-30s%2d %4d %3d%%%s",
-                //    spell_char,
-                //    Library.Instance.Player.spell_names[spell_id + consecutive_offset],
-                //    spell.level_required,
-                //    spell.mana_required,
-                //    spellChanceOfSuccess(spell_id),
-                //    p);
-                terminal.putStringClearToEOL(out_val, new Coord_t(2 + i, col));
             }
         }
 

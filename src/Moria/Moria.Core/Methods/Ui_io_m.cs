@@ -480,7 +480,6 @@ namespace Moria.Core.Methods
         // These messages are kept for later reference.
         public void printMessage(string msg)
         {
-            var new_len = 0;
             var old_len = 0;
             var combine_messages = false;
 
@@ -493,6 +492,7 @@ namespace Moria.Core.Methods
                 // we want display them together on the same line.  So we
                 // don't flush the old message in this case.
 
+                int new_len;
                 if (!string.IsNullOrEmpty(msg))
                 {
                     new_len = msg.Length;
