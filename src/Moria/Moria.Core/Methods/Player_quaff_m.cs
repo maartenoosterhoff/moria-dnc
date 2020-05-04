@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Configs;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -317,7 +318,8 @@ namespace Moria.Core.Methods
                         identified = playerMagic.playerRemoveFear();
                         break;
                     case PotionSpellTypes.RestoreLifeLevels:
-                        identified = spellRestorePlayerLevels();
+                        identified = eventPublisher.PublishWithOutputBool(new RestorePlayerLevelsCommand());
+                        //identified = spellRestorePlayerLevels();
                         break;
                     case PotionSpellTypes.ResistHeat:
                         if (py.flags.heat_resistance == 0)

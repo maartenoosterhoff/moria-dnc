@@ -458,27 +458,5 @@ namespace Moria.Core.Methods
 
             return removed;
         }
-
-        // Restores any drained experience -RAK-
-        public static bool spellRestorePlayerLevels()
-        {
-            var py = State.Instance.py;
-
-            if (py.misc.max_exp > py.misc.exp)
-            {
-                printMessage("You feel your life energies returning.");
-
-                // this while loop is not redundant, ptr_exp may reduce the exp level
-                while (py.misc.exp < py.misc.max_exp)
-                {
-                    py.misc.exp = py.misc.max_exp;
-                    displayCharacterExperience();
-                }
-
-                return true;
-            }
-
-            return false;
-        }
     }
 }

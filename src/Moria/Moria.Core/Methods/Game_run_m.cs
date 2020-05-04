@@ -35,7 +35,6 @@ using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Player_tunnel_m;
 using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Scrolls_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Staffs_m;
 using static Moria.Core.Methods.Store_m;
 using static Moria.Core.Methods.Ui_io_m;

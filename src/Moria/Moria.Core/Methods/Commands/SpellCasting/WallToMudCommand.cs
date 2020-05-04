@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Moria.Core.Structures;
+﻿using Moria.Core.Structures;
 
 namespace Moria.Core.Methods.Commands.SpellCasting
 {

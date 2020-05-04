@@ -1,4 +1,5 @@
 ﻿using Moria.Core.Data;
+using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Resources;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -9,7 +10,6 @@ using static Moria.Core.Methods.Game_save_m;
 using static Moria.Core.Methods.Identification_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Scores_m;
-using static Moria.Core.Methods.Spells_m;
 using static Moria.Core.Methods.Ui_io_m;
 using static Moria.Core.Methods.Ui_m;
 
@@ -20,17 +20,22 @@ namespace Moria.Core.Methods
         public static void SetDependencies(
             IGame game,
             IHelpers helpers,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Game_death_m.game = game;
             Game_death_m.helpers = helpers;
             Game_death_m.uiInventory = uiInventory;
+            Game_death_m.eventPublisher = eventPublisher;
         }
 
         private static IGame game;
         private static IHelpers helpers;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         // Prints the gravestone of the character -RAK-
         static void printTomb()
@@ -159,7 +164,8 @@ namespace Moria.Core.Methods
             dg.current_level = 0;
             State.Instance.game.character_died_from = "Ripe Old Age";
 
-            spellRestorePlayerLevels();
+            eventPublisher.Publish(new RestorePlayerLevelsCommand());
+            //spellRestorePlayerLevels();
 
             py.misc.level += PLAYER_MAX_LEVEL;
             py.misc.au += 250000;
