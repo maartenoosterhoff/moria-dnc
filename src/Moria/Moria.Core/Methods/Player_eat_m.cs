@@ -327,6 +327,5 @@ namespace Moria.Core.Methods
                 terminal.printMessage("You are full.");
             }
         }
-
     }
 }

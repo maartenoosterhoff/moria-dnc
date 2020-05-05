@@ -166,12 +166,11 @@ namespace Moria.Core.Methods
             else
             {
                 i = -1;
-                var input = string.Empty;
                 //vtype_t input = { 0 };
 
                 this.terminal.putStringClearToEOL("Go to which level (0-99) ? ", new Coord_t(0, 0));
 
-                if (this.terminal.getStringInput(out input, new Coord_t(0, 27), 10))
+                if (this.terminal.getStringInput(out var input, new Coord_t(0, 27), 10))
                 {
                     this.helpers.stringToNumber(input, out i);
                 }

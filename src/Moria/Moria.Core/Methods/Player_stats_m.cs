@@ -75,7 +75,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        static int playerAttackBlowsDexterity(int dexterity)
+        private static int playerAttackBlowsDexterity(int dexterity)
         {
             int dex;
 
@@ -107,7 +107,7 @@ namespace Moria.Core.Methods
             return dex;
         }
 
-        static int playerAttackBlowsStrength(int strength, int weight)
+        private static int playerAttackBlowsStrength(int strength, int weight)
         {
             var adj_weight = strength * 10 / weight;
 
@@ -312,7 +312,7 @@ namespace Moria.Core.Methods
             return 4;
         }
 
-        public static uint playerModifyStat(int stat, int amount)
+        private static uint playerModifyStat(int stat, int amount)
         {
             var py = State.Instance.py;
             var new_stat = py.stats.current[stat];
@@ -699,6 +699,5 @@ namespace Moria.Core.Methods
 
             return adjustment;
         }
-
     }
 }

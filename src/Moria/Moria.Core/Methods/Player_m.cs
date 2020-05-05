@@ -62,7 +62,7 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        static void playerResetFlags()
+        private static void playerResetFlags()
         {
             var py = State.Instance.py;
 
@@ -429,7 +429,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerRecalculateBonusesFromInventory()
+        private static void playerRecalculateBonusesFromInventory()
         {
             var py = State.Instance.py;
             for (var i = (int)PlayerEquipment.Wield; i < (int)PlayerEquipment.Light; i++)
@@ -472,7 +472,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerRecalculateSustainStatsFromInventory()
+        private static void playerRecalculateSustainStatsFromInventory()
         {
             var py = State.Instance.py;
 
@@ -888,7 +888,7 @@ namespace Moria.Core.Methods
             py.flags.status &= ~Config.player_status.PY_STR_WGT;
         }
 
-        public static int newMana(int stat)
+        private static int newMana(int stat)
         {
             var py = State.Instance.py;
             var levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
@@ -1033,7 +1033,7 @@ namespace Moria.Core.Methods
             py.misc.exp += quotient;
         }
 
-        public static void playerCalculateToHitBlows(int weapon_id, int weapon_weight, ref int blows, ref int total_to_hit)
+        private static void playerCalculateToHitBlows(int weapon_id, int weapon_weight, ref int blows, ref int total_to_hit)
         {
             var py = State.Instance.py;
             if (weapon_id != TV_NOTHING)
@@ -1057,7 +1057,7 @@ namespace Moria.Core.Methods
             total_to_hit += py.misc.plusses_to_hit;
         }
 
-        public static int playerCalculateBaseToHit(bool creature_lit, int tot_tohit)
+        private static int playerCalculateBaseToHit(bool creature_lit, int tot_tohit)
         {
             var py = State.Instance.py;
             if (creature_lit)
@@ -1076,7 +1076,7 @@ namespace Moria.Core.Methods
         }
 
         // Player attacks a (poor, defenseless) creature -RAK-
-        public static void playerAttackMonster(Coord_t coord)
+        private static void playerAttackMonster(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -1211,7 +1211,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int playerLockPickingSkill()
+        private static int playerLockPickingSkill()
         {
             var py = State.Instance.py;
 
@@ -1225,7 +1225,7 @@ namespace Moria.Core.Methods
             return skill;
         }
 
-        public static void openClosedDoor(Coord_t coord)
+        private static void openClosedDoor(Coord_t coord)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -1270,7 +1270,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void openClosedChest(Coord_t coord)
+        private static void openClosedChest(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -1523,7 +1523,7 @@ namespace Moria.Core.Methods
         }
 
         // check to see if know any spells greater than level, eliminate them
-        public static void eliminateKnownSpellsGreaterThanLevel(IReadOnlyList<Spell_t> msp_ptr, string p, int offset)
+        private static void eliminateKnownSpellsGreaterThanLevel(IReadOnlyList<Spell_t> msp_ptr, string p, int offset)
         {
             var py = State.Instance.py;
             var mask = 0x80000000;
@@ -1550,7 +1550,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int numberOfSpellsAllowed(int stat)
+        private static int numberOfSpellsAllowed(int stat)
         {
             var py = State.Instance.py;
             var levels = (int)(py.misc.level - Library.Instance.Player.classes[(int)py.misc.class_id].min_level_for_spell_casting + 1);
@@ -1582,7 +1582,7 @@ namespace Moria.Core.Methods
             return allowed;
         }
 
-        public static int numberOfSpellsKnown()
+        private static int numberOfSpellsKnown()
         {
             var py = State.Instance.py;
             var known = 0;
@@ -1600,7 +1600,7 @@ namespace Moria.Core.Methods
 
         // remember forgotten spells while forgotten spells exist of new_spells_to_learn positive,
         // remember the spells in the order that they were learned
-        public static int rememberForgottenSpells(IReadOnlyList<Spell_t> msp_ptr, int allowed_spells, int new_spells, string p, int offset)
+        private static int rememberForgottenSpells(IReadOnlyList<Spell_t> msp_ptr, int allowed_spells, int new_spells, string p, int offset)
         {
             var py = State.Instance.py;
             uint mask;
@@ -1646,7 +1646,7 @@ namespace Moria.Core.Methods
 
         // determine which spells player can learn must check all spells here,
         // in gain_spell() we actually check if the books are present
-        public static int learnableSpells(IReadOnlyList<Spell_t> msp_ptr, int new_spells)
+        private static int learnableSpells(IReadOnlyList<Spell_t> msp_ptr, int new_spells)
         {
             var py = State.Instance.py;
             var spell_flag = (uint)(0x7FFFFFFFL & ~py.flags.spells_learnt);
@@ -1677,7 +1677,7 @@ namespace Moria.Core.Methods
         // forget spells until new_spells_to_learn zero or no more spells know,
         // spells are forgotten in the opposite order that they were learned
         // NOTE: newSpells is always a negative value
-        public static void forgetSpells(int new_spells, string p, int offset)
+        private static void forgetSpells(int new_spells, string p, int offset)
         {
             var py = State.Instance.py;
             uint mask;

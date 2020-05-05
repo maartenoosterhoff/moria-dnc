@@ -872,6 +872,5 @@ namespace Moria.Core.Methods
                 inventoryManager.inventoryDestroyItem(item_id);
             }
         }
-
     }
 }

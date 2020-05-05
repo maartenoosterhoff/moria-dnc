@@ -133,14 +133,14 @@ namespace Moria.Core.Methods
         // The cycle lists the directions in anticlockwise order, for over two complete
         // cycles. The chome array maps a direction on to its position in the cycle. -CJS-
 
-        static int[] cycle = { 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
-        static int[] chome = { -1, 8, 9, 10, 7, -1, 11, 6, 5, 4 };
-        static bool find_openarea, find_breakright, find_breakleft;
-        static int find_prevdir;
-        static int find_direction; // Keep a record of which way we are going.
+        private static int[] cycle = { 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
+        private static int[] chome = { -1, 8, 9, 10, 7, -1, 11, 6, 5, 4 };
+        private static bool find_openarea, find_breakright, find_breakleft;
+        private static int find_prevdir;
+        private static int find_direction; // Keep a record of which way we are going.
 
         // Do we see a wall? Used in running. -CJS-
-        static bool playerCanSeeDungeonWall(int dir, Coord_t coord)
+        private static bool playerCanSeeDungeonWall(int dir, Coord_t coord)
         {
             // check to see if movement there possible
             if (!helpers.movePosition(dir, ref coord))
@@ -154,13 +154,13 @@ namespace Moria.Core.Methods
         }
 
         // Do we see anything? Used in running. -CJS-
-        static bool playerSeeNothing(int dir, Coord_t coord)
+        private static bool playerSeeNothing(int dir, Coord_t coord)
         {
             // check to see if movement there possible
             return helpers.movePosition(dir, ref coord) && dungeon.caveGetTileSymbol(coord) == ' ';
         }
 
-        static void findRunningBreak(int dir, Coord_t coord)
+        private static void findRunningBreak(int dir, Coord_t coord)
         {
             var py = State.Instance.py;
             var deep_left = false;
@@ -297,7 +297,7 @@ namespace Moria.Core.Methods
 
 
 
-        static bool areaAffectStopLookingAtSquares(int i, int dir, int new_dir, Coord_t coord, ref int check_dir, ref int dir_a, ref int dir_b)
+        private static bool areaAffectStopLookingAtSquares(int i, int dir, int new_dir, Coord_t coord, ref int check_dir, ref int dir_a, ref int dir_b)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -523,6 +523,5 @@ namespace Moria.Core.Methods
                 find_prevdir = dir_b;
             }
         }
-
     }
 }

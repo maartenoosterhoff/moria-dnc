@@ -322,6 +322,5 @@ namespace Moria.Core.Methods
                 chestExplode(coord);
             }
         }
-
     }
 }

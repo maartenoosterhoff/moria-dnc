@@ -273,7 +273,7 @@ namespace Moria.Core.Methods
         }
 
         // Init players with some belongings -RAK-
-        public static void initializeCharacterInventory()
+        private static void initializeCharacterInventory()
         {
             var py = State.Instance.py;
 
@@ -310,7 +310,7 @@ namespace Moria.Core.Methods
         }
 
         // Initializes M_LEVEL array for use with PLACE_MONSTER -RAK-
-        static void initializeMonsterLevels()
+        private static void initializeMonsterLevels()
         {
             var monster_levels = State.Instance.monster_levels;
             for (var i = 0; i < monster_levels.Length; i++)
@@ -334,7 +334,7 @@ namespace Moria.Core.Methods
         }
 
         // Initializes T_LEVEL array for use with PLACE_OBJECT -RAK-
-        static void initializeTreasureLevels()
+        private static void initializeTreasureLevels()
         {
             var treasure_levels = State.Instance.treasure_levels;
             for (var i = 0; i < treasure_levels.Length; i++)
@@ -378,7 +378,7 @@ namespace Moria.Core.Methods
         }
 
         // Adjust prices of objects -RAK-
-        static void priceAdjust()
+        private static void priceAdjust()
         {
             Library.Instance.Treasure.AdjustPrices();
         }
@@ -390,7 +390,7 @@ namespace Moria.Core.Methods
         // It has had a bit more hard work. -CJS-
 
         // Reset flags and initialize variables
-        public static void resetDungeonFlags()
+        private static void resetDungeonFlags()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -405,14 +405,14 @@ namespace Moria.Core.Methods
         }
 
         // Check light status for dungeon setup
-        public static void playerInitializePlayerLight()
+        private static void playerInitializePlayerLight()
         {
             var py = State.Instance.py;
             py.carrying_light = py.inventory[(int)PlayerEquipment.Light].misc_use > 0;
         }
 
         // Check for a maximum level
-        public static void playerUpdateMaxDungeonDepth()
+        private static void playerUpdateMaxDungeonDepth()
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -423,7 +423,7 @@ namespace Moria.Core.Methods
         }
 
         // Check light status
-        static void playerUpdateLightStatus()
+        private static void playerUpdateLightStatus()
         {
             var py = State.Instance.py;
             var item = py.inventory[(int)PlayerEquipment.Light];
@@ -473,7 +473,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerActivateHeroism()
+        private static void playerActivateHeroism()
         {
             var py = State.Instance.py;
 
@@ -491,7 +491,7 @@ namespace Moria.Core.Methods
             terminalEx.printCharacterCurrentHitPoints();
         }
 
-        public static void playerDisableHeroism()
+        private static void playerDisableHeroism()
         {
             var py = State.Instance.py;
 
@@ -513,7 +513,7 @@ namespace Moria.Core.Methods
             terminalEx.printCharacterMaxHitPoints();
         }
 
-        public static void playerActivateSuperHeroism()
+        private static void playerActivateSuperHeroism()
         {
             var py = State.Instance.py;
 
@@ -531,7 +531,7 @@ namespace Moria.Core.Methods
             terminalEx.printCharacterCurrentHitPoints();
         }
 
-        public static void playerDisableSuperHeroism()
+        private static void playerDisableSuperHeroism()
         {
             var py = State.Instance.py;
 
@@ -554,7 +554,7 @@ namespace Moria.Core.Methods
             terminalEx.printCharacterMaxHitPoints();
         }
 
-        public static void playerUpdateHeroStatus()
+        private static void playerUpdateHeroStatus()
         {
             var py = State.Instance.py;
 
@@ -591,7 +591,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int playerFoodConsumption()
+        private static int playerFoodConsumption()
         {
             var py = State.Instance.py;
 
@@ -661,7 +661,7 @@ namespace Moria.Core.Methods
             return regen_amount;
         }
 
-        public static void playerUpdateRegeneration(int amount)
+        private static void playerUpdateRegeneration(int amount)
         {
             var py = State.Instance.py;
 
@@ -686,7 +686,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateBlindness()
+        private static void playerUpdateBlindness()
         {
             var py = State.Instance.py;
 
@@ -726,7 +726,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateConfusion()
+        private static void playerUpdateConfusion()
         {
             var py = State.Instance.py;
 
@@ -757,7 +757,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateFearState()
+        private static void playerUpdateFearState()
         {
             var py = State.Instance.py;
 
@@ -796,7 +796,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdatePoisonedState()
+        private static void playerUpdatePoisonedState()
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -865,7 +865,7 @@ namespace Moria.Core.Methods
             //playerDisturb(1, 0);
         }
 
-        public static void playerUpdateFastness()
+        private static void playerUpdateFastness()
         {
             var py = State.Instance.py;
 
@@ -897,7 +897,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateSlowness()
+        private static void playerUpdateSlowness()
         {
             var py = State.Instance.py;
 
@@ -929,14 +929,14 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateSpeed()
+        private static void playerUpdateSpeed()
         {
             playerUpdateFastness();
             playerUpdateSlowness();
         }
 
         // Resting is over?
-        public static void playerUpdateRestingState()
+        private static void playerUpdateRestingState()
         {
             var py = State.Instance.py;
 
@@ -963,7 +963,7 @@ namespace Moria.Core.Methods
         }
 
         // Hallucinating?   (Random characters appear!)
-        public static void playerUpdateHallucination()
+        private static void playerUpdateHallucination()
         {
             var py = State.Instance.py;
 
@@ -984,7 +984,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateParalysis()
+        private static void playerUpdateParalysis()
         {
             var py = State.Instance.py;
 
@@ -1001,7 +1001,7 @@ namespace Moria.Core.Methods
         }
 
         // Protection from evil counter
-        public static void playerUpdateEvilProtection()
+        private static void playerUpdateEvilProtection()
         {
             var py = State.Instance.py;
 
@@ -1018,7 +1018,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateInvulnerability()
+        private static void playerUpdateInvulnerability()
         {
             var py = State.Instance.py;
 
@@ -1056,7 +1056,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateBlessedness()
+        private static void playerUpdateBlessedness()
         {
             var py = State.Instance.py;
 
@@ -1099,7 +1099,7 @@ namespace Moria.Core.Methods
         }
 
         // Resist Heat
-        public static void playerUpdateHeatResistance()
+        private static void playerUpdateHeatResistance()
         {
             var py = State.Instance.py;
 
@@ -1116,7 +1116,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateColdResistance()
+        private static void playerUpdateColdResistance()
         {
             var py = State.Instance.py;
 
@@ -1133,7 +1133,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateDetectInvisible()
+        private static void playerUpdateDetectInvisible()
         {
             var py = State.Instance.py;
 
@@ -1166,7 +1166,7 @@ namespace Moria.Core.Methods
         }
 
         // Timed infra-vision
-        public static void playerUpdateInfraVision()
+        private static void playerUpdateInfraVision()
         {
             var py = State.Instance.py;
 
@@ -1197,7 +1197,7 @@ namespace Moria.Core.Methods
         }
 
         // Word-of-Recall  Note: Word-of-Recall is a delayed action
-        public static void playerUpdateWordOfRecall()
+        private static void playerUpdateWordOfRecall()
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -1231,7 +1231,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerUpdateStatusFlags()
+        private static void playerUpdateStatusFlags()
         {
             var py = State.Instance.py;
 
@@ -1290,7 +1290,7 @@ namespace Moria.Core.Methods
         }
 
         // Allow for a slim chance of detect enchantment -CJS-
-        public static void playerDetectEnchantment()
+        private static void playerDetectEnchantment()
         {
             var py = State.Instance.py;
 
@@ -1320,7 +1320,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int getCommandRepeatCount(ref char last_input_command)
+        private static int getCommandRepeatCount(ref char last_input_command)
         {
             terminal.putStringClearToEOL("Repeat count:", new Coord_t(0, 0));
 
@@ -1380,7 +1380,7 @@ namespace Moria.Core.Methods
             return repeat_count;
         }
 
-        public static char parseAlternateCtrlInput(out char last_input_command)
+        private static char parseAlternateCtrlInput(out char last_input_command)
         {
             var game = State.Instance.game;
             if (game.command_count > 0)
@@ -1413,7 +1413,7 @@ namespace Moria.Core.Methods
         }
 
         // Accept a command and execute it
-        public static void executeInputCommands(ref char command, ref int find_count)
+        private static void executeInputCommands(ref char command, ref int find_count)
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -1529,7 +1529,7 @@ namespace Moria.Core.Methods
             command = last_input_command;
         }
 
-        static char originalCommands(char command)
+        private static char originalCommands(char command)
         {
             var direction = 0;
 
@@ -1763,7 +1763,7 @@ namespace Moria.Core.Methods
             return command;
         }
 
-        public static bool moveWithoutPickup(ref char command)
+        private static bool moveWithoutPickup(ref char command)
         {
             var game = State.Instance.game;
 
@@ -1826,7 +1826,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static void commandQuit()
+        private static void commandQuit()
         {
             var game = State.Instance.game;
             var dg = State.Instance.dg;
@@ -1843,7 +1843,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static uint calculateMaxMessageCount()
+        private static uint calculateMaxMessageCount()
         {
             var game = State.Instance.game;
 
@@ -1865,7 +1865,7 @@ namespace Moria.Core.Methods
             return max_messages;
         }
 
-        public static void commandPreviousMessage()
+        private static void commandPreviousMessage()
         {
             var max_messages = calculateMaxMessageCount();
 
@@ -1903,7 +1903,7 @@ namespace Moria.Core.Methods
             terminal.terminalRestoreScreen();
         }
 
-        public static void commandFlipWizardMode()
+        private static void commandFlipWizardMode()
         {
             var game = State.Instance.game;
             if (game.wizard_mode)
@@ -1919,7 +1919,7 @@ namespace Moria.Core.Methods
             terminalEx.printCharacterWinner();
         }
 
-        public static void commandSaveAndExit()
+        private static void commandSaveAndExit()
         {
             var game = State.Instance.game;
             if (game.total_winner)
@@ -1952,7 +1952,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void commandLocateOnMap()
+        private static void commandLocateOnMap()
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -2041,7 +2041,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void commandToggleSearch()
+        private static void commandToggleSearch()
         {
             var py = State.Instance.py;
 
@@ -2055,7 +2055,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void doWizardCommands(char command)
+        private static void doWizardCommands(char command)
         {
             switch (command)
             {
@@ -2153,7 +2153,7 @@ namespace Moria.Core.Methods
         // TODO: E.g. split playerEat() into command/action functions: commandEat(), playerEat().
         // Possibly the "setup" happens in the command, such as the food check/selection of playerEat().
         // The command then calls playerEat() in player_eat.cpp - passing the selected food `item_id`.
-        public static void doCommand(char command)
+        private static void doCommand(char command)
         {
             var game = State.Instance.game;
 
@@ -2429,7 +2429,7 @@ namespace Moria.Core.Methods
         }
 
         // Check whether this command will accept a count. -CJS-
-        public static bool validCountCommand(char command)
+        private static bool validCountCommand(char command)
         {
             switch (command)
             {
@@ -2522,7 +2522,7 @@ namespace Moria.Core.Methods
         }
 
         // Regenerate hit points -RAK-
-        public static void playerRegenerateHitPoints(int percent)
+        private static void playerRegenerateHitPoints(int percent)
         {
             var py = State.Instance.py;
 
@@ -2565,7 +2565,7 @@ namespace Moria.Core.Methods
         }
 
         // Regenerate mana points -RAK-
-        public static void playerRegenerateMana(int percent)
+        private static void playerRegenerateMana(int percent)
         {
             var py = State.Instance.py;
 
@@ -2609,7 +2609,7 @@ namespace Moria.Core.Methods
 
         // Is an item an enchanted weapon or armor and we don't know? -CJS-
         // only returns true if it is a good enchantment
-        public static bool itemEnchanted(Inventory_t item)
+        private static bool itemEnchanted(Inventory_t item)
         {
             if (item.category_id < TV_MIN_ENCHANT || item.category_id > TV_MAX_ENCHANT || (item.flags & Config.treasure_flags.TR_CURSED) != 0u)
             {
@@ -2640,7 +2640,7 @@ namespace Moria.Core.Methods
         }
 
         // Examine a Book -RAK-
-        public static void examineBook()
+        private static void examineBook()
         {
             var py = State.Instance.py;
 
@@ -2724,7 +2724,7 @@ namespace Moria.Core.Methods
         }
 
         // Go up one level -RAK-
-        public static void dungeonGoUpLevel()
+        private static void dungeonGoUpLevel()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -2749,7 +2749,7 @@ namespace Moria.Core.Methods
         }
 
         // Go down one level -RAK-
-        public static void dungeonGoDownLevel()
+        private static void dungeonGoDownLevel()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -2774,7 +2774,7 @@ namespace Moria.Core.Methods
         }
 
         // Jam a closed door -RAK-
-        public static void dungeonJamDoor()
+        private static void dungeonJamDoor()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -2861,7 +2861,7 @@ namespace Moria.Core.Methods
         }
 
         // Refill the players lamp -RAK-
-        public static void inventoryRefillLamp()
+        private static void inventoryRefillLamp()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -2910,7 +2910,7 @@ namespace Moria.Core.Methods
         }
 
         // Main procedure for dungeon. -RAK-
-        public static void playDungeon()
+        private static void playDungeon()
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;

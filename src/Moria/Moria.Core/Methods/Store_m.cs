@@ -145,7 +145,7 @@ namespace Moria.Core.Methods
         }
 
         // Displays the set of commands -RAK-
-        static void displayStoreCommands()
+        private static void displayStoreCommands()
         {
             terminal.putStringClearToEOL("You may:", new Coord_t(20, 0));
             terminal.putStringClearToEOL(" p) Purchase an item.           b) Browse store's inventory.", new Coord_t(21, 0));
@@ -1514,6 +1514,5 @@ namespace Moria.Core.Methods
                 }
             }
         }
-
     }
 }

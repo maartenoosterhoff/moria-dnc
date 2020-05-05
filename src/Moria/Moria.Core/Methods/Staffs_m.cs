@@ -559,8 +559,7 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_pos_start = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, out item_pos_start, out item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, out var item_pos_start, out var item_pos_end))
             {
                 terminal.printMessage("You are not carrying any wands.");
                 return;
@@ -641,6 +640,5 @@ namespace Moria.Core.Methods
 
             identification.itemChargesRemainingDescription(item_id);
         }
-
     }
 }

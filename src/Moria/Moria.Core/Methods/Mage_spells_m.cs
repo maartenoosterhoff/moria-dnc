@@ -61,7 +61,7 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        public static bool canReadSpells()
+        private static bool canReadSpells()
         {
             var py = State.Instance.py;
             if (py.flags.blind > 0)
@@ -91,7 +91,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        static void castSpell(int spell_id)
+        private static void castSpell(int spell_id)
         {
             var py = State.Instance.py;
 

@@ -134,7 +134,7 @@ namespace Moria.Core.Methods
 
         // Make a bash attack on someone. -CJS-
         // Used to be part of bash above.
-        public static void playerBashAttack(Coord_t coord)
+        private static void playerBashAttack(Coord_t coord)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -251,7 +251,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerBashPosition(Coord_t coord)
+        private static void playerBashPosition(Coord_t coord)
         {
             var py = State.Instance.py;
             // Is a Coward?
@@ -264,7 +264,7 @@ namespace Moria.Core.Methods
             playerBashAttack(coord);
         }
 
-        public static void playerBashClosedDoor(Coord_t coord, int dir, Tile_t tile, Inventory_t item)
+        private static void playerBashClosedDoor(Coord_t coord, int dir, Tile_t tile, Inventory_t item)
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -311,7 +311,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void playerBashClosedChest(Inventory_t item)
+        private static void playerBashClosedChest(Inventory_t item)
         {
             if (rnd.randomNumber(10) == 1)
             {
@@ -335,6 +335,5 @@ namespace Moria.Core.Methods
 
             terminal.printMessageNoCommandInterrupt("The chest holds firm.");
         }
-
     }
 }

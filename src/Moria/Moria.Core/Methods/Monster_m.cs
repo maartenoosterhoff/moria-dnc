@@ -67,7 +67,7 @@ namespace Moria.Core.Methods
 
         private static IEventPublisher eventPublisher;
 
-        public static bool monsterIsVisible(Monster_t monster)
+        private static bool monsterIsVisible(Monster_t monster)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -380,7 +380,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void monsterPrintAttackDescription(ref string msg, int attack_id)
+        private static void monsterPrintAttackDescription(ref string msg, int attack_id)
         {
             switch (attack_id)
             {
@@ -807,7 +807,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void monsterAllowedToMove(Monster_t monster, uint move_bits, ref bool do_turn, ref uint rcmove, Coord_t coord)
+        private static void monsterAllowedToMove(Monster_t monster, uint move_bits, ref bool do_turn, ref uint rcmove, Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -842,7 +842,7 @@ namespace Moria.Core.Methods
         }
 
         // Make the move if possible, five choices -RAK-
-        public static void makeMove(int monster_id, int[] directions, ref uint rcmove)
+        private static void makeMove(int monster_id, int[] directions, ref uint rcmove)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -909,7 +909,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool monsterCanCastSpells(Monster_t monster, uint spells)
+        private static bool monsterCanCastSpells(Monster_t monster, uint spells)
         {
             var py = State.Instance.py;
             // 1 in x chance of casting spell
@@ -927,7 +927,7 @@ namespace Moria.Core.Methods
             return within_range && unobstructed;
         }
 
-        public static void monsterExecuteCastingOfSpell(Monster_t monster, int monster_id, int spell_id, uint level, string monster_name, string death_description)
+        private static void monsterExecuteCastingOfSpell(Monster_t monster, int monster_id, int spell_id, uint level, string monster_name, string death_description)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -1174,7 +1174,7 @@ namespace Moria.Core.Methods
         // Creatures can cast spells too.  (Dragon Breath) -RAK-
         //   castSpellGetId = true if creature changes position
         //   return true (took_turn) if creature casts a spell
-        public static bool monsterCastSpell(int monster_id)
+        private static bool monsterCastSpell(int monster_id)
         {
             var game = State.Instance.game;
             var monsters = State.Instance.monsters;
@@ -1350,7 +1350,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static void monsterMultiplyCritter(Monster_t monster, int monster_id, ref uint rcmove)
+        private static void monsterMultiplyCritter(Monster_t monster, int monster_id, ref uint rcmove)
         {
             var dg = State.Instance.dg;
             var counter = 0;
@@ -1384,7 +1384,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void monsterMoveOutOfWall(Monster_t monster, int monster_id, ref uint rcmove)
+        private static void monsterMoveOutOfWall(Monster_t monster, int monster_id, ref uint rcmove)
         {
             var dg = State.Instance.dg;
 
@@ -1463,7 +1463,7 @@ namespace Moria.Core.Methods
         }
 
         // Undead only get confused from turn undead, so they should flee
-        public static void monsterMoveUndead(Creature_t creature, int monster_id, ref uint rcmove)
+        private static void monsterMoveUndead(Creature_t creature, int monster_id, ref uint rcmove)
         {
             var directions = new int[9];
             monsterGetMoveDirection(monster_id, directions);
@@ -1481,7 +1481,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void monsterMoveConfused(Creature_t creature, int monster_id, ref uint rcmove)
+        private static void monsterMoveConfused(Creature_t creature, int monster_id, ref uint rcmove)
         {
             var directions = new int[9];
 
@@ -1498,7 +1498,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static bool monsterDoMove(int monster_id, ref uint rcmove, Monster_t monster, Creature_t creature)
+        private static bool monsterDoMove(int monster_id, ref uint rcmove, Monster_t monster, Creature_t creature)
         {
             // Creature is confused or undead turned?
             if (monster.confused_amount != 0u)
@@ -1524,7 +1524,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        public static void monsterMoveRandomly(int monster_id, ref uint rcmove, int randomness)
+        private static void monsterMoveRandomly(int monster_id, ref uint rcmove, int randomness)
         {
             var directions = new int[9];
 
@@ -1539,7 +1539,7 @@ namespace Moria.Core.Methods
             makeMove(monster_id, directions, ref rcmove);
         }
 
-        public static void monsterMoveNormally(int monster_id, ref uint rcmove)
+        private static void monsterMoveNormally(int monster_id, ref uint rcmove)
         {
             var directions = new int[9];
 
@@ -1561,7 +1561,7 @@ namespace Moria.Core.Methods
             makeMove(monster_id, directions, ref rcmove);
         }
 
-        public static void monsterAttackWithoutMoving(int monster_id, ref uint rcmove, uint distance_from_player)
+        private static void monsterAttackWithoutMoving(int monster_id, ref uint rcmove, uint distance_from_player)
         {
             var directions = new int[9];
 
@@ -1579,7 +1579,7 @@ namespace Moria.Core.Methods
         }
 
         // Move the critters about the dungeon -RAK-
-        public static void monsterMove(int monster_id, ref uint rcmove)
+        private static void monsterMove(int monster_id, ref uint rcmove)
         {
             var monsters = State.Instance.monsters;
             var creatures_list = Library.Instance.Creatures.creatures_list;
@@ -1665,7 +1665,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static void memoryUpdateRecall(Monster_t monster, bool wake, bool ignore, uint rcmove)
+        private static void memoryUpdateRecall(Monster_t monster, bool wake, bool ignore, uint rcmove)
         {
             var creature_recall = State.Instance.creature_recall;
 
@@ -1694,7 +1694,7 @@ namespace Moria.Core.Methods
             memory.movement |= rcmove;
         }
 
-        public static void monsterAttackingUpdate(Monster_t monster, int monster_id, int moves)
+        private static void monsterAttackingUpdate(Monster_t monster, int monster_id, int moves)
         {
             var creatures_list = Library.Instance.Creatures.creatures_list;
             var py = State.Instance.py;
@@ -1827,7 +1827,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        public static int monsterDeathItemDropType(uint flags)
+        private static int monsterDeathItemDropType(uint flags)
         {
             int obj;
 
@@ -1853,7 +1853,7 @@ namespace Moria.Core.Methods
             return obj;
         }
 
-        public static int monsterDeathItemDropCount(uint flags)
+        private static int monsterDeathItemDropCount(uint flags)
         {
             var count = 0;
 
@@ -2005,11 +2005,9 @@ namespace Moria.Core.Methods
             return asleep;
         }
 
-        public static bool executeAttackOnPlayer(uint creature_level, ref int monster_hp, int monster_id, int attack_type, int damage, string death_description, bool noticed)
+        private static bool executeAttackOnPlayer(uint creature_level, ref int monster_hp, int monster_id, int attack_type, int damage, string death_description, bool noticed)
         {
             var py = State.Instance.py;
-            var item_pos_start = 0;
-            var item_pos_end = 0;
             int gold;
 
             switch (attack_type)
@@ -2253,7 +2251,7 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 22: // Eat food
-                    if (inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out item_pos_start, out item_pos_end))
+                    if (inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out var item_pos_start, out _))
                     {
                         inventoryManager.inventoryDestroyItem(item_pos_start);
                         terminal.printMessage("It got at your rations!");

@@ -400,15 +400,13 @@ namespace Moria.Core.Methods
                 return;
             }
 
-            int item_pos_begin = 0, item_pos_end = 0;
-            if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, out item_pos_begin, out item_pos_end))
+            if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, out var item_pos_begin, out var item_pos_end))
             {
                 terminal.printMessage("You are not carrying any potions.");
                 return;
             }
 
-            var item_id = 0;
-            if (!uiInventory.inventoryGetInputForItemId(out item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
