@@ -1,4 +1,6 @@
-﻿using Moria.Core.Configs;
+﻿using System.IO;
+using System.Text;
+using Moria.Core.Configs;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -83,17 +85,19 @@ namespace Moria.Core.Methods.Commands.Output
 
             this.terminal.putStringClearToEOL("File name: ", new Coord_t(0, 0));
 
-            var filename = string.Empty;
             //vtype_t filename = { 0 };
-
-            if (!this.terminal.getStringInput(out filename, new Coord_t(0, 11), 64))
+            if (!this.terminal.getStringInput(out var filename, new Coord_t(0, 11), 64))
             {
                 return;
             }
-            //if (strlen(filename) == 0)
-            //{
-            //    return;
-            //}
+            
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                return;
+            
+            }
+
+
 
             //FILE* file_ptr = fopen(filename, "w");
             //if (file_ptr == nullptr)
@@ -108,10 +112,16 @@ namespace Moria.Core.Methods.Commands.Output
 
             this.terminal.putQIO();
 
+            var fileContents = new StringBuilder();
+            fileContents.AppendLine("*** Random Object Sampling:");
             //(void)fprintf(file_ptr, "*** Random Object Sampling:\n");
+            fileContents.AppendLine($"*** {count} objects");
             //(void)fprintf(file_ptr, "*** %d objects\n", count);
+            fileContents.AppendLine($"*** For Level {level}");
             //(void)fprintf(file_ptr, "*** For Level %d\n", level);
+            fileContents.AppendLine("");
             //(void)fprintf(file_ptr, "\n");
+            fileContents.AppendLine("");
             //(void)fprintf(file_ptr, "\n");
 
             var treasure_id = this.gameObjects.popt();
@@ -133,11 +143,14 @@ namespace Moria.Core.Methods.Commands.Output
                 }
 
                 this.identification.itemDescription(out input, item, true);
+
+                fileContents.AppendLine($"{item.depth_first_found} {input}");
                 //(void)fprintf(file_ptr, "%d %s\n", item.depth_first_found, input);
             }
 
             this.gameObjectsPush.pusht((uint)treasure_id);
 
+            File.WriteAllText(filename, fileContents.ToString());
             //(void)fclose(file_ptr);
 
             this.terminal.putStringClearToEOL("Completed.", new Coord_t(0, 0));
