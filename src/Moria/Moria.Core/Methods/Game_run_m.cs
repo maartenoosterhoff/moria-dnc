@@ -26,7 +26,6 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Player_throw_m;
 using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Scores_m;
 
@@ -51,6 +50,7 @@ namespace Moria.Core.Methods
             IPlayerEat playerEat,
             IPlayerPray playerPray,
             IPlayerQuaff playerQuaff,
+            IPlayerThrow playerThrow,
             IPlayerTunnel playerTunnel,
             IRnd rnd,
             IScrolls scrolls,
@@ -82,6 +82,7 @@ namespace Moria.Core.Methods
             Game_run_m.playerEat = playerEat;
             Game_run_m.playerPray = playerPray;
             Game_run_m.playerQuaff = playerQuaff;
+            Game_run_m.playerThrow = playerThrow;
             Game_run_m.playerTunnel = playerTunnel;
             Game_run_m.rnd = rnd;
             Game_run_m.scrolls = scrolls;
@@ -113,6 +114,7 @@ namespace Moria.Core.Methods
         private static IPlayerEat playerEat;
         private static IPlayerPray playerPray;
         private static IPlayerQuaff playerQuaff;
+        private static IPlayerThrow playerThrow;
         private static IPlayerTunnel playerTunnel;
         private static IRnd rnd;
         private static IScrolls scrolls;
@@ -2379,7 +2381,7 @@ namespace Moria.Core.Methods
                     uiInventory.inventoryExecuteCommand('e');
                     break;
                 case 't': // (t)hrow something  (f)ire something
-                    playerThrowItem();
+                    playerThrow.playerThrowItem();
                     break;
                 case 'i': // (i)nventory list
                     uiInventory.inventoryExecuteCommand('i');

@@ -174,6 +174,7 @@ Options:
             container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
             container.RegisterSingleton<IPlayerPray, Player_pray_m>();
             container.RegisterSingleton<IPlayerQuaff, Player_quaff_m>();
+            container.RegisterSingleton<IPlayerThrow, Player_throw_m>();
             container.RegisterSingleton<IPlayerTunnel, Player_tunnel_m>();
             container.RegisterSingleton<IRecall, Recall_m>();
             container.RegisterSingleton<IRnd, Rnd_m>();
@@ -217,6 +218,7 @@ Options:
                 container.GetInstance<IPlayerEat>(),
                 container.GetInstance<IPlayerPray>(),
                 container.GetInstance<IPlayerQuaff>(),
+                container.GetInstance<IPlayerThrow>(),
                 container.GetInstance<IPlayerTunnel>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IScrolls>(),
@@ -300,22 +302,6 @@ Options:
             Player_stats_m.SetDependencies(
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminalEx>()
-            );
-
-            Player_throw_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IDungeon>(),
-                container.GetInstance<IGame>(),
-                container.GetInstance<IGameObjects>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IIdentification>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IPlayerMagic>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<ITerminalEx>(),
-                container.GetInstance<IUiInventory>(),
-                container.GetInstance<IEventPublisher>()
             );
 
             Player_traps_m.SetDependencies(

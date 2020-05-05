@@ -11,11 +11,31 @@ using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Player_throw_m
+    public interface IPlayerThrow
     {
-        public static void SetDependencies(
+        void playerThrowItem();
+    }
+
+    public class Player_throw_m : IPlayerThrow
+    {
+        private readonly IDice dice;
+        private readonly IDungeon dungeon;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IGame game;
+        private readonly IGameObjects gameObjects;
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IPlayerMagic playerMagic;
+        private readonly IRnd rnd;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+        private readonly IUiInventory uiInventory;
+
+        public Player_throw_m(
             IDice dice,
             IDungeon dungeon,
+            IEventPublisher eventPublisher,
             IGame game,
             IGameObjects gameObjects,
             IHelpers helpers,
@@ -25,43 +45,25 @@ namespace Moria.Core.Methods
             IRnd rnd,
             ITerminal terminal,
             ITerminalEx terminalEx,
-            IUiInventory uiInventory,
-
-            IEventPublisher eventPublisher
+            IUiInventory uiInventory
         )
         {
-            Player_throw_m.dice = dice;
-            Player_throw_m.dungeon = dungeon;
-            Player_throw_m.game = game;
-            Player_throw_m.gameObjects = gameObjects;
-            Player_throw_m.helpers = helpers;
-            Player_throw_m.identification = identification;
-            Player_throw_m.inventoryManager = inventoryManager;
-            Player_throw_m.playerMagic = playerMagic;
-            Player_throw_m.rnd = rnd;
-            Player_throw_m.terminal = terminal;
-            Player_throw_m.terminalEx = terminalEx;
-            Player_throw_m.uiInventory = uiInventory;
-
-            Player_throw_m.eventPublisher = eventPublisher;
+            this.dice = dice;
+            this.dungeon = dungeon;
+            this.eventPublisher = eventPublisher;
+            this.game = game;
+            this.gameObjects = gameObjects;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.inventoryManager = inventoryManager;
+            this.playerMagic = playerMagic;
+            this.rnd = rnd;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
+            this.uiInventory = uiInventory;
         }
 
-        private static IDice dice;
-        private static IDungeon dungeon;
-        private static IGame game;
-        private static IGameObjects gameObjects;
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IInventoryManager inventoryManager;
-        private static IPlayerMagic playerMagic;
-        private static IRnd rnd;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-        private static IUiInventory uiInventory;
-
-        private static IEventPublisher eventPublisher;
-
-        private static void inventoryThrow(int item_id, out Inventory_t treasure)
+        private void inventoryThrow(int item_id, out Inventory_t treasure)
         {
             var py = State.Instance.py;
 
@@ -79,12 +81,12 @@ namespace Moria.Core.Methods
             }
             else
             {
-                inventoryManager.inventoryDestroyItem(item_id);
+                this.inventoryManager.inventoryDestroyItem(item_id);
             }
         }
 
         // Obtain the hit and damage bonuses and the maximum distance for a thrown missile.
-        private static void weaponMissileFacts(Inventory_t item, out int base_to_hit, out int plus_to_hit, out int damage, out int distance)
+        private void weaponMissileFacts(Inventory_t item, out int base_to_hit, out int plus_to_hit, out int damage, out int distance)
         {
             var py = State.Instance.py;
 
@@ -95,7 +97,7 @@ namespace Moria.Core.Methods
             }
 
             // Throwing objects
-            damage = dice.diceRoll(item.damage) + item.to_damage;
+            damage = this.dice.diceRoll(item.damage) + item.to_damage;
             base_to_hit = py.misc.bth_with_bows * 75 / 100;
             plus_to_hit = py.misc.plusses_to_hit + item.to_hit;
 
@@ -188,7 +190,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void inventoryDropOrThrowItem(Coord_t coord, Inventory_t item)
+        private void inventoryDropOrThrowItem(Coord_t coord, Inventory_t item)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -196,11 +198,11 @@ namespace Moria.Core.Methods
 
             var flag = false;
 
-            if (rnd.randomNumber(10) > 1)
+            if (this.rnd.randomNumber(10) > 1)
             {
                 for (var k = 0; !flag && k <= 9;)
                 {
-                    if (dungeon.coordInBounds(position))
+                    if (this.dungeon.coordInBounds(position))
                     {
                         if (dg.floor[position.y][position.x].feature_id <= MAX_OPEN_SPACE && dg.floor[position.y][position.x].treasure_id == 0)
                         {
@@ -210,8 +212,8 @@ namespace Moria.Core.Methods
 
                     if (!flag)
                     {
-                        position.y = coord.y + rnd.randomNumber(3) - 2;
-                        position.x = coord.x + rnd.randomNumber(3) - 2;
+                        position.y = coord.y + this.rnd.randomNumber(3) - 2;
+                        position.x = coord.x + this.rnd.randomNumber(3) - 2;
                         k++;
                     }
                 }
@@ -219,20 +221,20 @@ namespace Moria.Core.Methods
 
             if (flag)
             {
-                var cur_pos = gameObjects.popt();
+                var cur_pos = this.gameObjects.popt();
                 dg.floor[position.y][position.x].treasure_id = (uint)cur_pos;
                 game.treasure.list[cur_pos] = item;
-                dungeon.dungeonLiteSpot(position);
+                this.dungeon.dungeonLiteSpot(position);
             }
             else
             {
                 //obj_desc_t description = { '\0' };
                 //obj_desc_t msg = { '\0' };
-                identification.itemDescription(out var description, item, false);
+                this.identification.itemDescription(out var description, item, false);
 
                 var msg = $"The {description} disappears.";
                 //(void)sprintf(msg, "The %s disappears.", description);
-                terminal.printMessage(msg);
+                this.terminal.printMessage(msg);
             }
         }
 
@@ -240,40 +242,40 @@ namespace Moria.Core.Methods
         // Note: Flasks of oil do fire damage
         // Note: Extra damage and chance of hitting when missiles are used
         // with correct weapon. i.e. wield bow and throw arrow.
-        public static void playerThrowItem()
+        public void playerThrowItem()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
             var dg = State.Instance.dg;
             if (py.pack.unique_items == 0)
             {
-                terminal.printMessage("But you are not carrying anything.");
+                this.terminal.printMessage("But you are not carrying anything.");
                 game.player_free_turn = true;
                 return;
             }
 
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
+            if (!this.uiInventory.inventoryGetInputForItemId(out var item_id, "Fire/Throw which one?", 0, py.pack.unique_items - 1, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
 
             var dir = 0;
-            if (!Player_throw_m.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
+            if (!this.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
 
-            identification.itemTypeRemainingCountDescription(item_id);
+            this.identification.itemTypeRemainingCountDescription(item_id);
 
             if (py.flags.confused > 0)
             {
-                terminal.printMessage("You are confused.");
-                dir = rnd.getRandomDirection();
+                this.terminal.printMessage("You are confused.");
+                dir = this.rnd.getRandomDirection();
             }
 
-            inventoryThrow(item_id, out var thrown_item);
+            this.inventoryThrow(item_id, out var thrown_item);
 
-            weaponMissileFacts(thrown_item, out var tbth, out var tpth, out var tdam, out var tdis);
+            this.weaponMissileFacts(thrown_item, out var tbth, out var tpth, out var tdam, out var tdis);
 
             var tile_char = (char)thrown_item.sprite;
             var current_distance = 0;
@@ -285,7 +287,7 @@ namespace Moria.Core.Methods
 
             while (!flag)
             {
-                helpers.movePosition(dir, ref coord);
+                this.helpers.movePosition(dir, ref coord);
 
                 if (current_distance + 1 > tdis)
                 {
@@ -293,7 +295,7 @@ namespace Moria.Core.Methods
                 }
 
                 current_distance++;
-                dungeon.dungeonLiteSpot(old_coord);
+                this.dungeon.dungeonLiteSpot(old_coord);
 
                 var tile = dg.floor[coord.y][coord.x];
 
@@ -323,7 +325,7 @@ namespace Moria.Core.Methods
                             string msg;
                             //obj_desc_t description = { '\0' };
                             //obj_desc_t msg = { '\0' };
-                            identification.itemDescription(out var description, thrown_item, false);
+                            this.identification.itemDescription(out var description, thrown_item, false);
 
                             // Does the player know what they're fighting?
                             bool visible;
@@ -339,9 +341,10 @@ namespace Moria.Core.Methods
                                 //(void)sprintf(msg, "The %s hits the %s.", description, creatures_list[damage].name);
                                 visible = true;
                             }
-                            terminal.printMessage(msg);
 
-                            tdam = playerMagic.itemMagicAbilityDamage(thrown_item, tdam, damage);
+                            this.terminal.printMessage(msg);
+
+                            tdam = this.playerMagic.itemMagicAbilityDamage(thrown_item, tdam, damage);
                             tdam = playerWeaponCriticalBlow((int)thrown_item.weight, tpth, tdam, (int)PlayerClassLevelAdj.BTHB);
 
                             if (tdam < 0)
@@ -349,7 +352,7 @@ namespace Moria.Core.Methods
                                 tdam = 0;
                             }
 
-                            damage = eventPublisher.PublishWithOutputInt(
+                            damage = this.eventPublisher.PublishWithOutputInt(
                                 new TakeHitCommand((int)tile.creature_id, tdam)
                             );
                             //damage = monsterTakeHit((int)tile.creature_id, tdam);
@@ -358,37 +361,38 @@ namespace Moria.Core.Methods
                             {
                                 if (!visible)
                                 {
-                                    terminal.printMessage("You have killed something!");
+                                    this.terminal.printMessage("You have killed something!");
                                 }
                                 else
                                 {
                                     msg = $"You have killed the {Library.Instance.Creatures.creatures_list[damage].name}.";
                                     //(void)sprintf(msg, "You have killed the %s.", creatures_list[damage].name);
-                                    terminal.printMessage(msg);
+                                    this.terminal.printMessage(msg);
                                 }
-                                terminalEx.displayCharacterExperience();
+
+                                this.terminalEx.displayCharacterExperience();
                             }
                         }
                         else
                         {
-                            inventoryDropOrThrowItem(old_coord, thrown_item);
+                            this.inventoryDropOrThrowItem(old_coord, thrown_item);
                         }
                     }
                     else
                     {
                         // do not test tile.field_mark here
 
-                        if (helpers.coordInsidePanel(coord) && py.flags.blind < 1 && (tile.temporary_light || tile.permanent_light))
+                        if (this.helpers.coordInsidePanel(coord) && py.flags.blind < 1 && (tile.temporary_light || tile.permanent_light))
                         {
-                            terminal.panelPutTile(tile_char, coord);
-                            terminal.putQIO(); // show object moving
+                            this.terminal.panelPutTile(tile_char, coord);
+                            this.terminal.putQIO(); // show object moving
                         }
                     }
                 }
                 else
                 {
                     flag = true;
-                    inventoryDropOrThrowItem(old_coord, thrown_item);
+                    this.inventoryDropOrThrowItem(old_coord, thrown_item);
                 }
 
                 old_coord.y = coord.y;
