@@ -29,7 +29,6 @@ using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_throw_m;
 using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Scores_m;
-using static Moria.Core.Methods.Store_m;
 
 namespace Moria.Core.Methods
 {
@@ -57,6 +56,7 @@ namespace Moria.Core.Methods
             IScrolls scrolls,
             ISpells spells,
             IStaffs staffs,
+            IStore store,
             IStoreInventory storeInventory,
             ITerminal terminal,
             ITerminalEx terminalEx,
@@ -85,8 +85,9 @@ namespace Moria.Core.Methods
             Game_run_m.playerTunnel = playerTunnel;
             Game_run_m.rnd = rnd;
             Game_run_m.scrolls = scrolls;
-            Game_run_m.staffs = staffs;
             Game_run_m.spells = spells;
+            Game_run_m.staffs = staffs;
+            Game_run_m.store = store;
             Game_run_m.storeInventory = storeInventory;
             Game_run_m.terminal = terminal;
             Game_run_m.terminalEx = terminalEx;
@@ -117,6 +118,7 @@ namespace Moria.Core.Methods
         private static IScrolls scrolls;
         private static ISpells spells;
         private static IStaffs staffs;
+        private static IStore store;
         private static IStoreInventory storeInventory;
         private static ITerminal terminal;
         private static ITerminalEx terminalEx;
@@ -143,7 +145,7 @@ namespace Moria.Core.Methods
             initializeTreasureLevels();
 
             // Init the store inventories
-            storeInitializeOwners();
+            store.storeInitializeOwners();
 
             // NOTE: base exp levels need initializing before loading a game
             playerInitializeBaseExperienceLevels();

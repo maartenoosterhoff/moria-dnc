@@ -180,6 +180,7 @@ Options:
             container.RegisterSingleton<IRng, Rng_m>();
             container.RegisterSingleton<IScrolls, Scrolls_m>();
             container.RegisterSingleton<IStaffs, Staffs_m>();
+            container.RegisterSingleton<IStore, Store_m>();
             container.RegisterSingleton<IStd, Std_m>();
             container.RegisterSingleton<ISpells, Spells_m>();
             container.RegisterSingleton<IStoreInventory, Store_inventory_m>();
@@ -221,6 +222,7 @@ Options:
                 container.GetInstance<IScrolls>(),
                 container.GetInstance<ISpells>(),
                 container.GetInstance<IStaffs>(),
+                container.GetInstance<IStore>(),
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<ITerminalEx>(),
@@ -282,6 +284,7 @@ Options:
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
+                container.GetInstance<IStore>(),
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
@@ -330,19 +333,6 @@ Options:
 
             Scores_m.SetDependencies(
                 container.GetInstance<IStoreInventory>()
-            );
-
-            Store_m.SetDependencies(
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IIdentification>(),
-                container.GetInstance<IInventory>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IStd>(),
-                container.GetInstance<IStoreInventory>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<ITerminalEx>(),
-                container.GetInstance<IUiInventory>()
             );
 
             return container;

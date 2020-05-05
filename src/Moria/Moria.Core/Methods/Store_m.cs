@@ -13,10 +13,26 @@ using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Store_m
+    public interface IStore
     {
-        public static void SetDependencies
-        (
+        void storeInitializeOwners();
+        void storeEnter(int store_id);
+    }
+
+    public class Store_m : IStore
+    {
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IInventory inventory;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IStd std;
+        private readonly IStoreInventory storeInventory;
+        private readonly IRnd rnd;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+        private readonly IUiInventory uiInventory;
+
+        public Store_m(
             IHelpers helpers,
             IIdentification identification,
             IInventory inventory,
@@ -29,31 +45,30 @@ namespace Moria.Core.Methods
             IUiInventory uiInventory
         )
         {
-            Store_m.helpers = helpers;
-            Store_m.identification = identification;
-            Store_m.inventory = inventory;
-            Store_m.inventoryManager = inventoryManager;
-            Store_m.std = std;
-            Store_m.storeInventory = storeInventory;
-            Store_m.rnd = rnd;
-            Store_m.terminal = terminal;
-            Store_m.terminalEx = terminalEx;
-            Store_m.uiInventory = uiInventory;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.inventory = inventory;
+            this.inventoryManager = inventoryManager;
+            this.std = std;
+            this.storeInventory = storeInventory;
+            this.rnd = rnd;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
+            this.uiInventory = uiInventory;
+
+            this.store_buy = new Func<uint, bool>[]
+            {
+                this.setGeneralStoreItems,
+                this.setArmoryItems,
+                this.setWeaponsmithItems,
+                this.setTempleItems,
+                this.setAlchemistItems,
+                this.setMagicShopItems
+            };
         }
 
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IInventory inventory;
-        private static IInventoryManager inventoryManager;
-        private static IStd std;
-        private static IStoreInventory storeInventory;
-        private static IRnd rnd;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-        private static IUiInventory uiInventory;
-
         // Initializes the stores with owners -RAK-
-        public static void storeInitializeOwners()
+        public void storeInitializeOwners()
         {
             const int count = (int)(MAX_OWNERS / MAX_STORES);
 
@@ -61,7 +76,7 @@ namespace Moria.Core.Methods
             {
                 var store = State.Instance.stores[store_id];
 
-                store.owner_id = (uint)(MAX_STORES * (rnd.randomNumber(count) - 1) + store_id);
+                store.owner_id = (uint)(MAX_STORES * (this.rnd.randomNumber(count) - 1) + store_id);
                 store.insults_counter = 0;
                 store.turns_left_before_closing = 0;
                 store.unique_items_counter = 0;
@@ -70,7 +85,7 @@ namespace Moria.Core.Methods
 
                 foreach (var item in store.inventory)
                 {
-                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item.item);
+                    this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_NOTHING, item.item);
                     item.cost = 0;
                 }
             }
@@ -78,99 +93,99 @@ namespace Moria.Core.Methods
 
         // Comments vary. -RAK-
         // Comment one : Finished haggling
-        private static void printSpeechFinishedHaggling()
+        private void printSpeechFinishedHaggling()
         {
-            terminal.printMessage(Library.Instance.StoreOwners.speech_sale_accepted[(int)rnd.randomNumber(14) - 1]);
+            this.terminal.printMessage(Library.Instance.StoreOwners.speech_sale_accepted[(int) this.rnd.randomNumber(14) - 1]);
         }
 
         // %A1 is offer, %A2 is asking.
-        private static void printSpeechSellingHaggle(int offer, int asking, int final)
+        private void printSpeechSellingHaggle(int offer, int asking, int final)
         {
             string comment;
             //vtype_t comment = { '\0' };
 
             if (final > 0)
             {
-                comment = Library.Instance.StoreOwners.speech_selling_haggle_final[rnd.randomNumber(3) - 1];
+                comment = Library.Instance.StoreOwners.speech_selling_haggle_final[this.rnd.randomNumber(3) - 1];
                 //(void)strcpy(comment, speech_selling_haggle_final[rnd.randomNumber(3) - 1]);
             }
             else
             {
-                comment = Library.Instance.StoreOwners.speech_selling_haggle[rnd.randomNumber(16) - 1];
+                comment = Library.Instance.StoreOwners.speech_selling_haggle[this.rnd.randomNumber(16) - 1];
                 //(void)strcpy(comment, speech_selling_haggle[rnd.randomNumber(16) - 1]);
             }
 
-            helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
-            helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
-            terminal.printMessage(comment);
+            this.helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
+            this.helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
+            this.terminal.printMessage(comment);
         }
 
-        private static void printSpeechBuyingHaggle(int offer, int asking, int final)
+        private void printSpeechBuyingHaggle(int offer, int asking, int final)
         {
             string comment;
             //vtype_t comment = { '\0' };
 
             if (final > 0)
             {
-                comment = Library.Instance.StoreOwners.speech_buying_haggle_final[rnd.randomNumber(3) - 1];
+                comment = Library.Instance.StoreOwners.speech_buying_haggle_final[this.rnd.randomNumber(3) - 1];
                 //(void)strcpy(comment, speech_buying_haggle_final[rnd.randomNumber(3) - 1]);
             }
             else
             {
-                comment = Library.Instance.StoreOwners.speech_buying_haggle[rnd.randomNumber(15) - 1];
+                comment = Library.Instance.StoreOwners.speech_buying_haggle[this.rnd.randomNumber(15) - 1];
                 //(void)strcpy(comment, speech_buying_haggle[rnd.randomNumber(15) - 1]);
             }
 
-            helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
-            helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
-            terminal.printMessage(comment);
+            this.helpers.insertNumberIntoString(ref comment, "%A1", offer, false);
+            this.helpers.insertNumberIntoString(ref comment, "%A2", asking, false);
+            this.terminal.printMessage(comment);
         }
 
         // Kick 'da bum out. -RAK-
-        private static void printSpeechGetOutOfMyStore()
+        private void printSpeechGetOutOfMyStore()
         {
-            var comment = rnd.randomNumber(5) - 1;
-            terminal.printMessage(Library.Instance.StoreOwners.speech_insulted_haggling_done[comment]);
-            terminal.printMessage(Library.Instance.StoreOwners.speech_get_out_of_my_store[comment]);
+            var comment = this.rnd.randomNumber(5) - 1;
+            this.terminal.printMessage(Library.Instance.StoreOwners.speech_insulted_haggling_done[comment]);
+            this.terminal.printMessage(Library.Instance.StoreOwners.speech_get_out_of_my_store[comment]);
         }
 
-        private static void printSpeechTryAgain()
+        private void printSpeechTryAgain()
         {
-            terminal.printMessage(Library.Instance.StoreOwners.speech_haggling_try_again[rnd.randomNumber(10) - 1]);
+            this.terminal.printMessage(Library.Instance.StoreOwners.speech_haggling_try_again[this.rnd.randomNumber(10) - 1]);
         }
 
-        private static void printSpeechSorry()
+        private void printSpeechSorry()
         {
-            terminal.printMessage(Library.Instance.StoreOwners.speech_sorry[rnd.randomNumber(5) - 1]);
-        }
-
-        // Displays the set of commands -RAK-
-        private static void displayStoreCommands()
-        {
-            terminal.putStringClearToEOL("You may:", new Coord_t(20, 0));
-            terminal.putStringClearToEOL(" p) Purchase an item.           b) Browse store's inventory.", new Coord_t(21, 0));
-            terminal.putStringClearToEOL(" s) Sell an item.               i/e/t/w/x) Inventory/Equipment Lists.", new Coord_t(22, 0));
-            terminal.putStringClearToEOL("ESC) Exit from Building.        ^R) Redraw the screen.", new Coord_t(23, 0));
+            this.terminal.printMessage(Library.Instance.StoreOwners.speech_sorry[this.rnd.randomNumber(5) - 1]);
         }
 
         // Displays the set of commands -RAK-
-        private static void displayStoreHaggleCommands(int haggle_type)
+        private void displayStoreCommands()
+        {
+            this.terminal.putStringClearToEOL("You may:", new Coord_t(20, 0));
+            this.terminal.putStringClearToEOL(" p) Purchase an item.           b) Browse store's inventory.", new Coord_t(21, 0));
+            this.terminal.putStringClearToEOL(" s) Sell an item.               i/e/t/w/x) Inventory/Equipment Lists.", new Coord_t(22, 0));
+            this.terminal.putStringClearToEOL("ESC) Exit from Building.        ^R) Redraw the screen.", new Coord_t(23, 0));
+        }
+
+        // Displays the set of commands -RAK-
+        private void displayStoreHaggleCommands(int haggle_type)
         {
             if (haggle_type == -1)
             {
-                terminal.putStringClearToEOL("Specify an asking-price in gold pieces.", new Coord_t(21, 0));
+                this.terminal.putStringClearToEOL("Specify an asking-price in gold pieces.", new Coord_t(21, 0));
             }
             else
             {
-                terminal.putStringClearToEOL("Specify an offer in gold pieces.", new Coord_t(21, 0));
+                this.terminal.putStringClearToEOL("Specify an offer in gold pieces.", new Coord_t(21, 0));
             }
 
-            terminal.putStringClearToEOL("ESC) Quit Haggling.", new Coord_t(22, 0));
-            terminal.eraseLine(new Coord_t(23, 0)); // clear last line
+            this.terminal.putStringClearToEOL("ESC) Quit Haggling.", new Coord_t(22, 0));
+            this.terminal.eraseLine(new Coord_t(23, 0)); // clear last line
         }
 
         // Displays a store's inventory -RAK-
-        private static void displayStoreInventory(Store_t store, int item_pos_start)
+        private void displayStoreInventory(Store_t store, int item_pos_start)
         {
             var item_pos_end = (item_pos_start / 12 + 1) * 12;
             if (item_pos_end > store.unique_items_counter)
@@ -193,7 +208,7 @@ namespace Moria.Core.Methods
                 }
 
                 //obj_desc_t description = { '\0' };
-                identification.itemDescription(out var description, item, true);
+                this.identification.itemDescription(out var description, item, true);
 
                 // Restore the number of items
                 item.items_count = (uint)current_item_count;
@@ -201,7 +216,7 @@ namespace Moria.Core.Methods
                 var msg = $"{(char)('a' + item_line_num)}) {description}";
                 //obj_desc_t msg = { '\0' };
                 //(void)sprintf(msg, "%c) %s", 'a' + item_line_num, description);
-                terminal.putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 0));
+                this.terminal.putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 0));
 
                 current_item_count = store.inventory[item_pos_start].cost;
 
@@ -223,7 +238,7 @@ namespace Moria.Core.Methods
                     //(void)sprintf(msg, "%9d [Fixed]", current_item_count);
                 }
 
-                terminal.putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 59));
+                this.terminal.putStringClearToEOL(msg, new Coord_t(item_line_num + 5, 59));
                 item_pos_start++;
             }
 
@@ -232,22 +247,22 @@ namespace Moria.Core.Methods
                 for (var i = 0; i < 11 - item_line_num + 1; i++)
                 {
                     // clear remaining lines
-                    terminal.eraseLine(new Coord_t(i + item_line_num + 5, 0));
+                    this.terminal.eraseLine(new Coord_t(i + item_line_num + 5, 0));
                 }
             }
 
             if (store.unique_items_counter > 12)
             {
-                terminal.putString("- cont. -", new Coord_t(17, 60));
+                this.terminal.putString("- cont. -", new Coord_t(17, 60));
             }
             else
             {
-                terminal.eraseLine(new Coord_t(17, 60));
+                this.terminal.eraseLine(new Coord_t(17, 60));
             }
         }
 
         // Re-displays only a single cost -RAK-
-        private static void displaySingleCost(int store_id, int item_id)
+        private void displaySingleCost(int store_id, int item_id)
         {
             var cost = State.Instance.stores[store_id].inventory[item_id].cost;
 
@@ -265,33 +280,34 @@ namespace Moria.Core.Methods
                 msg = $"{cost,9:d} [Fixed]";
                 //(void)sprintf(msg, "%9d [Fixed]", cost);
             }
-            terminal.putStringClearToEOL(msg, new Coord_t(item_id % 12 + 5, 59));
+
+            this.terminal.putStringClearToEOL(msg, new Coord_t(item_id % 12 + 5, 59));
         }
 
         // Displays players gold -RAK-
-        private static void displayPlayerRemainingGold()
+        private void displayPlayerRemainingGold()
         {
             var msg = $"Gold Remaining : {State.Instance.py.misc.au}";
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "Gold Remaining : %d", py.misc.au);
-            terminal.putStringClearToEOL(msg, new Coord_t(18, 17));
+            this.terminal.putStringClearToEOL(msg, new Coord_t(18, 17));
         }
 
         // Displays store -RAK-
-        private static void displayStore(Store_t store, string owner_name, int current_top_item_id)
+        private void displayStore(Store_t store, string owner_name, int current_top_item_id)
         {
-            terminal.clearScreen();
-            terminal.putString(owner_name, new Coord_t(3, 9));
-            terminal.putString("Item", new Coord_t(4, 3));
-            terminal.putString("Asking Price", new Coord_t(4, 60));
-            displayPlayerRemainingGold();
-            displayStoreCommands();
-            displayStoreInventory(store, current_top_item_id);
+            this.terminal.clearScreen();
+            this.terminal.putString(owner_name, new Coord_t(3, 9));
+            this.terminal.putString("Item", new Coord_t(4, 3));
+            this.terminal.putString("Asking Price", new Coord_t(4, 60));
+            this.displayPlayerRemainingGold();
+            this.displayStoreCommands();
+            this.displayStoreInventory(store, current_top_item_id);
         }
 
         // Get the ID of a store item and return it's value -RAK-
         // Returns true if the item was found.
-        private static bool storeGetItemId(ref int item_id, string prompt, int item_pos_start, int item_pos_end)
+        private bool storeGetItemId(ref int item_id, string prompt, int item_pos_start, int item_pos_end)
         {
             item_id = -1;
             var item_found = false;
@@ -300,7 +316,7 @@ namespace Moria.Core.Methods
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "(Items %c-%c, ESC to exit) %s", item_pos_start + 'a', item_pos_end + 'a', prompt);
 
-            while (terminal.getCommand(msg, out var key_char))
+            while (this.terminal.getCommand(msg, out var key_char))
             {
                 key_char -= 'a';
                 if (key_char >= item_pos_start && key_char <= item_pos_end)
@@ -309,15 +325,17 @@ namespace Moria.Core.Methods
                     item_id = key_char;
                     break;
                 }
-                terminal.terminalBellSound();
+
+                this.terminal.terminalBellSound();
             }
-            terminal.messageLineClear();
+
+            this.terminal.messageLineClear();
 
             return item_found;
         }
 
         // Increase the insult counter and get angry if too many -RAK-
-        private static bool storeIncreaseInsults(int store_id)
+        private bool storeIncreaseInsults(int store_id)
         {
             var store = State.Instance.stores[store_id];
 
@@ -329,16 +347,16 @@ namespace Moria.Core.Methods
             }
 
             // customer angered the store owner with too many insults!
-            printSpeechGetOutOfMyStore();
+            this.printSpeechGetOutOfMyStore();
             store.insults_counter = 0;
             store.bad_purchases++;
-            store.turns_left_before_closing = State.Instance.dg.game_turn + 2500 + rnd.randomNumber(2500);
+            store.turns_left_before_closing = State.Instance.dg.game_turn + 2500 + this.rnd.randomNumber(2500);
 
             return true;
         }
 
         // Decrease insults -RAK-
-        private static void storeDecreaseInsults(int store_id)
+        private void storeDecreaseInsults(int store_id)
         {
             if (State.Instance.stores[store_id].insults_counter != 0)
             {
@@ -348,23 +366,23 @@ namespace Moria.Core.Methods
 
         // Have insulted while haggling -RAK-
         // Returns true if the store owner was angered.
-        private static bool storeHaggleInsults(int store_id)
+        private bool storeHaggleInsults(int store_id)
         {
-            if (storeIncreaseInsults(store_id))
+            if (this.storeIncreaseInsults(store_id))
             {
                 return true;
             }
 
-            printSpeechTryAgain();
+            this.printSpeechTryAgain();
 
             // keep insult separate from rest of haggle
-            terminal.printMessage(/*CNIL*/ null);
+            this.terminal.printMessage(/*CNIL*/ null);
 
             return false;
         }
 
         // Returns true if the customer made a valid offer
-        private static bool storeGetHaggle(string prompt, ref int new_offer, int offer_count)
+        private bool storeGetHaggle(string prompt, ref int new_offer, int offer_count)
         {
             var valid_offer = true;
 
@@ -387,21 +405,21 @@ namespace Moria.Core.Methods
             // Get a customers new offer
             while (valid_offer && adjustment == 0)
             {
-                terminal.putStringClearToEOL(prompt, new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL(prompt, new Coord_t(0, 0));
 
                 if (offer_count != 0 && State.Instance.store_last_increment != 0)
                 {
-                    var abs_store_last_increment = (int)std.std_abs(std.std_intmax_t(State.Instance.store_last_increment));
+                    var abs_store_last_increment = (int) this.std.std_abs(this.std.std_intmax_t(State.Instance.store_last_increment));
 
                     var last_offer_str = $"[{(State.Instance.store_last_increment < 0 ? '-' : '+')}{abs_store_last_increment}] ";
                     //(void)sprintf(last_offer_str, "[%c%d] ", (State.Instance.store_last_increment < 0) ? '-' : '+', abs_store_last_increment);
-                    terminal.putStringClearToEOL(last_offer_str, new Coord_t(0, start_len));
+                    this.terminal.putStringClearToEOL(last_offer_str, new Coord_t(0, start_len));
 
                     prompt_len = start_len + last_offer_str.Length;
                     //prompt_len = start_len + (int)strlen(last_offer_str);
                 }
 
-                if (!terminal.getStringInput(out var msg, new Coord_t(0, prompt_len), 40))
+                if (!this.terminal.getStringInput(out var msg, new Coord_t(0, prompt_len), 40))
                 {
                     // customer aborted, i.e. pressed escape
                     valid_offer = false;
@@ -423,7 +441,7 @@ namespace Moria.Core.Methods
 
                 if (offer_count != 0 && increment)
                 {
-                    helpers.stringToNumber(msg, out adjustment);
+                    this.helpers.stringToNumber(msg, out adjustment);
 
                     // Don't accept a zero here.  Turn off increment if it was zero
                     // because a zero will not exit.  This can be zero if the user
@@ -444,13 +462,13 @@ namespace Moria.Core.Methods
                 }
                 else
                 {
-                    helpers.stringToNumber(msg, out adjustment);
+                    this.helpers.stringToNumber(msg, out adjustment);
                 }
 
                 // don't allow incremental haggling, if player has not made an offer yet
                 if (valid_offer && offer_count == 0 && increment)
                 {
-                    terminal.printMessage("You haven't even made your first offer yet!");
+                    this.terminal.printMessage("You haven't even made your first offer yet!");
                     adjustment = 0;
                     increment = false;
                 }
@@ -469,27 +487,27 @@ namespace Moria.Core.Methods
             }
             else
             {
-                terminal.messageLineClear();
+                this.terminal.messageLineClear();
             }
 
             return valid_offer;
         }
 
-        private static BidState storeReceiveOffer(int store_id, string prompt, ref int new_offer, int last_offer, int offer_count, int factor)
+        private BidState storeReceiveOffer(int store_id, string prompt, ref int new_offer, int last_offer, int offer_count, int factor)
         {
             var status = BidState.Received;
 
             var done = false;
             while (!done)
             {
-                if (storeGetHaggle(prompt, ref new_offer, offer_count))
+                if (this.storeGetHaggle(prompt, ref new_offer, offer_count))
                 {
                     // customer submitted valid offer
                     if (new_offer * factor >= last_offer * factor)
                     {
                         done = true;
                     }
-                    else if (storeHaggleInsults(store_id))
+                    else if (this.storeHaggleInsults(store_id))
                     {
                         // customer angered the store owner!
                         status = BidState.Insulted;
@@ -513,7 +531,7 @@ namespace Moria.Core.Methods
             return status;
         }
 
-        private static void storePurchaseCustomerAdjustment(ref int min_sell, ref int max_sell)
+        private void storePurchaseCustomerAdjustment(ref int min_sell, ref int max_sell)
         {
             var charisma = playerStatAdjustmentCharisma();
 
@@ -531,7 +549,7 @@ namespace Moria.Core.Methods
         }
 
         // Haggling routine -RAK-
-        private static BidState storePurchaseHaggle(int store_id, ref int price, Inventory_t item)
+        private BidState storePurchaseHaggle(int store_id, ref int price, Inventory_t item)
         {
             var status = BidState.Received;
 
@@ -540,9 +558,9 @@ namespace Moria.Core.Methods
             var store = State.Instance.stores[store_id];
             var owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
-            var cost = storeInventory.storeItemSellPrice(store, out var min_sell, out var max_sell, item);
+            var cost = this.storeInventory.storeItemSellPrice(store, out var min_sell, out var max_sell, item);
 
-            storePurchaseCustomerAdjustment(ref min_sell, ref max_sell);
+            this.storePurchaseCustomerAdjustment(ref min_sell, ref max_sell);
 
             // cast max_inflate to signed so that subtraction works correctly
             var max_buy = cost * (200 - (int)owner.max_inflate) / 100;
@@ -551,7 +569,7 @@ namespace Moria.Core.Methods
                 max_buy = 1;
             }
 
-            displayStoreHaggleCommands(1);
+            this.displayStoreHaggleCommands(1);
 
             var final_asking_price = min_sell;
             var current_asking_price = max_sell;
@@ -561,9 +579,9 @@ namespace Moria.Core.Methods
             var offers_count = 0; // this prevents incremental haggling on first try
 
             // go right to final price if player has bargained well
-            if (storeNoNeedToBargain(State.Instance.stores[store_id], final_asking_price))
+            if (this.storeNoNeedToBargain(State.Instance.stores[store_id], final_asking_price))
             {
-                terminal.printMessage("After a long bargaining session, you agree upon the price.");
+                this.terminal.printMessage("After a long bargaining session, you agree upon the price.");
                 current_asking_price = min_sell;
                 comment = "Final offer";
                 accepted_without_haggle = true;
@@ -594,9 +612,9 @@ namespace Moria.Core.Methods
                     var msg = $"{comment} :  {current_asking_price:d}";
                     //vtype_t msg = { '\0' };
                     //(void)sprintf(msg, "%s :  %d", comment, current_asking_price);
-                    terminal.putString(msg, new Coord_t(1, 0));
+                    this.terminal.putString(msg, new Coord_t(1, 0));
 
-                    status = storeReceiveOffer(store_id, "What do you offer? ", ref new_offer, last_offer, offers_count, 1);
+                    status = this.storeReceiveOffer(store_id, "What do you offer? ", ref new_offer, last_offer, offers_count, 1);
 
                     if (status != BidState.Received)
                     {
@@ -608,7 +626,7 @@ namespace Moria.Core.Methods
 
                         if (new_offer > current_asking_price)
                         {
-                            printSpeechSorry();
+                            this.printSpeechSorry();
 
                             // rejected, reset new_offer for incremental haggling
                             new_offer = last_offer;
@@ -639,7 +657,7 @@ namespace Moria.Core.Methods
 
                     if (adjustment < min_per)
                     {
-                        rejected = storeHaggleInsults(store_id);
+                        rejected = this.storeHaggleInsults(store_id);
                         if (rejected)
                         {
                             status = BidState.Insulted;
@@ -654,7 +672,7 @@ namespace Moria.Core.Methods
                         }
                     }
 
-                    adjustment = (current_asking_price - new_offer) * (adjustment + rnd.randomNumber(5) - 3) / 100 + 1;
+                    adjustment = (current_asking_price - new_offer) * (adjustment + this.rnd.randomNumber(5) - 3) / 100 + 1;
 
                     // don't let the price go up
                     if (adjustment > 0)
@@ -674,7 +692,7 @@ namespace Moria.Core.Methods
 
                         if (final_flag > 3)
                         {
-                            if (storeIncreaseInsults(store_id))
+                            if (this.storeIncreaseInsults(store_id))
                             {
                                 status = BidState.Insulted;
                             }
@@ -696,14 +714,14 @@ namespace Moria.Core.Methods
                         last_offer = new_offer;
                         offers_count++; // enable incremental haggling
 
-                        terminal.eraseLine(new Coord_t(1, 0));
+                        this.terminal.eraseLine(new Coord_t(1, 0));
 
                         var msg = $"Your last offer: {last_offer:d}";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "Your last offer : %d", last_offer);
-                        terminal.putString(msg, new Coord_t(1, 39));
+                        this.terminal.putString(msg, new Coord_t(1, 39));
 
-                        printSpeechSellingHaggle(last_offer, current_asking_price, final_flag);
+                        this.printSpeechSellingHaggle(last_offer, current_asking_price, final_flag);
 
                         // If the current increment would take you over the store's
                         // price, then decrease it to an exact match.
@@ -718,7 +736,7 @@ namespace Moria.Core.Methods
             // update bargaining info
             if (status == BidState.Received && !accepted_without_haggle)
             {
-                storeUpdateBargainingSkills(State.Instance.stores[store_id], new_price, final_asking_price);
+                this.storeUpdateBargainingSkills(State.Instance.stores[store_id], new_price, final_asking_price);
             }
 
             price = new_price; // update callers price before returning
@@ -726,7 +744,7 @@ namespace Moria.Core.Methods
             return status;
         }
 
-        private static void storeSellCustomerAdjustment(Owner_t owner, ref int cost, ref int min_buy, ref int max_buy, ref int max_sell)
+        private void storeSellCustomerAdjustment(Owner_t owner, ref int cost, ref int min_buy, ref int max_buy, ref int max_sell)
         {
             var py = State.Instance.py;
             cost = cost * (200 - playerStatAdjustmentCharisma()) / 100;
@@ -756,14 +774,14 @@ namespace Moria.Core.Methods
         }
 
         // Haggling routine -RAK-
-        private static BidState storeSellHaggle(int store_id, ref int price, Inventory_t item)
+        private BidState storeSellHaggle(int store_id, ref int price, Inventory_t item)
         {
             var status = BidState.Received;
 
             var new_price = 0;
 
             var store = State.Instance.stores[store_id];
-            var cost = storeInventory.storeItemValue(item);
+            var cost = this.storeInventory.storeItemValue(item);
 
             var rejected = false;
 
@@ -783,7 +801,7 @@ namespace Moria.Core.Methods
             {
                 var owner = Library.Instance.StoreOwners.store_owners[(int)store.owner_id];
 
-                storeSellCustomerAdjustment(owner, ref cost, ref min_buy, ref max_buy, ref max_sell);
+                this.storeSellCustomerAdjustment(owner, ref cost, ref min_buy, ref max_buy, ref max_sell);
 
                 min_per = (int)owner.haggles_per;
                 max_per = min_per * 3;
@@ -799,7 +817,7 @@ namespace Moria.Core.Methods
 
             if (!rejected)
             {
-                displayStoreHaggleCommands(-1);
+                this.displayStoreHaggleCommands(-1);
 
                 var offer_count = 0; // this prevents incremental haggling on first try
 
@@ -814,7 +832,7 @@ namespace Moria.Core.Methods
                     State.Instance.store_last_increment = 0;
                     current_asking_price = max_gold;
                     final_asking_price = max_gold;
-                    terminal.printMessage("I am sorry, but I have not the money to afford such a fine item.");
+                    this.terminal.printMessage("I am sorry, but I have not the money to afford such a fine item.");
                     accepted_without_haggle = true;
                 }
                 else
@@ -830,9 +848,9 @@ namespace Moria.Core.Methods
                     comment = "Offer";
 
                     // go right to final price if player has bargained well
-                    if (storeNoNeedToBargain(State.Instance.stores[store_id], final_asking_price))
+                    if (this.storeNoNeedToBargain(State.Instance.stores[store_id], final_asking_price))
                     {
-                        terminal.printMessage("After a long bargaining session, you agree upon the price.");
+                        this.terminal.printMessage("After a long bargaining session, you agree upon the price.");
                         current_asking_price = final_asking_price;
                         comment = "Final offer";
                         accepted_without_haggle = true;
@@ -863,9 +881,9 @@ namespace Moria.Core.Methods
                         var msg = $"{comment} :  {current_asking_price:d}";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "%s :  %d", comment, current_asking_price);
-                        terminal.putString(msg, new Coord_t(1, 0));
+                        this.terminal.putString(msg, new Coord_t(1, 0));
 
-                        status = storeReceiveOffer(store_id, "What price do you ask? ", ref new_offer, last_offer, offer_count, -1);
+                        status = this.storeReceiveOffer(store_id, "What price do you ask? ", ref new_offer, last_offer, offer_count, -1);
 
                         if (status != BidState.Received)
                         {
@@ -877,7 +895,7 @@ namespace Moria.Core.Methods
 
                             if (new_offer < current_asking_price)
                             {
-                                printSpeechSorry();
+                                this.printSpeechSorry();
 
                                 // rejected, reset new_offer for incremental haggling
                                 new_offer = last_offer;
@@ -908,7 +926,7 @@ namespace Moria.Core.Methods
 
                         if (adjustment < min_per)
                         {
-                            rejected = storeHaggleInsults(store_id);
+                            rejected = this.storeHaggleInsults(store_id);
                             if (rejected)
                             {
                                 status = BidState.Insulted;
@@ -923,7 +941,7 @@ namespace Moria.Core.Methods
                             }
                         }
 
-                        adjustment = (new_offer - current_asking_price) * (adjustment + rnd.randomNumber(5) - 3) / 100 + 1;
+                        adjustment = (new_offer - current_asking_price) * (adjustment + this.rnd.randomNumber(5) - 3) / 100 + 1;
 
                         // don't let the price go down
                         if (adjustment > 0)
@@ -943,7 +961,7 @@ namespace Moria.Core.Methods
 
                             if (final_flag > 3)
                             {
-                                if (storeIncreaseInsults(store_id))
+                                if (this.storeIncreaseInsults(store_id))
                                 {
                                     status = BidState.Insulted;
                                 }
@@ -965,13 +983,13 @@ namespace Moria.Core.Methods
                             last_offer = new_offer;
                             offer_count++; // enable incremental haggling
 
-                            terminal.eraseLine(new Coord_t(1, 0));
+                            this.terminal.eraseLine(new Coord_t(1, 0));
                             var msg = $"Your last bid {last_offer:d}";
                             //vtype_t msg = { '\0' };
                             //(void)sprintf(msg, "Your last bid %d", last_offer);
-                            terminal.putString(msg, new Coord_t(1, 39));
+                            this.terminal.putString(msg, new Coord_t(1, 39));
 
-                            printSpeechBuyingHaggle(current_asking_price, last_offer, final_flag);
+                            this.printSpeechBuyingHaggle(current_asking_price, last_offer, final_flag);
 
                             // If the current decrement would take you under the store's
                             // price, then increase it to an exact match.
@@ -987,7 +1005,7 @@ namespace Moria.Core.Methods
             // update bargaining info
             if (status == BidState.Received && !accepted_without_haggle)
             {
-                storeUpdateBargainingSkills(State.Instance.stores[store_id], new_price, final_asking_price);
+                this.storeUpdateBargainingSkills(State.Instance.stores[store_id], new_price, final_asking_price);
             }
 
             price = new_price; // update callers price before returning
@@ -996,7 +1014,7 @@ namespace Moria.Core.Methods
         }
 
         // Get the number of store items to display on the screen
-        private static int storeItemsToDisplay(int store_counter, int current_top_item_id)
+        private int storeItemsToDisplay(int store_counter, int current_top_item_id)
         {
             if (current_top_item_id == 12)
             {
@@ -1013,7 +1031,7 @@ namespace Moria.Core.Methods
 
         // Buy an item from a store -RAK-
         // Returns true is the owner kicks out the customer
-        private static bool storePurchaseAnItem(int store_id, ref int current_top_item_id)
+        private bool storePurchaseAnItem(int store_id, ref int current_top_item_id)
         {
             var py = State.Instance.py;
             var kick_customer = false; // don't kick them out of the store!
@@ -1022,13 +1040,13 @@ namespace Moria.Core.Methods
 
             if (store.unique_items_counter < 1)
             {
-                terminal.printMessage("I am currently out of stock.");
+                this.terminal.printMessage("I am currently out of stock.");
                 return false;
             }
 
             var item_id = 0;
-            var item_count = storeItemsToDisplay((int)store.unique_items_counter, current_top_item_id);
-            if (!storeGetItemId(ref item_id, "Which item are you interested in? ", 0, item_count))
+            var item_count = this.storeItemsToDisplay((int)store.unique_items_counter, current_top_item_id);
+            if (!this.storeGetItemId(ref item_id, "Which item are you interested in? ", 0, item_count))
             {
                 return false;
             }
@@ -1038,11 +1056,11 @@ namespace Moria.Core.Methods
             item_id += current_top_item_id; // true item_id
 
             var sell_item = new Inventory_t();
-            inventoryManager.inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
+            this.inventoryManager.inventoryTakeOneItem(ref sell_item, store.inventory[item_id].item);
 
-            if (!inventory.inventoryCanCarryItemCount(sell_item))
+            if (!this.inventory.inventoryCanCarryItemCount(sell_item))
             {
-                terminal.putStringClearToEOL("You cannot carry that many different items.", new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL("You cannot carry that many different items.", new Coord_t(0, 0));
                 return false;
             }
 
@@ -1055,7 +1073,7 @@ namespace Moria.Core.Methods
             }
             else
             {
-                status = storePurchaseHaggle(store_id, ref price, sell_item);
+                status = this.storePurchaseHaggle(store_id, ref price, sell_item);
             }
 
             if (status == BidState.Insulted)
@@ -1066,29 +1084,29 @@ namespace Moria.Core.Methods
             {
                 if (py.misc.au >= price)
                 {
-                    printSpeechFinishedHaggling();
-                    storeDecreaseInsults(store_id);
+                    this.printSpeechFinishedHaggling();
+                    this.storeDecreaseInsults(store_id);
                     py.misc.au -= price;
 
-                    var new_item_id = inventory.inventoryCarryItem(sell_item);
+                    var new_item_id = this.inventory.inventoryCarryItem(sell_item);
                     var saved_store_counter = (int)store.unique_items_counter;
 
-                    storeInventory.storeDestroyItem(store_id, item_id, true);
+                    this.storeInventory.storeDestroyItem(store_id, item_id, true);
 
                     //obj_desc_t description = { '\0' };
-                    identification.itemDescription(out var description, py.inventory[new_item_id], true);
+                    this.identification.itemDescription(out var description, py.inventory[new_item_id], true);
 
                     var msg = $"You have {description:s} ({(char)(new_item_id + 'a'):c}";
                     //obj_desc_t msg = { '\0' };
                     //(void)sprintf(msg, "You have %s (%c)", description, new_item_id + 'a');
-                    terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
+                    this.terminal.putStringClearToEOL(msg, new Coord_t(0, 0));
 
                     playerStrength();
 
                     if (current_top_item_id >= store.unique_items_counter)
                     {
                         current_top_item_id = 0;
-                        displayStoreInventory(State.Instance.stores[store_id], current_top_item_id);
+                        this.displayStoreInventory(State.Instance.stores[store_id], current_top_item_id);
                     }
                     else
                     {
@@ -1099,39 +1117,40 @@ namespace Moria.Core.Methods
                             if (store_item.cost < 0)
                             {
                                 store_item.cost = price;
-                                displaySingleCost(store_id, item_id);
+                                this.displaySingleCost(store_id, item_id);
                             }
                         }
                         else
                         {
-                            displayStoreInventory(State.Instance.stores[store_id], item_id);
+                            this.displayStoreInventory(State.Instance.stores[store_id], item_id);
                         }
                     }
-                    displayPlayerRemainingGold();
+
+                    this.displayPlayerRemainingGold();
                 }
                 else
                 {
-                    if (storeIncreaseInsults(store_id))
+                    if (this.storeIncreaseInsults(store_id))
                     {
                         kick_customer = true;
                     }
                     else
                     {
-                        printSpeechFinishedHaggling();
-                        terminal.printMessage("Liar!  You have not the gold!");
+                        this.printSpeechFinishedHaggling();
+                        this.terminal.printMessage("Liar!  You have not the gold!");
                     }
                 }
             }
 
             // Less intuitive, but looks better here than in storePurchaseHaggle.
-            displayStoreCommands();
-            terminal.eraseLine(new Coord_t(1, 0));
+            this.displayStoreCommands();
+            this.terminal.eraseLine(new Coord_t(1, 0));
 
             return kick_customer;
         }
 
         // Functions to emulate the original Pascal sets
-        private static bool setGeneralStoreItems(uint item_id)
+        private bool setGeneralStoreItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1148,7 +1167,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static bool setArmoryItems(uint item_id)
+        private bool setArmoryItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1164,7 +1183,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static bool setWeaponsmithItems(uint item_id)
+        private bool setWeaponsmithItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1181,7 +1200,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static bool setTempleItems(uint item_id)
+        private bool setTempleItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1197,7 +1216,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static bool setAlchemistItems(uint item_id)
+        private bool setAlchemistItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1211,7 +1230,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static bool setMagicShopItems(uint item_id)
+        private bool setMagicShopItems(uint item_id)
         {
             switch (item_id)
             {
@@ -1231,21 +1250,22 @@ namespace Moria.Core.Methods
         }
 
         // Each store will buy only certain items, based on TVAL
-        private static readonly Func<uint, bool>[] store_buy = {
-            setGeneralStoreItems,
-            setArmoryItems,
-            setWeaponsmithItems,
-            setTempleItems,
-            setAlchemistItems,
-            setMagicShopItems
-        };
+        private readonly Func<uint, bool>[] store_buy;
+        // = { // INITIALIZATION moved to constructor
+        //     setGeneralStoreItems,
+        //     setArmoryItems,
+        //     setWeaponsmithItems,
+        //     setTempleItems,
+        //     setAlchemistItems,
+        //     setMagicShopItems
+        // };
         //        bool (* store_buy[MAX_STORES])(uint8_t) = {
         //    setGeneralStoreItems, setArmoryItems, setWeaponsmithItems, setTempleItems, setAlchemistItems, setMagicShopItems,
         //};
 
         // Sell an item to the store -RAK-
         // Returns true is the owner kicks out the customer
-        private static bool storeSellAnItem(int store_id, ref int current_top_item_id)
+        private bool storeSellAnItem(int store_id, ref int current_top_item_id)
         {
             var py = State.Instance.py;
 
@@ -1258,7 +1278,7 @@ namespace Moria.Core.Methods
 
             for (var counter = 0; counter < py.pack.unique_items; counter++)
             {
-                var flag = store_buy[store_id](py.inventory[counter].category_id);
+                var flag = this.store_buy[store_id](py.inventory[counter].category_id);
 
                 if (flag)
                 {
@@ -1282,34 +1302,34 @@ namespace Moria.Core.Methods
 
             if (last_item == -1)
             {
-                terminal.printMessage("You have nothing to sell to this store!");
+                this.terminal.printMessage("You have nothing to sell to this store!");
                 return false;
             }
 
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
+            if (!this.uiInventory.inventoryGetInputForItemId(out var item_id, "Which one? ", first_item, last_item, mask, "I do not buy such items."))
             {
                 return false;
             }
 
             var sold_item = new Inventory_t();
-            inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
+            this.inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
-            identification.itemDescription(out var description, sold_item, true);
+            this.identification.itemDescription(out var description, sold_item, true);
 
             var msg = $"Selling {description:s} ({(char)(item_id + 'a'):c}";
             //obj_desc_t msg = { '\0' };
             //(void)sprintf(msg, "Selling %s (%c)", description, item_id + 'a');
-            terminal.printMessage(msg);
+            this.terminal.printMessage(msg);
 
-            if (!storeInventory.storeCheckPlayerItemsCount(State.Instance.stores[store_id], sold_item))
+            if (!this.storeInventory.storeCheckPlayerItemsCount(State.Instance.stores[store_id], sold_item))
             {
-                terminal.printMessage("I have not the room in my store to keep it.");
+                this.terminal.printMessage("I have not the room in my store to keep it.");
                 return false;
             }
 
             var price = 0;
 
-            var status = storeSellHaggle(store_id, ref price, sold_item);
+            var status = this.storeSellHaggle(store_id, ref price, sold_item);
 
             if (status == BidState.Insulted)
             {
@@ -1317,34 +1337,34 @@ namespace Moria.Core.Methods
             }
             else if (status == BidState.Offended)
             {
-                terminal.printMessage("How dare you!");
-                terminal.printMessage("I will not buy that!");
-                kick_customer = storeIncreaseInsults(store_id);
+                this.terminal.printMessage("How dare you!");
+                this.terminal.printMessage("I will not buy that!");
+                kick_customer = this.storeIncreaseInsults(store_id);
             }
             else if (status == BidState.Received)
             {
                 // bid received, and accepted!
 
-                printSpeechFinishedHaggling();
-                storeDecreaseInsults(store_id);
+                this.printSpeechFinishedHaggling();
+                this.storeDecreaseInsults(store_id);
                 py.misc.au += price;
 
                 // identify object in inventory to set objects_identified array
-                identification.itemIdentify(py.inventory[item_id], ref item_id);
+                this.identification.itemIdentify(py.inventory[item_id], ref item_id);
 
                 // retake sold_item so that it will be identified
-                inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
+                this.inventoryManager.inventoryTakeOneItem(ref sold_item, py.inventory[item_id]);
 
                 // call spellItemIdentifyAndRemoveRandomInscription for store item, so charges/pluses are known
-                identification.spellItemIdentifyAndRemoveRandomInscription(sold_item);
-                inventoryManager.inventoryDestroyItem(item_id);
+                this.identification.spellItemIdentifyAndRemoveRandomInscription(sold_item);
+                this.inventoryManager.inventoryDestroyItem(item_id);
 
-                identification.itemDescription(out description, sold_item, true);
+                this.identification.itemDescription(out description, sold_item, true);
                 msg = $"You've sold {description:s}";
                 //(void)sprintf(msg, "You've sold %s", description);
-                terminal.printMessage(msg);
+                this.terminal.printMessage(msg);
 
-                storeInventory.storeCarryItem(store_id, out var item_pos_id, sold_item);
+                this.storeInventory.storeCarryItem(store_id, out var item_pos_id, sold_item);
 
                 playerStrength();
 
@@ -1354,36 +1374,37 @@ namespace Moria.Core.Methods
                     {
                         if (current_top_item_id < 12)
                         {
-                            displayStoreInventory(State.Instance.stores[store_id], item_pos_id);
+                            this.displayStoreInventory(State.Instance.stores[store_id], item_pos_id);
                         }
                         else
                         {
                             current_top_item_id = 0;
-                            displayStoreInventory(State.Instance.stores[store_id], current_top_item_id);
+                            this.displayStoreInventory(State.Instance.stores[store_id], current_top_item_id);
                         }
                     }
                     else if (current_top_item_id > 11)
                     {
-                        displayStoreInventory(State.Instance.stores[store_id], item_pos_id);
+                        this.displayStoreInventory(State.Instance.stores[store_id], item_pos_id);
                     }
                     else
                     {
                         current_top_item_id = 12;
-                        displayStoreInventory(State.Instance.stores[store_id], current_top_item_id);
+                        this.displayStoreInventory(State.Instance.stores[store_id], current_top_item_id);
                     }
                 }
-                displayPlayerRemainingGold();
+
+                this.displayPlayerRemainingGold();
             }
 
             // Less intuitive, but looks better here than in storeSellHaggle.
-            terminal.eraseLine(new Coord_t(1, 0));
-            displayStoreCommands();
+            this.terminal.eraseLine(new Coord_t(1, 0));
+            this.displayStoreCommands();
 
             return kick_customer;
         }
 
         // Entering a store -RAK-
-        public static void storeEnter(int store_id)
+        public void storeEnter(int store_id)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -1393,22 +1414,22 @@ namespace Moria.Core.Methods
 
             if (store.turns_left_before_closing >= dg.game_turn)
             {
-                terminal.printMessage("The doors are locked.");
+                this.terminal.printMessage("The doors are locked.");
                 return;
             }
 
             var current_top_item_id = 0;
-            displayStore(stores[store_id], Library.Instance.StoreOwners.store_owners[(int)store.owner_id].name, current_top_item_id);
+            this.displayStore(stores[store_id], Library.Instance.StoreOwners.store_owners[(int)store.owner_id].name, current_top_item_id);
 
             var exit_store = false;
             while (!exit_store)
             {
-                terminal.moveCursor(new Coord_t(20, 9));
+                this.terminal.moveCursor(new Coord_t(20, 9));
 
                 // clear the msg flag just like we do in dungeon.c
                 State.Instance.message_ready_to_print = false;
 
-                if (terminal.getCommand("", out var command))
+                if (this.terminal.getCommand("", out var command))
                 {
                     switch (command)
                     {
@@ -1418,17 +1439,17 @@ namespace Moria.Core.Methods
                                 if (store.unique_items_counter > 12)
                                 {
                                     current_top_item_id = 12;
-                                    displayStoreInventory(stores[store_id], current_top_item_id);
+                                    this.displayStoreInventory(stores[store_id], current_top_item_id);
                                 }
                                 else
                                 {
-                                    terminal.printMessage("Entire inventory is shown.");
+                                    this.terminal.printMessage("Entire inventory is shown.");
                                 }
                             }
                             else
                             {
                                 current_top_item_id = 0;
-                                displayStoreInventory(stores[store_id], current_top_item_id);
+                                this.displayStoreInventory(stores[store_id], current_top_item_id);
                             }
                             break;
                         case 'E':
@@ -1445,26 +1466,26 @@ namespace Moria.Core.Methods
 
                             do
                             {
-                                uiInventory.inventoryExecuteCommand(command);
+                                this.uiInventory.inventoryExecuteCommand(command);
                                 command = (char)game.doing_inventory_command;
                             } while (command != 0);
 
                             // redisplay store prices if charisma changes
                             if (saved_chr != py.stats.used[(int)PlayerAttr.CHR])
                             {
-                                displayStoreInventory(stores[store_id], current_top_item_id);
+                                this.displayStoreInventory(stores[store_id], current_top_item_id);
                             }
 
                             game.player_free_turn = false; // No free moves here. -CJS-
                             break;
                         case 'p':
-                            exit_store = storePurchaseAnItem(store_id, ref current_top_item_id);
+                            exit_store = this.storePurchaseAnItem(store_id, ref current_top_item_id);
                             break;
                         case 's':
-                            exit_store = storeSellAnItem(store_id, ref current_top_item_id);
+                            exit_store = this.storeSellAnItem(store_id, ref current_top_item_id);
                             break;
                         default:
-                            terminal.terminalBellSound();
+                            this.terminal.terminalBellSound();
                             break;
                     }
                 }
@@ -1475,11 +1496,11 @@ namespace Moria.Core.Methods
             }
 
             // Can't save and restore the screen because inventoryExecuteCommand() does that.
-            terminalEx.drawCavePanel();
+            this.terminalEx.drawCavePanel();
         }
 
         // eliminate need to bargain if player has haggled well in the past -DJB-
-        private static bool storeNoNeedToBargain(Store_t store, int min_price)
+        private bool storeNoNeedToBargain(Store_t store, int min_price)
         {
             if (store.good_purchases == SHRT_MAX)
             {
@@ -1492,7 +1513,7 @@ namespace Moria.Core.Methods
         }
 
         // update the bargain info -DJB-
-        private static void storeUpdateBargainingSkills(Store_t store, int price, int min_price)
+        private void storeUpdateBargainingSkills(Store_t store, int price, int min_price)
         {
             if (min_price < 10)
             {

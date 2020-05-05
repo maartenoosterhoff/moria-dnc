@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_run_m;
-using static Moria.Core.Methods.Store_m;
 
 namespace Moria.Core.Methods
 {
@@ -23,6 +22,7 @@ namespace Moria.Core.Methods
             IInventory inventory,
             IMonsterManager monsterManager,
             IRnd rnd,
+            IStore store,
             ITerminal terminal,
             ITerminalEx terminalEx,
 
@@ -36,6 +36,7 @@ namespace Moria.Core.Methods
             Player_move_m.identification = identification;
             Player_move_m.inventory = inventory;
             Player_move_m.monsterManager = monsterManager;
+            Player_move_m.store = store;
             Player_move_m.rnd = rnd;
             Player_move_m.terminal = terminal;
             Player_move_m.terminalEx = terminalEx;
@@ -51,6 +52,7 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
+        private static IStore store;
         private static ITerminal terminal;
         private static ITerminalEx terminalEx;
 
@@ -407,22 +409,22 @@ namespace Moria.Core.Methods
 
                 // Town level traps are special, the stores.
                 case TrapTypes.GeneralStore:
-                    storeEnter(0);
+                    store.storeEnter(0);
                     break;
                 case TrapTypes.Armory:
-                    storeEnter(1);
+                    store.storeEnter(1);
                     break;
                 case TrapTypes.Weaponsmith:
-                    storeEnter(2);
+                    store.storeEnter(2);
                     break;
                 case TrapTypes.Temple:
-                    storeEnter(3);
+                    store.storeEnter(3);
                     break;
                 case TrapTypes.Alchemist:
-                    storeEnter(4);
+                    store.storeEnter(4);
                     break;
                 case TrapTypes.MagicShop:
-                    storeEnter(5);
+                    store.storeEnter(5);
                     break;
 
                 default:
