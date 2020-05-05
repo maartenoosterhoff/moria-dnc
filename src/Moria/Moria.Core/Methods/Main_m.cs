@@ -169,6 +169,7 @@ Options:
             container.RegisterSingleton<IInventoryManager, Inventory_manager_m>();
             container.RegisterSingleton<IMonsterManager, Monster_manager_m>();
             container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
+            container.RegisterSingleton<IPlayerQuaff, Player_quaff_m>();
             container.RegisterSingleton<IRecall, Recall_m>();
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
@@ -204,6 +205,7 @@ Options:
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMonsterManager>(),
+                container.GetInstance<IPlayerQuaff>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ISpells>(),
                 container.GetInstance<IStoreInventory>(),
@@ -308,20 +310,6 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ISpells>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<ITerminalEx>(),
-                container.GetInstance<IUiInventory>(),
-
-                container.GetInstance<IEventPublisher>()
-            );
-
-            Player_quaff_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IIdentification>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IPlayerMagic>(),
-                container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),

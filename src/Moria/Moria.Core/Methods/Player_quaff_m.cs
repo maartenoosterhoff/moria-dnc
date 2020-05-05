@@ -11,10 +11,27 @@ using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Player_quaff_m
+    public interface IPlayerQuaff
     {
-        public static void SetDependencies(
+        void quaff();
+    }
+
+    public class Player_quaff_m : IPlayerQuaff
+    {
+        private readonly IDice dice;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IPlayerMagic playerMagic;
+        private readonly IRnd rnd;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+        private readonly IUiInventory uiInventory;
+
+        public Player_quaff_m(
             IDice dice,
+            IEventPublisher eventPublisher,
             IHelpers helpers,
             IIdentification identification,
             IInventoryManager inventoryManager,
@@ -22,44 +39,29 @@ namespace Moria.Core.Methods
             IRnd rnd,
             ITerminal terminal,
             ITerminalEx terminalEx,
-            IUiInventory uiInventory,
+            IUiInventory uiInventory
 
-            IEventPublisher eventPublisher
         )
         {
-            Player_quaff_m.dice = dice;
-            Player_quaff_m.helpers = helpers;
-            Player_quaff_m.identification = identification;
-            Player_quaff_m.inventoryManager = inventoryManager;
-            Player_quaff_m.playerMagic = playerMagic;
-            Player_quaff_m.rnd = rnd;
-            Player_quaff_m.terminal = terminal;
-            Player_quaff_m.terminalEx = terminalEx;
-            Player_quaff_m.uiInventory = uiInventory;
-
-            Player_quaff_m.eventPublisher = eventPublisher;
+            this.dice = dice;
+            this.eventPublisher = eventPublisher;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.inventoryManager = inventoryManager;
+            this.playerMagic = playerMagic;
+            this.rnd = rnd;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
+            this.uiInventory = uiInventory;
         }
-
-        private static IDice dice;
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IInventoryManager inventoryManager;
-        private static IPlayerMagic playerMagic;
-        private static IRnd rnd;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-        private static IUiInventory uiInventory;
-
-        private static IEventPublisher eventPublisher;
-
-        static bool playerDrinkPotion(uint flags, uint item_type)
+        private bool playerDrinkPotion(uint flags, uint item_type)
         {
             var py = State.Instance.py;
             var identified = false;
 
             while (flags != 0)
             {
-                var potion_id = helpers.getAndClearFirstBit(ref flags) + 1;
+                var potion_id = this.helpers.getAndClearFirstBit(ref flags) + 1;
 
                 if (item_type == TV_POTION2)
                 {
@@ -72,99 +74,96 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Strength:
                         if (playerStatRandomIncrease((int)PlayerAttr.STR))
                         {
-                            terminal.printMessage("Wow!  What bulging muscles!");
+                            this.terminal.printMessage("Wow!  What bulging muscles!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Weakness:
-                        eventPublisher.Publish(new LoseStrCommand());
+                        this.eventPublisher.Publish(new LoseStrCommand());
                         //spellLoseSTR();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreStrength:
                         if (playerStatRestore((int)PlayerAttr.STR))
                         {
-                            terminal.printMessage("You feel warm all over.");
+                            this.terminal.printMessage("You feel warm all over.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Intelligence:
                         if (playerStatRandomIncrease((int)PlayerAttr.INT))
                         {
-                            terminal.printMessage("Aren't you brilliant!");
+                            this.terminal.printMessage("Aren't you brilliant!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.LoseIntelligence:
-                        eventPublisher.Publish(new LoseIntCommand());
+                        this.eventPublisher.Publish(new LoseIntCommand());
                         //spellLoseINT();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreIntelligence:
                         if (playerStatRestore((int)PlayerAttr.INT))
                         {
-                            terminal.printMessage("You have have a warm feeling.");
+                            this.terminal.printMessage("You have have a warm feeling.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Wisdom:
                         if (playerStatRandomIncrease((int)PlayerAttr.WIS))
                         {
-                            terminal.printMessage("You suddenly have a profound thought!");
+                            this.terminal.printMessage("You suddenly have a profound thought!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.LoseWisdom:
-                        eventPublisher.Publish(new LoseWisCommand());
+                        this.eventPublisher.Publish(new LoseWisCommand());
                         //spellLoseWIS();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreWisdom:
                         if (playerStatRestore((int)PlayerAttr.WIS))
                         {
-                            terminal.printMessage("You feel your wisdom returning.");
+                            this.terminal.printMessage("You feel your wisdom returning.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Charisma:
                         if (playerStatRandomIncrease((int)PlayerAttr.CHR))
                         {
-                            terminal.printMessage("Gee, ain't you cute!");
+                            this.terminal.printMessage("Gee, ain't you cute!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Ugliness:
-                        eventPublisher.Publish(new LoseChrCommand());
+                        this.eventPublisher.Publish(new LoseChrCommand());
                         //spellLoseCHR();
                         identified = true;
                         break;
                     case PotionSpellTypes.RestoreCharisma:
                         if (playerStatRestore((int)PlayerAttr.CHR))
                         {
-                            terminal.printMessage("You feel your looks returning.");
+                            this.terminal.printMessage("You feel your looks returning.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.CureLightWounds:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            dice.diceRoll(new Dice_t(2, 7))
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.dice.diceRoll(new Dice_t(2, 7))
                         ));
                         //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(2, 7)));
                         break;
                     case PotionSpellTypes.CureSeriousWounds:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            dice.diceRoll(new Dice_t(4, 7))
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.dice.diceRoll(new Dice_t(4, 7))
                         ));
                         //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(4, 7)));
                         break;
                     case PotionSpellTypes.CureCriticalWounds:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            dice.diceRoll(new Dice_t(6, 7))
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.dice.diceRoll(new Dice_t(6, 7))
                         ));
                         //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(6, 7)));
                         break;
                     case PotionSpellTypes.Healing:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
                             1000
                         ));
                         //identified = spellChangePlayerHitPoints(1000);
@@ -172,7 +171,7 @@ namespace Moria.Core.Methods
                     case PotionSpellTypes.Constitution:
                         if (playerStatRandomIncrease((int)PlayerAttr.CON))
                         {
-                            terminal.printMessage("You feel tingly for a moment.");
+                            this.terminal.printMessage("You feel tingly for a moment.");
                             identified = true;
                         }
                         break;
@@ -186,8 +185,8 @@ namespace Moria.Core.Methods
                             }
                             py.misc.exp += (int)exp;
 
-                            terminal.printMessage("You feel more experienced.");
-                            terminalEx.displayCharacterExperience();
+                            this.terminal.printMessage("You feel more experienced.");
+                            this.terminalEx.displayCharacterExperience();
                             identified = true;
                         }
                         break;
@@ -195,84 +194,84 @@ namespace Moria.Core.Methods
                         if (!py.flags.free_action)
                         {
                             // paralysis must == 0, otherwise could not drink potion
-                            terminal.printMessage("You fall asleep.");
-                            py.flags.paralysis += rnd.randomNumber(4) + 4;
+                            this.terminal.printMessage("You fall asleep.");
+                            py.flags.paralysis += this.rnd.randomNumber(4) + 4;
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.Blindness:
                         if (py.flags.blind == 0)
                         {
-                            terminal.printMessage("You are covered by a veil of darkness.");
+                            this.terminal.printMessage("You are covered by a veil of darkness.");
                             identified = true;
                         }
-                        py.flags.blind += rnd.randomNumber(100) + 100;
+                        py.flags.blind += this.rnd.randomNumber(100) + 100;
                         break;
                     case PotionSpellTypes.Confusion:
                         if (py.flags.confused == 0)
                         {
-                            terminal.printMessage("Hey!  This is good stuff!  * Hick! *");
+                            this.terminal.printMessage("Hey!  This is good stuff!  * Hick! *");
                             identified = true;
                         }
-                        py.flags.confused += rnd.randomNumber(20) + 12;
+                        py.flags.confused += this.rnd.randomNumber(20) + 12;
                         break;
                     case PotionSpellTypes.Poison:
                         if (py.flags.poisoned == 0)
                         {
-                            terminal.printMessage("You feel very sick.");
+                            this.terminal.printMessage("You feel very sick.");
                             identified = true;
                         }
-                        py.flags.poisoned += rnd.randomNumber(15) + 10;
+                        py.flags.poisoned += this.rnd.randomNumber(15) + 10;
                         break;
                     case PotionSpellTypes.HasteSelf:
                         if (py.flags.fast == 0)
                         {
                             identified = true;
                         }
-                        py.flags.fast += rnd.randomNumber(25) + 15;
+                        py.flags.fast += this.rnd.randomNumber(25) + 15;
                         break;
                     case PotionSpellTypes.Slowness:
                         if (py.flags.slow == 0)
                         {
                             identified = true;
                         }
-                        py.flags.slow += rnd.randomNumber(25) + 15;
+                        py.flags.slow += this.rnd.randomNumber(25) + 15;
                         break;
                     case PotionSpellTypes.Dexterity:
                         if (playerStatRandomIncrease((int)PlayerAttr.DEX))
                         {
-                            terminal.printMessage("You feel more limber!");
+                            this.terminal.printMessage("You feel more limber!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.RestoreDexterity:
                         if (playerStatRestore((int)PlayerAttr.DEX))
                         {
-                            terminal.printMessage("You feel less clumsy.");
+                            this.terminal.printMessage("You feel less clumsy.");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.RestoreConstitution:
                         if (playerStatRestore((int)PlayerAttr.CON))
                         {
-                            terminal.printMessage("You feel your health returning!");
+                            this.terminal.printMessage("You feel your health returning!");
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.CureBlindness:
-                        identified = playerMagic.playerCureBlindness();
+                        identified = this.playerMagic.playerCureBlindness();
                         break;
                     case PotionSpellTypes.CureConfusion:
-                        identified = playerMagic.playerCureConfusion();
+                        identified = this.playerMagic.playerCureConfusion();
                         break;
                     case PotionSpellTypes.CurePoison:
-                        identified = playerMagic.playerCurePoison();
+                        identified = this.playerMagic.playerCurePoison();
                         break;
                     // case 33: break; // this is no longer useful, now that there is a 'G'ain magic spells command
                     case PotionSpellTypes.LoseExperience:
                         if (py.misc.exp > 0)
                         {
-                            terminal.printMessage("You feel your memories fade.");
+                            this.terminal.printMessage("You feel your memories fade.");
 
                             // Lose between 1/5 and 2/5 of your experience
                             var exp = py.misc.exp / 5;
@@ -281,26 +280,27 @@ namespace Moria.Core.Methods
                             {
                                 const int intMax = +2147483647;
                                 var scale = (int)(intMax / py.misc.exp);
-                                exp += rnd.randomNumber((int)scale) * py.misc.exp / (scale * 5);
+                                exp += this.rnd.randomNumber((int)scale) * py.misc.exp / (scale * 5);
                             }
                             else
                             {
-                                exp += rnd.randomNumber((int)py.misc.exp) / 5;
+                                exp += this.rnd.randomNumber((int)py.misc.exp) / 5;
                             }
-                            eventPublisher.Publish(new LoseExpCommand(exp));
+
+                            this.eventPublisher.Publish(new LoseExpCommand(exp));
                             //spellLoseEXP(exp);
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.SaltWater:
-                        playerMagic.playerCurePoison();
+                        this.playerMagic.playerCurePoison();
                         if (py.flags.food > 150)
                         {
                             py.flags.food = 150;
                         }
                         py.flags.paralysis = 4;
 
-                        terminal.printMessage("The potion makes you vomit!");
+                        this.terminal.printMessage("The potion makes you vomit!");
                         identified = true;
                         break;
                     case PotionSpellTypes.Invulnerability:
@@ -308,27 +308,27 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        py.flags.invulnerability += rnd.randomNumber(10) + 10;
+                        py.flags.invulnerability += this.rnd.randomNumber(10) + 10;
                         break;
                     case PotionSpellTypes.Heroism:
                         if (py.flags.heroism == 0)
                         {
                             identified = true;
                         }
-                        py.flags.heroism += rnd.randomNumber(25) + 25;
+                        py.flags.heroism += this.rnd.randomNumber(25) + 25;
                         break;
                     case PotionSpellTypes.SuperHeroism:
                         if (py.flags.super_heroism == 0)
                         {
                             identified = true;
                         }
-                        py.flags.super_heroism += rnd.randomNumber(25) + 25;
+                        py.flags.super_heroism += this.rnd.randomNumber(25) + 25;
                         break;
                     case PotionSpellTypes.Boldness:
-                        identified = playerMagic.playerRemoveFear();
+                        identified = this.playerMagic.playerRemoveFear();
                         break;
                     case PotionSpellTypes.RestoreLifeLevels:
-                        identified = eventPublisher.PublishWithOutputBool(new RestorePlayerLevelsCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new RestorePlayerLevelsCommand());
                         //identified = spellRestorePlayerLevels();
                         break;
                     case PotionSpellTypes.ResistHeat:
@@ -336,49 +336,50 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        py.flags.heat_resistance += rnd.randomNumber(10) + 10;
+                        py.flags.heat_resistance += this.rnd.randomNumber(10) + 10;
                         break;
                     case PotionSpellTypes.ResistCold:
                         if (py.flags.cold_resistance == 0)
                         {
                             identified = true;
                         }
-                        py.flags.cold_resistance += rnd.randomNumber(10) + 10;
+                        py.flags.cold_resistance += this.rnd.randomNumber(10) + 10;
                         break;
                     case PotionSpellTypes.DetectInvisible:
                         if (py.flags.detect_invisible == 0)
                         {
                             identified = true;
                         }
-                        playerMagic.playerDetectInvisible(rnd.randomNumber(12) + 12);
+
+                        this.playerMagic.playerDetectInvisible(this.rnd.randomNumber(12) + 12);
                         break;
                     case PotionSpellTypes.SlowPoison:
-                        identified = eventPublisher.PublishWithOutputBool(new SlowPoisonCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new SlowPoisonCommand());
                         //identified = spellSlowPoison();
                         break;
                     case PotionSpellTypes.NeutralizePoison:
-                        identified = playerMagic.playerCurePoison();
+                        identified = this.playerMagic.playerCurePoison();
                         break;
                     case PotionSpellTypes.RestoreMana:
                         if (py.misc.current_mana < py.misc.mana)
                         {
                             py.misc.current_mana = py.misc.mana;
-                            terminal.printMessage("Your feel your head clear.");
-                            terminalEx.printCharacterCurrentMana();
+                            this.terminal.printMessage("Your feel your head clear.");
+                            this.terminalEx.printCharacterCurrentMana();
                             identified = true;
                         }
                         break;
                     case PotionSpellTypes.InfraVision:
                         if (py.flags.timed_infra == 0)
                         {
-                            terminal.printMessage("Your eyes begin to tingle.");
+                            this.terminal.printMessage("Your eyes begin to tingle.");
                             identified = true;
                         }
-                        py.flags.timed_infra += 100 + rnd.randomNumber(100);
+                        py.flags.timed_infra += 100 + this.rnd.randomNumber(100);
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
-                        terminal.printMessage("Internal error in potion()");
+                        this.terminal.printMessage("Internal error in potion()");
                         break;
                 }
             }
@@ -387,7 +388,7 @@ namespace Moria.Core.Methods
         }
 
         // Potions for the quaffing -RAK-
-        public static void quaff()
+        public void quaff()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -396,17 +397,17 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0)
             {
-                terminal.printMessage("But you are not carrying anything.");
+                this.terminal.printMessage("But you are not carrying anything.");
                 return;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, out var item_pos_begin, out var item_pos_end))
+            if (!this.inventoryManager.inventoryFindRange((int)TV_POTION1, (int)TV_POTION2, out var item_pos_begin, out var item_pos_end))
             {
-                terminal.printMessage("You are not carrying any potions.");
+                this.terminal.printMessage("You are not carrying any potions.");
                 return;
             }
 
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!this.uiInventory.inventoryGetInputForItemId(out var item_id, "Quaff which potion?", item_pos_begin, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
@@ -418,34 +419,34 @@ namespace Moria.Core.Methods
 
             if (item.flags == 0)
             {
-                terminal.printMessage("You feel less thirsty.");
+                this.terminal.printMessage("You feel less thirsty.");
                 identified = true;
             }
             else
             {
-                identified = playerDrinkPotion(item.flags, item.category_id);
+                identified = this.playerDrinkPotion(item.flags, item.category_id);
             }
 
             if (identified)
             {
-                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
-                    terminalEx.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
 
-                    identification.itemIdentify(py.inventory[item_id], ref item_id);
+                    this.identification.itemIdentify(py.inventory[item_id], ref item_id);
                     item = py.inventory[item_id];
                 }
             }
-            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                identification.itemSetAsTried(item);
+                this.identification.itemSetAsTried(item);
             }
 
             playerIngestFood(item.misc_use);
-            identification.itemTypeRemainingCountDescription(item_id);
-            inventoryManager.inventoryDestroyItem(item_id);
+            this.identification.itemTypeRemainingCountDescription(item_id);
+            this.inventoryManager.inventoryDestroyItem(item_id);
         }
     }
 }

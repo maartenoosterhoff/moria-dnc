@@ -27,7 +27,6 @@ using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Player_pray_m;
-using static Moria.Core.Methods.Player_quaff_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_throw_m;
@@ -55,6 +54,7 @@ namespace Moria.Core.Methods
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
+            IPlayerQuaff playerQuaff,
             IRnd rnd,
             ISpells spells,
             IStoreInventory storeInventory,
@@ -78,6 +78,7 @@ namespace Moria.Core.Methods
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
+            Game_run_m.playerQuaff = playerQuaff;
             Game_run_m.rnd = rnd;
             Game_run_m.spells = spells;
             Game_run_m.storeInventory = storeInventory;
@@ -102,6 +103,7 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
+        private static IPlayerQuaff playerQuaff;
         private static IRnd rnd;
         private static ISpells spells;
         private static IStoreInventory storeInventory;
@@ -2386,7 +2388,7 @@ namespace Moria.Core.Methods
                     pray();
                     break;
                 case 'q': // (q)uaff
-                    quaff();
+                    playerQuaff.quaff();
                     break;
                 case 'r': // (r)ead
                     scrollRead();
