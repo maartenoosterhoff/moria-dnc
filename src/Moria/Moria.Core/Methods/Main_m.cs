@@ -183,7 +183,8 @@ Options:
             container.RegisterDecorator<IConsoleWrapper, StateSavingDecorator>(Lifestyle.Singleton);
 
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
-            container.Collection.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
+            container.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
+            container.Register(typeof(ICommandHandler<,>), typeof(ICommandHandler<,>).Assembly);
 
             container.Verify();
 
@@ -271,7 +272,8 @@ Options:
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IStd>(),
-                container.GetInstance<ITerminal>()
+                container.GetInstance<ITerminal>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_eat_m.SetDependencies(
@@ -348,7 +350,8 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
-                container.GetInstance<IUiInventory>()
+                container.GetInstance<IUiInventory>(),
+                container.GetInstance<IEventPublisher>()
             );
 
             Player_traps_m.SetDependencies(
@@ -440,17 +443,21 @@ Options:
             public void Publish<TCommand>(TCommand command) where TCommand : ICommand
             {
                 var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
-                var handlers = this.container.GetAllInstances(handlerType);
-                foreach (ICommandHandler<TCommand> handler in handlers)
-                {
-                    handler.Handle(command);
-                }
+                var handler = (ICommandHandler<TCommand>)this.container.GetInstance(handlerType);
+                handler.Handle(command);
             }
 
             public bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand
             {
-                var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
+                var handlerType = typeof(ICommandHandler<,>).MakeGenericType(typeof(TCommand), typeof(bool));
                 var handler = (ICommandHandler<TCommand, bool>)this.container.GetInstance(handlerType);
+                return handler.Handle(command);
+            }
+
+            public int PublishWithOutputInt<TCommand>(TCommand command) where TCommand : ICommand
+            {
+                var handlerType = typeof(ICommandHandler<,>).MakeGenericType(typeof(TCommand), typeof(int));
+                var handler = (ICommandHandler<TCommand, int>)this.container.GetInstance(handlerType);
                 return handler.Handle(command);
             }
         }
@@ -461,5 +468,7 @@ Options:
         void Publish<TCommand>(TCommand command) where TCommand : ICommand;
 
         bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand;
+
+        int PublishWithOutputInt<TCommand>(TCommand command) where TCommand : ICommand;
     }
 }

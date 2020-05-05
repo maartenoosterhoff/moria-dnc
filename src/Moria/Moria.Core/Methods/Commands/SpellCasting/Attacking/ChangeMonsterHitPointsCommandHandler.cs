@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -10,10 +11,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<ChangeMonsterHitPointsCommand>,
         ICommandHandler<ChangeMonsterHitPointsCommand, bool>
     {
+        private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
 
-        public ChangeMonsterHitPointsCommandHandler(IHelpers helpers)
+        public ChangeMonsterHitPointsCommandHandler(
+            IEventPublisher eventPublisher,
+            IHelpers helpers
+        )
         {
+            this.eventPublisher = eventPublisher;
             this.helpers = helpers;
         }
 
@@ -66,7 +72,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
 
-                    if (Monster_m.monsterTakeHit((int)tile.creature_id, damage_hp) >= 0)
+                    var creature_id = this.eventPublisher.PublishWithOutputInt(
+                        new TakeHitCommand((int) tile.creature_id, damage_hp)
+                    );
+                    if (creature_id >= 0)
+                    //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage_hp) >= 0)
                     {
                         Monster_m.printMonsterActionText(name, "dies in a fit of agony.");
                         Ui_m.displayCharacterExperience();

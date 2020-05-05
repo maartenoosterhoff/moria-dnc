@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 
 namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
@@ -9,14 +10,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<DispelCreatureCommand, bool>
     {
         private readonly IDungeonLos dungeonLos;
+        private readonly IEventPublisher eventPublisher;
         private readonly IRnd rnd;
 
         public DispelCreatureCommandHandler(
             IDungeonLos dungeonLos,
+            IEventPublisher eventPublisher,
             IRnd rnd
         )
         {
             this.dungeonLos = dungeonLos;
+            this.eventPublisher = eventPublisher;
             this.rnd = rnd;
         }
 
@@ -58,7 +62,10 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
 
-                    var hit = Monster_m.monsterTakeHit(id, this.rnd.randomNumber(damage));
+                    var hit = this.eventPublisher.PublishWithOutputInt(
+                        new TakeHitCommand(id, this.rnd.randomNumber(damage))
+                    );
+                    //var hit = Monster_m.monsterTakeHit(id, this.rnd.randomNumber(damage));
 
                     // Should get these messages even if the monster is not visible.
                     if (hit >= 0)

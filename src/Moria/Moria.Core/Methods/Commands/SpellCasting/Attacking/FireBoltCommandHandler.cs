@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -9,18 +10,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     public class FireBoltCommandHandler : ICommandHandler<FireBoltCommand>
     {
         private readonly IDungeon dungeon;
+        private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
 
         public FireBoltCommandHandler(
             IDungeon dungeon,
+            IEventPublisher eventPublisher,
             IHelpers helpers,
             ISpells spells,
             ITerminal terminal
         )
         {
             this.dungeon = dungeon;
+            this.eventPublisher = eventPublisher;
             this.helpers = helpers;
             this.spells = spells;
             this.terminal = terminal;
@@ -119,7 +123,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
             var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
 
-            if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
+            var creature_id = this.eventPublisher.PublishWithOutputInt(
+                new TakeHitCommand((int)tile.creature_id, damage)
+            );
+            if (creature_id >= 0)
+            //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
             {
                 Monster_m.printMonsterActionText(name, "dies in a fit of agony.");
                 Ui_m.displayCharacterExperience();

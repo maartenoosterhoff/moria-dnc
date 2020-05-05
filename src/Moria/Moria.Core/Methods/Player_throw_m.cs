@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -7,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -25,7 +25,9 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITerminal terminal,
-            IUiInventory uiInventory
+            IUiInventory uiInventory,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_throw_m.dice = dice;
@@ -39,6 +41,8 @@ namespace Moria.Core.Methods
             Player_throw_m.rnd = rnd;
             Player_throw_m.terminal = terminal;
             Player_throw_m.uiInventory = uiInventory;
+
+            Player_throw_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -52,6 +56,8 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static ITerminal terminal;
         private static IUiInventory uiInventory;
+
+        private static IEventPublisher eventPublisher;
 
         private static void inventoryThrow(int item_id, out Inventory_t treasure)
         {
@@ -341,7 +347,10 @@ namespace Moria.Core.Methods
                                 tdam = 0;
                             }
 
-                            damage = monsterTakeHit((int)tile.creature_id, tdam);
+                            damage = eventPublisher.PublishWithOutputInt(
+                                new TakeHitCommand((int)tile.creature_id, tdam)
+                            );
+                            //damage = monsterTakeHit((int)tile.creature_id, tdam);
 
                             if (damage >= 0)
                             {

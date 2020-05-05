@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -11,16 +12,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<BuildWallCommand, bool>
     {
         private readonly IDice dice;
+        private readonly IEventPublisher eventPublisher;
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
 
         public BuildWallCommandHandler(
             IDice dice,
+            IEventPublisher eventPublisher,
             IDungeon dungeon,
             IHelpers helpers
         )
         {
             this.dice = dice;
+            this.eventPublisher = eventPublisher;
             this.dungeon = dungeon;
             this.helpers = helpers;
         }
@@ -92,7 +96,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 
                         Monster_m.printMonsterActionText(name, "wails out in pain!");
 
-                        if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
+                        var creature_id = this.eventPublisher.PublishWithOutputInt(
+                            new TakeHitCommand((int)tile.creature_id, damage)
+                        );
+                        if (creature_id >= 0)
+                        //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
                         {
                             Monster_m.printMonsterActionText(name, "is embedded in the rock.");
                             Ui_m.displayCharacterExperience();

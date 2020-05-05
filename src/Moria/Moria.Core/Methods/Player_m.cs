@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
@@ -1176,7 +1177,11 @@ namespace Moria.Core.Methods
                 }
 
                 // See if we done it in.
-                if (monsterTakeHit(creature_id, damage) >= 0)
+                var resulting_creature_id = eventPublisher.PublishWithOutputInt(
+                    new TakeHitCommand(creature_id, damage)
+                );
+                if (resulting_creature_id >= 0)
+                //if (monsterTakeHit(creature_id, damage) >= 0)
                 {
                     msg = $"You have slain {name}.";
                     //(void)sprintf(msg, "You have slain %s.", name);

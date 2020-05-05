@@ -1,5 +1,6 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
@@ -8,7 +9,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -23,7 +23,9 @@ namespace Moria.Core.Methods
             IInventoryManager inventoryManager,
             IRnd rnd,
             IStd std,
-            ITerminal terminal
+            ITerminal terminal,
+
+            IEventPublisher eventPublisher
         )
         {
             Player_bash_m.dice = dice;
@@ -34,6 +36,8 @@ namespace Moria.Core.Methods
             Player_bash_m.rnd = rnd;
             Player_bash_m.std = std;
             Player_bash_m.terminal = terminal;
+
+            Player_bash_m.eventPublisher = eventPublisher;
         }
 
         private static IDice dice;
@@ -44,6 +48,8 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static IStd std;
         private static ITerminal terminal;
+
+        private static IEventPublisher eventPublisher;
 
         // Bash open a door or chest -RAK-
         // Note: Affected by strength and weight of character
@@ -181,7 +187,11 @@ namespace Moria.Core.Methods
                 }
 
                 // See if we done it in.
-                if (monsterTakeHit(monster_id, damage) >= 0)
+                var creature_id = eventPublisher.PublishWithOutputInt(
+                    new TakeHitCommand(monster_id, damage)
+                );
+                if (creature_id >= 0)
+                //if (monsterTakeHit(monster_id, damage) >= 0)
                 {
                     msg = $"You have slain {name}.";
                     //(void)sprintf(msg, "You have slain %s.", name);

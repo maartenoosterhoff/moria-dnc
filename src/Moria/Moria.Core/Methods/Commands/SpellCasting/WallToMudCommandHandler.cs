@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -12,6 +13,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     {
         private readonly IDungeon dungeon;
         private readonly IDungeonPlacer dungeonPlacer;
+        private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
         private readonly IRnd rnd;
@@ -20,6 +22,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         public WallToMudCommandHandler(
             IDungeon dungeon,
             IDungeonPlacer dungeonPlacer,
+            IEventPublisher eventPublisher,
             IHelpers helpers,
             IIdentification identification,
             IRnd rnd,
@@ -28,6 +31,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         {
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
+            this.eventPublisher = eventPublisher;
             this.helpers = helpers;
             this.identification = identification;
             this.rnd = rnd;
@@ -129,7 +133,10 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
 
                         // Should get these messages even if the monster is not visible.
-                        var creature_id = Monster_m.monsterTakeHit((int)tile.creature_id, 100);
+                        var creature_id = this.eventPublisher.PublishWithOutputInt(
+                            new TakeHitCommand((int)tile.creature_id, 100)
+                        );
+                        //var creature_id = Monster_m.monsterTakeHit((int)tile.creature_id, 100);
                         if (creature_id >= 0)
                         {
                             State.Instance.creature_recall[creature_id].defenses |= Config.monsters_defense.CD_STONE;

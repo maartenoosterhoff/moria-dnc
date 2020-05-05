@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Constants;
 using Moria.Core.Data;
+using Moria.Core.Methods.Commands.Monster;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -10,16 +11,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
     {
         private readonly IDice dice;
         private readonly IDungeon dungeon;
+        private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
 
         public LightLineCommandHandler(
             IDice dice,
             IDungeon dungeon,
+            IEventPublisher eventPublisher,
             IHelpers helpers
         )
         {
             this.dice = dice;
             this.dungeon = dungeon;
+            this.eventPublisher = eventPublisher;
             this.helpers = helpers;
         }
 
@@ -105,7 +109,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
                     State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_LIGHT;
                 }
 
-                if (Monster_m.monsterTakeHit(monster_id, this.dice.diceRoll(new Dice_t(2, 8))) >= 0)
+                var creature_id = this.eventPublisher.PublishWithOutputInt(
+                    new TakeHitCommand(monster_id, this.dice.diceRoll(new Dice_t(2, 8)))
+                );
+                if (creature_id >= 0)
+                //if (Monster_m.monsterTakeHit(monster_id, this.dice.diceRoll(new Dice_t(2, 8))) >= 0)
                 {
                     Monster_m.printMonsterActionText(name, "shrivels away in the light!");
                     Ui_m.displayCharacterExperience();
