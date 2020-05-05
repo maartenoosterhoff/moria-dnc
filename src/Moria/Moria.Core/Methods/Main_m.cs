@@ -171,6 +171,7 @@ Options:
             container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
             container.RegisterSingleton<IPlayerPray, Player_pray_m>();
             container.RegisterSingleton<IPlayerQuaff, Player_quaff_m>();
+            container.RegisterSingleton<IPlayerTunnel, Player_tunnel_m>();
             container.RegisterSingleton<IRecall, Recall_m>();
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
@@ -208,6 +209,7 @@ Options:
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerPray>(),
                 container.GetInstance<IPlayerQuaff>(),
+                container.GetInstance<IPlayerTunnel>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ISpells>(),
                 container.GetInstance<IStoreInventory>(),
@@ -343,17 +345,6 @@ Options:
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
-            );
-
-            Player_tunnel_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IDungeon>(),
-                container.GetInstance<IDungeonPlacer>(),
-                container.GetInstance<IGame>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IIdentification>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<ITerminal>()
             );
 
             Scores_m.SetDependencies(

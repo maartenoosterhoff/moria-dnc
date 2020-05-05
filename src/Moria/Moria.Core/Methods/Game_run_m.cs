@@ -30,7 +30,6 @@ using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_throw_m;
 using static Moria.Core.Methods.Player_traps_m;
-using static Moria.Core.Methods.Player_tunnel_m;
 using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Scrolls_m;
 using static Moria.Core.Methods.Staffs_m;
@@ -55,6 +54,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IPlayerPray playerPray,
             IPlayerQuaff playerQuaff,
+            IPlayerTunnel playerTunnel,
             IRnd rnd,
             ISpells spells,
             IStoreInventory storeInventory,
@@ -80,6 +80,7 @@ namespace Moria.Core.Methods
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.playerPray = playerPray;
             Game_run_m.playerQuaff = playerQuaff;
+            Game_run_m.playerTunnel = playerTunnel;
             Game_run_m.rnd = rnd;
             Game_run_m.spells = spells;
             Game_run_m.storeInventory = storeInventory;
@@ -106,6 +107,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IPlayerPray playerPray;
         private static IPlayerQuaff playerQuaff;
+        private static IPlayerTunnel playerTunnel;
         private static IRnd rnd;
         private static ISpells spells;
         private static IStoreInventory storeInventory;
@@ -2323,29 +2325,29 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case CTRL_KEY_B: // (^B) tunnel down left  (T 1)
-                    playerTunnel(1);
+                    playerTunnel.playerTunnel(1);
                     break;
                 case CTRL_KEY_M: // cr must be treated same as lf.
                 case CTRL_KEY_J: // (^J) tunnel down    (T 2)
-                    playerTunnel(2);
+                    playerTunnel.playerTunnel(2);
                     break;
                 case CTRL_KEY_N: // (^N) tunnel down right  (T 3)
-                    playerTunnel(3);
+                    playerTunnel.playerTunnel(3);
                     break;
                 case CTRL_KEY_H: // (^H) tunnel left    (T 4)
-                    playerTunnel(4);
+                    playerTunnel.playerTunnel(4);
                     break;
                 case CTRL_KEY_L: // (^L) tunnel right    (T 6)
-                    playerTunnel(6);
+                    playerTunnel.playerTunnel(6);
                     break;
                 case CTRL_KEY_Y: // (^Y) tunnel up left    (T 7)
-                    playerTunnel(7);
+                    playerTunnel.playerTunnel(7);
                     break;
                 case CTRL_KEY_K: // (^K) tunnel up    (T 8)
-                    playerTunnel(8);
+                    playerTunnel.playerTunnel(8);
                     break;
                 case CTRL_KEY_U: // (^U) tunnel up right    (T 9)
-                    playerTunnel(9);
+                    playerTunnel.playerTunnel(9);
                     break;
                 case 'z': // (z)ap a wand    (a)im a wand
                     wandAim();
