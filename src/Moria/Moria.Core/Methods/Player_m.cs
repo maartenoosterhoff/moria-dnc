@@ -13,7 +13,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -28,6 +27,7 @@ namespace Moria.Core.Methods
             IIdentification identification,
             IInventoryManager inventoryManager,
             IPlayerMagic playerMagic,
+            IPlayerTraps playerTraps,
             IRnd rnd,
             ITerminal terminal,
             ITerminalEx terminalEx,
@@ -42,6 +42,7 @@ namespace Moria.Core.Methods
             Player_m.identification = identification;
             Player_m.inventoryManager = inventoryManager;
             Player_m.playerMagic = playerMagic;
+            Player_m.playerTraps = playerTraps;
             Player_m.rnd = rnd;
             Player_m.terminal = terminal;
             Player_m.terminalEx = terminalEx;
@@ -56,6 +57,7 @@ namespace Moria.Core.Methods
         private static IIdentification identification;
         private static IInventoryManager inventoryManager;
         private static IPlayerMagic playerMagic;
+        private static IPlayerTraps playerTraps;
         private static IRnd rnd;
         private static ITerminal terminal;
         private static ITerminalEx terminalEx;
@@ -1321,7 +1323,7 @@ namespace Moria.Core.Methods
             }
 
             // Oh, yes it was...   (Snicker)
-            chestTrap(coord);
+            playerTraps.chestTrap(coord);
 
             if (tile.treasure_id != 0)
             {

@@ -26,7 +26,6 @@ using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Scores_m;
 
 namespace Moria.Core.Methods
@@ -51,6 +50,7 @@ namespace Moria.Core.Methods
             IPlayerPray playerPray,
             IPlayerQuaff playerQuaff,
             IPlayerThrow playerThrow,
+            IPlayerTraps playerTraps,
             IPlayerTunnel playerTunnel,
             IRnd rnd,
             IScrolls scrolls,
@@ -82,6 +82,7 @@ namespace Moria.Core.Methods
             Game_run_m.playerEat = playerEat;
             Game_run_m.playerPray = playerPray;
             Game_run_m.playerQuaff = playerQuaff;
+            Game_run_m.playerTraps = playerTraps;
             Game_run_m.playerThrow = playerThrow;
             Game_run_m.playerTunnel = playerTunnel;
             Game_run_m.rnd = rnd;
@@ -115,6 +116,7 @@ namespace Moria.Core.Methods
         private static IPlayerPray playerPray;
         private static IPlayerQuaff playerQuaff;
         private static IPlayerThrow playerThrow;
+        private static IPlayerTraps playerTraps;
         private static IPlayerTunnel playerTunnel;
         private static IRnd rnd;
         private static IScrolls scrolls;
@@ -2306,7 +2308,7 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case 'D': // (D)isarm trap
-                    playerDisarmTrap();
+                    playerTraps.playerDisarmTrap();
                     break;
                 case 'E': // (E)at food
                     playerEat.playerEat();

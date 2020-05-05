@@ -11,46 +11,51 @@ using static Moria.Core.Methods.Player_move_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Player_traps_m
+    public interface IPlayerTraps
     {
-        public static void SetDependencies(
+        void playerDisarmTrap();
+        void chestTrap(Coord_t coord);
+    }
+
+    public class Player_traps_m : IPlayerTraps
+    {
+        private readonly IDice dice;
+        private readonly IDungeon dungeon;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IGame game;
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IMonsterManager monsterManager;
+        private readonly IRnd rnd;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+
+        public Player_traps_m(
             IDice dice,
             IDungeon dungeon,
+            IEventPublisher eventPublisher,
             IGame game,
             IHelpers helpers,
             IIdentification identification,
             IMonsterManager monsterManager,
             IRnd rnd,
             ITerminal terminal,
-            ITerminalEx terminalEx,
-
-            IEventPublisher eventPublisher
+            ITerminalEx terminalEx
         )
         {
-            Player_traps_m.dice = dice;
-            Player_traps_m.dungeon = dungeon;
-            Player_traps_m.game = game;
-            Player_traps_m.helpers = helpers;
-            Player_traps_m.identification = identification;
-            Player_traps_m.monsterManager = monsterManager;
-            Player_traps_m.rnd = rnd;
-            Player_traps_m.terminal = terminal;
-            Player_traps_m.terminalEx = terminalEx;
-            Player_traps_m.eventPublisher = eventPublisher;
+            this.dice = dice;
+            this.dungeon = dungeon;
+            this.eventPublisher = eventPublisher;
+            this.game = game;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.monsterManager = monsterManager;
+            this.rnd = rnd;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
-        private static IDice dice;
-        private static IDungeon dungeon;
-        private static IGame game;
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IMonsterManager monsterManager;
-        private static IRnd rnd;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-        private static IEventPublisher eventPublisher;
-
-        private static int playerTrapDisarmAbility()
+        private int playerTrapDisarmAbility()
         {
             var py = State.Instance.py;
 
@@ -60,7 +65,7 @@ namespace Moria.Core.Methods
             ability += playerStatAdjustmentWisdomIntelligence((int)PlayerAttr.INT);
             ability += Library.Instance.Player.class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.DISARM] * (int)py.misc.level / 3;
 
-            if (py.flags.blind > 0 || helpers.playerNoLight())
+            if (py.flags.blind > 0 || this.helpers.playerNoLight())
             {
                 ability = ability / 10;
             }
@@ -78,35 +83,35 @@ namespace Moria.Core.Methods
             return ability;
         }
 
-        private static void playerDisarmFloorTrap(Coord_t coord, int total, int level, int dir, int misc_use)
+        private void playerDisarmFloorTrap(Coord_t coord, int total, int level, int dir, int misc_use)
         {
             var py = State.Instance.py;
 
             var confused = py.flags.confused;
 
-            if (total + 100 - level > rnd.randomNumber(100))
+            if (total + 100 - level > this.rnd.randomNumber(100))
             {
-                terminal.printMessage("You have disarmed the trap.");
+                this.terminal.printMessage("You have disarmed the trap.");
                 py.misc.exp += misc_use;
-                dungeon.dungeonDeleteObject(coord);
+                this.dungeon.dungeonDeleteObject(coord);
 
                 // make sure we move onto the trap even if confused
                 py.flags.confused = 0;
                 playerMove(dir, false);
                 py.flags.confused = (int)confused;
 
-                terminalEx.displayCharacterExperience();
+                this.terminalEx.displayCharacterExperience();
                 return;
             }
 
             // avoid rnd.randomNumber(0) call
-            if (total > 5 && rnd.randomNumber(total) > 5)
+            if (total > 5 && this.rnd.randomNumber(total) > 5)
             {
-                terminal.printMessageNoCommandInterrupt("You failed to disarm the trap.");
+                this.terminal.printMessageNoCommandInterrupt("You failed to disarm the trap.");
                 return;
             }
 
-            terminal.printMessage("You set the trap off!");
+            this.terminal.printMessage("You set the trap off!");
 
             // make sure we move onto the trap even if confused
             py.flags.confused = 0;
@@ -114,15 +119,15 @@ namespace Moria.Core.Methods
             py.flags.confused += confused;
         }
 
-        private static void playerDisarmChestTrap(Coord_t coord, int total, Inventory_t item)
+        private void playerDisarmChestTrap(Coord_t coord, int total, Inventory_t item)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
 
-            if (!identification.spellItemIdentified(item))
+            if (!this.identification.spellItemIdentified(item))
             {
                 game.player_free_turn = true;
-                terminal.printMessage("I don't see a trap.");
+                this.terminal.printMessage("I don't see a trap.");
 
                 return;
             }
@@ -131,7 +136,7 @@ namespace Moria.Core.Methods
             {
                 var level = (int)item.depth_first_found;
 
-                if (total - level > rnd.randomNumber(100))
+                if (total - level > this.rnd.randomNumber(100))
                 {
                     item.flags &= ~Config.treasure_chests.CH_TRAPPED;
 
@@ -144,45 +149,45 @@ namespace Moria.Core.Methods
                         item.special_name_id = (int)SpecialNameIds.SN_DISARMED;
                     }
 
-                    terminal.printMessage("You have disarmed the chest.");
+                    this.terminal.printMessage("You have disarmed the chest.");
 
-                    identification.spellItemIdentifyAndRemoveRandomInscription(item);
+                    this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     py.misc.exp += level;
 
-                    terminalEx.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
                 }
-                else if (total > 5 && rnd.randomNumber(total) > 5)
+                else if (total > 5 && this.rnd.randomNumber(total) > 5)
                 {
-                    terminal.printMessageNoCommandInterrupt("You failed to disarm the chest.");
+                    this.terminal.printMessageNoCommandInterrupt("You failed to disarm the chest.");
                 }
                 else
                 {
-                    terminal.printMessage("You set a trap off!");
-                    identification.spellItemIdentifyAndRemoveRandomInscription(item);
-                    chestTrap(coord);
+                    this.terminal.printMessage("You set a trap off!");
+                    this.identification.spellItemIdentifyAndRemoveRandomInscription(item);
+                    this.chestTrap(coord);
                 }
                 return;
             }
 
-            terminal.printMessage("The chest was not trapped.");
+            this.terminal.printMessage("The chest was not trapped.");
             game.player_free_turn = true;
         }
 
         // Disarms a trap -RAK-
-        public static void playerDisarmTrap()
+        public void playerDisarmTrap()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
             var dg = State.Instance.dg;
 
             var dir = 0;
-            if (!Player_traps_m.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
+            if (!this.game.getDirectionWithMemory(/*CNIL*/null, ref dir))
             {
                 return;
             }
 
             var coord = py.pos.Clone();
-            helpers.movePosition(dir, ref coord);
+            this.helpers.movePosition(dir, ref coord);
 
             var tile = dg.floor[coord.y][coord.x];
 
@@ -191,21 +196,21 @@ namespace Moria.Core.Methods
             if (tile.creature_id > 1 && tile.treasure_id != 0 &&
                 (game.treasure.list[tile.treasure_id].category_id == TV_VIS_TRAP || game.treasure.list[tile.treasure_id].category_id == TV_CHEST))
             {
-                identification.objectBlockedByMonster((int)tile.creature_id);
+                this.identification.objectBlockedByMonster((int)tile.creature_id);
             }
             else if (tile.treasure_id != 0)
             {
-                var disarm_ability = playerTrapDisarmAbility();
+                var disarm_ability = this.playerTrapDisarmAbility();
 
                 var item = game.treasure.list[tile.treasure_id];
 
                 if (item.category_id == TV_VIS_TRAP)
                 {
-                    playerDisarmFloorTrap(coord, disarm_ability, (int)item.depth_first_found, dir, item.misc_use);
+                    this.playerDisarmFloorTrap(coord, disarm_ability, (int)item.depth_first_found, dir, item.misc_use);
                 }
                 else if (item.category_id == TV_CHEST)
                 {
-                    playerDisarmChestTrap(coord, disarm_ability, item);
+                    this.playerDisarmChestTrap(coord, disarm_ability, item);
                 }
                 else
                 {
@@ -219,56 +224,56 @@ namespace Moria.Core.Methods
 
             if (no_disarm)
             {
-                terminal.printMessage("I do not see anything to disarm there.");
+                this.terminal.printMessage("I do not see anything to disarm there.");
                 game.player_free_turn = true;
             }
         }
 
-        private static void chestLooseStrength()
+        private void chestLooseStrength()
         {
             var py = State.Instance.py;
 
-            terminal.printMessage("A small needle has pricked you!");
+            this.terminal.printMessage("A small needle has pricked you!");
 
             if (py.flags.sustain_str)
             {
-                terminal.printMessage("You are unaffected.");
+                this.terminal.printMessage("You are unaffected.");
                 return;
             }
 
-            eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+            this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
             //playerStatRandomDecrease((int)PlayerAttr.STR);
 
-            playerTakesHit(dice.diceRoll(new Dice_t(1, 4)), "a poison needle");
+            playerTakesHit(this.dice.diceRoll(new Dice_t(1, 4)), "a poison needle");
 
-            terminal.printMessage("You feel weakened!");
+            this.terminal.printMessage("You feel weakened!");
         }
 
-        private static void chestPoison()
+        private void chestPoison()
         {
-            terminal.printMessage("A small needle has pricked you!");
+            this.terminal.printMessage("A small needle has pricked you!");
 
-            playerTakesHit(dice.diceRoll(new Dice_t(1, 6)), "a poison needle");
+            playerTakesHit(this.dice.diceRoll(new Dice_t(1, 6)), "a poison needle");
 
-            State.Instance.py.flags.poisoned += 10 + rnd.randomNumber(20);
+            State.Instance.py.flags.poisoned += 10 + this.rnd.randomNumber(20);
         }
 
-        private static void chestParalysed()
+        private void chestParalysed()
         {
             var py = State.Instance.py;
-            terminal.printMessage("A puff of yellow gas surrounds you!");
+            this.terminal.printMessage("A puff of yellow gas surrounds you!");
 
             if (py.flags.free_action)
             {
-                terminal.printMessage("You are unaffected.");
+                this.terminal.printMessage("You are unaffected.");
                 return;
             }
 
-            terminal.printMessage("You choke and pass out.");
-            py.flags.paralysis = (int)(10 + rnd.randomNumber(20));
+            this.terminal.printMessage("You choke and pass out.");
+            py.flags.paralysis = (int)(10 + this.rnd.randomNumber(20));
         }
 
-        private static void chestSummonMonster(Coord_t coord)
+        private void chestSummonMonster(Coord_t coord)
         {
             var position = new Coord_t(0, 0);
 
@@ -276,22 +281,22 @@ namespace Moria.Core.Methods
             {
                 position.y = coord.y;
                 position.x = coord.x;
-                monsterManager.monsterSummon(position, false);
+                this.monsterManager.monsterSummon(position, false);
             }
         }
 
-        private static void chestExplode(Coord_t coord)
+        private void chestExplode(Coord_t coord)
         {
-            terminal.printMessage("There is a sudden explosion!");
+            this.terminal.printMessage("There is a sudden explosion!");
 
-            dungeon.dungeonDeleteObject(coord);
+            this.dungeon.dungeonDeleteObject(coord);
 
-            playerTakesHit(dice.diceRoll(new Dice_t(5, 8)), "an exploding chest");
+            playerTakesHit(this.dice.diceRoll(new Dice_t(5, 8)), "an exploding chest");
         }
 
         // Chests have traps too. -RAK-
         // Note: Chest traps are based on the FLAGS value
-        public static void chestTrap(Coord_t coord)
+        public void chestTrap(Coord_t coord)
         {
             var game = State.Instance.game;
             var dg = State.Instance.dg;
@@ -299,27 +304,27 @@ namespace Moria.Core.Methods
 
             if ((flags & Config.treasure_chests.CH_LOSE_STR) != 0u)
             {
-                chestLooseStrength();
+                this.chestLooseStrength();
             }
 
             if ((flags & Config.treasure_chests.CH_POISON) != 0u)
             {
-                chestPoison();
+                this.chestPoison();
             }
 
             if ((flags & Config.treasure_chests.CH_PARALYSED) != 0u)
             {
-                chestParalysed();
+                this.chestParalysed();
             }
 
             if ((flags & Config.treasure_chests.CH_SUMMON) != 0u)
             {
-                chestSummonMonster(coord);
+                this.chestSummonMonster(coord);
             }
 
             if ((flags & Config.treasure_chests.CH_EXPLODE) != 0u)
             {
-                chestExplode(coord);
+                this.chestExplode(coord);
             }
         }
     }
