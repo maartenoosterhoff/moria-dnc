@@ -20,7 +20,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_bash_m;
 using static Moria.Core.Methods.Player_m;
@@ -48,6 +47,7 @@ namespace Moria.Core.Methods
             IIdentification identification,
             IInventory inventory,
             IInventoryManager inventoryManager,
+            IMageSpells mageSpells,
             IMonsterManager monsterManager,
             IPlayerEat playerEat,
             IPlayerPray playerPray,
@@ -77,6 +77,7 @@ namespace Moria.Core.Methods
             Game_run_m.identification = identification;
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
+            Game_run_m.mageSpells = mageSpells;
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.playerEat = playerEat;
             Game_run_m.playerPray = playerPray;
@@ -95,7 +96,6 @@ namespace Moria.Core.Methods
             Game_run_m.eventPublisher = eventPublisher;
         }
 
-
         private static ICharacter character;
         private static IDungeon dungeon;
         private static IDungeonLos dungeonLos;
@@ -107,6 +107,7 @@ namespace Moria.Core.Methods
         private static IIdentification identification;
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
+        private static IMageSpells mageSpells;
         private static IMonsterManager monsterManager;
         private static IPlayerEat playerEat;
         private static IPlayerPray playerPray;
@@ -2389,7 +2390,7 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case 'm': // (m)agic spells
-                    getAndCastMagicSpell();
+                    mageSpells.getAndCastMagicSpell();
                     break;
                 case 'o': // (o)pen something
                     playerOpenClosedObject();

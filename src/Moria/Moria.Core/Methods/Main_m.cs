@@ -2,6 +2,7 @@
 using Moria.Core.States;
 using System;
 using System.Linq;
+using System.Net.Mime;
 using Moria.Core.Methods.Commands;
 using Moria.Core.Utils;
 using SimpleInjector;
@@ -167,6 +168,7 @@ Options:
             container.RegisterSingleton<IIdentification, Identification_m>();
             container.RegisterSingleton<IInventory, Inventory_m>();
             container.RegisterSingleton<IInventoryManager, Inventory_manager_m>();
+            container.RegisterSingleton<IMageSpells, Mage_spells_m>();
             container.RegisterSingleton<IMonsterManager, Monster_manager_m>();
             container.RegisterSingleton<IPlayerEat, Player_eat_m>();
             container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
@@ -209,6 +211,7 @@ Options:
                 container.GetInstance<IIdentification>(),
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
+                container.GetInstance<IMageSpells>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerEat>(),
                 container.GetInstance<IPlayerPray>(),
@@ -223,21 +226,6 @@ Options:
                 container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
                 container.GetInstance<IWizard>(),
-
-                container.GetInstance<IEventPublisher>()
-            );
-
-            Mage_spells_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IGame>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IPlayerMagic>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<ISpells>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<ITerminalEx>(),
-                container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
             );
