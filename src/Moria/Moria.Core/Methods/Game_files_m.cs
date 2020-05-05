@@ -1,6 +1,4 @@
-﻿using Moria.Core.Configs;
-using Moria.Core.States;
-using Moria.Core.Structures;
+﻿using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using System.Linq;
@@ -15,8 +13,6 @@ namespace Moria.Core.Methods
 
         void displayTextHelpFile(string helpText);
 
-        void outputRandomLevelObjectsToFile();
-
         void displaySplashScreen();
 
         void displayDeathFile(string resourceName);
@@ -24,31 +20,13 @@ namespace Moria.Core.Methods
 
     public class Game_files_m : IGameFiles
     {
-        private readonly IGameObjects gameObjects;
-        private readonly IGameObjectsPush gameObjectsPush;
-        private readonly IHelpers helpers;
-        private readonly IIdentification identification;
-        private readonly IInventoryManager inventoryManager;
         private readonly ITerminal terminal;
-        private readonly ITreasure treasure;
 
         public Game_files_m(
-            IGameObjects gameObjects,
-            IGameObjectsPush gameObjectsPush,
-            IHelpers helpers,
-            IIdentification identification,
-            IInventoryManager inventoryManager,
-            ITerminal terminal,
-            ITreasure treasure
+            ITerminal terminal
         )
         {
-            this.gameObjects = gameObjects;
-            this.gameObjectsPush = gameObjectsPush;
-            this.helpers = helpers;
-            this.identification = identification;
-            this.inventoryManager = inventoryManager;
             this.terminal = terminal;
-            this.treasure = treasure;
         }
 
         ////  initializeScoreFile
@@ -211,111 +189,6 @@ namespace Moria.Core.Methods
             (void)fclose(file);
 
             */
-        }
-
-        // Prints a list of random objects to a file. -RAK-
-        // Note that the objects produced is a sampling of objects
-        // which be expected to appear on that level.
-        public void outputRandomLevelObjectsToFile()
-        {
-            var input = string.Empty;
-            //obj_desc_t input = { 0 };
-
-            this.terminal.putStringClearToEOL("Produce objects on what level?: ", new Coord_t(0, 0));
-            if (!this.terminal.getStringInput(out input, new Coord_t(0, 32), 10))
-            {
-                return;
-            }
-
-            if (!this.helpers.stringToNumber(input, out var level))
-            {
-                return;
-            }
-
-            this.terminal.putStringClearToEOL("Produce how many objects?: ", new Coord_t(0, 0));
-            if (!this.terminal.getStringInput(out input, new Coord_t(0, 27), 10))
-            {
-                return;
-            }
-
-            if (!this.helpers.stringToNumber(input, out var count))
-            {
-                return;
-            }
-
-            if (count < 1 || level < 0 || level > 1200)
-            {
-                this.terminal.putStringClearToEOL("Parameters no good.", new Coord_t(0, 0));
-                return;
-            }
-
-            if (count > 10000)
-            {
-                count = 10000;
-            }
-
-            var small_objects = this.terminal.getInputConfirmation("Small objects only?");
-
-            this.terminal.putStringClearToEOL("File name: ", new Coord_t(0, 0));
-
-            var filename = string.Empty;
-            //vtype_t filename = { 0 };
-
-            if (!this.terminal.getStringInput(out filename, new Coord_t(0, 11), 64))
-            {
-                return;
-            }
-            //if (strlen(filename) == 0)
-            //{
-            //    return;
-            //}
-
-            //FILE* file_ptr = fopen(filename, "w");
-            //if (file_ptr == nullptr)
-            //{
-            //    putStringClearToEOL("File could not be opened.", new Coord_t(0, 0));
-            //    return;
-            //}
-
-            input = $"{count:d}";
-            //(void)sprintf(input, "%d", count);
-            this.terminal.putStringClearToEOL(input +  " random objects being produced...", new Coord_t(0, 0));
-
-            this.terminal.putQIO();
-
-            //(void)fprintf(file_ptr, "*** Random Object Sampling:\n");
-            //(void)fprintf(file_ptr, "*** %d objects\n", count);
-            //(void)fprintf(file_ptr, "*** For Level %d\n", level);
-            //(void)fprintf(file_ptr, "\n");
-            //(void)fprintf(file_ptr, "\n");
-
-            var treasure_id = this.gameObjects.popt();
-            var game = State.Instance.game;
-
-            for (var i = 0; i < count; i++)
-            {
-                var object_id = this.gameObjects.itemGetRandomObjectId(level, small_objects);
-                this.inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
-
-                this.treasure.magicTreasureMagicalAbility(treasure_id, level);
-
-                var item = game.treasure.list[treasure_id];
-                this.identification.itemIdentifyAsStoreBought(item);
-
-                if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)
-                {
-                    this.identification.itemAppendToInscription(item, Config.identification.ID_DAMD);
-                }
-
-                this.identification.itemDescription(out input, item, true);
-                //(void)fprintf(file_ptr, "%d %s\n", item.depth_first_found, input);
-            }
-
-            this.gameObjectsPush.pusht((uint)treasure_id);
-
-            //(void)fclose(file_ptr);
-
-            this.terminal.putStringClearToEOL("Completed.", new Coord_t(0, 0));
         }
 
         //// Write character sheet to the file

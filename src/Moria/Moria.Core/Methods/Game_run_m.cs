@@ -8,6 +8,7 @@ using System;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands;
 using Moria.Core.Methods.Commands.Identification;
+using Moria.Core.Methods.Commands.Output;
 using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
@@ -2082,7 +2083,8 @@ namespace Moria.Core.Methods
                     break;
                 case CTRL_KEY_O:
                     // Print random level object to a file
-                    gameFiles.outputRandomLevelObjectsToFile();
+                    eventPublisher.Publish(new RandomLevelObjectsToFileCommand());
+                    //gameFiles.outputRandomLevelObjectsToFile();
                     break;
                 case '\\':
                     // Display wizard help
