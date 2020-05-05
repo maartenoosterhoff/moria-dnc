@@ -6,7 +6,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
-using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -23,6 +22,7 @@ namespace Moria.Core.Methods
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
+        private readonly IPlayerEat playerEat;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
@@ -35,6 +35,7 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IIdentification identification,
             IInventoryManager inventoryManager,
+            IPlayerEat playerEat,
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITerminal terminal,
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
             this.helpers = helpers;
             this.identification = identification;
             this.inventoryManager = inventoryManager;
+            this.playerEat = playerEat;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.terminal = terminal;
@@ -444,7 +446,7 @@ namespace Moria.Core.Methods
                 this.identification.itemSetAsTried(item);
             }
 
-            playerIngestFood(item.misc_use);
+            this.playerEat.playerIngestFood(item.misc_use);
             this.identification.itemTypeRemainingCountDescription(item_id);
             this.inventoryManager.inventoryDestroyItem(item_id);
         }

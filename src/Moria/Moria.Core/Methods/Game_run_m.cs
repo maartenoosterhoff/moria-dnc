@@ -23,7 +23,6 @@ using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_bash_m;
-using static Moria.Core.Methods.Player_eat_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
 using static Moria.Core.Methods.Player_run_m;
@@ -52,6 +51,7 @@ namespace Moria.Core.Methods
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMonsterManager monsterManager,
+            IPlayerEat playerEat,
             IPlayerPray playerPray,
             IPlayerQuaff playerQuaff,
             IPlayerTunnel playerTunnel,
@@ -78,6 +78,7 @@ namespace Moria.Core.Methods
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.monsterManager = monsterManager;
+            Game_run_m.playerEat = playerEat;
             Game_run_m.playerPray = playerPray;
             Game_run_m.playerQuaff = playerQuaff;
             Game_run_m.playerTunnel = playerTunnel;
@@ -105,6 +106,7 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMonsterManager monsterManager;
+        private static IPlayerEat playerEat;
         private static IPlayerPray playerPray;
         private static IPlayerQuaff playerQuaff;
         private static IPlayerTunnel playerTunnel;
@@ -2298,7 +2300,7 @@ namespace Moria.Core.Methods
                     playerDisarmTrap();
                     break;
                 case 'E': // (E)at food
-                    playerEat();
+                    playerEat.playerEat();
                     break;
                 case 'F': // (F)ill lamp
                     inventoryRefillLamp();

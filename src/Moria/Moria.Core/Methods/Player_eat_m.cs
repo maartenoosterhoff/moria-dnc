@@ -10,10 +10,29 @@ using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Player_eat_m
+    public interface IPlayerEat
     {
-        public static void SetDependencies(
+        void playerEat();
+
+        void playerIngestFood(int amount);
+    }
+
+    public class Player_eat_m : IPlayerEat
+    {
+        private readonly IDice dice;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IPlayerMagic playerMagic;
+        private readonly IRnd rnd;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+        private readonly IUiInventory uiInventory;
+
+        public Player_eat_m(
             IDice dice,
+            IEventPublisher eventPublisher,
             IHelpers helpers,
             IIdentification identification,
             IInventoryManager inventoryManager,
@@ -21,38 +40,23 @@ namespace Moria.Core.Methods
             IRnd rnd,
             ITerminal terminal,
             ITerminalEx terminalEx,
-            IUiInventory uiInventory,
-
-            IEventPublisher eventPublisher
+            IUiInventory uiInventory
         )
         {
-            Player_eat_m.dice = dice;
-            Player_eat_m.helpers = helpers;
-            Player_eat_m.identification = identification;
-            Player_eat_m.inventoryManager = inventoryManager;
-            Player_eat_m.playerMagic = playerMagic;
-            Player_eat_m.rnd = rnd;
-            Player_eat_m.terminal = terminal;
-            Player_eat_m.terminalEx = terminalEx;
-            Player_eat_m.uiInventory = uiInventory;
-
-            Player_eat_m.eventPublisher = eventPublisher;
+            this.dice = dice;
+            this.eventPublisher = eventPublisher;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.inventoryManager = inventoryManager;
+            this.playerMagic = playerMagic;
+            this.rnd = rnd;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
+            this.uiInventory = uiInventory;
         }
 
-        private static IDice dice;
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IInventoryManager inventoryManager;
-        private static IPlayerMagic playerMagic;
-        private static IRnd rnd;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-        private static IUiInventory uiInventory;
-
-        private static IEventPublisher eventPublisher;
-
         // Eat some food. -RAK-
-        public static void playerEat()
+        public void playerEat()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -61,17 +65,17 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0)
             {
-                terminal.printMessage("But you are not carrying anything.");
+                this.terminal.printMessage("But you are not carrying anything.");
                 return;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out var item_pos_start, out var item_pos_end))
+            if (!this.inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out var item_pos_start, out var item_pos_end))
             {
-                terminal.printMessage("You are not carrying any food.");
+                this.terminal.printMessage("You are not carrying any food.");
                 return;
             }
 
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Eat what?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
+            if (!this.uiInventory.inventoryGetInputForItemId(out var item_id, "Eat what?", item_pos_start, item_pos_end, /*CNIL*/null, /*CNIL*/null))
             {
                 return;
             }
@@ -85,38 +89,38 @@ namespace Moria.Core.Methods
 
             while (item_flags != 0)
             {
-                switch ((FoodMagicTypes)(helpers.getAndClearFirstBit(ref item_flags) + 1))
+                switch ((FoodMagicTypes)(this.helpers.getAndClearFirstBit(ref item_flags) + 1))
                 {
                     case FoodMagicTypes.Poison:
-                        py.flags.poisoned += rnd.randomNumber(10) + (int)item.depth_first_found;
+                        py.flags.poisoned += this.rnd.randomNumber(10) + (int)item.depth_first_found;
                         identified = true;
                         break;
                     case FoodMagicTypes.Blindness:
-                        py.flags.blind += rnd.randomNumber(250) + 10 * (int)item.depth_first_found + 100;
-                        terminalEx.drawCavePanel();
-                        terminal.printMessage("A veil of darkness surrounds you.");
+                        py.flags.blind += this.rnd.randomNumber(250) + 10 * (int)item.depth_first_found + 100;
+                        this.terminalEx.drawCavePanel();
+                        this.terminal.printMessage("A veil of darkness surrounds you.");
                         identified = true;
                         break;
                     case FoodMagicTypes.Paranoia:
-                        py.flags.afraid += rnd.randomNumber(10) + (int)item.depth_first_found;
-                        terminal.printMessage("You feel terrified!");
+                        py.flags.afraid += this.rnd.randomNumber(10) + (int)item.depth_first_found;
+                        this.terminal.printMessage("You feel terrified!");
                         identified = true;
                         break;
                     case FoodMagicTypes.Confusion:
-                        py.flags.confused += rnd.randomNumber(10) + (int)item.depth_first_found;
-                        terminal.printMessage("You feel drugged.");
+                        py.flags.confused += this.rnd.randomNumber(10) + (int)item.depth_first_found;
+                        this.terminal.printMessage("You feel drugged.");
                         identified = true;
                         break;
                     case FoodMagicTypes.Hallucination:
-                        py.flags.image += rnd.randomNumber(200) + 25 * (int)item.depth_first_found + 200;
-                        terminal.printMessage("You feel drugged.");
+                        py.flags.image += this.rnd.randomNumber(200) + 25 * (int)item.depth_first_found + 200;
+                        this.terminal.printMessage("You feel drugged.");
                         identified = true;
                         break;
                     case FoodMagicTypes.CurePoison:
-                        identified = playerMagic.playerCurePoison();
+                        identified = this.playerMagic.playerCurePoison();
                         break;
                     case FoodMagicTypes.CureBlindness:
-                        identified = playerMagic.playerCureBlindness();
+                        identified = this.playerMagic.playerCureBlindness();
                         break;
                     case FoodMagicTypes.CureParanoia:
                         if (py.flags.afraid > 1)
@@ -126,15 +130,15 @@ namespace Moria.Core.Methods
                         }
                         break;
                     case FoodMagicTypes.CureConfusion:
-                        identified = playerMagic.playerCureConfusion();
+                        identified = this.playerMagic.playerCureConfusion();
                         break;
                     case FoodMagicTypes.Weakness:
-                        eventPublisher.Publish(new LoseStrCommand());
+                        this.eventPublisher.Publish(new LoseStrCommand());
                         //spellLoseSTR();
                         identified = true;
                         break;
                     case FoodMagicTypes.Unhealth:
-                        eventPublisher.Publish(new LoseConCommand());
+                        this.eventPublisher.Publish(new LoseConCommand());
                         //spellLoseCON();
                         identified = true;
                         break;
@@ -161,60 +165,57 @@ namespace Moria.Core.Methods
                     case FoodMagicTypes.RestoreSTR:
                         if (playerStatRestore((int)PlayerAttr.STR))
                         {
-                            terminal.printMessage("You feel your strength returning.");
+                            this.terminal.printMessage("You feel your strength returning.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreCON:
                         if (playerStatRestore((int)PlayerAttr.CON))
                         {
-                            terminal.printMessage("You feel your health returning.");
+                            this.terminal.printMessage("You feel your health returning.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreINT:
                         if (playerStatRestore((int)PlayerAttr.INT))
                         {
-                            terminal.printMessage("Your head spins a moment.");
+                            this.terminal.printMessage("Your head spins a moment.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreWIS:
                         if (playerStatRestore((int)PlayerAttr.WIS))
                         {
-                            terminal.printMessage("You feel your wisdom returning.");
+                            this.terminal.printMessage("You feel your wisdom returning.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreDEX:
                         if (playerStatRestore((int)PlayerAttr.DEX))
                         {
-                            terminal.printMessage("You feel more dexterous.");
+                            this.terminal.printMessage("You feel more dexterous.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.RestoreCHR:
                         if (playerStatRestore((int)PlayerAttr.CHR))
                         {
-                            terminal.printMessage("Your skin stops itching.");
+                            this.terminal.printMessage("Your skin stops itching.");
                             identified = true;
                         }
                         break;
                     case FoodMagicTypes.FirstAid:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            rnd.randomNumber(6)
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.rnd.randomNumber(6)
                         ));
                         //identified = spellChangePlayerHitPoints(rnd.randomNumber(6));
                         break;
                     case FoodMagicTypes.MinorCures:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            rnd.randomNumber(12)
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.rnd.randomNumber(12)
                         ));
                         //identified = spellChangePlayerHitPoints(rnd.randomNumber(12));
                         break;
                     case FoodMagicTypes.LightCures:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            rnd.randomNumber(18)
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.rnd.randomNumber(18)
                         ));
                         //identified = spellChangePlayerHitPoints(rnd.randomNumber(18));
                         break;
@@ -226,13 +227,12 @@ namespace Moria.Core.Methods
 #endif
 */
                     case FoodMagicTypes.MajorCures:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            dice.diceRoll(new Dice_t(3, 12))
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.dice.diceRoll(new Dice_t(3, 12))
                         ));
                         //identified = spellChangePlayerHitPoints(dice.diceRoll(new Dice_t(3, 12)));
                         break;
                     case FoodMagicTypes.PoisonousFood:
-                        playerTakesHit(rnd.randomNumber(18), "poisonous food.");
+                        playerTakesHit(this.rnd.randomNumber(18), "poisonous food.");
                         identified = true;
                         break;
                     /*
@@ -253,42 +253,42 @@ namespace Moria.Core.Methods
 */
                     default:
                         // All cases are handled, so this should never be reached!
-                        terminal.printMessage("Internal error in playerEat()");
+                        this.terminal.printMessage("Internal error in playerEat()");
                         break;
                 }
             }
 
             if (identified)
             {
-                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // use identified it, gain experience
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
 
-                    terminalEx.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
 
-                    identification.itemIdentify(py.inventory[item_id], ref item_id);
+                    this.identification.itemIdentify(py.inventory[item_id], ref item_id);
                     item = py.inventory[item_id];
                 }
             }
-            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                identification.itemSetAsTried(item);
+                this.identification.itemSetAsTried(item);
             }
 
-            playerIngestFood(item.misc_use);
+            this.playerIngestFood(item.misc_use);
 
             py.flags.status &= ~(Config.player_status.PY_WEAK | Config.player_status.PY_HUNGRY);
 
-            terminalEx.printCharacterHungerStatus();
+            this.terminalEx.printCharacterHungerStatus();
 
-            identification.itemTypeRemainingCountDescription(item_id);
-            inventoryManager.inventoryDestroyItem(item_id);
+            this.identification.itemTypeRemainingCountDescription(item_id);
+            this.inventoryManager.inventoryDestroyItem(item_id);
         }
 
         // Add to the players food time -RAK-
-        public static void playerIngestFood(int amount)
+        public void playerIngestFood(int amount)
         {
             var py = State.Instance.py;
             if (py.flags.food < 0)
@@ -300,7 +300,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.food > Config.player.PLAYER_FOOD_MAX)
             {
-                terminal.printMessage("You are bloated from overeating.");
+                this.terminal.printMessage("You are bloated from overeating.");
 
                 // Calculate how much of amount is responsible for the bloating. Give the
                 // player food credit for 1/50, and also slow them for that many turns.
@@ -324,7 +324,7 @@ namespace Moria.Core.Methods
             }
             else if (py.flags.food > Config.player.PLAYER_FOOD_FULL)
             {
-                terminal.printMessage("You are full.");
+                this.terminal.printMessage("You are full.");
             }
         }
     }
