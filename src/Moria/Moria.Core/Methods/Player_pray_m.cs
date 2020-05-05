@@ -12,7 +12,6 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -27,6 +26,7 @@ namespace Moria.Core.Methods
             IRnd rnd,
             ISpells spells,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -40,6 +40,7 @@ namespace Moria.Core.Methods
             Player_pray_m.rnd = rnd;
             Player_pray_m.spells = spells;
             Player_pray_m.terminal = terminal;
+            Player_pray_m.terminalEx = terminalEx;
             Player_pray_m.uiInventory = uiInventory;
 
             Player_pray_m.eventPublisher = eventPublisher;
@@ -53,6 +54,7 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static ISpells spells;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -337,7 +339,7 @@ namespace Moria.Core.Methods
                 if ((py.flags.spells_worked & (1L << choice)) == 0)
                 {
                     py.misc.exp += (int)(spell.exp_gain_for_learning << 2);
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
                     py.flags.spells_worked |= 1u << choice;
                 }
             }
@@ -362,7 +364,7 @@ namespace Moria.Core.Methods
                     py.misc.current_mana -= (int)spell.mana_required;
                 }
 
-                printCharacterCurrentMana();
+                terminalEx.printCharacterCurrentMana();
             }
         }
 

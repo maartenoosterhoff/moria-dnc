@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -39,6 +38,7 @@ namespace Moria.Core.Methods
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
         private readonly ITreasure treasure;
         private readonly IEventPublisher eventPublisher;
 
@@ -53,10 +53,11 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             ITreasure treasure,
 
             IEventPublisher eventPublisher
-            )
+        )
         {
             this.dungeon = dungeon;
             this.dungeonPlacer = dungeonPlacer;
@@ -68,6 +69,7 @@ namespace Moria.Core.Methods
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
             this.treasure = treasure;
             this.eventPublisher = eventPublisher;
         }
@@ -139,7 +141,7 @@ namespace Moria.Core.Methods
             }
             this.dungeonPlacer.dungeonPlaceRandomObjectNear(State.Instance.py.pos, i);
 
-            drawDungeonPanel();
+            this.terminalEx.drawDungeonPanel();
         }
 
         // Go up/down to specified depth
@@ -209,7 +211,7 @@ namespace Moria.Core.Methods
             {
                 py.misc.exp = py.misc.exp * 2;
             }
-            displayCharacterExperience();
+            this.terminalEx.displayCharacterExperience();
         }
 
         // Summon a random monster
@@ -254,7 +256,7 @@ namespace Moria.Core.Methods
                 }
             }
 
-            drawDungeonPanel();
+            this.terminalEx.drawDungeonPanel();
         }
 
         // Wizard routine for gaining on stats -RAK-
@@ -363,8 +365,8 @@ namespace Moria.Core.Methods
                     py.misc.max_hp = (int)number;
                     py.misc.current_hp = (int)number;
                     py.misc.current_hp_fraction = 0;
-                    printCharacterMaxHitPoints();
-                    printCharacterCurrentHitPoints();
+                    this.terminalEx.printCharacterMaxHitPoints();
+                    this.terminalEx.printCharacterCurrentHitPoints();
                 }
             }
             else
@@ -381,7 +383,7 @@ namespace Moria.Core.Methods
                     py.misc.mana = (int)number;
                     py.misc.current_mana = (int)number;
                     py.misc.current_mana_fraction = 0;
-                    printCharacterCurrentMana();
+                    this.terminalEx.printCharacterCurrentMana();
                 }
             }
             else
@@ -400,7 +402,7 @@ namespace Moria.Core.Methods
                 if (valid_number && new_gold > -1)
                 {
                     py.misc.au = new_gold;
-                    printCharacterGoldValue();
+                    this.terminalEx.printCharacterGoldValue();
                 }
             }
             else
@@ -548,7 +550,7 @@ namespace Moria.Core.Methods
                 {
                     break;
                 }
-                printCharacterSpeed();
+                this.terminalEx.printCharacterSpeed();
             }
         }
 

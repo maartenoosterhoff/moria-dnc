@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Store_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -25,6 +24,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
 
             IEventPublisher eventPublisher
         )
@@ -38,6 +38,7 @@ namespace Moria.Core.Methods
             Player_move_m.monsterManager = monsterManager;
             Player_move_m.rnd = rnd;
             Player_move_m.terminal = terminal;
+            Player_move_m.terminalEx = terminalEx;
 
             Player_move_m.eventPublisher = eventPublisher;
         }
@@ -51,6 +52,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
 
         private static IEventPublisher eventPublisher;
 
@@ -487,7 +489,7 @@ namespace Moria.Core.Methods
                 msg = $"You have found {item.cost} gold pieces worth of {description}";
                 //(void)sprintf(msg, "You have found %d gold pieces worth of %s", item.cost, description);
 
-                printCharacterGoldValue();
+                terminalEx.printCharacterGoldValue();
                 dungeon.dungeonDeleteObject(coord);
 
                 terminal.printMessage(msg);
@@ -586,9 +588,9 @@ namespace Moria.Core.Methods
                     dungeon.dungeonMoveCreatureRecord(old_coord, py.pos);
 
                     // Check for new panel
-                    if (coordOutsidePanel(py.pos, false))
+                    if (helpers.coordOutsidePanel(py.pos, false))
                     {
-                        drawDungeonPanel();
+                        terminalEx.drawDungeonPanel();
                     }
 
                     // Check to see if they should stop

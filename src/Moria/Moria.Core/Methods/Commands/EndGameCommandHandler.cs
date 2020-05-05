@@ -15,6 +15,7 @@ namespace Moria.Core.Methods.Commands
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
         private readonly IUiInventory uiInventory;
         private readonly IEventPublisher eventPublisher;
 
@@ -25,6 +26,7 @@ namespace Moria.Core.Methods.Commands
             IHelpers helpers,
             IIdentification identification,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -36,6 +38,7 @@ namespace Moria.Core.Methods.Commands
             this.helpers = helpers;
             this.identification = identification;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
             this.uiInventory = uiInventory;
             this.eventPublisher = eventPublisher;
         }
@@ -208,7 +211,7 @@ namespace Moria.Core.Methods.Commands
                 else
                 {
                     this.terminal.clearScreen();
-                    Ui_m.printCharacter();
+                    this.terminalEx.printCharacter();
                     this.terminal.putString("Type ESC to skip the inventory:", new Coord_t(23, 0));
                     if (this.terminal.getKeyInput() != Ui_c.ESCAPE)
                     {

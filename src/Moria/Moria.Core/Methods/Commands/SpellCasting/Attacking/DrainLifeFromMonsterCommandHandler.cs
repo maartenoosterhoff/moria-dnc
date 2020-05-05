@@ -13,14 +13,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     {
         private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
+        private readonly ITerminalEx terminalEx;
 
         public DrainLifeFromMonsterCommandHandler(
             IEventPublisher eventPublisher,
-            IHelpers helpers
+            IHelpers helpers,
+            ITerminalEx terminalEx
         )
         {
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
+            this.terminalEx = terminalEx;
         }
 
         void ICommandHandler<DrainLifeFromMonsterCommand>.Handle(DrainLifeFromMonsterCommand command)
@@ -79,7 +82,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                         //if (Monster_m.monsterTakeHit((int)tile.creature_id, 75) >= 0)
                         {
                             Monster_m.printMonsterActionText(name, "dies in a fit of agony.");
-                            Ui_m.displayCharacterExperience();
+                            this.terminalEx.displayCharacterExperience();
                         }
                         else
                         {

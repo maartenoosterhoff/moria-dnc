@@ -14,13 +14,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IHelpers helpers;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
         public FireBoltCommandHandler(
             IDungeon dungeon,
             IEventPublisher eventPublisher,
             IHelpers helpers,
             ISpells spells,
-            ITerminal terminal
+            ITerminal terminal,
+            ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
@@ -28,6 +30,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             this.helpers = helpers;
             this.spells = spells;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
         public void Handle(FireBoltCommand command)
         {
@@ -76,7 +79,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     finished = true;
                     this.spellFireBoltTouchesMonster(tile, damage_hp, harm_type, weapon_type, spell_name);
                 }
-                else if (Ui_m.coordInsidePanel(coord) && py.flags.blind < 1)
+                else if (this.helpers.coordInsidePanel(coord) && py.flags.blind < 1)
                 {
                     this.terminal.panelPutTile('*', coord);
 
@@ -130,7 +133,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
             {
                 Monster_m.printMonsterActionText(name, "dies in a fit of agony.");
-                Ui_m.displayCharacterExperience();
+                this.terminalEx.displayCharacterExperience();
             }
             else if (damage > 0)
             {

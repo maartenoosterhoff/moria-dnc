@@ -14,7 +14,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_stats_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -29,6 +28,7 @@ namespace Moria.Core.Methods
             IRnd rnd,
             ISpells spells,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -42,6 +42,7 @@ namespace Moria.Core.Methods
             Mage_spells_m.rnd = rnd;
             Mage_spells_m.spells = spells;
             Mage_spells_m.terminal = terminal;
+            Mage_spells_m.terminalEx = terminalEx;
             Mage_spells_m.uiInventory = uiInventory;
 
             Mage_spells_m.eventPublisher = eventPublisher;
@@ -55,6 +56,7 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static ISpells spells;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -377,7 +379,7 @@ namespace Moria.Core.Methods
                     py.misc.exp += (int)(magic_spell.exp_gain_for_learning << 2);
                     py.flags.spells_worked = py.flags.spells_worked | (1u << choice);
 
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
                 }
             }
 
@@ -401,7 +403,7 @@ namespace Moria.Core.Methods
                 py.misc.current_mana -= (int)magic_spell.mana_required;
             }
 
-            printCharacterCurrentMana();
+            terminalEx.printCharacterCurrentMana();
         }
 
         // Returns spell chance of failure for class_to_use_mage_spells -RAK-

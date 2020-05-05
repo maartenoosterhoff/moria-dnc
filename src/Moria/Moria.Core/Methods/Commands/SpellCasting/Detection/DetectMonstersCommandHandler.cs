@@ -8,12 +8,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
     public class DetectMonstersCommandHandler : ICommandHandler<DetectMonstersCommand>
     {
         private readonly ITerminal terminal;
+        private readonly IHelpers helpers;
 
         public DetectMonstersCommandHandler(
-            ITerminal terminal
+            ITerminal terminal,
+            IHelpers helpers
         )
         {
             this.terminal = terminal;
+            this.helpers = helpers;
         }
 
         public void Handle(DetectMonstersCommand command)
@@ -30,7 +33,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
             {
                 var monster = State.Instance.monsters[id];
 
-                if (Ui_m.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) == 0)
+                if (this.helpers.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].movement & Config.monsters_move.CM_INVISIBLE) == 0)
                 {
                     monster.lit = true;
                     detected = true;

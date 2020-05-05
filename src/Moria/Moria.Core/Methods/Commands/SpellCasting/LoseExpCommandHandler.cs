@@ -7,6 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 {
     public class LoseExpCommandHandler : ICommandHandler<LoseExpCommand>
     {
+        private readonly ITerminalEx terminalEx;
+
+        public LoseExpCommandHandler(
+            ITerminalEx terminalEx
+        )
+        {
+            this.terminalEx = terminalEx;
+        }
+
         public void Handle(LoseExpCommand command)
         {
             this.spellLoseEXP(command.Adjustment);
@@ -24,7 +33,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             {
                 py.misc.exp -= adjustment;
             }
-            Ui_m.displayCharacterExperience();
+            this.terminalEx.displayCharacterExperience();
 
             var exp = 0;
             while ((int)(py.base_exp_levels[exp] * py.misc.experience_factor / 100) <= py.misc.exp)
@@ -53,8 +62,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                     Player_m.playerCalculateAllowedSpellsCount((int)PlayerAttr.WIS);
                     Player_m.playerGainMana((int)PlayerAttr.WIS);
                 }
-                Ui_m.printCharacterLevel();
-                Ui_m.printCharacterTitle();
+                this.terminalEx.printCharacterLevel();
+                this.terminalEx.printCharacterTitle();
             }
         }
     }

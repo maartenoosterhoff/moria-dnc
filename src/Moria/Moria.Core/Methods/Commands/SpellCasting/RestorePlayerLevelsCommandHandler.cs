@@ -7,10 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<RestorePlayerLevelsCommand, bool>
     {
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
-        public RestorePlayerLevelsCommandHandler(ITerminal terminal)
+        public RestorePlayerLevelsCommandHandler(
+            ITerminal terminal,
+            ITerminalEx terminalEx
+        )
         {
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
         void ICommandHandler<RestorePlayerLevelsCommand>.Handle(RestorePlayerLevelsCommand command)
@@ -36,7 +41,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 while (py.misc.exp < py.misc.max_exp)
                 {
                     py.misc.exp = py.misc.max_exp;
-                    Ui_m.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
                 }
 
                 return true;

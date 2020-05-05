@@ -12,16 +12,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeonLos dungeonLos;
         private readonly IEventPublisher eventPublisher;
         private readonly IRnd rnd;
+        private readonly ITerminalEx terminalEx;
 
         public DispelCreatureCommandHandler(
             IDungeonLos dungeonLos,
             IEventPublisher eventPublisher,
-            IRnd rnd
+            IRnd rnd,
+            ITerminalEx terminalEx
         )
         {
             this.dungeonLos = dungeonLos;
             this.eventPublisher = eventPublisher;
             this.rnd = rnd;
+            this.terminalEx = terminalEx;
         }
 
         void ICommandHandler<DispelCreatureCommand>.Handle(DispelCreatureCommand command)
@@ -79,7 +82,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     if (hit >= 0)
                     {
-                        Ui_m.displayCharacterExperience();
+                        this.terminalEx.displayCharacterExperience();
                     }
                 }
             }

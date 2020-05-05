@@ -3,7 +3,6 @@ using Moria.Core.Data;
 using Moria.Core.States;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
@@ -11,13 +10,16 @@ namespace Moria.Core.Methods
     public static class Player_stats_m
     {
         public static void SetDependencies(
-            IRnd rnd
+            IRnd rnd,
+            ITerminalEx terminalEx
         )
         {
             Player_stats_m.rnd = rnd;
+            Player_stats_m.terminalEx = terminalEx;
         }
 
         private static IRnd rnd;
+        private static ITerminalEx terminalEx;
 
         // I don't really like this, but for now, it's better than being a global -MRC-
         public static void playerInitializeBaseExperienceLevels()
@@ -418,7 +420,7 @@ namespace Moria.Core.Methods
             }
 
             playerSetAndUseStat(stat);
-            displayCharacterStats(stat);
+            terminalEx.displayCharacterStats(stat);
 
             return true;
         }
@@ -437,7 +439,7 @@ namespace Moria.Core.Methods
             py.stats.current[stat] += (uint)new_stat;
 
             playerSetAndUseStat(stat);
-            displayCharacterStats(stat);
+            terminalEx.displayCharacterStats(stat);
 
             return true;
         }

@@ -6,7 +6,6 @@ using Moria.Core.Data;
 using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -34,16 +33,19 @@ namespace Moria.Core.Methods
     {
         public Dungeon_m(
             IGameObjectsPush gameObjectsPush,
+            IHelpers helpers,
             IRnd rnd,
             ITerminal terminal
         )
         {
             this.gameObjectsPush = gameObjectsPush;
+            this.helpers = helpers;
             this.rnd = rnd;
             this.terminal = terminal;
         }
 
         private readonly IGameObjectsPush gameObjectsPush;
+        private readonly IHelpers helpers;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
 
@@ -392,7 +394,7 @@ namespace Moria.Core.Methods
         // Lights up given location -RAK-
         public void dungeonLiteSpot(Coord_t coord)
         {
-            if (!coordInsidePanel(coord))
+            if (!this.helpers.coordInsidePanel(coord))
             {
                 return;
             }

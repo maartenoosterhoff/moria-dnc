@@ -14,7 +14,6 @@ using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_traps_m;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -31,6 +30,7 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
 
             IEventPublisher eventPublisher
         )
@@ -44,6 +44,7 @@ namespace Moria.Core.Methods
             Player_m.playerMagic = playerMagic;
             Player_m.rnd = rnd;
             Player_m.terminal = terminal;
+            Player_m.terminalEx = terminalEx;
 
             Player_m.eventPublisher = eventPublisher;
         }
@@ -57,6 +58,7 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
 
         private static IEventPublisher eventPublisher;
 
@@ -111,8 +113,8 @@ namespace Moria.Core.Methods
 
             py.flags.status |= Config.player_status.PY_SEARCH;
 
-            printCharacterMovementState();
-            printCharacterSpeed();
+            terminalEx.printCharacterMovementState();
+            terminalEx.printCharacterSpeed();
 
             py.flags.food_digested++;
         }
@@ -121,13 +123,13 @@ namespace Moria.Core.Methods
         {
             var py = State.Instance.py;
 
-            dungeonResetView();
+            terminalEx.dungeonResetView();
             playerChangeSpeed(-1);
 
             py.flags.status &= ~Config.player_status.PY_SEARCH;
 
-            printCharacterMovementState();
-            printCharacterSpeed();
+            terminalEx.printCharacterMovementState();
+            terminalEx.printCharacterSpeed();
             py.flags.food_digested--;
         }
 
@@ -177,7 +179,7 @@ namespace Moria.Core.Methods
 
                 py.flags.rest = (int)rest_num;
                 py.flags.status |= Config.player_status.PY_REST;
-                printCharacterMovementState();
+                terminalEx.printCharacterMovementState();
                 py.flags.food_digested--;
 
                 terminal.putStringClearToEOL("Press any key to stop resting...", new Coord_t(0, 0));
@@ -203,7 +205,7 @@ namespace Moria.Core.Methods
             py.flags.rest = 0;
             py.flags.status &= ~Config.player_status.PY_REST;
 
-            printCharacterMovementState();
+            terminalEx.printCharacterMovementState();
 
             // flush last message, or delete "press any key" message
             terminal.printMessage(/*CNIL*/null);
@@ -712,7 +714,7 @@ namespace Moria.Core.Methods
 
             if (py.misc.current_hp >= 0)
             {
-                printCharacterCurrentHitPoints();
+                terminalEx.printCharacterCurrentHitPoints();
                 return;
             }
 
@@ -1186,7 +1188,7 @@ namespace Moria.Core.Methods
                     msg = $"You have slain {name}.";
                     //(void)sprintf(msg, "You have slain %s.", name);
                     terminal.printMessage(msg);
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
 
                     return;
                 }
@@ -1244,7 +1246,7 @@ namespace Moria.Core.Methods
                 {
                     terminal.printMessage("You have picked the lock.");
                     py.misc.exp++;
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
                     item.misc_use = 0;
                 }
                 else
@@ -1290,7 +1292,7 @@ namespace Moria.Core.Methods
                     terminal.printMessage("You have picked the lock.");
 
                     py.misc.exp += (int)item.depth_first_found;
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
 
                     success = true;
                 }
@@ -1495,7 +1497,7 @@ namespace Moria.Core.Methods
 
             tile.field_mark = false;
 
-            if (coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light) && tile.treasure_id != 0)
+            if (helpers.coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light) && tile.treasure_id != 0)
             {
                 terminal.printMessage("You have found something!");
             }

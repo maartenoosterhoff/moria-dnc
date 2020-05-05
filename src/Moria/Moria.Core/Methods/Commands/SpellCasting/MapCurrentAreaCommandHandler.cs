@@ -8,14 +8,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     {
         private readonly IDungeon dungeon;
         private readonly IRnd rnd;
+        private readonly ITerminalEx terminalEx;
 
         public MapCurrentAreaCommandHandler(
             IDungeon dungeon,
-            IRnd rnd
+            IRnd rnd,
+            ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
             this.rnd = rnd;
+            this.terminalEx = terminalEx;
         }
 
         public void Handle(MapCurrentAreaCommand command)
@@ -46,7 +49,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 }
             }
 
-            Ui_m.drawDungeonPanel();
+            this.terminalEx.drawDungeonPanel();
         }
 
         private void dungeonLightAreaAroundFloorTile(Coord_t coord)

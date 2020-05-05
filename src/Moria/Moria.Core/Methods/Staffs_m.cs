@@ -10,7 +10,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -27,6 +26,7 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -41,6 +41,7 @@ namespace Moria.Core.Methods
             Staffs_m.playerMagic = playerMagic;
             Staffs_m.rnd = rnd;
             Staffs_m.terminal = terminal;
+            Staffs_m.terminalEx = terminalEx;
             Staffs_m.uiInventory = uiInventory;
 
             Staffs_m.eventPublisher = eventPublisher;
@@ -55,6 +56,7 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -312,7 +314,7 @@ namespace Moria.Core.Methods
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
 
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
 
                     identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }
@@ -627,7 +629,7 @@ namespace Moria.Core.Methods
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
 
                     identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }

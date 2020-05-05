@@ -7,12 +7,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
         ICommandHandler<ChangePlayerHitPointsCommand, bool>
     {
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
         public ChangePlayerHitPointsCommandHandler(
-            ITerminal terminal
+            ITerminal terminal,
+            ITerminalEx terminalEx
         )
         {
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
         void ICommandHandler<ChangePlayerHitPointsCommand>.Handle(ChangePlayerHitPointsCommand command)
@@ -40,7 +43,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
                 py.misc.current_hp = py.misc.max_hp;
                 py.misc.current_hp_fraction = 0;
             }
-            Ui_m.printCharacterCurrentHitPoints();
+            this.terminalEx.printCharacterCurrentHitPoints();
 
             adjustment /= 5;
 

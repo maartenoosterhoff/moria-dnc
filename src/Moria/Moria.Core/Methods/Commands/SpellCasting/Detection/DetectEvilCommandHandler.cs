@@ -10,12 +10,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
         ICommandHandler<DetectEvilCommand, bool>
     {
         private readonly ITerminal terminal;
+        private readonly IHelpers helpers;
 
         public DetectEvilCommandHandler(
-            ITerminal terminal
+            ITerminal terminal,
+            IHelpers helpers
         )
         {
             this.terminal = terminal;
+            this.helpers = helpers;
         }
         void ICommandHandler<DetectEvilCommand>.Handle(DetectEvilCommand command)
         {
@@ -36,7 +39,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
             {
                 var monster = State.Instance.monsters[id];
 
-                if (Ui_m.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].defenses & Config.monsters_defense.CD_EVIL) != 0)
+                if (this.helpers.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)) && (Library.Instance.Creatures.creatures_list[(int)monster.creature_id].defenses & Config.monsters_defense.CD_EVIL) != 0)
                 {
                     monster.lit = true;
 

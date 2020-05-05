@@ -13,18 +13,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
         private readonly IDungeon dungeon;
         private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
+        private readonly ITerminalEx terminalEx;
 
         public LightLineCommandHandler(
             IDice dice,
             IDungeon dungeon,
             IEventPublisher eventPublisher,
-            IHelpers helpers
+            IHelpers helpers,
+            ITerminalEx terminalEx
         )
         {
             this.dice = dice;
             this.dungeon = dungeon;
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
+            this.terminalEx = terminalEx;
         }
 
         public void Handle(LightLineCommand command)
@@ -66,7 +69,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 
                     if (tile.feature_id == Dungeon_tile_c.TILE_LIGHT_FLOOR)
                     {
-                        if (Ui_m.coordInsidePanel(tmp_coord))
+                        if (this.helpers.coordInsidePanel(tmp_coord))
                         {
                             this.dungeon.dungeonLightRoom(tmp_coord);
                         }
@@ -116,7 +119,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
                 //if (Monster_m.monsterTakeHit(monster_id, this.dice.diceRoll(new Dice_t(2, 8))) >= 0)
                 {
                     Monster_m.printMonsterActionText(name, "shrivels away in the light!");
-                    Ui_m.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
                 }
                 else
                 {

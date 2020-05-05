@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -25,6 +24,7 @@ namespace Moria.Core.Methods
             IPlayerMagic playerMagic,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             IUiInventory uiInventory,
 
             IEventPublisher eventPublisher
@@ -40,6 +40,7 @@ namespace Moria.Core.Methods
             Player_throw_m.playerMagic = playerMagic;
             Player_throw_m.rnd = rnd;
             Player_throw_m.terminal = terminal;
+            Player_throw_m.terminalEx = terminalEx;
             Player_throw_m.uiInventory = uiInventory;
 
             Player_throw_m.eventPublisher = eventPublisher;
@@ -55,6 +56,7 @@ namespace Moria.Core.Methods
         private static IPlayerMagic playerMagic;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
         private static IUiInventory uiInventory;
 
         private static IEventPublisher eventPublisher;
@@ -364,7 +366,7 @@ namespace Moria.Core.Methods
                                     //(void)sprintf(msg, "You have killed the %s.", creatures_list[damage].name);
                                     terminal.printMessage(msg);
                                 }
-                                displayCharacterExperience();
+                                terminalEx.displayCharacterExperience();
                             }
                         }
                         else
@@ -376,7 +378,7 @@ namespace Moria.Core.Methods
                     {
                         // do not test tile.field_mark here
 
-                        if (coordInsidePanel(coord) && py.flags.blind < 1 && (tile.temporary_light || tile.permanent_light))
+                        if (helpers.coordInsidePanel(coord) && py.flags.blind < 1 && (tile.temporary_light || tile.permanent_light))
                         {
                             terminal.panelPutTile(tile_char, coord);
                             terminal.putQIO(); // show object moving

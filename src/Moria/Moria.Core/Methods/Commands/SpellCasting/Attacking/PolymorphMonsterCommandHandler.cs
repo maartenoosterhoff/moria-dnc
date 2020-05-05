@@ -81,7 +81,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                         morphed = this.monsterManager.monsterPlaceNew(coord, this.rnd.randomNumber(State.Instance.monster_levels[Monster_c.MON_MAX_LEVELS] - State.Instance.monster_levels[0]) - 1 + State.Instance.monster_levels[0], false);
 
                         // don't test tile.field_mark here, only permanent_light/temporary_light
-                        if (morphed && Ui_m.coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light))
+                        if (morphed && this.helpers.coordInsidePanel(coord) && (tile.temporary_light || tile.permanent_light))
                         {
                             morphed = true;
                         }

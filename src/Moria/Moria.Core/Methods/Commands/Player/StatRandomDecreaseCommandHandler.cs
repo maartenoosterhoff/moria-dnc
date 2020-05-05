@@ -7,12 +7,15 @@ namespace Moria.Core.Methods.Commands.Player
         ICommandHandler<StatRandomDecreaseCommand, bool>
     {
         private readonly IRnd rnd;
+        private readonly ITerminalEx terminalEx;
 
         public StatRandomDecreaseCommandHandler(
-            IRnd rnd
+            IRnd rnd,
+            ITerminalEx terminalEx
         )
         {
             this.rnd = rnd;
+            this.terminalEx = terminalEx;
         }
         void ICommandHandler<StatRandomDecreaseCommand>.Handle(StatRandomDecreaseCommand command)
         {
@@ -54,7 +57,7 @@ namespace Moria.Core.Methods.Commands.Player
             py.stats.current[stat] = (uint)new_stat;
 
             Player_stats_m.playerSetAndUseStat(stat);
-            Ui_m.displayCharacterStats(stat);
+            this.terminalEx.displayCharacterStats(stat);
 
             return true;
         }

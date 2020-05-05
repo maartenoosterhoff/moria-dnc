@@ -14,7 +14,6 @@ using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -32,6 +31,7 @@ namespace Moria.Core.Methods
             IRnd rnd,
             IStd std,
             ITerminal terminal,
+            ITerminalEx terminalEx,
 
             IEventPublisher eventPublisher
         )
@@ -47,6 +47,7 @@ namespace Moria.Core.Methods
             Monster_m.rnd = rnd;
             Monster_m.std = std;
             Monster_m.terminal = terminal;
+            Monster_m.terminalEx = terminalEx;
 
             Monster_m.eventPublisher = eventPublisher;
         }
@@ -62,6 +63,7 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static IStd std;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
 
         private static IEventPublisher eventPublisher;
 
@@ -110,7 +112,7 @@ namespace Moria.Core.Methods
 
             if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT &&
                 (py.flags.status & Config.player_status.PY_BLIND) == 0u &&
-                coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)))
+                helpers.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)))
             {
                 if (game.wizard_mode)
                 {
@@ -1102,7 +1104,7 @@ namespace Moria.Core.Methods
                         {
                             py.misc.current_mana -= num;
                         }
-                        printCharacterCurrentMana();
+                        terminalEx.printCharacterCurrentMana();
                         monster.hp += 6 * num;
                     }
                     break;
@@ -1450,7 +1452,7 @@ namespace Moria.Core.Methods
                 if (i >= 0)
                 {
                     terminal.printMessage("You hear a scream muffled by rock!");
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
                 }
                 else
                 {
@@ -1908,7 +1910,7 @@ namespace Moria.Core.Methods
             {
                 game.total_winner = true;
 
-                printCharacterWinner();
+                terminalEx.printCharacterWinner();
 
                 terminal.printMessage("*** CONGRATULATIONS *** You have won the game.");
                 terminal.printMessage("You cannot save this game, but you may retire when ready.");
@@ -2145,7 +2147,7 @@ namespace Moria.Core.Methods
                             py.misc.au -= gold;
                         }
                         terminal.printMessage("Your purse feels lighter.");
-                        printCharacterGoldValue();
+                        terminalEx.printCharacterGoldValue();
                     }
                     if (rnd.randomNumber(2) == 1)
                     {

@@ -15,6 +15,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IHelpers helpers;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
         public FireBallCommandHandler(
             IDungeon dungeon,
@@ -22,7 +23,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             IEventPublisher eventPublisher,
             IHelpers helpers,
             ISpells spells,
-            ITerminal terminal
+            ITerminal terminal,
+            ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
@@ -31,6 +33,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             this.helpers = helpers;
             this.spells = spells;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
         public void Handle(FireBallCommand command)
@@ -154,7 +157,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                         }
                                         tile.permanent_light = saved_lit_status;
                                     }
-                                    else if (Ui_m.coordInsidePanel(spot) && py.flags.blind < 1)
+                                    else if (this.helpers.coordInsidePanel(spot) && py.flags.blind < 1)
                                     {
                                         this.terminal.panelPutTile('*', spot);
                                     }
@@ -173,7 +176,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             spot.y = row;
                             spot.x = col;
 
-                            if (this.dungeon.coordInBounds(spot) && Ui_m.coordInsidePanel(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance)
+                            if (this.dungeon.coordInBounds(spot) && this.helpers.coordInsidePanel(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                             {
                                 this.dungeon.dungeonLiteSpot(spot);
                             }
@@ -201,11 +204,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     if (total_kills >= 0)
                     {
-                        Ui_m.displayCharacterExperience();
+                        this.terminalEx.displayCharacterExperience();
                     }
                     // End ball hitting.
                 }
-                else if (Ui_m.coordInsidePanel(coord) && py.flags.blind < 1)
+                else if (this.helpers.coordInsidePanel(coord) && py.flags.blind < 1)
                 {
                     this.terminal.panelPutTile('*', coord);
 

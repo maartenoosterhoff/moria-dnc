@@ -6,10 +6,15 @@ namespace Moria.Core.Methods.Commands.Player
     public class DisturbCommandHandler : ICommandHandler<DisturbCommand>
     {
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
-        public DisturbCommandHandler(ITerminal terminal)
+        public DisturbCommandHandler(
+            ITerminal terminal,
+            ITerminalEx terminalEx
+        )
         {
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
         public void Handle(DisturbCommand command)
@@ -43,7 +48,7 @@ namespace Moria.Core.Methods.Commands.Player
             if (light_disturbance || py.running_tracker != 0)
             {
                 py.running_tracker = 0;
-                Ui_m.dungeonResetView();
+                this.terminalEx.dungeonResetView();
             }
 
             this.terminal.flushInputBuffer();

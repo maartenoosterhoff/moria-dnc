@@ -5,7 +5,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
@@ -23,6 +22,7 @@ namespace Moria.Core.Methods
             IMonsterManager monsterManager,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
 
             IEventPublisher eventPublisher
         )
@@ -35,6 +35,7 @@ namespace Moria.Core.Methods
             Player_traps_m.monsterManager = monsterManager;
             Player_traps_m.rnd = rnd;
             Player_traps_m.terminal = terminal;
+            Player_traps_m.terminalEx = terminalEx;
             Player_traps_m.eventPublisher = eventPublisher;
         }
 
@@ -46,6 +47,7 @@ namespace Moria.Core.Methods
         private static IMonsterManager monsterManager;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
         private static IEventPublisher eventPublisher;
 
         private static int playerTrapDisarmAbility()
@@ -93,7 +95,7 @@ namespace Moria.Core.Methods
                 playerMove(dir, false);
                 py.flags.confused = (int)confused;
 
-                displayCharacterExperience();
+                terminalEx.displayCharacterExperience();
                 return;
             }
 
@@ -147,7 +149,7 @@ namespace Moria.Core.Methods
                     identification.spellItemIdentifyAndRemoveRandomInscription(item);
                     py.misc.exp += level;
 
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
                 }
                 else if (total > 5 && rnd.randomNumber(total) > 5)
                 {

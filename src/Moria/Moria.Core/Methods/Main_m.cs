@@ -176,6 +176,7 @@ Options:
             container.RegisterSingleton<ISpells, Spells_m>();
             container.RegisterSingleton<IStoreInventory, Store_inventory_m>();
             container.RegisterSingleton<ITerminal, Ui_io_m>();
+            container.RegisterSingleton<ITerminalEx, Ui_m>();
             container.RegisterSingleton<ITreasure, Treasure_m>();
             container.RegisterSingleton<IUiInventory, Ui_inventory_m>();
             container.RegisterSingleton<IWizard, Wizard_m>();
@@ -207,6 +208,7 @@ Options:
                 container.GetInstance<ISpells>(),
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
                 container.GetInstance<IWizard>(),
 
@@ -222,6 +224,7 @@ Options:
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ISpells>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -239,6 +242,7 @@ Options:
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IStd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
             );
 
@@ -252,6 +256,7 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
             );
 
@@ -264,6 +269,7 @@ Options:
                 container.GetInstance<IRnd>(),
                 container.GetInstance<IStd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
             );
 
@@ -275,6 +281,7 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
                 container.GetInstance<IEventPublisher>()
             );
@@ -289,6 +296,7 @@ Options:
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
             );
 
@@ -301,6 +309,7 @@ Options:
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ISpells>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -314,6 +323,7 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -327,7 +337,8 @@ Options:
             );
 
             Player_stats_m.SetDependencies(
-                container.GetInstance<IRnd>()
+                container.GetInstance<IRnd>(),
+                container.GetInstance<ITerminalEx>()
             );
 
             Player_throw_m.SetDependencies(
@@ -341,6 +352,7 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
                 container.GetInstance<IEventPublisher>()
             );
@@ -354,8 +366,9 @@ Options:
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IEventPublisher>()
-                    );
+            );
 
             Player_tunnel_m.SetDependencies(
                 container.GetInstance<IDice>(),
@@ -381,6 +394,7 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -396,6 +410,7 @@ Options:
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>(),
 
                 container.GetInstance<IEventPublisher>()
@@ -410,14 +425,8 @@ Options:
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ITerminal>(),
+                container.GetInstance<ITerminalEx>(),
                 container.GetInstance<IUiInventory>()
-            );
-
-            Ui_m.SetDependencies(
-                container.GetInstance<IDungeon>(),
-                container.GetInstance<IGameFiles>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<IEventPublisher>()
             );
 
             return container;

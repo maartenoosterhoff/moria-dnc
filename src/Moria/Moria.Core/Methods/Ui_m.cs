@@ -1,10 +1,8 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.Data;
-using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
-using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
@@ -13,30 +11,65 @@ using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Ui_m
+    public interface ITerminalEx
     {
-        public static void SetDependencies(
-            IDungeon dungeon,
-            IGameFiles gameFiles,
-            ITerminal terminal,
+        void drawDungeonPanel();
+        void drawCavePanel();
+        void dungeonResetView();
+        void displayCharacterStats(int stat);
+        void printCharacterTitle();
+        void printCharacterLevel();
+        void printCharacterCurrentMana();
+        void printCharacterMaxHitPoints();
+        void printCharacterCurrentHitPoints();
+        void printCharacterCurrentArmorClass();
+        void printCharacterGoldValue();
+        void printCharacterCurrentDepth();
+        void printCharacterHungerStatus();
+        void printCharacterBlindStatus();
+        void printCharacterConfusedState();
+        void printCharacterFearState();
+        void printCharacterPoisonedState();
+        void printCharacterMovementState();
+        void printCharacterSpeed();
+        void printCharacterStudyInstruction();
+        void printCharacterWinner();
+        void printCharacterStatsBlock();
+        void printCharacterInformation();
+        void printCharacterStats();
+        void printCharacterVitalStatistics();
+        void printCharacterLevelExperience();
+        void printCharacterAbilities();
+        void printCharacter();
+        void getCharacterName();
+        void changeCharacterName();
+        void displayCharacterExperience();
+    }
 
-            IEventPublisher eventPublisher
+    public class Ui_m : ITerminalEx
+    {
+        private readonly IDungeon dungeon;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IGameFiles gameFiles;
+        private readonly IHelpers helpers;
+        private readonly ITerminal terminal;
+
+        public Ui_m(
+            IDungeon dungeon,
+            IEventPublisher eventPublisher,
+            IGameFiles gameFiles,
+            IHelpers helpers,
+            ITerminal terminal
         )
         {
-            Ui_m.dungeon = dungeon;
-            Ui_m.gameFiles = gameFiles;
-            Ui_m.terminal = terminal;
-
-            Ui_m.eventPublisher = eventPublisher;
+            this.dungeon = dungeon;
+            this.eventPublisher = eventPublisher;
+            this.gameFiles = gameFiles;
+            this.helpers = helpers;
+            this.terminal = terminal;
         }
 
-        private static IDungeon dungeon;
-        private static IGameFiles gameFiles;
-        private static ITerminal terminal;
-
-        private static IEventPublisher eventPublisher;
-
-        private static string[] stat_names = {
+        private string[] stat_names = {
             "STR : ", "INT : ", "WIS : ", "DEX : ", "CON : ", "CHR : "
         };
 
@@ -44,87 +77,12 @@ namespace Moria.Core.Methods
 
         //#define BLANK_LENGTH 24
 
-        private static readonly string blank_string = "                        ";
+        private readonly string blank_string = "                        ";
 
-        // Calculates current boundaries -RAK-
-        private static void panelBounds()
-        {
-            var dg = State.Instance.dg;
-            dg.panel.top = dg.panel.row * ((int)SCREEN_HEIGHT / 2);
-            dg.panel.bottom = dg.panel.top + (int)SCREEN_HEIGHT - 1;
-            dg.panel.row_prt = dg.panel.top - 1;
-            dg.panel.left = dg.panel.col * ((int)SCREEN_WIDTH / 2);
-            dg.panel.right = dg.panel.left + (int)SCREEN_WIDTH - 1;
-            dg.panel.col_prt = dg.panel.left - 13;
-        }
-
-        // Given an row (y) and col (x), this routine detects -RAK-
-        // when a move off the screen has occurred and figures new borders.
-        // `force` forces the panel bounds to be recalculated, useful for 'W'here.
-        public static bool coordOutsidePanel(Coord_t coord, bool force)
-        {
-            var dg = State.Instance.dg;
-            var panel = new Coord_t(dg.panel.row, dg.panel.col);
-
-            if (force || coord.y < dg.panel.top + 2 || coord.y > dg.panel.bottom - 2)
-            {
-                panel.y = (coord.y - (int)SCREEN_HEIGHT / 4) / ((int)SCREEN_HEIGHT / 2);
-
-                if (panel.y > dg.panel.max_rows)
-                {
-                    panel.y = dg.panel.max_rows;
-                }
-                else if (panel.y < 0)
-                {
-                    panel.y = 0;
-                }
-            }
-
-            if (force || coord.x < dg.panel.left + 3 || coord.x > dg.panel.right - 3)
-            {
-                panel.x = (coord.x - (int)SCREEN_WIDTH / 4) / ((int)SCREEN_WIDTH / 2);
-                if (panel.x > dg.panel.max_cols)
-                {
-                    panel.x = dg.panel.max_cols;
-                }
-                else if (panel.x < 0)
-                {
-                    panel.x = 0;
-                }
-            }
-
-            if (panel.y != dg.panel.row || panel.x != dg.panel.col)
-            {
-                dg.panel.row = panel.y;
-                dg.panel.col = panel.x;
-                panelBounds();
-
-                // stop movement if any
-                if (Config.options.find_bound)
-                {
-                    eventPublisher.Publish(new EndRunningCommand());
-                    //playerEndRunning();
-                }
-
-                // Yes, the coordinates are beyond the current panel boundary
-                return true;
-            }
-
-            return false;
-        }
-
-        // Is the given coordinate within the screen panel boundaries -RAK-
-        public static bool coordInsidePanel(Coord_t coord)
-        {
-            var dg = State.Instance.dg;
-            var valid_y = coord.y >= dg.panel.top && coord.y <= dg.panel.bottom;
-            var valid_x = coord.x >= dg.panel.left && coord.x <= dg.panel.right;
-
-            return valid_y && valid_x;
-        }
+        
 
         // Prints the map of the dungeon -RAK-
-        public static void drawDungeonPanel()
+        public void drawDungeonPanel()
         {
             var dg = State.Instance.dg;
 
@@ -135,32 +93,32 @@ namespace Moria.Core.Methods
             // Top to bottom
             for (coord.y = dg.panel.top; coord.y <= dg.panel.bottom; coord.y++)
             {
-                terminal.eraseLine(new Coord_t(line, 13));
+                this.terminal.eraseLine(new Coord_t(line, 13));
                 line++;
 
                 // Left to right
                 for (coord.x = dg.panel.left; coord.x <= dg.panel.right; coord.x++)
                 {
-                    var ch = dungeon.caveGetTileSymbol(coord);
+                    var ch = this.dungeon.caveGetTileSymbol(coord);
                     if (ch != ' ')
                     {
-                        terminal.panelPutTile(ch, coord);
+                        this.terminal.panelPutTile(ch, coord);
                     }
                 }
             }
         }
 
         // Draws entire screen -RAK-
-        public static void drawCavePanel()
+        public void drawCavePanel()
         {
-            terminal.clearScreen();
-            printCharacterStatsBlock();
-            drawDungeonPanel();
-            printCharacterCurrentDepth();
+            this.terminal.clearScreen();
+            this.printCharacterStatsBlock();
+            this.drawDungeonPanel();
+            this.printCharacterCurrentDepth();
         }
 
         // We need to reset the view of things. -CJS-
-        public static void dungeonResetView()
+        public void dungeonResetView()
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -168,20 +126,20 @@ namespace Moria.Core.Methods
             var tile = dg.floor[py.pos.y][py.pos.x];
 
             // Check for new panel
-            if (coordOutsidePanel(py.pos, false))
+            if (this.helpers.coordOutsidePanel(py.pos, false))
             {
-                drawDungeonPanel();
+                this.drawDungeonPanel();
             }
 
             // Move the light source
-            dungeon.dungeonMoveCharacterLight(py.pos, py.pos);
+            this.dungeon.dungeonMoveCharacterLight(py.pos, py.pos);
 
             // A room of light should be lit.
             if (tile.feature_id == TILE_LIGHT_FLOOR)
             {
                 if (py.flags.blind < 1 && !tile.permanent_light)
                 {
-                    dungeon.dungeonLightRoom(py.pos);
+                    this.dungeon.dungeonLightRoom(py.pos);
                 }
                 return;
             }
@@ -195,7 +153,7 @@ namespace Moria.Core.Methods
                     {
                         if (dg.floor[i][j].feature_id == TILE_LIGHT_FLOOR && !dg.floor[i][j].permanent_light)
                         {
-                            dungeon.dungeonLightRoom(new Coord_t(i, j));
+                            this.dungeon.dungeonLightRoom(new Coord_t(i, j));
                         }
                     }
                 }
@@ -203,7 +161,7 @@ namespace Moria.Core.Methods
         }
 
         // Converts stat num into string
-        public static void statsAsString(uint stat, out string stat_string)
+        private void statsAsString(uint stat, out string stat_string)
         {
             var percentile = (int)stat - 18;
 
@@ -225,120 +183,120 @@ namespace Moria.Core.Methods
         }
 
         // Print character stat in given row, column -RAK-
-        public static void displayCharacterStats(int stat)
+        public void displayCharacterStats(int stat)
         {
             var py = State.Instance.py;
-            statsAsString(py.stats.used[stat], out var text);
-            terminal.putString(stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
-            terminal.putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
+            this.statsAsString(py.stats.used[stat], out var text);
+            this.terminal.putString(this.stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
+            this.terminal.putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
         }
 
         // Print character info in given row, column -RAK-
         // The longest title is 13 characters, so only pad to 13
-        private static void printCharacterInfoInField(string info, Coord_t coord)
+        private void printCharacterInfoInField(string info, Coord_t coord)
         {
             // blank out the current field space
-            terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 13), coord);
+            this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 13), coord);
             //putString(&blank_string[BLANK_LENGTH - 13], coord);
 
-            terminal.putString(info, coord);
+            this.terminal.putString(info, coord);
         }
 
         // Print long number with header at given row, column
-        private static void printHeaderLongNumber(string header, int num, Coord_t coord)
+        private void printHeaderLongNumber(string header, int num, Coord_t coord)
         {
             var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %6d", header, num);
-            terminal.putString(str, coord);
+            this.terminal.putString(str, coord);
         }
 
         // Print long number (7 digits of space) with header at given row, column
-        private static void printHeaderLongNumber7Spaces(string header, int num, Coord_t coord)
+        private void printHeaderLongNumber7Spaces(string header, int num, Coord_t coord)
         {
             var str = $"{header}: {num,7:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %7d", header, num);
-            terminal.putString(str, coord);
+            this.terminal.putString(str, coord);
         }
 
         // Print number with header at given row, column -RAK-
-        private static void printHeaderNumber(string header, int num, Coord_t coord)
+        private void printHeaderNumber(string header, int num, Coord_t coord)
         {
             var str = $"{header}: {num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%s: %6d", header, num);
-            terminal.putString(str, coord);
+            this.terminal.putString(str, coord);
         }
 
         // Print long number at given row, column
-        private static void printLongNumber(int num, Coord_t coord)
+        private void printLongNumber(int num, Coord_t coord)
         {
             var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%6d", num);
-            terminal.putString(str, coord);
+            this.terminal.putString(str, coord);
         }
 
         // Print number at given row, column -RAK-
-        private static void printNumber(int num, Coord_t coord)
+        private void printNumber(int num, Coord_t coord)
         {
             var str = $"{num,6:d}";
             //vtype_t str = { '\0' };
             //(void)sprintf(str, "%6d", num);
-            terminal.putString(str, coord);
+            this.terminal.putString(str, coord);
         }
 
         // Prints title of character -RAK-
-        public static void printCharacterTitle()
+        public void printCharacterTitle()
         {
-            printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
+            this.printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
         }
 
         // Prints level -RAK-
-        public static void printCharacterLevel()
+        public void printCharacterLevel()
         {
             var py = State.Instance.py;
-            printNumber((int)py.misc.level, new Coord_t(13, (int)STAT_COLUMN + 6));
+            this.printNumber((int)py.misc.level, new Coord_t(13, (int)STAT_COLUMN + 6));
         }
 
         // Prints players current mana points. -RAK-
-        public static void printCharacterCurrentMana()
+        public void printCharacterCurrentMana()
         {
             var py = State.Instance.py;
-            printNumber(py.misc.current_mana, new Coord_t(15, (int)STAT_COLUMN + 6));
+            this.printNumber(py.misc.current_mana, new Coord_t(15, (int)STAT_COLUMN + 6));
         }
 
         // Prints Max hit points -RAK-
-        public static void printCharacterMaxHitPoints()
+        public void printCharacterMaxHitPoints()
         {
             var py = State.Instance.py;
-            printNumber(py.misc.max_hp, new Coord_t(16, (int)STAT_COLUMN + 6));
+            this.printNumber(py.misc.max_hp, new Coord_t(16, (int)STAT_COLUMN + 6));
         }
 
         // Prints players current hit points -RAK-
-        public static void printCharacterCurrentHitPoints()
+        public void printCharacterCurrentHitPoints()
         {
             var py = State.Instance.py;
-            printNumber(py.misc.current_hp, new Coord_t(17, (int)STAT_COLUMN + 6));
+            this.printNumber(py.misc.current_hp, new Coord_t(17, (int)STAT_COLUMN + 6));
         }
 
         // prints current AC -RAK-
-        public static void printCharacterCurrentArmorClass()
+        public void printCharacterCurrentArmorClass()
         {
             var py = State.Instance.py;
-            printNumber(py.misc.display_ac, new Coord_t(19, (int)STAT_COLUMN + 6));
+            this.printNumber(py.misc.display_ac, new Coord_t(19, (int)STAT_COLUMN + 6));
         }
 
         // Prints current gold -RAK-
-        public static void printCharacterGoldValue()
+        public void printCharacterGoldValue()
         {
             var py = State.Instance.py;
-            printLongNumber(py.misc.au, new Coord_t(20, (int)STAT_COLUMN + 6));
+            this.printLongNumber(py.misc.au, new Coord_t(20, (int)STAT_COLUMN + 6));
         }
 
         // Prints depth in stat area -RAK-
-        public static void printCharacterCurrentDepth()
+        public void printCharacterCurrentDepth()
         {
             var dg = State.Instance.dg;
             string depths;
@@ -357,90 +315,90 @@ namespace Moria.Core.Methods
                 //(void)sprintf(depths, "%d feet", depth);
             }
 
-            terminal.putStringClearToEOL(depths, new Coord_t(23, 65));
+            this.terminal.putStringClearToEOL(depths, new Coord_t(23, 65));
         }
 
         // Prints status of hunger -RAK-
-        public static void printCharacterHungerStatus()
+        public void printCharacterHungerStatus()
         {
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_WEAK) != 0u)
             {
-                terminal.putString("Weak  ", new Coord_t(23, 0));
+                this.terminal.putString("Weak  ", new Coord_t(23, 0));
             }
             else if ((py.flags.status & Config.player_status.PY_HUNGRY) != 0u)
             {
-                terminal.putString("Hungry", new Coord_t(23, 0));
+                this.terminal.putString("Hungry", new Coord_t(23, 0));
             }
             else
             {
-                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 6), new Coord_t(23, 0));
+                this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 6), new Coord_t(23, 0));
                 //putString(&blank_string[BLANK_LENGTH - 6], new Coord_t(23, 0));
             }
         }
 
         // Prints Blind status -RAK-
-        public static void printCharacterBlindStatus()
+        public void printCharacterBlindStatus()
         {
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_BLIND) != 0u)
             {
-                terminal.putString("Blind", new Coord_t(23, 7));
+                this.terminal.putString("Blind", new Coord_t(23, 7));
             }
             else
             {
-                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 5), new Coord_t(23, 7));
+                this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 5), new Coord_t(23, 7));
                 //putString(&blank_string[BLANK_LENGTH - 5], new Coord_t(23, 7));
             }
         }
 
         // Prints Confusion status -RAK-
-        public static void printCharacterConfusedState()
+        public void printCharacterConfusedState()
         {
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_CONFUSED) != 0u)
             {
-                terminal.putString("Confused", new Coord_t(23, 13));
+                this.terminal.putString("Confused", new Coord_t(23, 13));
             }
             else
             {
-                terminal.putString(blank_string.Substring(BLANK_LENGTH - 8), new Coord_t(23, 13));
+                this.terminal.putString(this.blank_string.Substring(BLANK_LENGTH - 8), new Coord_t(23, 13));
                 //putString(&blank_string[BLANK_LENGTH - 8], new Coord_t(23, 13));
             }
         }
 
         // Prints Fear status -RAK-
-        public static void printCharacterFearState()
+        public void printCharacterFearState()
         {
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_FEAR) != 0u)
             {
-                terminal.putString("Afraid", new Coord_t(23, 22));
+                this.terminal.putString("Afraid", new Coord_t(23, 22));
             }
             else
             {
                 //putString(&blank_string[BLANK_LENGTH - 6], new Coord_t(23, 22));
-                terminal.putString(blank_string.Substring(BLANK_LENGTH - 6), new Coord_t(23, 22));
+                this.terminal.putString(this.blank_string.Substring(BLANK_LENGTH - 6), new Coord_t(23, 22));
             }
         }
 
         // Prints Poisoned status -RAK-
-        public static void printCharacterPoisonedState()
+        public void printCharacterPoisonedState()
         {
             var py = State.Instance.py;
             if ((py.flags.status & Config.player_status.PY_POISONED) != 0u)
             {
-                terminal.putString("Poisoned", new Coord_t(23, 29));
+                this.terminal.putString("Poisoned", new Coord_t(23, 29));
             }
             else
             {
-                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 8), new Coord_t(23, 29));
+                this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 8), new Coord_t(23, 29));
                 //putString(&blank_string[BLANK_LENGTH - 8], new Coord_t(23, 29));
             }
         }
 
         // Prints Searching, Resting, Paralysis, or 'count' status -RAK-
-        public static void printCharacterMovementState()
+        public void printCharacterMovementState()
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -448,7 +406,7 @@ namespace Moria.Core.Methods
 
             if (py.flags.paralysis > 1)
             {
-                terminal.putString("Paralysed", new Coord_t(23, 38));
+                this.terminal.putString("Paralysed", new Coord_t(23, 38));
                 return;
             }
 
@@ -473,7 +431,7 @@ namespace Moria.Core.Methods
                     //(void)strcpy(rest_string, "Rest");
                 }
 
-                terminal.putString(rest_string, new Coord_t(23, 38));
+                this.terminal.putString(rest_string, new Coord_t(23, 38));
 
                 return;
             }
@@ -496,11 +454,11 @@ namespace Moria.Core.Methods
 
                 py.flags.status |= Config.player_status.PY_REPEAT;
 
-                terminal.putString(repeat_string, new Coord_t(23, 38));
+                this.terminal.putString(repeat_string, new Coord_t(23, 38));
 
                 if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u)
                 {
-                    terminal.putString("Search", new Coord_t(23, 38));
+                    this.terminal.putString("Search", new Coord_t(23, 38));
                 }
 
                 return;
@@ -508,17 +466,17 @@ namespace Moria.Core.Methods
 
             if ((py.flags.status & Config.player_status.PY_SEARCH) != 0u)
             {
-                terminal.putString("Searching", new Coord_t(23, 38));
+                this.terminal.putString("Searching", new Coord_t(23, 38));
                 return;
             }
 
             // "repeat 999" is 10 characters
-            terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 10), new Coord_t(23, 38));
+            this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 10), new Coord_t(23, 38));
             //putString(&blank_string[BLANK_LENGTH - 10], new Coord_t(23, 38});
         }
 
         // Prints the speed of a character. -CJS-
-        public static void printCharacterSpeed()
+        public void printCharacterSpeed()
         {
             var py = State.Instance.py;
             var speed = py.flags.speed;
@@ -531,28 +489,28 @@ namespace Moria.Core.Methods
 
             if (speed > 1)
             {
-                terminal.putString("Very Slow", new Coord_t(23, 49));
+                this.terminal.putString("Very Slow", new Coord_t(23, 49));
             }
             else if (speed == 1)
             {
-                terminal.putString("Slow     ", new Coord_t(23, 49));
+                this.terminal.putString("Slow     ", new Coord_t(23, 49));
             }
             else if (speed == 0)
             {
-                terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 9), new Coord_t(23, 49));
+                this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 9), new Coord_t(23, 49));
                 //putString(&blank_string[BLANK_LENGTH - 9], new Coord_t(23, 49));
             }
             else if (speed == -1)
             {
-                terminal.putString("Fast     ", new Coord_t(23, 49));
+                this.terminal.putString("Fast     ", new Coord_t(23, 49));
             }
             else
             {
-                terminal.putString("Very Fast", new Coord_t(23, 49));
+                this.terminal.putString("Very Fast", new Coord_t(23, 49));
             }
         }
 
-        public static void printCharacterStudyInstruction()
+        public void printCharacterStudyInstruction()
         {
             var py = State.Instance.py;
 
@@ -560,159 +518,159 @@ namespace Moria.Core.Methods
 
             if (py.flags.new_spells_to_learn == 0)
             {
-                terminal.putString(blank_string.Substring(BLANK_LENGTH - 5), new Coord_t(23, 59));
+                this.terminal.putString(this.blank_string.Substring(BLANK_LENGTH - 5), new Coord_t(23, 59));
                 //putString(&blank_string[BLANK_LENGTH - 5], new Coord_t(23, 59));
             }
             else
             {
-                terminal.putString("Study", new Coord_t(23, 59));
+                this.terminal.putString("Study", new Coord_t(23, 59));
             }
         }
 
         // Prints winner status on display -RAK-
-        public static void printCharacterWinner()
+        public void printCharacterWinner()
         {
             var game = State.Instance.game;
             if ((game.noscore & 0x2) != 0)
             {
                 if (game.wizard_mode)
                 {
-                    terminal.putString("Is wizard  ", new Coord_t(22, 0));
+                    this.terminal.putString("Is wizard  ", new Coord_t(22, 0));
                 }
                 else
                 {
-                    terminal.putString("Was wizard ", new Coord_t(22, 0));
+                    this.terminal.putString("Was wizard ", new Coord_t(22, 0));
                 }
             }
             else if ((game.noscore & 0x1) != 0)
             {
-                terminal.putString("Resurrected", new Coord_t(22, 0));
+                this.terminal.putString("Resurrected", new Coord_t(22, 0));
             }
             else if ((game.noscore & 0x4) != 0)
             {
-                terminal.putString("Duplicate", new Coord_t(22, 0));
+                this.terminal.putString("Duplicate", new Coord_t(22, 0));
             }
             else if (game.total_winner)
             {
-                terminal.putString("*Winner*   ", new Coord_t(22, 0));
+                this.terminal.putString("*Winner*   ", new Coord_t(22, 0));
             }
         }
 
         // Prints character-screen info -RAK-
-        public static void printCharacterStatsBlock()
+        public void printCharacterStatsBlock()
         {
             var py = State.Instance.py;
 
-            printCharacterInfoInField(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(2, (int)STAT_COLUMN));
-            printCharacterInfoInField(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(3, (int)STAT_COLUMN));
-            printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
+            this.printCharacterInfoInField(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(2, (int)STAT_COLUMN));
+            this.printCharacterInfoInField(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(3, (int)STAT_COLUMN));
+            this.printCharacterInfoInField(playerRankTitle(), new Coord_t(4, (int)STAT_COLUMN));
 
             for (var i = 0; i < 6; i++)
             {
-                displayCharacterStats(i);
+                this.displayCharacterStats(i);
             }
 
-            printHeaderNumber("LEV ", (int)py.misc.level, new Coord_t(13, (int)STAT_COLUMN));
-            printHeaderLongNumber("EXP ", py.misc.exp, new Coord_t(14, (int)STAT_COLUMN));
-            printHeaderNumber("MANA", py.misc.current_mana, new Coord_t(15, (int)STAT_COLUMN));
-            printHeaderNumber("MHP ", py.misc.max_hp, new Coord_t(16, (int)STAT_COLUMN));
-            printHeaderNumber("CHP ", py.misc.current_hp, new Coord_t(17, (int)STAT_COLUMN));
-            printHeaderNumber("AC  ", py.misc.display_ac, new Coord_t(19, (int)STAT_COLUMN));
-            printHeaderLongNumber("GOLD", py.misc.au, new Coord_t(20, (int)STAT_COLUMN));
-            printCharacterWinner();
+            this.printHeaderNumber("LEV ", (int)py.misc.level, new Coord_t(13, (int)STAT_COLUMN));
+            this.printHeaderLongNumber("EXP ", py.misc.exp, new Coord_t(14, (int)STAT_COLUMN));
+            this.printHeaderNumber("MANA", py.misc.current_mana, new Coord_t(15, (int)STAT_COLUMN));
+            this.printHeaderNumber("MHP ", py.misc.max_hp, new Coord_t(16, (int)STAT_COLUMN));
+            this.printHeaderNumber("CHP ", py.misc.current_hp, new Coord_t(17, (int)STAT_COLUMN));
+            this.printHeaderNumber("AC  ", py.misc.display_ac, new Coord_t(19, (int)STAT_COLUMN));
+            this.printHeaderLongNumber("GOLD", py.misc.au, new Coord_t(20, (int)STAT_COLUMN));
+            this.printCharacterWinner();
 
             var status = py.flags.status;
 
             if (((Config.player_status.PY_HUNGRY | Config.player_status.PY_WEAK) & status) != 0u)
             {
-                printCharacterHungerStatus();
+                this.printCharacterHungerStatus();
             }
 
             if ((status & Config.player_status.PY_BLIND) != 0u)
             {
-                printCharacterBlindStatus();
+                this.printCharacterBlindStatus();
             }
 
             if ((status & Config.player_status.PY_CONFUSED) != 0u)
             {
-                printCharacterConfusedState();
+                this.printCharacterConfusedState();
             }
 
             if ((status & Config.player_status.PY_FEAR) != 0u)
             {
-                printCharacterFearState();
+                this.printCharacterFearState();
             }
 
             if ((status & Config.player_status.PY_POISONED) != 0u)
             {
-                printCharacterPoisonedState();
+                this.printCharacterPoisonedState();
             }
 
             if (((Config.player_status.PY_SEARCH | Config.player_status.PY_REST) & status) != 0u)
             {
-                printCharacterMovementState();
+                this.printCharacterMovementState();
             }
 
             // if speed non zero, print it, modify speed if Searching
             var speed = py.flags.speed - (int)((status & Config.player_status.PY_SEARCH) >> 8);
             if (speed != 0)
             {
-                printCharacterSpeed();
+                this.printCharacterSpeed();
             }
 
             // display the study field
-            printCharacterStudyInstruction();
+            this.printCharacterStudyInstruction();
         }
 
         // Prints the following information on the screen. -JWT-
-        public static void printCharacterInformation()
+        public void printCharacterInformation()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
 
-            terminal.clearScreen();
+            this.terminal.clearScreen();
 
-            terminal.putString("Name        :", new Coord_t(2, 1));
-            terminal.putString("Race        :", new Coord_t(3, 1));
-            terminal.putString("Sex         :", new Coord_t(4, 1));
-            terminal.putString("Class       :", new Coord_t(5, 1));
+            this.terminal.putString("Name        :", new Coord_t(2, 1));
+            this.terminal.putString("Race        :", new Coord_t(3, 1));
+            this.terminal.putString("Sex         :", new Coord_t(4, 1));
+            this.terminal.putString("Class       :", new Coord_t(5, 1));
 
             if (!game.character_generated)
             {
                 return;
             }
 
-            terminal.putString(py.misc.name, new Coord_t(2, 15));
-            terminal.putString(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(3, 15));
-            terminal.putString(playerGetGenderLabel(), new Coord_t(4, 15));
-            terminal.putString(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(5, 15));
+            this.terminal.putString(py.misc.name, new Coord_t(2, 15));
+            this.terminal.putString(Library.Instance.Player.character_races[(int)py.misc.race_id].name, new Coord_t(3, 15));
+            this.terminal.putString(playerGetGenderLabel(), new Coord_t(4, 15));
+            this.terminal.putString(Library.Instance.Player.classes[(int)py.misc.class_id].title, new Coord_t(5, 15));
         }
 
         // Prints the following information on the screen. -JWT-
-        public static void printCharacterStats()
+        public void printCharacterStats()
         {
             var py = State.Instance.py;
             for (var i = 0; i < 6; i++)
             {
-                statsAsString(py.stats.used[i], out var buf);
-                terminal.putString(stat_names[i], new Coord_t(2 + i, 61));
-                terminal.putString(buf, new Coord_t(2 + i, 66));
+                this.statsAsString(py.stats.used[i], out var buf);
+                this.terminal.putString(this.stat_names[i], new Coord_t(2 + i, 61));
+                this.terminal.putString(buf, new Coord_t(2 + i, 66));
 
                 if (py.stats.max[i] > py.stats.current[i])
                 {
-                    statsAsString(py.stats.max[i], out buf);
-                    terminal.putString(buf, new Coord_t(2 + i, 73));
+                    this.statsAsString(py.stats.max[i], out buf);
+                    this.terminal.putString(buf, new Coord_t(2 + i, 73));
                 }
             }
 
-            printHeaderNumber("+ To Hit    ", py.misc.display_to_hit, new Coord_t(9, 1));
-            printHeaderNumber("+ To Damage ", py.misc.display_to_damage, new Coord_t(10, 1));
-            printHeaderNumber("+ To AC     ", py.misc.display_to_ac, new Coord_t(11, 1));
-            printHeaderNumber("  Total AC  ", py.misc.display_ac, new Coord_t(12, 1));
+            this.printHeaderNumber("+ To Hit    ", py.misc.display_to_hit, new Coord_t(9, 1));
+            this.printHeaderNumber("+ To Damage ", py.misc.display_to_damage, new Coord_t(10, 1));
+            this.printHeaderNumber("+ To AC     ", py.misc.display_to_ac, new Coord_t(11, 1));
+            this.printHeaderNumber("  Total AC  ", py.misc.display_ac, new Coord_t(12, 1));
         }
 
         // Returns a rating of x depending on y -JWT-
-        private static string statRating(int y, int x)
+        private string statRating(int y, int x)
         {
             switch (x / y)
             {
@@ -741,45 +699,45 @@ namespace Moria.Core.Methods
         }
 
         // Prints age, height, weight, and SC -JWT-
-        public static void printCharacterVitalStatistics()
+        public void printCharacterVitalStatistics()
         {
             var py = State.Instance.py;
-            printHeaderNumber("Age          ", (int)py.misc.age, new Coord_t(2, 38));
-            printHeaderNumber("Height       ", (int)py.misc.height, new Coord_t(3, 38));
-            printHeaderNumber("Weight       ", (int)py.misc.weight, new Coord_t(4, 38));
-            printHeaderNumber("Social Class ", (int)py.misc.social_class, new Coord_t(5, 38));
+            this.printHeaderNumber("Age          ", (int)py.misc.age, new Coord_t(2, 38));
+            this.printHeaderNumber("Height       ", (int)py.misc.height, new Coord_t(3, 38));
+            this.printHeaderNumber("Weight       ", (int)py.misc.weight, new Coord_t(4, 38));
+            this.printHeaderNumber("Social Class ", (int)py.misc.social_class, new Coord_t(5, 38));
         }
 
         // Prints the following information on the screen. -JWT-
-        public static void printCharacterLevelExperience()
+        public void printCharacterLevelExperience()
         {
             var py = State.Instance.py;
-            printHeaderLongNumber7Spaces("Level      ", (int)py.misc.level, new Coord_t(9, 28));
-            printHeaderLongNumber7Spaces("Experience ", py.misc.exp, new Coord_t(10, 28));
-            printHeaderLongNumber7Spaces("Max Exp    ", py.misc.max_exp, new Coord_t(11, 28));
+            this.printHeaderLongNumber7Spaces("Level      ", (int)py.misc.level, new Coord_t(9, 28));
+            this.printHeaderLongNumber7Spaces("Experience ", py.misc.exp, new Coord_t(10, 28));
+            this.printHeaderLongNumber7Spaces("Max Exp    ", py.misc.max_exp, new Coord_t(11, 28));
 
             if (py.misc.level >= PLAYER_MAX_LEVEL)
             {
-                terminal.putStringClearToEOL("Exp to Adv.: *******", new Coord_t(12, 28));
+                this.terminal.putStringClearToEOL("Exp to Adv.: *******", new Coord_t(12, 28));
             }
             else
             {
-                printHeaderLongNumber7Spaces("Exp to Adv.", (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100), new Coord_t(12, 28));
+                this.printHeaderLongNumber7Spaces("Exp to Adv.", (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100), new Coord_t(12, 28));
             }
 
-            printHeaderLongNumber7Spaces("Gold       ", py.misc.au, new Coord_t(13, 28));
-            printHeaderNumber("Max Hit Points ", py.misc.max_hp, new Coord_t(9, 52));
-            printHeaderNumber("Cur Hit Points ", py.misc.current_hp, new Coord_t(10, 52));
-            printHeaderNumber("Max Mana       ", py.misc.mana, new Coord_t(11, 52));
-            printHeaderNumber("Cur Mana       ", py.misc.current_mana, new Coord_t(12, 52));
+            this.printHeaderLongNumber7Spaces("Gold       ", py.misc.au, new Coord_t(13, 28));
+            this.printHeaderNumber("Max Hit Points ", py.misc.max_hp, new Coord_t(9, 52));
+            this.printHeaderNumber("Cur Hit Points ", py.misc.current_hp, new Coord_t(10, 52));
+            this.printHeaderNumber("Max Mana       ", py.misc.mana, new Coord_t(11, 52));
+            this.printHeaderNumber("Cur Mana       ", py.misc.current_mana, new Coord_t(12, 52));
         }
 
         // Prints ratings on certain abilities -RAK-
-        public static void printCharacterAbilities()
+        public void printCharacterAbilities()
         {
             var py = State.Instance.py;
             var class_level_adj = Library.Instance.Player.class_level_adj;
-            terminal.clearToBottom(14);
+            this.terminal.clearToBottom(14);
 
             var xbth = py.misc.bth + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTH] * (int)py.misc.level;
             var xbthb = py.misc.bth_with_bows + py.misc.plusses_to_hit * (int)BTH_PER_PLUS_TO_HIT_ADJUST + class_level_adj[(int)py.misc.class_id][(int)PlayerClassLevelAdj.BTHB] * (int)py.misc.level;
@@ -806,85 +764,85 @@ namespace Moria.Core.Methods
             //vtype_t xinfra = { '\0' };
             //(void)sprintf(xinfra, "%d feet", py.flags.see_infra * 10);
 
-            terminal.putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
-            terminal.putString("Fighting    :", new Coord_t(16, 1));
-            terminal.putString(statRating(12, xbth), new Coord_t(16, 15));
-            terminal.putString("Bows/Throw  :", new Coord_t(17, 1));
-            terminal.putString(statRating(12, xbthb), new Coord_t(17, 15));
-            terminal.putString("Saving Throw:", new Coord_t(18, 1));
-            terminal.putString(statRating(6, xsave), new Coord_t(18, 15));
+            this.terminal.putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
+            this.terminal.putString("Fighting    :", new Coord_t(16, 1));
+            this.terminal.putString(this.statRating(12, xbth), new Coord_t(16, 15));
+            this.terminal.putString("Bows/Throw  :", new Coord_t(17, 1));
+            this.terminal.putString(this.statRating(12, xbthb), new Coord_t(17, 15));
+            this.terminal.putString("Saving Throw:", new Coord_t(18, 1));
+            this.terminal.putString(this.statRating(6, xsave), new Coord_t(18, 15));
 
-            terminal.putString("Stealth     :", new Coord_t(16, 28));
-            terminal.putString(statRating(1, xstl), new Coord_t(16, 42));
-            terminal.putString("Disarming   :", new Coord_t(17, 28));
-            terminal.putString(statRating(8, xdis), new Coord_t(17, 42));
-            terminal.putString("Magic Device:", new Coord_t(18, 28));
-            terminal.putString(statRating(6, xdev), new Coord_t(18, 42));
+            this.terminal.putString("Stealth     :", new Coord_t(16, 28));
+            this.terminal.putString(this.statRating(1, xstl), new Coord_t(16, 42));
+            this.terminal.putString("Disarming   :", new Coord_t(17, 28));
+            this.terminal.putString(this.statRating(8, xdis), new Coord_t(17, 42));
+            this.terminal.putString("Magic Device:", new Coord_t(18, 28));
+            this.terminal.putString(this.statRating(6, xdev), new Coord_t(18, 42));
 
-            terminal.putString("Perception  :", new Coord_t(16, 55));
-            terminal.putString(statRating(3, xfos), new Coord_t(16, 69));
-            terminal.putString("Searching   :", new Coord_t(17, 55));
-            terminal.putString(statRating(6, xsrh), new Coord_t(17, 69));
-            terminal.putString("Infra-Vision:", new Coord_t(18, 55));
-            terminal.putString(xinfra, new Coord_t(18, 69));
+            this.terminal.putString("Perception  :", new Coord_t(16, 55));
+            this.terminal.putString(this.statRating(3, xfos), new Coord_t(16, 69));
+            this.terminal.putString("Searching   :", new Coord_t(17, 55));
+            this.terminal.putString(this.statRating(6, xsrh), new Coord_t(17, 69));
+            this.terminal.putString("Infra-Vision:", new Coord_t(18, 55));
+            this.terminal.putString(xinfra, new Coord_t(18, 69));
         }
 
         // Used to display the character on the screen. -RAK-
-        public static void printCharacter()
+        public void printCharacter()
         {
-            printCharacterInformation();
-            printCharacterVitalStatistics();
-            printCharacterStats();
-            printCharacterLevelExperience();
-            printCharacterAbilities();
+            this.printCharacterInformation();
+            this.printCharacterVitalStatistics();
+            this.printCharacterStats();
+            this.printCharacterLevelExperience();
+            this.printCharacterAbilities();
         }
 
         // Gets a name for the character -JWT-
-        public static void getCharacterName()
+        public void getCharacterName()
         {
             var py = State.Instance.py;
-            terminal.putStringClearToEOL("Enter your player's name  [press <RETURN> when finished]", new Coord_t(21, 2));
+            this.terminal.putStringClearToEOL("Enter your player's name  [press <RETURN> when finished]", new Coord_t(21, 2));
 
-            terminal.putString(blank_string.Substring(0, BLANK_LENGTH - 23), new Coord_t(2, 15));
+            this.terminal.putString(this.blank_string.Substring(0, BLANK_LENGTH - 23), new Coord_t(2, 15));
             //putString(&blank_string[BLANK_LENGTH - 23], new Coord_t(2, 15));
 
-            var getStringInputResult = terminal.getStringInput(out var name, new Coord_t(2, 15), 23);
+            var getStringInputResult = this.terminal.getStringInput(out var name, new Coord_t(2, 15), 23);
             py.misc.name = name;
             if (!getStringInputResult || string.IsNullOrEmpty(py.misc.name))
             {
-                terminal.getDefaultPlayerName(out var defaultName);
+                this.terminal.getDefaultPlayerName(out var defaultName);
                 py.misc.name = defaultName;
-                terminal.putString(py.misc.name, new Coord_t(2, 15));
+                this.terminal.putString(py.misc.name, new Coord_t(2, 15));
             }
 
-            terminal.clearToBottom(20);
+            this.terminal.clearToBottom(20);
         }
 
         // Changes the name of the character -JWT-
-        public static void changeCharacterName()
+        public void changeCharacterName()
         {
             //vtype_t temp = { '\0' };
             var flag = false;
 
-            printCharacter();
+            this.printCharacter();
 
             while (!flag)
             {
-                terminal.putStringClearToEOL("<f>ile character description. <c>hange character name.", new Coord_t(21, 2));
+                this.terminal.putStringClearToEOL("<f>ile character description. <c>hange character name.", new Coord_t(21, 2));
 
-                switch (terminal.getKeyInput())
+                switch (this.terminal.getKeyInput())
                 {
                     case 'c':
-                        getCharacterName();
+                        this.getCharacterName();
                         flag = true;
                         break;
                     case 'f':
-                        terminal.putStringClearToEOL("File name:", new Coord_t(0, 0));
+                        this.terminal.putStringClearToEOL("File name:", new Coord_t(0, 0));
 
                         string temp;
-                        if (terminal.getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
+                        if (this.terminal.getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
                         {
-                            if (gameFiles.outputPlayerCharacterToFile(temp))
+                            if (this.gameFiles.outputPlayerCharacterToFile(temp))
                             {
                                 flag = true;
                             }
@@ -897,14 +855,14 @@ namespace Moria.Core.Methods
                         flag = true;
                         break;
                     default:
-                        terminal.terminalBellSound();
+                        this.terminal.terminalBellSound();
                         break;
                 }
             }
         }
 
         // Increases hit points and level -RAK-
-        private static void playerGainLevel()
+        private void playerGainLevel()
         {
             var py = State.Instance.py;
             py.misc.level++;
@@ -912,7 +870,7 @@ namespace Moria.Core.Methods
             var msg = $"Welcome to level {(int)py.misc.level}";
             //vtype_t msg = { '\0' };
             //(void)sprintf(msg, "Welcome to level %d.", (int)py.misc.level);
-            terminal.printMessage(msg);
+            this.terminal.printMessage(msg);
 
             playerCalculateHitPoints();
 
@@ -925,8 +883,8 @@ namespace Moria.Core.Methods
                 py.misc.exp = new_exp + dif_exp / 2;
             }
 
-            printCharacterLevel();
-            printCharacterTitle();
+            this.printCharacterLevel();
+            this.printCharacterTitle();
 
             var player_class = Library.Instance.Player.classes[(int)py.misc.class_id];
 
@@ -943,7 +901,7 @@ namespace Moria.Core.Methods
         }
 
         // Prints experience -RAK-
-        public static void displayCharacterExperience()
+        public void displayCharacterExperience()
         {
             var py = State.Instance.py;
             if (py.misc.exp > Config.player.PLAYER_MAX_EXP)
@@ -953,7 +911,7 @@ namespace Moria.Core.Methods
 
             while (py.misc.level < PLAYER_MAX_LEVEL && (int)(py.base_exp_levels[py.misc.level - 1] * py.misc.experience_factor / 100) <= py.misc.exp)
             {
-                playerGainLevel();
+                this.playerGainLevel();
             }
 
             if (py.misc.exp > py.misc.max_exp)
@@ -961,7 +919,7 @@ namespace Moria.Core.Methods
                 py.misc.max_exp = py.misc.exp;
             }
 
-            printLongNumber(py.misc.exp, new Coord_t(14, (int)STAT_COLUMN + 6));
+            this.printLongNumber(py.misc.exp, new Coord_t(14, (int)STAT_COLUMN + 6));
         }
     }
 }

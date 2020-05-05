@@ -15,18 +15,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IEventPublisher eventPublisher;
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly ITerminalEx terminalEx;
 
         public BuildWallCommandHandler(
             IDice dice,
             IEventPublisher eventPublisher,
             IDungeon dungeon,
-            IHelpers helpers
+            IHelpers helpers,
+            ITerminalEx terminalEx
         )
         {
             this.dice = dice;
             this.eventPublisher = eventPublisher;
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.terminalEx = terminalEx;
         }
 
         void ICommandHandler<BuildWallCommand>.Handle(BuildWallCommand command)
@@ -103,7 +106,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
                         {
                             Monster_m.printMonsterActionText(name, "is embedded in the rock.");
-                            Ui_m.displayCharacterExperience();
+                            this.terminalEx.displayCharacterExperience();
                         }
                     }
                     else if (creature.sprite == 'E' || creature.sprite == 'X')

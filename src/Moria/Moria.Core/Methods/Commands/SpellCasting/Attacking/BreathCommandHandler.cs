@@ -11,6 +11,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     {
         private readonly IDungeon dungeon;
         private readonly IDungeonLos dungeonLos;
+        private readonly IHelpers helpers;
         private readonly IInventory inventory;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
@@ -18,6 +19,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         public BreathCommandHandler(
             IDungeon dungeon,
             IDungeonLos dungeonLos,
+            IHelpers helpers,
             IInventory inventory,
             ISpells spells,
             ITerminal terminal
@@ -25,6 +27,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         {
             this.dungeon = dungeon;
             this.dungeonLos = dungeonLos;
+            this.helpers = helpers;
             this.inventory = inventory;
             this.spells = spells;
             this.terminal = terminal;
@@ -73,7 +76,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             // must test status bit, not py.flags.blind here, flag could have
                             // been set by a previous monster, but the breath should still
                             // be visible until the blindness takes effect
-                            if (Ui_m.coordInsidePanel(location) && (py.flags.status & Config.player_status.PY_BLIND) == 0u)
+                            if (this.helpers.coordInsidePanel(location) && (py.flags.status & Config.player_status.PY_BLIND) == 0u)
                             {
                                 this.terminal.panelPutTile('*', location);
                             }
@@ -175,7 +178,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             {
                 for (spot.x = coord.x - 2; spot.x <= coord.x + 2; spot.x++)
                 {
-                    if (this.dungeon.coordInBounds(spot) && Ui_m.coordInsidePanel(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance)
+                    if (this.dungeon.coordInBounds(spot) && this.helpers.coordInsidePanel(spot) && this.dungeon.coordDistanceBetween(coord, spot) <= max_distance)
                     {
                         this.dungeon.dungeonLiteSpot(spot);
                     }

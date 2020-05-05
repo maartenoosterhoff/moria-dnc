@@ -13,18 +13,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeon dungeon;
         private readonly IEventPublisher eventPublisher;
         private readonly IRnd rnd;
+        private readonly ITerminalEx terminalEx;
 
         public EarthquakeCommandHandler(
             IDice dice,
             IDungeon dungeon,
             IEventPublisher eventPublisher,
-            IRnd rnd
+            IRnd rnd,
+            ITerminalEx terminalEx
         )
         {
             this.dice = dice;
             this.dungeon = dungeon;
             this.eventPublisher = eventPublisher;
             this.rnd = rnd;
+            this.terminalEx = terminalEx;
         }
 
         public void Handle(EarthquakeCommand command)
@@ -120,7 +123,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 //                if (Monster_m.monsterTakeHit(monster_id, damage) >= 0)
                 {
                     Monster_m.printMonsterActionText(name, "is embedded in the rock.");
-                    Ui_m.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
                 }
             }
             else if (creature.sprite == 'E' || creature.sprite == 'X')

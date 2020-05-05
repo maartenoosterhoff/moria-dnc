@@ -5,7 +5,6 @@ using Moria.Core.Structures;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -612,7 +611,7 @@ namespace Moria.Core.Methods
             coord.y = py.pos.y + this.los_fyx * coord.x + this.los_fyy * coord.y;
             coord.x = j;
 
-            if (!coordInsidePanel(coord))
+            if (!this.helpers.coordInsidePanel(coord))
             {
                 transparent = false;
                 return false;

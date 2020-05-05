@@ -4,7 +4,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using static Moria.Core.Constants.Game_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -21,17 +20,20 @@ namespace Moria.Core.Methods
         public Game_objects_m(
             IDungeon dungeon,
             IRnd rnd,
-            ITerminal terminal
+            ITerminal terminal,
+            ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
             this.rnd = rnd;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
         private readonly IDungeon dungeon;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
         // If too many objects on floor level, delete some of them-RAK-
         private void compactObjects()
@@ -99,7 +101,7 @@ namespace Moria.Core.Methods
 
             if (current_distance < 66)
             {
-                drawDungeonPanel();
+                this.terminalEx.drawDungeonPanel();
             }
         }
 

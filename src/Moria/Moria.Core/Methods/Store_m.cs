@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Store_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IStoreInventory storeInventory,
             IRnd rnd,
             ITerminal terminal,
+            ITerminalEx terminalEx,
             IUiInventory uiInventory
         )
         {
@@ -37,6 +37,7 @@ namespace Moria.Core.Methods
             Store_m.storeInventory = storeInventory;
             Store_m.rnd = rnd;
             Store_m.terminal = terminal;
+            Store_m.terminalEx = terminalEx;
             Store_m.uiInventory = uiInventory;
         }
 
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
         private static IStoreInventory storeInventory;
         private static IRnd rnd;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
         private static IUiInventory uiInventory;
 
         // Initializes the stores with owners -RAK-
@@ -1473,7 +1475,7 @@ namespace Moria.Core.Methods
             }
 
             // Can't save and restore the screen because inventoryExecuteCommand() does that.
-            drawCavePanel();
+            terminalEx.drawCavePanel();
         }
 
         // eliminate need to bargain if player has haggled well in the past -DJB-

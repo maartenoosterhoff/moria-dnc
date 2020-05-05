@@ -1,4 +1,7 @@
 ﻿using System;
+using Moria.Core.Configs;
+using Moria.Core.Constants;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.States;
 using Moria.Core.Structures;
 
@@ -16,10 +19,23 @@ namespace Moria.Core.Methods
         bool movePosition(int dir, ref Coord_t coord);
 
         bool playerNoLight();
+
+        bool coordInsidePanel(Coord_t coord);
+
+        bool coordOutsidePanel(Coord_t coord, bool force);
     }
 
     public class Helpers_m : IHelpers
     {
+        private readonly IEventPublisher eventPublisher;
+
+        public Helpers_m(
+            IEventPublisher eventPublisher
+        )
+        {
+            this.eventPublisher = eventPublisher;
+        }
+
         // Returns position of first set bit and clears that bit -RAK-
         public int getAndClearFirstBit(ref uint flag)
         {
@@ -172,6 +188,83 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
 
             return !dg.floor[py.pos.y][py.pos.x].temporary_light && !dg.floor[py.pos.y][py.pos.x].permanent_light;
+        }
+
+        // Is the given coordinate within the screen panel boundaries -RAK-
+        public bool coordInsidePanel(Coord_t coord)
+        {
+            var dg = State.Instance.dg;
+            var valid_y = coord.y >= dg.panel.top && coord.y <= dg.panel.bottom;
+            var valid_x = coord.x >= dg.panel.left && coord.x <= dg.panel.right;
+
+            return valid_y && valid_x;
+        }
+
+        // Calculates current boundaries -RAK-
+        private void panelBounds()
+        {
+            var dg = State.Instance.dg;
+            dg.panel.top = dg.panel.row * ((int)Dungeon_c.SCREEN_HEIGHT / 2);
+            dg.panel.bottom = dg.panel.top + (int)Dungeon_c.SCREEN_HEIGHT - 1;
+            dg.panel.row_prt = dg.panel.top - 1;
+            dg.panel.left = dg.panel.col * ((int)Dungeon_c.SCREEN_WIDTH / 2);
+            dg.panel.right = dg.panel.left + (int)Dungeon_c.SCREEN_WIDTH - 1;
+            dg.panel.col_prt = dg.panel.left - 13;
+        }
+
+        // Given an row (y) and col (x), this routine detects -RAK-
+        // when a move off the screen has occurred and figures new borders.
+        // `force` forces the panel bounds to be recalculated, useful for 'W'here.
+        public bool coordOutsidePanel(Coord_t coord, bool force)
+        {
+            var dg = State.Instance.dg;
+            var panel = new Coord_t(dg.panel.row, dg.panel.col);
+
+            if (force || coord.y < dg.panel.top + 2 || coord.y > dg.panel.bottom - 2)
+            {
+                panel.y = (coord.y - (int)Dungeon_c.SCREEN_HEIGHT / 4) / ((int)Dungeon_c.SCREEN_HEIGHT / 2);
+
+                if (panel.y > dg.panel.max_rows)
+                {
+                    panel.y = dg.panel.max_rows;
+                }
+                else if (panel.y < 0)
+                {
+                    panel.y = 0;
+                }
+            }
+
+            if (force || coord.x < dg.panel.left + 3 || coord.x > dg.panel.right - 3)
+            {
+                panel.x = (coord.x - (int)Dungeon_c.SCREEN_WIDTH / 4) / ((int)Dungeon_c.SCREEN_WIDTH / 2);
+                if (panel.x > dg.panel.max_cols)
+                {
+                    panel.x = dg.panel.max_cols;
+                }
+                else if (panel.x < 0)
+                {
+                    panel.x = 0;
+                }
+            }
+
+            if (panel.y != dg.panel.row || panel.x != dg.panel.col)
+            {
+                dg.panel.row = panel.y;
+                dg.panel.col = panel.x;
+                this.panelBounds();
+
+                // stop movement if any
+                if (Config.options.find_bound)
+                {
+                    this.eventPublisher.Publish(new EndRunningCommand());
+                    //playerEndRunning();
+                }
+
+                // Yes, the coordinates are beyond the current panel boundary
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -22,18 +21,21 @@ namespace Moria.Core.Methods
         private readonly IGameFiles gameFiles;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
         public Character_m(
             IGame game,
             IGameFiles gameFiles,
             IRnd rnd,
-            ITerminal terminal
+            ITerminal terminal,
+            ITerminalEx terminalEx
         )
         {
             this.game = game;
             this.gameFiles = gameFiles;
             this.rnd = rnd;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
         // Generates character's stats -JWT-
@@ -612,7 +614,7 @@ namespace Moria.Core.Methods
         // Main Character Creation Routine -JWT-
         public void characterCreate()
         {
-            printCharacterInformation();
+            this.terminalEx.printCharacterInformation();
             this.characterChooseRace();
             this.characterSetGender();
 
@@ -624,8 +626,8 @@ namespace Moria.Core.Methods
                 this.characterGetHistory();
                 this.characterSetAgeHeightWeight();
                 this.displayCharacterHistory();
-                printCharacterVitalStatistics();
-                printCharacterStats();
+                this.terminalEx.printCharacterVitalStatistics();
+                this.terminalEx.printCharacterStats();
 
                 this.terminal.clearToBottom(20);
                 this.terminal.putString("Hit space to re-roll or ESC to accept characteristics: ", new Coord_t(20, 2));
@@ -649,10 +651,10 @@ namespace Moria.Core.Methods
 
             this.characterGetClass();
             this.playerCalculateStartGold();
-            printCharacterStats();
-            printCharacterLevelExperience();
-            printCharacterAbilities();
-            getCharacterName();
+            this.terminalEx.printCharacterStats();
+            this.terminalEx.printCharacterLevelExperience();
+            this.terminalEx.printCharacterAbilities();
+            this.terminalEx.getCharacterName();
 
             this.terminal.putStringClearToEOL("[ press any key to continue, or Q to exit ]", new Coord_t(23, 17));
             if (this.terminal.getKeyInput() == 'Q')

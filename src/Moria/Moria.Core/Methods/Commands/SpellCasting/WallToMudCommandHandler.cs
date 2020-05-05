@@ -18,6 +18,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IIdentification identification;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
 
         public WallToMudCommandHandler(
             IDungeon dungeon,
@@ -26,7 +27,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             IHelpers helpers,
             IIdentification identification,
             IRnd rnd,
-            ITerminal terminal
+            ITerminal terminal,
+            ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
@@ -36,6 +38,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             this.identification = identification;
             this.rnd = rnd;
             this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
         void ICommandHandler<WallToMudCommand>.Handle(WallToMudCommand command)
         {
@@ -91,7 +94,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                 {
                     finished = true;
 
-                    if (Ui_m.coordInsidePanel(coord) && this.dungeon.caveTileVisible(coord))
+                    if (this.helpers.coordInsidePanel(coord) && this.dungeon.caveTileVisible(coord))
                     {
                         turned = true;
 
@@ -141,7 +144,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         {
                             State.Instance.creature_recall[creature_id].defenses |= Config.monsters_defense.CD_STONE;
                             Monster_m.printMonsterActionText(name, "dissolves!");
-                            Ui_m.displayCharacterExperience(); // print msg before calling prt_exp
+                            this.terminalEx.displayCharacterExperience(); // print msg before calling prt_exp
                         }
                         else
                         {

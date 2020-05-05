@@ -9,7 +9,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
-using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
 {
@@ -24,6 +23,7 @@ namespace Moria.Core.Methods
             IRnd rnd,
             IStd std,
             ITerminal terminal,
+            ITerminalEx terminalEx,
 
             IEventPublisher eventPublisher
         )
@@ -36,6 +36,7 @@ namespace Moria.Core.Methods
             Player_bash_m.rnd = rnd;
             Player_bash_m.std = std;
             Player_bash_m.terminal = terminal;
+            Player_bash_m.terminalEx = terminalEx;
 
             Player_bash_m.eventPublisher = eventPublisher;
         }
@@ -48,6 +49,7 @@ namespace Moria.Core.Methods
         private static IRnd rnd;
         private static IStd std;
         private static ITerminal terminal;
+        private static ITerminalEx terminalEx;
 
         private static IEventPublisher eventPublisher;
 
@@ -196,7 +198,7 @@ namespace Moria.Core.Methods
                     msg = $"You have slain {name}.";
                     //(void)sprintf(msg, "You have slain %s.", name);
                     terminal.printMessage(msg);
-                    displayCharacterExperience();
+                    terminalEx.displayCharacterExperience();
                 }
                 else
                 {
