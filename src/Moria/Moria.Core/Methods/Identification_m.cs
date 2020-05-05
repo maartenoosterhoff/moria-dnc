@@ -39,8 +39,6 @@ namespace Moria.Core.Methods
 
         void identifyGameObject();
 
-        void itemInscribe();
-
         void magicInitializeItemNames();
 
         void itemChargesRemainingDescription(int item_id);
@@ -60,7 +58,6 @@ namespace Moria.Core.Methods
         private readonly IRnd rnd;
         private readonly IStd std;
         private readonly ITerminal terminal;
-        private readonly IUiInventory uiInventory;
 
         public Identification_m(
             IHelpers helpers,
@@ -68,8 +65,7 @@ namespace Moria.Core.Methods
             IRecall recall,
             IRnd rnd,
             IStd std,
-            ITerminal terminal,
-            IUiInventory uiInventory
+            ITerminal terminal
         )
         {
             this.helpers = helpers;
@@ -78,7 +74,6 @@ namespace Moria.Core.Methods
             this.rnd = rnd;
             this.std = std;
             this.terminal = terminal;
-            this.uiInventory = uiInventory;
         }
 
         private string objectDescription(char command)
@@ -1124,57 +1119,6 @@ namespace Moria.Core.Methods
             out_val = $"You have {tmp_str}";
             //(void)sprintf(out_val, "You have %s", tmp_str);
             this.terminal.printMessage(out_val);
-        }
-
-        // Add a comment to an object description. -CJS-
-        public void itemInscribe()
-        {
-            var py = State.Instance.py;
-            if (py.pack.unique_items == 0 && py.equipment_count == 0)
-            {
-                this.terminal.printMessage("You are not carrying anything to inscribe.");
-                return;
-            }
-
-            var item_id = 0;
-            if (!this.uiInventory.inventoryGetInputForItemId(out item_id, "Which one? ", 0, (int)PLAYER_INVENTORY_SIZE, null /*CNIL*/, null /*CNIL*/))
-            {
-                return;
-            }
-
-            //obj_desc_t msg = { '\0' };
-            this.itemDescription(out var msg, py.inventory[item_id], true);
-
-            //obj_desc_t inscription = { '\0' };
-            var inscription = $"Inscribing {msg}";
-            //(void)sprintf(inscription, "Inscribing %s", msg);
-
-            this.terminal.printMessage(inscription);
-
-            if (!string.IsNullOrEmpty(py.inventory[item_id].inscription))
-            //if (py.inventory[item_id].inscription[0] != '\0')
-            {
-                inscription = $"Replace {py.inventory[item_id].inscription} New inscription:";
-                //(void)sprintf(inscription, "Replace %s New inscription:", py.inventory[item_id].inscription);
-            }
-            else
-            {
-                inscription = "Inscription: ";
-                //(void)strcpy(inscription, "Inscription: ");
-            }
-
-            var msg_len = 78 - msg.Length;//(int)strlen(msg);
-            if (msg_len > 12)
-            {
-                msg_len = 12;
-            }
-
-            this.terminal.putStringClearToEOL(inscription, new Coord_t(0, 0));
-
-            if (this.terminal.getStringInput(out inscription, new Coord_t(0, inscription.Length), msg_len))
-            {
-                this.itemReplaceInscription(py.inventory[item_id], inscription);
-            }
         }
 
         // Append an additional comment to an object description. -CJS-

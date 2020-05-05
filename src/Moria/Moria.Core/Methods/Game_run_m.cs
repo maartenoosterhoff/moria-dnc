@@ -7,6 +7,7 @@ using Moria.Core.Utils;
 using System;
 using Moria.Core.Data;
 using Moria.Core.Methods.Commands;
+using Moria.Core.Methods.Commands.Identification;
 using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
@@ -2182,7 +2183,8 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case '{': // ({) inscribe an object
-                    identification.itemInscribe();
+                    eventPublisher.Publish(new InscribeCommand());
+                    //identification.itemInscribe();
                     game.player_free_turn = true;
                     break;
                 case '!':    // (!) escape to the shell
