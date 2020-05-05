@@ -13,13 +13,11 @@ using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Monster_m;
-using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
     public interface IMageSpells
     {
-        int spellChanceOfSuccess(int spell_id);
         void getAndCastMagicSpell();
     }
 
@@ -402,44 +400,6 @@ namespace Moria.Core.Methods
             }
 
             this.terminalEx.printCharacterCurrentMana();
-        }
-
-        // Returns spell chance of failure for class_to_use_mage_spells -RAK-
-        public int spellChanceOfSuccess(int spell_id)
-        {
-            var py = State.Instance.py;
-
-            var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
-
-            var chance = (int)(spell.failure_chance - 3 * (py.misc.level - spell.level_required));
-
-            int stat;
-            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
-            {
-                stat = (int)PlayerAttr.INT;
-            }
-            else
-            {
-                stat = (int)PlayerAttr.WIS;
-            }
-
-            chance -= 3 * (playerStatAdjustmentWisdomIntelligence(stat) - 1);
-
-            if (spell.mana_required > py.misc.current_mana)
-            {
-                chance += 5 * ((int)spell.mana_required - py.misc.current_mana);
-            }
-
-            if (chance > 95)
-            {
-                chance = 95;
-            }
-            else if (chance < 5)
-            {
-                chance = 5;
-            }
-
-            return chance;
         }
     }
 }

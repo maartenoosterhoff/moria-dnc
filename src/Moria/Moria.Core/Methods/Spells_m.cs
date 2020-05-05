@@ -4,6 +4,7 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using System;
 using Moria.Core.Data;
+using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
@@ -21,19 +22,16 @@ namespace Moria.Core.Methods
     {
         private readonly IHelpers helpers;
         private readonly IInventory inventory;
-        private readonly IMageSpells mageSpells;
         private readonly ITerminal terminal;
 
         public Spells_m(
             IHelpers helpers,
             IInventory inventory,
-            IMageSpells mageSpells,
             ITerminal terminal
         )
         {
             this.helpers = helpers;
             this.inventory = inventory;
-            this.mageSpells = mageSpells;
             this.terminal = terminal;
         }
 
@@ -112,7 +110,7 @@ namespace Moria.Core.Methods
                     spell_char = (char)('a' + spell_id - non_consecutive);
                 }
 
-                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset].PadRight(30)}{spell.level_required,2:d} {spell.mana_required,4:d} {this.mageSpells.spellChanceOfSuccess(spell_id),3:d}%{p}";
+                var out_val = $"  {spell_char}) {Library.Instance.Player.spell_names[spell_id + consecutive_offset].PadRight(30)}{spell.level_required,2:d} {spell.mana_required,4:d} {this.spellChanceOfSuccess(spell_id),3:d}%{p}";
                 //vtype_t out_val = { '\0' };
                 //(void)sprintf(out_val,
                 //    "  %c) %-30s%2d %4d %3d%%%s",
@@ -173,7 +171,7 @@ namespace Moria.Core.Methods
                     {
                         var spell = magic_spells[(int)py.misc.class_id - 1][spell_id];
 
-                        var tmp_str = $"Cast {spell_names[spell_id + offset]} ({spell.mana_required} mana, {this.mageSpells.spellChanceOfSuccess(spell_id)}% fail)?";
+                        var tmp_str = $"Cast {spell_names[spell_id + offset]} ({spell.mana_required} mana, {this.spellChanceOfSuccess(spell_id)}% fail)?";
                         //vtype_t tmp_str = { '\0' };
                         //(void)sprintf(tmp_str, "Cast %s (%d mana, %d%% fail)?", spell_names[spell_id + offset], spell.mana_required, spellChanceOfSuccess(spell_id));
                         if (this.terminal.getInputConfirmation(tmp_str))
@@ -249,7 +247,7 @@ namespace Moria.Core.Methods
 
             if (spell_found)
             {
-                spell_chance = this.mageSpells.spellChanceOfSuccess(spell_id);
+                spell_chance = this.spellChanceOfSuccess(spell_id);
             }
 
             return spell_found;
@@ -358,6 +356,44 @@ namespace Moria.Core.Methods
                     this.terminal.printMessage("ERROR in spellGetAreaAffectFlags()\n");
                     break;
             }
+        }
+
+        // Returns spell chance of failure for class_to_use_mage_spells -RAK-
+        public int spellChanceOfSuccess(int spell_id)
+        {
+            var py = State.Instance.py;
+
+            var spell = Library.Instance.Player.magic_spells[(int)py.misc.class_id - 1][spell_id];
+
+            var chance = (int)(spell.failure_chance - 3 * (py.misc.level - spell.level_required));
+
+            int stat;
+            if (Library.Instance.Player.classes[(int)py.misc.class_id].class_to_use_mage_spells == Config.spells.SPELL_TYPE_MAGE)
+            {
+                stat = (int)PlayerAttr.INT;
+            }
+            else
+            {
+                stat = (int)PlayerAttr.WIS;
+            }
+
+            chance -= 3 * (playerStatAdjustmentWisdomIntelligence(stat) - 1);
+
+            if (spell.mana_required > py.misc.current_mana)
+            {
+                chance += 5 * ((int)spell.mana_required - py.misc.current_mana);
+            }
+
+            if (chance > 95)
+            {
+                chance = 95;
+            }
+            else if (chance < 5)
+            {
+                chance = 5;
+            }
+
+            return chance;
         }
     }
 }
