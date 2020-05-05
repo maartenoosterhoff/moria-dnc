@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_run_m;
 using static Moria.Core.Methods.Store_m;
 using static Moria.Core.Methods.Ui_m;

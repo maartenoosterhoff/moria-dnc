@@ -1,5 +1,4 @@
-﻿using System.Transactions;
-using Moria.Core.Configs;
+﻿using Moria.Core.Configs;
 using Moria.Core.Methods.Commands.SpellCasting;
 using Moria.Core.Methods.Commands.SpellCasting.Attacking;
 using Moria.Core.Methods.Commands.SpellCasting.Defending;
