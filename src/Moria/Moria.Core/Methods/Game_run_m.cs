@@ -30,7 +30,6 @@ using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_throw_m;
 using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Scores_m;
-using static Moria.Core.Methods.Scrolls_m;
 using static Moria.Core.Methods.Store_m;
 
 namespace Moria.Core.Methods
@@ -55,6 +54,7 @@ namespace Moria.Core.Methods
             IPlayerQuaff playerQuaff,
             IPlayerTunnel playerTunnel,
             IRnd rnd,
+            IScrolls scrolls,
             ISpells spells,
             IStaffs staffs,
             IStoreInventory storeInventory,
@@ -83,6 +83,7 @@ namespace Moria.Core.Methods
             Game_run_m.playerQuaff = playerQuaff;
             Game_run_m.playerTunnel = playerTunnel;
             Game_run_m.rnd = rnd;
+            Game_run_m.scrolls = scrolls;
             Game_run_m.staffs = staffs;
             Game_run_m.spells = spells;
             Game_run_m.storeInventory = storeInventory;
@@ -112,6 +113,7 @@ namespace Moria.Core.Methods
         private static IPlayerQuaff playerQuaff;
         private static IPlayerTunnel playerTunnel;
         private static IRnd rnd;
+        private static IScrolls scrolls;
         private static ISpells spells;
         private static IStaffs staffs;
         private static IStoreInventory storeInventory;
@@ -2399,7 +2401,7 @@ namespace Moria.Core.Methods
                     playerQuaff.quaff();
                     break;
                 case 'r': // (r)ead
-                    scrollRead();
+                    scrolls.scrollRead();
                     break;
                 case 's': // (s)earch for a turn
                     playerSearch(State.Instance.py.pos, State.Instance.py.misc.chance_in_search);
