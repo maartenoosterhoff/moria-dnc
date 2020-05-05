@@ -15,6 +15,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IEventPublisher eventPublisher;
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly ITerminalEx terminalEx;
 
         public BuildWallCommandHandler(
@@ -22,6 +23,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             IEventPublisher eventPublisher,
             IDungeon dungeon,
             IHelpers helpers,
+            IMonster monster,
             ITerminalEx terminalEx
         )
         {
@@ -29,6 +31,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             this.eventPublisher = eventPublisher;
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.monster = monster;
             this.terminalEx = terminalEx;
         }
 
@@ -95,9 +98,9 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                             damage = this.dice.diceRoll(new Dice_t(4, 8));
                         }
 
-                        var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                        var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
-                        Monster_m.printMonsterActionText(name, "wails out in pain!");
+                        this.monster.printMonsterActionText(name, "wails out in pain!");
 
                         var creature_id = this.eventPublisher.PublishWithOutputInt(
                             new TakeHitCommand((int)tile.creature_id, damage)
@@ -105,7 +108,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         if (creature_id >= 0)
                         //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
                         {
-                            Monster_m.printMonsterActionText(name, "is embedded in the rock.");
+                            this.monster.printMonsterActionText(name, "is embedded in the rock.");
                             this.terminalEx.displayCharacterExperience();
                         }
                     }

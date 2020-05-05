@@ -16,6 +16,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
         private readonly ITerminalEx terminalEx;
@@ -26,6 +27,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             IEventPublisher eventPublisher,
             IHelpers helpers,
             IIdentification identification,
+            IMonster monster,
             IRnd rnd,
             ITerminal terminal,
             ITerminalEx terminalEx
@@ -36,6 +38,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
             this.identification = identification;
+            this.monster = monster;
             this.rnd = rnd;
             this.terminal = terminal;
             this.terminalEx = terminalEx;
@@ -133,7 +136,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
 
                     if ((creature.defenses & Config.monsters_defense.CD_STONE) != 0)
                     {
-                        var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                        var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                         // Should get these messages even if the monster is not visible.
                         var creature_id = this.eventPublisher.PublishWithOutputInt(
@@ -143,13 +146,13 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                         if (creature_id >= 0)
                         {
                             State.Instance.creature_recall[creature_id].defenses |= Config.monsters_defense.CD_STONE;
-                            Monster_m.printMonsterActionText(name, "dissolves!");
+                            this.monster.printMonsterActionText(name, "dissolves!");
                             this.terminalEx.displayCharacterExperience(); // print msg before calling prt_exp
                         }
                         else
                         {
                             State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_STONE;
-                            Monster_m.printMonsterActionText(name, "grunts in pain!");
+                            this.monster.printMonsterActionText(name, "grunts in pain!");
                         }
                         finished = true;
                     }

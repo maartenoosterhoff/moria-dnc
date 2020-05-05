@@ -7,14 +7,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
     public class TeleportAwayMonsterCommandHandler : ICommandHandler<TeleportAwayMonsterCommand>
     {
         private readonly IDungeon dungeon;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
 
         public TeleportAwayMonsterCommandHandler(
             IDungeon dungeon,
+            IMonster monster,
             IRnd rnd
         )
         {
             this.dungeon = dungeon;
+            this.monster = monster;
             this.rnd = rnd;
         }
 
@@ -62,7 +65,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Defending
             monster.lit = false;
             monster.distance_from_player = (uint) this.dungeon.coordDistanceBetween(State.Instance.py.pos, coord);
 
-            Monster_m.monsterUpdateVisibility(monster_id);
+            this.monster.monsterUpdateVisibility(monster_id);
         }
     }
 }

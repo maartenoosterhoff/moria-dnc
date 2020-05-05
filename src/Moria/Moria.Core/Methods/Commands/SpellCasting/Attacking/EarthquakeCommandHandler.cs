@@ -12,6 +12,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDice dice;
         private readonly IDungeon dungeon;
         private readonly IEventPublisher eventPublisher;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
         private readonly ITerminalEx terminalEx;
 
@@ -19,6 +20,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             IDice dice,
             IDungeon dungeon,
             IEventPublisher eventPublisher,
+            IMonster monster,
             IRnd rnd,
             ITerminalEx terminalEx
         )
@@ -26,6 +28,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             this.dice = dice;
             this.dungeon = dungeon;
             this.eventPublisher = eventPublisher;
+            this.monster = monster;
             this.rnd = rnd;
             this.terminalEx = terminalEx;
         }
@@ -112,9 +115,9 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     damage = this.dice.diceRoll(new Dice_t(4, 8));
                 }
 
-                var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
-                Monster_m.printMonsterActionText(name, "wails out in pain!");
+                this.monster.printMonsterActionText(name, "wails out in pain!");
 
                 var creature_id = this.eventPublisher.PublishWithOutputInt(
                     new TakeHitCommand(monster_id, damage)
@@ -122,7 +125,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 if (creature_id >= 0)
 //                if (Monster_m.monsterTakeHit(monster_id, damage) >= 0)
                 {
-                    Monster_m.printMonsterActionText(name, "is embedded in the rock.");
+                    this.monster.printMonsterActionText(name, "is embedded in the rock.");
                     this.terminalEx.displayCharacterExperience();
                 }
             }

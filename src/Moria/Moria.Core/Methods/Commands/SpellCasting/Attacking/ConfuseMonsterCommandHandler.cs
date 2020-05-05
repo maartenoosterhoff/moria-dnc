@@ -11,14 +11,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<ConfuseMonsterCommand, bool>
     {
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
 
         public ConfuseMonsterCommandHandler(
             IHelpers helpers,
+            IMonster monster,
             IRnd rnd
         )
         {
             this.helpers = helpers;
+            this.monster = monster;
             this.rnd = rnd;
         }
 
@@ -66,7 +69,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     var monster = State.Instance.monsters[tile.creature_id];
                     var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                    var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                    var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                     if (this.rnd.randomNumber(Monster_c.MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                     {
@@ -82,7 +85,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             monster.sleep_count = 0;
                         }
 
-                        Monster_m.printMonsterActionText(name, "is unaffected.");
+                        this.monster.printMonsterActionText(name, "is unaffected.");
                     }
                     else
                     {
@@ -98,7 +101,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                         confused = true;
 
-                        Monster_m.printMonsterActionText(name, "appears confused.");
+                        this.monster.printMonsterActionText(name, "appears confused.");
                     }
                 }
             }

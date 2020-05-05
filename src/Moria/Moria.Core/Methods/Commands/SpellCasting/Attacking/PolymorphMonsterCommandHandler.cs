@@ -12,18 +12,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     {
         private readonly IDungeon dungeon;
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly IMonsterManager monsterManager;
         private readonly IRnd rnd;
 
         public PolymorphMonsterCommandHandler(
             IDungeon dungeon,
             IHelpers helpers,
+            IMonster monster,
             IMonsterManager monsterManager,
             IRnd rnd
         )
         {
             this.dungeon = dungeon;
             this.helpers = helpers;
+            this.monster = monster;
             this.monsterManager = monsterManager;
             this.rnd = rnd;
         }
@@ -88,8 +91,8 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     }
                     else
                     {
-                        var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
-                        Monster_m.printMonsterActionText(name, "is unaffected.");
+                        var name = this.monster.monsterNameDescription(creature.name, monster.lit);
+                        this.monster.printMonsterActionText(name, "is unaffected.");
                     }
                 }
             }

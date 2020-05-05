@@ -9,7 +9,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
+        private readonly IMonster monster;
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
@@ -39,6 +39,7 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IIdentification identification,
             IInventoryManager inventoryManager,
+            IMonster monster,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -52,6 +53,7 @@ namespace Moria.Core.Methods
             this.helpers = helpers;
             this.identification = identification;
             this.inventoryManager = inventoryManager;
+            this.monster = monster;
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
@@ -728,7 +730,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case 13:
-                        identified = monsterSleep(py.pos);
+                        identified = this.monster.monsterSleep(py.pos);
                         break;
                     case 14:
                         this.eventPublisher.Publish(new WardingGlyphCommand());

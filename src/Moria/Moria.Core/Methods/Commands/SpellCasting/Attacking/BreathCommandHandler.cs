@@ -13,6 +13,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeonLos dungeonLos;
         private readonly IHelpers helpers;
         private readonly IInventory inventory;
+        private readonly IMonster monster;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
 
@@ -21,6 +22,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             IDungeonLos dungeonLos,
             IHelpers helpers,
             IInventory inventory,
+            IMonster monster,
             ISpells spells,
             ITerminal terminal
         )
@@ -29,6 +31,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             this.dungeonLos = dungeonLos;
             this.helpers = helpers;
             this.inventory = inventory;
+            this.monster = monster;
             this.spells = spells;
             this.terminal = terminal;
         }
@@ -106,7 +109,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                                 if (monster.hp < 0)
                                 {
-                                    var treasure_id = Monster_m.monsterDeath(new Coord_t(monster.pos.y, monster.pos.x), creature.movement);
+                                    var treasure_id = this.monster.monsterDeath(new Coord_t(monster.pos.y, monster.pos.x), creature.movement);
 
                                     if (monster.lit)
                                     {

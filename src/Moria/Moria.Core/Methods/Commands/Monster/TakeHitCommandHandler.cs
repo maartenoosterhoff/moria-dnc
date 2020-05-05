@@ -10,10 +10,15 @@ namespace Moria.Core.Methods.Commands.Monster
         ICommandHandler<TakeHitCommand, int>
     {
         private readonly IDungeon dungeon;
+        private readonly IMonster monster;
 
-        public TakeHitCommandHandler(IDungeon dungeon)
+        public TakeHitCommandHandler(
+            IDungeon dungeon,
+            IMonster monster
+        )
         {
             this.dungeon = dungeon;
+            this.monster = monster;
         }
 
         public int Handle(TakeHitCommand command)
@@ -43,7 +48,7 @@ namespace Moria.Core.Methods.Commands.Monster
                 return -1;
             }
 
-            var treasure_flags = Monster_m.monsterDeath(new Coord_t(monster.pos.y, monster.pos.x), creature.movement);
+            var treasure_flags = this.monster.monsterDeath(new Coord_t(monster.pos.y, monster.pos.x), creature.movement);
 
             var memory = State.Instance.creature_recall[monster.creature_id];
 

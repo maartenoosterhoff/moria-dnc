@@ -12,7 +12,6 @@ using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -26,6 +25,7 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IIdentification identification,
             IInventoryManager inventoryManager,
+            IMonster monster,
             IPlayerMagic playerMagic,
             IPlayerTraps playerTraps,
             IRnd rnd,
@@ -41,6 +41,7 @@ namespace Moria.Core.Methods
             Player_m.helpers = helpers;
             Player_m.identification = identification;
             Player_m.inventoryManager = inventoryManager;
+            Player_m.monster = monster;
             Player_m.playerMagic = playerMagic;
             Player_m.playerTraps = playerTraps;
             Player_m.rnd = rnd;
@@ -56,6 +57,7 @@ namespace Moria.Core.Methods
         private static IHelpers helpers;
         private static IIdentification identification;
         private static IInventoryManager inventoryManager;
+        private static IMonster monster;
         private static IPlayerMagic playerMagic;
         private static IPlayerTraps playerTraps;
         private static IRnd rnd;
@@ -1332,7 +1334,7 @@ namespace Moria.Core.Methods
                 // can not win by opening a cursed chest
                 game.treasure.list[tile.treasure_id].flags &= ~Config.treasure_flags.TR_CURSED;
 
-                monsterDeath(coord, game.treasure.list[tile.treasure_id].flags);
+                monster.monsterDeath(coord, game.treasure.list[tile.treasure_id].flags);
 
                 game.treasure.list[tile.treasure_id].flags = 0;
             }

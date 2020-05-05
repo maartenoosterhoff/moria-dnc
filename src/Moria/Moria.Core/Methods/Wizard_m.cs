@@ -6,7 +6,6 @@ using System;
 using Moria.Core.Methods.Commands.SpellCasting;
 using static Moria.Core.Constants.Std_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -34,6 +33,7 @@ namespace Moria.Core.Methods
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
         private readonly IInventoryManager inventoryManager;
+        private readonly IMonster monster;
         private readonly IMonsterManager monsterManager;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
@@ -49,6 +49,7 @@ namespace Moria.Core.Methods
             IHelpers helpers,
             IIdentification identification,
             IInventoryManager inventoryManager,
+            IMonster monster,
             IMonsterManager monsterManager,
             IPlayerMagic playerMagic,
             IRnd rnd,
@@ -65,6 +66,7 @@ namespace Moria.Core.Methods
             this.helpers = helpers;
             this.identification = identification;
             this.inventoryManager = inventoryManager;
+            this.monster = monster;
             this.monsterManager = monsterManager;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
@@ -221,7 +223,7 @@ namespace Moria.Core.Methods
 
             this.monsterManager.monsterSummon(coord, true);
 
-            updateMonsters(false);
+            this.monster.updateMonsters(false);
         }
 
         // Light up the dungeon -RAK-

@@ -9,14 +9,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<TurnUndeadCommand, bool>
     {
         private readonly IDungeonLos dungeonLos;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
 
         public TurnUndeadCommandHandler(
             IDungeonLos dungeonLos,
+            IMonster monster,
             IRnd rnd
         )
         {
             this.dungeonLos = dungeonLos;
+            this.monster = monster;
             this.rnd = rnd;
         }
 
@@ -43,7 +46,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                 if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT && (creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0 && this.dungeonLos.los(py.pos, monster.pos))
                 {
-                    var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                    var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                     if (py.misc.level + 1 > creature.level || this.rnd.randomNumber(5) == 1)
                     {
@@ -53,14 +56,14 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                             turned = true;
 
-                            Monster_m.printMonsterActionText(name, "runs frantically!");
+                            this.monster.printMonsterActionText(name, "runs frantically!");
                         }
 
                         monster.confused_amount = (uint)py.misc.level;
                     }
                     else if (monster.lit)
                     {
-                        Monster_m.printMonsterActionText(name, "is unaffected.");
+                        this.monster.printMonsterActionText(name, "is unaffected.");
                     }
                 }
             }

@@ -10,14 +10,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
         ICommandHandler<DetectEvilCommand, bool>
     {
         private readonly ITerminal terminal;
+        private readonly IMonster monster;
         private readonly IHelpers helpers;
 
         public DetectEvilCommandHandler(
             ITerminal terminal,
+            IMonster monster,
             IHelpers helpers
         )
         {
             this.terminal = terminal;
+            this.monster = monster;
             this.helpers = helpers;
         }
         void ICommandHandler<DetectEvilCommand>.Handle(DetectEvilCommand command)
@@ -56,7 +59,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Detection
                 this.terminal.printMessage(/*CNIL*/null);
 
                 // must unlight every monster just lighted
-                Monster_m.updateMonsters(false);
+                this.monster.updateMonsters(false);
             }
 
             return detected;

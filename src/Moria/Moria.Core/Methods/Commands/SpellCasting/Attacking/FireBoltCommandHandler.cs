@@ -12,6 +12,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeon dungeon;
         private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
         private readonly ITerminalEx terminalEx;
@@ -20,6 +21,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             IDungeon dungeon,
             IEventPublisher eventPublisher,
             IHelpers helpers,
+            IMonster monster,
             ISpells spells,
             ITerminal terminal,
             ITerminalEx terminalEx
@@ -28,6 +30,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             this.dungeon = dungeon;
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
+            this.monster = monster;
             this.spells = spells;
             this.terminal = terminal;
             this.terminalEx = terminalEx;
@@ -99,7 +102,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             // permanent_light so that `monsterUpdateVisibility()` will work
             var saved_lit_status = tile.permanent_light;
             tile.permanent_light = true;
-            Monster_m.monsterUpdateVisibility((int)tile.creature_id);
+            this.monster.monsterUpdateVisibility((int)tile.creature_id);
             tile.permanent_light = saved_lit_status;
 
             // draw monster and clear previous bolt
@@ -124,7 +127,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 }
             }
 
-            var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+            var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
             var creature_id = this.eventPublisher.PublishWithOutputInt(
                 new TakeHitCommand((int)tile.creature_id, damage)
@@ -132,12 +135,12 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             if (creature_id >= 0)
             //if (Monster_m.monsterTakeHit((int)tile.creature_id, damage) >= 0)
             {
-                Monster_m.printMonsterActionText(name, "dies in a fit of agony.");
+                this.monster.printMonsterActionText(name, "dies in a fit of agony.");
                 this.terminalEx.displayCharacterExperience();
             }
             else if (damage > 0)
             {
-                Monster_m.printMonsterActionText(name, "screams in agony.");
+                this.monster.printMonsterActionText(name, "screams in agony.");
             }
         }
 

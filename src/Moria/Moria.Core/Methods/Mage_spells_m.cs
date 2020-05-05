@@ -12,7 +12,6 @@ using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Monster_m;
 
 namespace Moria.Core.Methods
 {
@@ -28,6 +27,7 @@ namespace Moria.Core.Methods
         private readonly IGame game;
         private readonly IHelpers helpers;
         private readonly IInventoryManager inventoryManager;
+        private readonly IMonster monster;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ISpells spells;
@@ -41,6 +41,7 @@ namespace Moria.Core.Methods
             IGame game,
             IHelpers helpers,
             IInventoryManager inventoryManager,
+            IMonster monster,
             IPlayerMagic playerMagic,
             IRnd rnd,
             ISpells spells,
@@ -54,6 +55,7 @@ namespace Moria.Core.Methods
             this.game = game;
             this.helpers = helpers;
             this.inventoryManager = inventoryManager;
+            this.monster = monster;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.spells = spells;
@@ -228,7 +230,7 @@ namespace Moria.Core.Methods
                     //spellRechargeItem(20);
                     break;
                 case MageSpellId.Sleep2:
-                    monsterSleep(py.pos);
+                    this.monster.monsterSleep(py.pos);
                     break;
                 case MageSpellId.PolymorphOther:
                     if (this.game.getDirectionWithMemory(/*CNIL*/null, ref dir))

@@ -7,16 +7,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     public class TeleportCommandHandler : ICommandHandler<TeleportCommand>
     {
         private readonly IDungeon dungeon;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
         private readonly ITerminalEx terminalEx;
 
         public TeleportCommandHandler(
             IDungeon dungeon,
+            IMonster monster,
             IRnd rnd,
             ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
+            this.monster = monster;
             this.rnd = rnd;
             this.terminalEx = terminalEx;
         }
@@ -65,7 +68,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             py.pos = location;
 
             this.terminalEx.dungeonResetView();
-            Monster_m.updateMonsters(false);
+            this.monster.updateMonsters(false);
 
             State.Instance.game.teleport_player = false;
         }

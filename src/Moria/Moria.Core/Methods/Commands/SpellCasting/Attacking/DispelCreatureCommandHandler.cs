@@ -11,18 +11,21 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     {
         private readonly IDungeonLos dungeonLos;
         private readonly IEventPublisher eventPublisher;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
         private readonly ITerminalEx terminalEx;
 
         public DispelCreatureCommandHandler(
             IDungeonLos dungeonLos,
             IEventPublisher eventPublisher,
+            IMonster monster,
             IRnd rnd,
             ITerminalEx terminalEx
         )
         {
             this.dungeonLos = dungeonLos;
             this.eventPublisher = eventPublisher;
+            this.monster = monster;
             this.rnd = rnd;
             this.terminalEx = terminalEx;
         }
@@ -63,7 +66,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     dispelled = true;
 
-                    var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                    var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                     var hit = this.eventPublisher.PublishWithOutputInt(
                         new TakeHitCommand(id, this.rnd.randomNumber(damage))
@@ -73,11 +76,11 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     // Should get these messages even if the monster is not visible.
                     if (hit >= 0)
                     {
-                        Monster_m.printMonsterActionText(name, "dissolves!");
+                        this.monster.printMonsterActionText(name, "dissolves!");
                     }
                     else
                     {
-                        Monster_m.printMonsterActionText(name, "shudders.");
+                        this.monster.printMonsterActionText(name, "shudders.");
                     }
 
                     if (hit >= 0)

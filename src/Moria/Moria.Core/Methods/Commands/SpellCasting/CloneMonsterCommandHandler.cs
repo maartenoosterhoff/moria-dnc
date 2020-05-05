@@ -10,12 +10,15 @@ namespace Moria.Core.Methods.Commands.SpellCasting
         ICommandHandler<CloneMonsterCommand, bool>
     {
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
 
         public CloneMonsterCommandHandler(
-            IHelpers helpers
+            IHelpers helpers,
+            IMonster monster
         )
         {
             this.helpers = helpers;
+            this.monster = monster;
         }
 
         void ICommandHandler<CloneMonsterCommand>.Handle(CloneMonsterCommand command)
@@ -57,7 +60,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
                     State.Instance.monsters[tile.creature_id].sleep_count = 0;
 
                     // monptr of 0 is safe here, since can't reach here from creatures
-                    return Monster_m.monsterMultiply(coord, (int)State.Instance.monsters[tile.creature_id].creature_id, 0);
+                    return this.monster.monsterMultiply(coord, (int)State.Instance.monsters[tile.creature_id].creature_id, 0);
                 }
             }
 

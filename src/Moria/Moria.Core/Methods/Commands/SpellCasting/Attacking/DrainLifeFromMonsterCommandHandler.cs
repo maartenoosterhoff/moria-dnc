@@ -13,16 +13,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
     {
         private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly ITerminalEx terminalEx;
 
         public DrainLifeFromMonsterCommandHandler(
             IEventPublisher eventPublisher,
             IHelpers helpers,
+            IMonster monster,
             ITerminalEx terminalEx
         )
         {
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
+            this.monster = monster;
             this.terminalEx = terminalEx;
         }
 
@@ -73,7 +76,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                     if ((creature.defenses & Config.monsters_defense.CD_UNDEAD) == 0)
                     {
-                        var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                        var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                         var creature_id = this.eventPublisher.PublishWithOutputInt(
                             new TakeHitCommand((int)tile.creature_id, 75)
@@ -81,12 +84,12 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                         if (creature_id >= 0)
                         //if (Monster_m.monsterTakeHit((int)tile.creature_id, 75) >= 0)
                         {
-                            Monster_m.printMonsterActionText(name, "dies in a fit of agony.");
+                            this.monster.printMonsterActionText(name, "dies in a fit of agony.");
                             this.terminalEx.displayCharacterExperience();
                         }
                         else
                         {
-                            Monster_m.printMonsterActionText(name, "screams in agony.");
+                            this.monster.printMonsterActionText(name, "screams in agony.");
                         }
 
                         drained = true;

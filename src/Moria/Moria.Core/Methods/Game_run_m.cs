@@ -20,7 +20,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_bash_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_move_m;
@@ -45,6 +44,7 @@ namespace Moria.Core.Methods
             IInventory inventory,
             IInventoryManager inventoryManager,
             IMageSpells mageSpells,
+            IMonster monster,
             IMonsterManager monsterManager,
             IPlayerEat playerEat,
             IPlayerPray playerPray,
@@ -78,6 +78,7 @@ namespace Moria.Core.Methods
             Game_run_m.inventory = inventory;
             Game_run_m.inventoryManager = inventoryManager;
             Game_run_m.mageSpells = mageSpells;
+            Game_run_m.monster = monster;
             Game_run_m.monsterManager = monsterManager;
             Game_run_m.playerEat = playerEat;
             Game_run_m.playerPray = playerPray;
@@ -111,6 +112,7 @@ namespace Moria.Core.Methods
         private static IInventory inventory;
         private static IInventoryManager inventoryManager;
         private static IMageSpells mageSpells;
+        private static IMonster monster;
         private static IMonsterManager monsterManager;
         private static IPlayerEat playerEat;
         private static IPlayerPray playerPray;
@@ -461,7 +463,7 @@ namespace Moria.Core.Methods
                         //playerDisturb(0, 1);
 
                         // unlight creatures
-                        updateMonsters(false);
+                        monster.updateMonsters(false);
                     }
                     else if (item.misc_use < 40 && rnd.randomNumber(5) == 1 && py.flags.blind < 1)
                     {
@@ -477,7 +479,7 @@ namespace Moria.Core.Methods
                     //playerDisturb(0, 1);
 
                     // unlight creatures
-                    updateMonsters(false);
+                    monster.updateMonsters(false);
                 }
             }
             else if (item.misc_use > 0)
@@ -488,7 +490,7 @@ namespace Moria.Core.Methods
                 //playerDisturb(0, 1);
 
                 // light creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
             }
         }
 
@@ -720,11 +722,11 @@ namespace Moria.Core.Methods
 
                 terminalEx.drawDungeonPanel();
                 terminalEx.printCharacterBlindStatus();
-                eventPublisher.Publish(new DisturbCommand(false, true)); 
+                eventPublisher.Publish(new DisturbCommand(false, true));
                 //playerDisturb(0, 1);
 
                 // unlight creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
             }
 
             py.flags.blind--;
@@ -735,11 +737,11 @@ namespace Moria.Core.Methods
 
                 terminalEx.printCharacterBlindStatus();
                 terminalEx.drawDungeonPanel();
-                eventPublisher.Publish(new DisturbCommand(false, true)); 
+                eventPublisher.Publish(new DisturbCommand(false, true));
                 //playerDisturb(0, 1);
 
                 // light creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
 
                 terminal.printMessage("The veil of darkness lifts.");
             }
@@ -1167,7 +1169,7 @@ namespace Moria.Core.Methods
                 py.flags.see_invisible = true;
 
                 // light but don't move creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
             }
 
             py.flags.detect_invisible--;
@@ -1180,7 +1182,7 @@ namespace Moria.Core.Methods
                 playerRecalculateBonuses();
 
                 // unlight but don't move creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
             }
         }
 
@@ -1200,7 +1202,7 @@ namespace Moria.Core.Methods
                 py.flags.see_infra++;
 
                 // light but don't move creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
             }
 
             py.flags.timed_infra--;
@@ -1211,7 +1213,7 @@ namespace Moria.Core.Methods
                 py.flags.see_infra--;
 
                 // unlight but don't move creatures
-                updateMonsters(false);
+                monster.updateMonsters(false);
             }
         }
 
@@ -2958,7 +2960,7 @@ namespace Moria.Core.Methods
             }
 
             // Light,  but do not move critters
-            updateMonsters(false);
+            monster.updateMonsters(false);
 
             // Print the depth
             terminalEx.printCharacterCurrentDepth();
@@ -3088,7 +3090,7 @@ namespace Moria.Core.Methods
                 // Move the creatures
                 if (!dg.generate_new_level)
                 {
-                    updateMonsters(true);
+                    monster.updateMonsters(true);
                 }
             } while (!dg.generate_new_level && State.Instance.eof_flag == 0);
         }

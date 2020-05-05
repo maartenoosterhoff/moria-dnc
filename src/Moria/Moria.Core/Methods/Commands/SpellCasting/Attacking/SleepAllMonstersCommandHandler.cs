@@ -10,14 +10,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<SleepAllMonstersCommand, bool>
     {
         private readonly IDungeonLos dungeonLos;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
 
         public SleepAllMonstersCommandHandler(
             IDungeonLos dungeonLos,
+            IMonster monster,
             IRnd rnd
         )
         {
             this.dungeonLos = dungeonLos;
+            this.monster = monster;
             this.rnd = rnd;
         }
 
@@ -43,7 +46,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                 var monster = State.Instance.monsters[id];
                 var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                 if (monster.distance_from_player > Config.monsters.MON_MAX_SIGHT || !this.dungeonLos.los(py.pos, monster.pos))
                 {
@@ -58,7 +61,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                         {
                             State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
                         }
-                        Monster_m.printMonsterActionText(name, "is unaffected.");
+                        this.monster.printMonsterActionText(name, "is unaffected.");
                     }
                 }
                 else
@@ -67,7 +70,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     if (monster.lit)
                     {
                         asleep = true;
-                        Monster_m.printMonsterActionText(name, "falls asleep.");
+                        this.monster.printMonsterActionText(name, "falls asleep.");
                     }
                 }
             }

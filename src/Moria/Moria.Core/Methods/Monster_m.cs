@@ -17,13 +17,39 @@ using static Moria.Core.Methods.Player_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Monster_m
+    public interface IMonster
     {
-        public static void SetDependencies(
+        uint monsterDeath(Coord_t coord, uint flags);
+        bool monsterMultiply(Coord_t coord, int creature_id, int monster_id);
+        string monsterNameDescription(string real_name, bool is_lit);
+        bool monsterSleep(Coord_t coord);
+        void monsterUpdateVisibility(int monster_id);
+        void printMonsterActionText(string name, string action);
+        void updateMonsters(bool attack);
+    }
+
+    public class Monster_m : IMonster
+    {
+        private readonly IDice dice;
+        private readonly IDungeon dungeon;
+        private readonly IDungeonLos dungeonLos;
+        private readonly IDungeonPlacer dungeonPlacer;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IHelpers helpers;
+        private readonly IInventory inventory;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IMonsterManager monsterManager;
+        private readonly IRnd rnd;
+        private readonly IStd std;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+
+        public Monster_m(
             IDice dice,
             IDungeon dungeon,
             IDungeonLos dungeonLos,
             IDungeonPlacer dungeonPlacer,
+            IEventPublisher eventPublisher,
             IHelpers helpers,
             IInventory inventory,
             IInventoryManager inventoryManager,
@@ -31,43 +57,25 @@ namespace Moria.Core.Methods
             IRnd rnd,
             IStd std,
             ITerminal terminal,
-            ITerminalEx terminalEx,
-
-            IEventPublisher eventPublisher
+            ITerminalEx terminalEx
         )
         {
-            Monster_m.dice = dice;
-            Monster_m.dungeon = dungeon;
-            Monster_m.dungeonLos = dungeonLos;
-            Monster_m.dungeonPlacer = dungeonPlacer;
-            Monster_m.helpers = helpers;
-            Monster_m.inventory = inventory;
-            Monster_m.inventoryManager = inventoryManager;
-            Monster_m.monsterManager = monsterManager;
-            Monster_m.rnd = rnd;
-            Monster_m.std = std;
-            Monster_m.terminal = terminal;
-            Monster_m.terminalEx = terminalEx;
-
-            Monster_m.eventPublisher = eventPublisher;
+            this.dice = dice;
+            this.dungeon = dungeon;
+            this.dungeonLos = dungeonLos;
+            this.dungeonPlacer = dungeonPlacer;
+            this.eventPublisher = eventPublisher;
+            this.helpers = helpers;
+            this.inventory = inventory;
+            this.inventoryManager = inventoryManager;
+            this.monsterManager = monsterManager;
+            this.rnd = rnd;
+            this.std = std;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
         }
 
-        private static IDice dice;
-        private static IDungeon dungeon;
-        private static IDungeonLos dungeonLos;
-        private static IDungeonPlacer dungeonPlacer;
-        private static IInventory inventory;
-        private static IHelpers helpers;
-        private static IInventoryManager inventoryManager;
-        private static IMonsterManager monsterManager;
-        private static IRnd rnd;
-        private static IStd std;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-
-        private static IEventPublisher eventPublisher;
-
-        private static bool monsterIsVisible(Monster_t monster)
+        private bool monsterIsVisible(Monster_t monster)
         {
             var dg = State.Instance.dg;
             var py = State.Instance.py;
@@ -102,7 +110,7 @@ namespace Moria.Core.Methods
         }
 
         // Updates screen when monsters move about -RAK-
-        public static void monsterUpdateVisibility(int monster_id)
+        public void monsterUpdateVisibility(int monster_id)
         {
             var py = State.Instance.py;
             var game = State.Instance.game;
@@ -111,17 +119,16 @@ namespace Moria.Core.Methods
             var monster = State.Instance.monsters[monster_id];
 
             if (monster.distance_from_player <= Config.monsters.MON_MAX_SIGHT &&
-                (py.flags.status & Config.player_status.PY_BLIND) == 0u &&
-                helpers.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)))
+                (py.flags.status & Config.player_status.PY_BLIND) == 0u && this.helpers.coordInsidePanel(new Coord_t(monster.pos.y, monster.pos.x)))
             {
                 if (game.wizard_mode)
                 {
                     // Wizard sight.
                     visible = true;
                 }
-                else if (dungeonLos.los(py.pos, monster.pos))
+                else if (this.dungeonLos.los(py.pos, monster.pos))
                 {
-                    visible = monsterIsVisible(monster);
+                    visible = this.monsterIsVisible(monster);
                 }
             }
 
@@ -130,10 +137,10 @@ namespace Moria.Core.Methods
                 // Light it up.
                 if (!monster.lit)
                 {
-                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    this.eventPublisher.Publish(new DisturbCommand(true, false));
                     //playerDisturb(1, 0);
                     monster.lit = true;
-                    dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                    this.dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
 
                     // notify inventoryExecuteCommand()
                     State.Instance.screen_has_changed = true;
@@ -143,7 +150,7 @@ namespace Moria.Core.Methods
             {
                 // Turn it off.
                 monster.lit = false;
-                dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                this.dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
 
                 // notify inventoryExecuteCommand()
                 State.Instance.screen_has_changed = true;
@@ -153,7 +160,7 @@ namespace Moria.Core.Methods
         // Given speed, returns number of moves this turn. -RAK-
         // NOTE: Player must always move at least once per iteration,
         // a slowed player is handled by moving monsters faster
-        private static int monsterMovementRate(int speed)
+        private int monsterMovementRate(int speed)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -177,7 +184,7 @@ namespace Moria.Core.Methods
         }
 
         // Makes sure a new creature gets lit up. -CJS-
-        private static bool monsterMakeVisible(Coord_t coord)
+        private bool monsterMakeVisible(Coord_t coord)
         {
             var dg = State.Instance.dg;
 
@@ -187,12 +194,12 @@ namespace Moria.Core.Methods
                 return false;
             }
 
-            monsterUpdateVisibility(monster_id);
+            this.monsterUpdateVisibility(monster_id);
             return State.Instance.monsters[monster_id].lit;
         }
 
         // Choose correct directions for monster movement -RAK-
-        private static void monsterGetMoveDirection(int monster_id, int[] directions)
+        private void monsterGetMoveDirection(int monster_id, int[] directions)
         {
             var monsters = State.Instance.monsters;
             var py = State.Instance.py;
@@ -380,118 +387,118 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void monsterPrintAttackDescription(ref string msg, int attack_id)
+        private void monsterPrintAttackDescription(ref string msg, int attack_id)
         {
             switch (attack_id)
             {
                 case 1:
-                    terminal.printMessage(msg + "hits you.");
+                    this.terminal.printMessage(msg + "hits you.");
                     break;
                 case 2:
-                    terminal.printMessage(msg + "bites you.");
+                    this.terminal.printMessage(msg + "bites you.");
                     break;
                 case 3:
-                    terminal.printMessage(msg + "claws you.");
+                    this.terminal.printMessage(msg + "claws you.");
                     break;
                 case 4:
-                    terminal.printMessage(msg + "stings you.");
+                    this.terminal.printMessage(msg + "stings you.");
                     break;
                 case 5:
-                    terminal.printMessage(msg + "touches you.");
+                    this.terminal.printMessage(msg + "touches you.");
                     break;
                 case 6:
-                    terminal.printMessage(msg + "kicks you.");
+                    this.terminal.printMessage(msg + "kicks you.");
                     break;
                 case 7:
-                    terminal.printMessage(msg + "gazes at you.");
+                    this.terminal.printMessage(msg + "gazes at you.");
                     break;
                 case 8:
-                    terminal.printMessage(msg + "breathes on you.");
+                    this.terminal.printMessage(msg + "breathes on you.");
                     break;
                 case 9:
-                    terminal.printMessage(msg + "spits on you.");
+                    this.terminal.printMessage(msg + "spits on you.");
                     break;
                 case 10:
-                    terminal.printMessage(msg + "makes a horrible wail.");
+                    this.terminal.printMessage(msg + "makes a horrible wail.");
                     break;
                 case 11:
-                    terminal.printMessage(msg + "embraces you.");
+                    this.terminal.printMessage(msg + "embraces you.");
                     break;
                 case 12:
-                    terminal.printMessage(msg + "crawls on you.");
+                    this.terminal.printMessage(msg + "crawls on you.");
                     break;
                 case 13:
-                    terminal.printMessage(msg + "releases a cloud of spores.");
+                    this.terminal.printMessage(msg + "releases a cloud of spores.");
                     break;
                 case 14:
-                    terminal.printMessage(msg + "begs you for money.");
+                    this.terminal.printMessage(msg + "begs you for money.");
                     break;
                 case 15:
-                    terminal.printMessage("You've been slimed!");
+                    this.terminal.printMessage("You've been slimed!");
                     break;
                 case 16:
-                    terminal.printMessage(msg + "crushes you.");
+                    this.terminal.printMessage(msg + "crushes you.");
                     break;
                 case 17:
-                    terminal.printMessage(msg + "tramples you.");
+                    this.terminal.printMessage(msg + "tramples you.");
                     break;
                 case 18:
-                    terminal.printMessage(msg + "drools on you.");
+                    this.terminal.printMessage(msg + "drools on you.");
                     break;
                 case 19:
-                    switch (rnd.randomNumber(9))
+                    switch (this.rnd.randomNumber(9))
                     {
                         case 1:
-                            terminal.printMessage(msg + "insults you!");
+                            this.terminal.printMessage(msg + "insults you!");
                             break;
                         case 2:
-                            terminal.printMessage(msg + "insults your mother!");
+                            this.terminal.printMessage(msg + "insults your mother!");
                             break;
                         case 3:
-                            terminal.printMessage(msg + "gives you the finger!");
+                            this.terminal.printMessage(msg + "gives you the finger!");
                             break;
                         case 4:
-                            terminal.printMessage(msg + "humiliates you!");
+                            this.terminal.printMessage(msg + "humiliates you!");
                             break;
                         case 5:
-                            terminal.printMessage(msg + "wets on your leg!");
+                            this.terminal.printMessage(msg + "wets on your leg!");
                             break;
                         case 6:
-                            terminal.printMessage(msg + "defiles you!");
+                            this.terminal.printMessage(msg + "defiles you!");
                             break;
                         case 7:
-                            terminal.printMessage(msg + "dances around you!");
+                            this.terminal.printMessage(msg + "dances around you!");
                             break;
                         case 8:
-                            terminal.printMessage(msg + "makes obscene gestures!");
+                            this.terminal.printMessage(msg + "makes obscene gestures!");
                             break;
                         case 9:
-                            terminal.printMessage(msg + "moons you!!!");
+                            this.terminal.printMessage(msg + "moons you!!!");
                             break;
                         default:
                             break;
                     }
                     break;
                 case 99:
-                    terminal.printMessage(msg + "is repelled.");
+                    this.terminal.printMessage(msg + "is repelled.");
                     break;
                 default:
                     break;
             }
         }
 
-        private static void monsterConfuseOnAttack(Creature_t creature, Monster_t monster, int attack_type, string monster_name, bool visible)
+        private void monsterConfuseOnAttack(Creature_t creature, Monster_t monster, int attack_type, string monster_name, bool visible)
         {
             var py = State.Instance.py;
 
             if (py.flags.confuse_monster && attack_type != 99)
             {
-                terminal.printMessage("Your hands stop glowing.");
+                this.terminal.printMessage("Your hands stop glowing.");
                 py.flags.confuse_monster = false;
 
                 var msg = string.Empty;
 
-                if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
+                if (this.rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                 {
                     msg = $"{monster_name}is unaffected.";
                     //(void)sprintf(msg, "%sis unaffected.", monster_name);
@@ -506,13 +513,13 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        monster.confused_amount = (uint)(2 + rnd.randomNumber(16));
+                        monster.confused_amount = (uint)(2 + this.rnd.randomNumber(16));
                     }
                 }
 
-                terminal.printMessage(msg);
+                this.terminal.printMessage(msg);
 
-                if (visible && !State.Instance.game.character_is_dead && rnd.randomNumber(4) == 1)
+                if (visible && !State.Instance.game.character_is_dead && this.rnd.randomNumber(4) == 1)
                 {
                     State.Instance.creature_recall[monster.creature_id].defenses |= creature.defenses & Config.monsters_defense.CD_NO_SLEEP;
                 }
@@ -522,7 +529,7 @@ namespace Moria.Core.Methods
         public const int UCHAR_MAX = 255;
 
         // Make an attack on the player (chuckle.) -RAK-
-        private static void monsterAttackPlayer(int monster_id)
+        private void monsterAttackPlayer(int monster_id)
         {
             // don't beat a dead body!
             if (State.Instance.game.character_is_dead)
@@ -578,13 +585,13 @@ namespace Moria.Core.Methods
 
                 if (playerTestAttackHits((int)attack_type, creature.level))
                 {
-                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    this.eventPublisher.Publish(new DisturbCommand(true, false));
                     //playerDisturb(1, 0);
 
                     // can not strcat to name because the creature may have multiple attacks.
                     var description = name;
                     //(void)strcpy(description, name);
-                    monsterPrintAttackDescription(ref description, (int)attack_desc);
+                    this.monsterPrintAttackDescription(ref description, (int)attack_desc);
 
                     // always fail to notice attack if creature invisible, set notice
                     // and visible here since creature may be visible when attacking
@@ -597,15 +604,15 @@ namespace Moria.Core.Methods
                         notice = false;
                     }
 
-                    var damage = Monster_m.dice.diceRoll(dice);
+                    var damage = this.dice.diceRoll(dice);
                     var monsterhp = monster.hp;
-                    notice = executeAttackOnPlayer(creature.level, ref monsterhp, monster_id, (int)attack_type, damage, death_description, notice);
+                    notice = this.executeAttackOnPlayer(creature.level, ref monsterhp, monster_id, (int)attack_type, damage, death_description, notice);
                     monster.hp = monsterhp;
 
                     // Moved here from monsterMove, so that monster only confused if it
                     // actually hits. A monster that has been repelled has not hit
                     // the player, so it should not be confused.
-                    monsterConfuseOnAttack(creature, monster, (int)attack_desc, name, visible);
+                    this.monsterConfuseOnAttack(creature, monster, (int)attack_desc, name, visible);
 
                     // increase number of attacks if notice true, or if visible and
                     // had previously noticed the attack (in which case all this does
@@ -626,12 +633,12 @@ namespace Moria.Core.Methods
                 {
                     if (attack_desc >= 1 && attack_desc <= 3 || attack_desc == 6)
                     {
-                        eventPublisher.Publish(new DisturbCommand(true, false));
+                        this.eventPublisher.Publish(new DisturbCommand(true, false));
                         //playerDisturb(1, 0);
 
                         var description = name;
                         //(void)strcpy(description, name);
-                        terminal.printMessage(description + "misses you.");
+                        this.terminal.printMessage(description + "misses you.");
                     }
                 }
 
@@ -646,7 +653,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void monsterOpenDoor(Tile_t tile, int monster_hp, uint move_bits, ref bool do_turn, ref bool do_move, ref uint rcmove, Coord_t coord)
+        private void monsterOpenDoor(Tile_t tile, int monster_hp, uint move_bits, ref bool do_turn, ref bool do_move, ref uint rcmove, Coord_t coord)
         {
             var game = State.Instance.game;
 
@@ -671,7 +678,7 @@ namespace Moria.Core.Methods
                     {
                         // Locked doors
 
-                        if (rnd.randomNumber((monster_hp + 1) * (50 + item.misc_use)) < 40 * (monster_hp - 10 - item.misc_use))
+                        if (this.rnd.randomNumber((monster_hp + 1) * (50 + item.misc_use)) < 40 * (monster_hp - 10 - item.misc_use))
                         {
                             item.misc_use = 0;
                         }
@@ -680,10 +687,10 @@ namespace Moria.Core.Methods
                     {
                         // Stuck doors
 
-                        if (rnd.randomNumber((monster_hp + 1) * (50 - item.misc_use)) < 40 * (monster_hp - 10 + item.misc_use))
+                        if (this.rnd.randomNumber((monster_hp + 1) * (50 - item.misc_use)) < 40 * (monster_hp - 10 + item.misc_use))
                         {
-                            terminal.printMessage("You hear a door burst open!");
-                            eventPublisher.Publish(new DisturbCommand(true, false));
+                            this.terminal.printMessage("You hear a door burst open!");
+                            this.eventPublisher.Publish(new DisturbCommand(true, false));
                             //playerDisturb(1, 0);
                             door_is_stuck = true;
                             do_move = true;
@@ -698,15 +705,15 @@ namespace Moria.Core.Methods
 
                 if (do_move)
                 {
-                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
+                    this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
 
                     // 50% chance of breaking door
                     if (door_is_stuck)
                     {
-                        item.misc_use = 1 - rnd.randomNumber(2);
+                        item.misc_use = 1 - this.rnd.randomNumber(2);
                     }
                     tile.feature_id = TILE_CORR_FLOOR;
-                    dungeon.dungeonLiteSpot(coord);
+                    this.dungeon.dungeonLiteSpot(coord);
                     rcmove |= Config.monsters_move.CM_OPEN_DOOR;
                     do_move = false;
                 }
@@ -716,33 +723,34 @@ namespace Moria.Core.Methods
                 // Creature can not open doors, must bash them
                 do_turn = true;
 
-                var abs_misc_use = (int)std.std_abs(std.std_intmax_t(item.misc_use));
-                if (rnd.randomNumber((monster_hp + 1) * (80 + abs_misc_use)) < 40 * (monster_hp - 20 - abs_misc_use))
+                var abs_misc_use = (int)this.std.std_abs(this.std.std_intmax_t(item.misc_use));
+                if (this.rnd.randomNumber((monster_hp + 1) * (80 + abs_misc_use)) < 40 * (monster_hp - 20 - abs_misc_use))
                 {
-                    inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
+                    this.inventoryManager.inventoryItemCopyTo((int)Config.dungeon_objects.OBJ_OPEN_DOOR, item);
 
                     // 50% chance of breaking door
-                    item.misc_use = 1 - rnd.randomNumber(2);
+                    item.misc_use = 1 - this.rnd.randomNumber(2);
                     tile.feature_id = TILE_CORR_FLOOR;
-                    dungeon.dungeonLiteSpot(coord);
-                    terminal.printMessage("You hear a door burst open!");
-                    eventPublisher.Publish(new DisturbCommand(true, false));
+                    this.dungeon.dungeonLiteSpot(coord);
+                    this.terminal.printMessage("You hear a door burst open!");
+                    this.eventPublisher.Publish(new DisturbCommand(true, false));
                     //playerDisturb(1, 0);
                 }
             }
         }
 
-        private static void glyphOfWardingProtection(uint creature_id, uint move_bits, ref bool do_move, ref bool do_turn, Coord_t coord)
+        private void glyphOfWardingProtection(uint creature_id, uint move_bits, ref bool do_move, ref bool do_turn, Coord_t coord)
         {
             var py = State.Instance.py;
 
-            if (rnd.randomNumber(Config.treasure.OBJECTS_RUNE_PROTECTION) < Library.Instance.Creatures.creatures_list[(int)creature_id].level)
+            if (this.rnd.randomNumber(Config.treasure.OBJECTS_RUNE_PROTECTION) < Library.Instance.Creatures.creatures_list[(int)creature_id].level)
             {
                 if (coord.y == py.pos.y && coord.x == py.pos.x)
                 {
-                    terminal.printMessage("The rune of protection is broken!");
+                    this.terminal.printMessage("The rune of protection is broken!");
                 }
-                dungeon.dungeonDeleteObject(coord);
+
+                this.dungeon.dungeonDeleteObject(coord);
                 return;
             }
 
@@ -756,7 +764,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void monsterMovesOnPlayer(Monster_t monster, uint creature_id, int monster_id, uint move_bits, ref bool do_move, ref bool do_turn, ref uint rcmove, Coord_t coord)
+        private void monsterMovesOnPlayer(Monster_t monster, uint creature_id, int monster_id, uint move_bits, ref bool do_move, ref bool do_turn, ref uint rcmove, Coord_t coord)
         {
             var creatures_list = Library.Instance.Creatures.creatures_list;
             var monsters = State.Instance.monsters;
@@ -768,9 +776,10 @@ namespace Moria.Core.Methods
                 // just moved next to character this same turn.
                 if (!monster.lit)
                 {
-                    monsterUpdateVisibility(monster_id);
+                    this.monsterUpdateVisibility(monster_id);
                 }
-                monsterAttackPlayer(monster_id);
+
+                this.monsterAttackPlayer(monster_id);
                 do_move = false;
                 do_turn = true;
             }
@@ -790,14 +799,14 @@ namespace Moria.Core.Methods
                     // It ate an already processed monster. Handle normally.
                     if (monster_id < creature_id)
                     {
-                        dungeon.dungeonDeleteMonster((int)creature_id);
+                        this.dungeon.dungeonDeleteMonster((int)creature_id);
                     }
                     else
                     {
                         // If it eats this monster, an already processed
                         // monster will take its place, causing all kinds
                         // of havoc. Delay the kill a bit.
-                        dungeon.dungeonDeleteMonsterFix1((int)creature_id);
+                        this.dungeon.dungeonDeleteMonsterFix1((int)creature_id);
                     }
                 }
                 else
@@ -807,7 +816,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void monsterAllowedToMove(Monster_t monster, uint move_bits, ref bool do_turn, ref uint rcmove, Coord_t coord)
+        private void monsterAllowedToMove(Monster_t monster, uint move_bits, ref bool do_turn, ref uint rcmove, Coord_t coord)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -821,28 +830,28 @@ namespace Moria.Core.Methods
                 if (treasure_id != 0 && game.treasure.list[treasure_id].category_id <= TV_MAX_OBJECT)
                 {
                     rcmove |= Config.monsters_move.CM_PICKS_UP;
-                    dungeon.dungeonDeleteObject(coord);
+                    this.dungeon.dungeonDeleteObject(coord);
                 }
             }
 
             // Move creature record
-            dungeon.dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
+            this.dungeon.dungeonMoveCreatureRecord(new Coord_t(monster.pos.y, monster.pos.x), coord);
 
             if (monster.lit)
             {
                 monster.lit = false;
-                dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
+                this.dungeon.dungeonLiteSpot(new Coord_t(monster.pos.y, monster.pos.x));
             }
 
             monster.pos.y = coord.y;
             monster.pos.x = coord.x;
-            monster.distance_from_player = (uint)dungeon.coordDistanceBetween(py.pos, coord);
+            monster.distance_from_player = (uint)this.dungeon.coordDistanceBetween(py.pos, coord);
 
             do_turn = true;
         }
 
         // Make the move if possible, five choices -RAK-
-        private static void makeMove(int monster_id, int[] directions, ref uint rcmove)
+        private void makeMove(int monster_id, int[] directions, ref uint rcmove)
         {
             var dg = State.Instance.dg;
             var game = State.Instance.game;
@@ -863,7 +872,7 @@ namespace Moria.Core.Methods
                 coord.y = monster.pos.y;
                 coord.x = monster.pos.x;
 
-                helpers.movePosition(directions[i], ref coord);
+                this.helpers.movePosition(directions[i], ref coord);
 
                 var tile = dg.floor[coord.y][coord.x];
 
@@ -886,34 +895,34 @@ namespace Moria.Core.Methods
                 else if (tile.treasure_id != 0)
                 {
                     // Creature can open doors?
-                    monsterOpenDoor(tile, monster.hp, move_bits, ref do_turn, ref do_move, ref rcmove, coord);
+                    this.monsterOpenDoor(tile, monster.hp, move_bits, ref do_turn, ref do_move, ref rcmove, coord);
                 }
 
                 // Glyph of warding present?
                 if (do_move && tile.treasure_id != 0 && game.treasure.list[tile.treasure_id].category_id == TV_VIS_TRAP && game.treasure.list[tile.treasure_id].sub_category_id == 99)
                 {
-                    glyphOfWardingProtection(monster.creature_id, move_bits, ref do_move, ref do_turn, coord);
+                    this.glyphOfWardingProtection(monster.creature_id, move_bits, ref do_move, ref do_turn, coord);
                 }
 
                 // Creature has attempted to move on player?
                 if (do_move)
                 {
-                    monsterMovesOnPlayer(monster, tile.creature_id, monster_id, move_bits, ref do_move, ref do_turn, ref rcmove, coord);
+                    this.monsterMovesOnPlayer(monster, tile.creature_id, monster_id, move_bits, ref do_move, ref do_turn, ref rcmove, coord);
                 }
 
                 // Creature has been allowed move.
                 if (do_move)
                 {
-                    monsterAllowedToMove(monster, move_bits, ref do_turn, ref rcmove, coord);
+                    this.monsterAllowedToMove(monster, move_bits, ref do_turn, ref rcmove, coord);
                 }
             }
         }
 
-        private static bool monsterCanCastSpells(Monster_t monster, uint spells)
+        private bool monsterCanCastSpells(Monster_t monster, uint spells)
         {
             var py = State.Instance.py;
             // 1 in x chance of casting spell
-            if (rnd.randomNumber((int)(spells & Config.monsters_spells.CS_FREQ)) != 1)
+            if (this.rnd.randomNumber((int)(spells & Config.monsters_spells.CS_FREQ)) != 1)
             {
                 return false;
             }
@@ -922,12 +931,12 @@ namespace Moria.Core.Methods
             var within_range = monster.distance_from_player <= Config.monsters.MON_MAX_SPELL_CAST_DISTANCE;
 
             // Must have unobstructed Line-Of-Sight
-            var unobstructed = dungeonLos.los(py.pos, monster.pos);
+            var unobstructed = this.dungeonLos.los(py.pos, monster.pos);
 
             return within_range && unobstructed;
         }
 
-        private static void monsterExecuteCastingOfSpell(Monster_t monster, int monster_id, int spell_id, uint level, string monster_name, string death_description)
+        private void monsterExecuteCastingOfSpell(Monster_t monster, int monster_id, int spell_id, uint level, string monster_name, string death_description)
         {
             var py = State.Instance.py;
             var dg = State.Instance.dg;
@@ -938,15 +947,15 @@ namespace Moria.Core.Methods
             switch (spell_id)
             {
                 case 5: // Teleport Short
-                    eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, 5));
+                    this.eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, 5));
                     //spellTeleportAwayMonster(monster_id, 5);
                     break;
                 case 6: // Teleport Long
-                    eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
+                    this.eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
                     //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     break;
                 case 7: // Teleport To
-                    eventPublisher.Publish(new TeleportPlayerToCommand(
+                    this.eventPublisher.Publish(new TeleportPlayerToCommand(
                         new Coord_t(monster.pos.y, monster.pos.x)
                     ));
                     //spellTeleportPlayerTo(new Coord_t(monster.pos.y, monster.pos.x));
@@ -954,31 +963,31 @@ namespace Moria.Core.Methods
                 case 8: // Light Wound
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else
                     {
-                        playerTakesHit(dice.diceRoll(new Dice_t(3, 8)), death_description);
+                        playerTakesHit(this.dice.diceRoll(new Dice_t(3, 8)), death_description);
                     }
                     break;
                 case 9: // Serious Wound
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else
                     {
-                        playerTakesHit(dice.diceRoll(new Dice_t(8, 8)), death_description);
+                        playerTakesHit(this.dice.diceRoll(new Dice_t(8, 8)), death_description);
                     }
                     break;
                 case 10: // Hold Person
                     if (py.flags.free_action)
                     {
-                        terminal.printMessage("You are unaffected.");
+                        this.terminal.printMessage("You are unaffected.");
                     }
                     else if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.paralysis > 0)
                     {
@@ -986,13 +995,13 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.paralysis = rnd.randomNumber(5) + 4;
+                        py.flags.paralysis = this.rnd.randomNumber(5) + 4;
                     }
                     break;
                 case 11: // Cause Blindness
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.blind > 0)
                     {
@@ -1000,13 +1009,13 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.blind += 12 + rnd.randomNumber(3);
+                        py.flags.blind += 12 + this.rnd.randomNumber(3);
                     }
                     break;
                 case 12: // Cause Confuse
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.confused > 0)
                     {
@@ -1014,13 +1023,13 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.confused = rnd.randomNumber(5) + 3;
+                        py.flags.confused = this.rnd.randomNumber(5) + 3;
                     }
                     break;
                 case 13: // Cause Fear
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.afraid > 0)
                     {
@@ -1028,43 +1037,43 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.afraid = rnd.randomNumber(5) + 3;
+                        py.flags.afraid = this.rnd.randomNumber(5) + 3;
                     }
                     break;
                 case 14: // Summon Monster
                     monster_name += "magically summons a monsters!";
                     //(void)strcat(monster_name, "magically summons a monster!");
-                    terminal.printMessage(monster_name);
+                    this.terminal.printMessage(monster_name);
                     coord.y = py.pos.y;
                     coord.x = py.pos.x;
 
                     // in case compact_monster() is called,it needs monster_id
                     State.Instance.hack_monptr = monster_id;
-                    monsterManager.monsterSummon(coord, false);
+                    this.monsterManager.monsterSummon(coord, false);
                     State.Instance.hack_monptr = -1;
-                    monsterUpdateVisibility((int)dg.floor[coord.y][coord.x].creature_id);
+                    this.monsterUpdateVisibility((int)dg.floor[coord.y][coord.x].creature_id);
                     break;
                 case 15: // Summon Undead
                     monster_name += "magically summons an undead!";
                     //(void)strcat(monster_name, "magically summons an undead!");
-                    terminal.printMessage(monster_name);
+                    this.terminal.printMessage(monster_name);
                     coord.y = py.pos.y;
                     coord.x = py.pos.x;
 
                     // in case compact_monster() is called,it needs monster_id
                     State.Instance.hack_monptr = monster_id;
-                    monsterManager.monsterSummonUndead(coord);
+                    this.monsterManager.monsterSummonUndead(coord);
                     State.Instance.hack_monptr = -1;
-                    monsterUpdateVisibility((int)dg.floor[coord.y][coord.x].creature_id);
+                    this.monsterUpdateVisibility((int)dg.floor[coord.y][coord.x].creature_id);
                     break;
                 case 16: // Slow Person
                     if (py.flags.free_action)
                     {
-                        terminal.printMessage("You are unaffected.");
+                        this.terminal.printMessage("You are unaffected.");
                     }
                     else if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects of the spell.");
+                        this.terminal.printMessage("You resist the effects of the spell.");
                     }
                     else if (py.flags.slow > 0)
                     {
@@ -1072,28 +1081,28 @@ namespace Moria.Core.Methods
                     }
                     else
                     {
-                        py.flags.slow = rnd.randomNumber(5) + 3;
+                        py.flags.slow = this.rnd.randomNumber(5) + 3;
                     }
                     break;
                 case 17: // Drain Mana
                     if (py.misc.current_mana > 0)
                     {
-                        eventPublisher.Publish(new DisturbCommand(true, false));
+                        this.eventPublisher.Publish(new DisturbCommand(true, false));
                         //playerDisturb(1, 0);
 
                         var msg = $"{monster_name}draws psychic energy from you!";
                         //vtype_t msg = { '\0' };
                         //(void)sprintf(msg, "%sdraws psychic energy from you!", monster_name);
-                        terminal.printMessage(msg);
+                        this.terminal.printMessage(msg);
 
                         if (monster.lit)
                         {
                             msg = $"{monster_name}appears healthier.";
                             //(void)sprintf(msg, "%sappears healthier.", monster_name);
-                            terminal.printMessage(msg);
+                            this.terminal.printMessage(msg);
                         }
 
-                        var num = (rnd.randomNumber((int)level) >> 1) + 1;
+                        var num = (this.rnd.randomNumber((int)level) >> 1) + 1;
                         if (num > py.misc.current_mana)
                         {
                             num = py.misc.current_mana;
@@ -1104,15 +1113,16 @@ namespace Moria.Core.Methods
                         {
                             py.misc.current_mana -= num;
                         }
-                        terminalEx.printCharacterCurrentMana();
+
+                        this.terminalEx.printCharacterCurrentMana();
                         monster.hp += 6 * num;
                     }
                     break;
                 case 20: // Breath Light
                     monster_name += "breathes lightning.";
                     //(void)strcat(monster_name, "breathes lightning.");
-                    terminal.printMessage(monster_name);
-                    eventPublisher.Publish(
+                    this.terminal.printMessage(monster_name);
+                    this.eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 4, (int)MagicSpellFlags.Lightning, death_description
                         )
@@ -1122,8 +1132,8 @@ namespace Moria.Core.Methods
                 case 21: // Breath Gas
                     monster_name += "breathes gas.";
                     //(void)strcat(monster_name, "breathes gas.");
-                    terminal.printMessage(monster_name);
-                    eventPublisher.Publish(
+                    this.terminal.printMessage(monster_name);
+                    this.eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.PoisonGas, death_description
                         )
@@ -1133,8 +1143,8 @@ namespace Moria.Core.Methods
                 case 22: // Breath Acid
                     monster_name += "breathes acid.";
                     //(void)strcat(monster_name, "breathes acid.");
-                    terminal.printMessage(monster_name);
-                    eventPublisher.Publish(
+                    this.terminal.printMessage(monster_name);
+                    this.eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Acid, death_description
                         )
@@ -1144,8 +1154,8 @@ namespace Moria.Core.Methods
                 case 23: // Breath Frost
                     monster_name += "breathes frost.";
                     //(void)strcat(monster_name, "breathes frost.");
-                    terminal.printMessage(monster_name);
-                    eventPublisher.Publish(
+                    this.terminal.printMessage(monster_name);
+                    this.eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Frost, death_description
                         )
@@ -1155,8 +1165,8 @@ namespace Moria.Core.Methods
                 case 24: // Breath Fire
                     monster_name += "breathes fire.";
                     //(void)strcat(monster_name, "breathes fire.");
-                    terminal.printMessage(monster_name);
-                    eventPublisher.Publish(
+                    this.terminal.printMessage(monster_name);
+                    this.eventPublisher.Publish(
                         new BreathCommand(
                             py.pos, monster_id, monster.hp / 3, (int)MagicSpellFlags.Fire, death_description
                         )
@@ -1166,7 +1176,7 @@ namespace Moria.Core.Methods
                 default:
                     monster_name += "cast unknown spell.";
                     //(void)strcat(monster_name, "cast unknown spell.");
-                    terminal.printMessage(monster_name);
+                    this.terminal.printMessage(monster_name);
                     break;
             }
         }
@@ -1174,7 +1184,7 @@ namespace Moria.Core.Methods
         // Creatures can cast spells too.  (Dragon Breath) -RAK-
         //   castSpellGetId = true if creature changes position
         //   return true (took_turn) if creature casts a spell
-        private static bool monsterCastSpell(int monster_id)
+        private bool monsterCastSpell(int monster_id)
         {
             var game = State.Instance.game;
             var monsters = State.Instance.monsters;
@@ -1189,7 +1199,7 @@ namespace Moria.Core.Methods
             var monster = monsters[monster_id];
             var creature = creatures_list[(int)monster.creature_id];
 
-            if (!monsterCanCastSpells(monster, creature.spells))
+            if (!this.monsterCanCastSpells(monster, creature.spells))
             {
                 return false;
             }
@@ -1197,7 +1207,7 @@ namespace Moria.Core.Methods
             // Creature is going to cast a spell
 
             // Check to see if monster should be lit.
-            monsterUpdateVisibility(monster_id);
+            this.monsterUpdateVisibility(monster_id);
 
             // Describe the attack
             string name;
@@ -1224,18 +1234,18 @@ namespace Moria.Core.Methods
             var id = 0;
             while (spell_flags != 0)
             {
-                spell_choice[id] = helpers.getAndClearFirstBit(ref spell_flags);
+                spell_choice[id] = this.helpers.getAndClearFirstBit(ref spell_flags);
                 id++;
             }
 
             // Choose a spell to cast
-            var thrown_spell = spell_choice[rnd.randomNumber(id) - 1];
+            var thrown_spell = spell_choice[this.rnd.randomNumber(id) - 1];
             thrown_spell++;
 
             // all except spellTeleportAwayMonster() and drain mana spells always disturb
             if (thrown_spell > 6 && thrown_spell != 17)
             {
-                eventPublisher.Publish(new DisturbCommand(true, false));
+                this.eventPublisher.Publish(new DisturbCommand(true, false));
                 //playerDisturb(1, 0);
             }
 
@@ -1244,10 +1254,10 @@ namespace Moria.Core.Methods
             {
                 name += "casts a spell.";
                 //(void)strcat(name, "casts a spell.");
-                terminal.printMessage(name);
+                this.terminal.printMessage(name);
             }
 
-            monsterExecuteCastingOfSpell(monster, monster_id, thrown_spell, creature.level, name, death_description);
+            this.monsterExecuteCastingOfSpell(monster, monster_id, thrown_spell, creature.level, name, death_description);
 
             if (monster.lit)
             {
@@ -1267,7 +1277,7 @@ namespace Moria.Core.Methods
 
         // Places creature adjacent to given location -RAK-
         // Rats and Flys are fun!
-        public static bool monsterMultiply(Coord_t coord, int creature_id, int monster_id)
+        public bool monsterMultiply(Coord_t coord, int creature_id, int monster_id)
         {
             var dg = State.Instance.dg;
             var creatures_list = Library.Instance.Creatures.creatures_list;
@@ -1277,12 +1287,12 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i <= 18; i++)
             {
-                position.y = coord.y - 2 + rnd.randomNumber(3);
-                position.x = coord.x - 2 + rnd.randomNumber(3);
+                position.y = coord.y - 2 + this.rnd.randomNumber(3);
+                position.x = coord.x - 2 + this.rnd.randomNumber(3);
 
                 // don't create a new creature on top of the old one, that
                 // causes invincible/invisible creatures to appear.
-                if (dungeon.coordInBounds(position) && (position.y != coord.y || position.x != coord.x))
+                if (this.dungeon.coordInBounds(position) && (position.y != coord.y || position.x != coord.x))
                 {
                     var tile = dg.floor[position.y][position.x];
 
@@ -1302,20 +1312,20 @@ namespace Moria.Core.Methods
                                 // It ate an already processed monster. Handle * normally.
                                 if (monster_id < tile.creature_id)
                                 {
-                                    dungeon.dungeonDeleteMonster((int)tile.creature_id);
+                                    this.dungeon.dungeonDeleteMonster((int)tile.creature_id);
                                 }
                                 else
                                 {
                                     // If it eats this monster, an already processed
                                     // monster will take its place, causing all kinds
                                     // of havoc. Delay the kill a bit.
-                                    dungeon.dungeonDeleteMonsterFix1((int)tile.creature_id);
+                                    this.dungeon.dungeonDeleteMonsterFix1((int)tile.creature_id);
                                 }
 
                                 // in case compact_monster() is called, it needs monster_id.
                                 State.Instance.hack_monptr = monster_id;
                                 // Place_monster() may fail if monster list full.
-                                var result = monsterManager.monsterPlaceNew(position, creature_id, false);
+                                var result = this.monsterManager.monsterPlaceNew(position, creature_id, false);
                                 State.Instance.hack_monptr = -1;
                                 if (!result)
                                 {
@@ -1323,7 +1333,7 @@ namespace Moria.Core.Methods
                                 }
 
                                 State.Instance.monster_multiply_total++;
-                                return monsterMakeVisible(position);
+                                return this.monsterMakeVisible(position);
                             }
                         }
                         else
@@ -1333,7 +1343,7 @@ namespace Moria.Core.Methods
                             // in case compact_monster() is called,it needs monster_id
                             State.Instance.hack_monptr = monster_id;
                             // Place_monster() may fail if monster list full.
-                            var result = monsterManager.monsterPlaceNew(position, creature_id, false);
+                            var result = this.monsterManager.monsterPlaceNew(position, creature_id, false);
                             State.Instance.hack_monptr = -1;
                             if (!result)
                             {
@@ -1341,7 +1351,7 @@ namespace Moria.Core.Methods
                             }
 
                             State.Instance.monster_multiply_total++;
-                            return monsterMakeVisible(position);
+                            return this.monsterMakeVisible(position);
                         }
                     }
                 }
@@ -1350,7 +1360,7 @@ namespace Moria.Core.Methods
             return false;
         }
 
-        private static void monsterMultiplyCritter(Monster_t monster, int monster_id, ref uint rcmove)
+        private void monsterMultiplyCritter(Monster_t monster, int monster_id, ref uint rcmove)
         {
             var dg = State.Instance.dg;
             var counter = 0;
@@ -1361,7 +1371,7 @@ namespace Moria.Core.Methods
             {
                 for (coord.x = monster.pos.x - 1; coord.x <= monster.pos.x + 1; coord.x++)
                 {
-                    if (dungeon.coordInBounds(coord) && dg.floor[coord.y][coord.x].creature_id > 1)
+                    if (this.dungeon.coordInBounds(coord) && dg.floor[coord.y][coord.x].creature_id > 1)
                     {
                         counter++;
                     }
@@ -1375,16 +1385,16 @@ namespace Moria.Core.Methods
                 counter++;
             }
 
-            if (counter < 4 && rnd.randomNumber(counter * (int)Config.monsters.MON_MULTIPLY_ADJUST) == 1)
+            if (counter < 4 && this.rnd.randomNumber(counter * (int)Config.monsters.MON_MULTIPLY_ADJUST) == 1)
             {
-                if (monsterMultiply(new Coord_t(monster.pos.y, monster.pos.x), (int)monster.creature_id, monster_id))
+                if (this.monsterMultiply(new Coord_t(monster.pos.y, monster.pos.x), (int)monster.creature_id, monster_id))
                 {
                     rcmove |= Config.monsters_move.CM_MULTIPLY;
                 }
             }
         }
 
-        private static void monsterMoveOutOfWall(Monster_t monster, int monster_id, ref uint rcmove)
+        private void monsterMoveOutOfWall(Monster_t monster, int monster_id, ref uint rcmove)
         {
             var dg = State.Instance.dg;
 
@@ -1426,7 +1436,7 @@ namespace Moria.Core.Methods
             if (id != 0)
             {
                 // put a random direction first
-                dir = rnd.randomNumber(id) - 1;
+                dir = this.rnd.randomNumber(id) - 1;
 
                 var saved_id = directions[0];
 
@@ -1434,7 +1444,7 @@ namespace Moria.Core.Methods
                 directions[dir] = saved_id;
 
                 // this can only fail if directions[0] has a rune of protection
-                makeMove(monster_id, directions, ref rcmove);
+                this.makeMove(monster_id, directions, ref rcmove);
             }
 
             // if still in a wall, let it dig itself out, but also apply some more damage
@@ -1443,73 +1453,73 @@ namespace Moria.Core.Methods
                 // in case the monster dies, may need to callfix1_delete_monster()
                 // instead of delete_monsters()
                 State.Instance.hack_monptr = monster_id;
-                var i = eventPublisher.PublishWithOutputInt(
-                    new TakeHitCommand(monster_id, dice.diceRoll(new Dice_t(8, 8)))
+                var i = this.eventPublisher.PublishWithOutputInt(
+                    new TakeHitCommand(monster_id, this.dice.diceRoll(new Dice_t(8, 8)))
                 );
                 //var i = monsterTakeHit(monster_id, dice.diceRoll(new Dice_t(8, 8)));
                 State.Instance.hack_monptr = -1;
 
                 if (i >= 0)
                 {
-                    terminal.printMessage("You hear a scream muffled by rock!");
-                    terminalEx.displayCharacterExperience();
+                    this.terminal.printMessage("You hear a scream muffled by rock!");
+                    this.terminalEx.displayCharacterExperience();
                 }
                 else
                 {
-                    terminal.printMessage("A creature digs itself out from the rock!");
+                    this.terminal.printMessage("A creature digs itself out from the rock!");
                     playerTunnelWall(new Coord_t(monster.pos.y, monster.pos.x), 1, 0);
                 }
             }
         }
 
         // Undead only get confused from turn undead, so they should flee
-        private static void monsterMoveUndead(Creature_t creature, int monster_id, ref uint rcmove)
+        private void monsterMoveUndead(Creature_t creature, int monster_id, ref uint rcmove)
         {
             var directions = new int[9];
-            monsterGetMoveDirection(monster_id, directions);
+            this.monsterGetMoveDirection(monster_id, directions);
 
             directions[0] = 10 - directions[0];
             directions[1] = 10 - directions[1];
             directions[2] = 10 - directions[2];
-            directions[3] = rnd.randomNumber(9); // May attack only if cornered
-            directions[4] = rnd.randomNumber(9);
+            directions[3] = this.rnd.randomNumber(9); // May attack only if cornered
+            directions[4] = this.rnd.randomNumber(9);
 
             // don't move if it's is not supposed to move!
             if ((creature.movement & Config.monsters_move.CM_ATTACK_ONLY) == 0u)
             {
-                makeMove(monster_id, directions, ref rcmove);
+                this.makeMove(monster_id, directions, ref rcmove);
             }
         }
 
-        private static void monsterMoveConfused(Creature_t creature, int monster_id, ref uint rcmove)
+        private void monsterMoveConfused(Creature_t creature, int monster_id, ref uint rcmove)
         {
             var directions = new int[9];
 
-            directions[0] = rnd.randomNumber(9);
-            directions[1] = rnd.randomNumber(9);
-            directions[2] = rnd.randomNumber(9);
-            directions[3] = rnd.randomNumber(9);
-            directions[4] = rnd.randomNumber(9);
+            directions[0] = this.rnd.randomNumber(9);
+            directions[1] = this.rnd.randomNumber(9);
+            directions[2] = this.rnd.randomNumber(9);
+            directions[3] = this.rnd.randomNumber(9);
+            directions[4] = this.rnd.randomNumber(9);
 
             // don't move if it's is not supposed to move!
             if ((creature.movement & Config.monsters_move.CM_ATTACK_ONLY) == 0u)
             {
-                makeMove(monster_id, directions, ref rcmove);
+                this.makeMove(monster_id, directions, ref rcmove);
             }
         }
 
-        private static bool monsterDoMove(int monster_id, ref uint rcmove, Monster_t monster, Creature_t creature)
+        private bool monsterDoMove(int monster_id, ref uint rcmove, Monster_t monster, Creature_t creature)
         {
             // Creature is confused or undead turned?
             if (monster.confused_amount != 0u)
             {
                 if ((creature.defenses & Config.monsters_defense.CD_UNDEAD) != 0)
                 {
-                    monsterMoveUndead(creature, monster_id, ref rcmove);
+                    this.monsterMoveUndead(creature, monster_id, ref rcmove);
                 }
                 else
                 {
-                    monsterMoveConfused(creature, monster_id, ref rcmove);
+                    this.monsterMoveConfused(creature, monster_id, ref rcmove);
                 }
                 monster.confused_amount--;
                 return true;
@@ -1518,57 +1528,57 @@ namespace Moria.Core.Methods
             // Creature may cast a spell
             if ((creature.spells & Config.monsters_spells.CS_FREQ) != 0u)
             {
-                return monsterCastSpell(monster_id);
+                return this.monsterCastSpell(monster_id);
             }
 
             return false;
         }
 
-        private static void monsterMoveRandomly(int monster_id, ref uint rcmove, int randomness)
+        private void monsterMoveRandomly(int monster_id, ref uint rcmove, int randomness)
         {
             var directions = new int[9];
 
-            directions[0] = rnd.randomNumber(9);
-            directions[1] = rnd.randomNumber(9);
-            directions[2] = rnd.randomNumber(9);
-            directions[3] = rnd.randomNumber(9);
-            directions[4] = rnd.randomNumber(9);
+            directions[0] = this.rnd.randomNumber(9);
+            directions[1] = this.rnd.randomNumber(9);
+            directions[2] = this.rnd.randomNumber(9);
+            directions[3] = this.rnd.randomNumber(9);
+            directions[4] = this.rnd.randomNumber(9);
 
             rcmove |= (uint)randomness;
 
-            makeMove(monster_id, directions, ref rcmove);
+            this.makeMove(monster_id, directions, ref rcmove);
         }
 
-        private static void monsterMoveNormally(int monster_id, ref uint rcmove)
+        private void monsterMoveNormally(int monster_id, ref uint rcmove)
         {
             var directions = new int[9];
 
-            if (rnd.randomNumber(200) == 1)
+            if (this.rnd.randomNumber(200) == 1)
             {
-                directions[0] = rnd.randomNumber(9);
-                directions[1] = rnd.randomNumber(9);
-                directions[2] = rnd.randomNumber(9);
-                directions[3] = rnd.randomNumber(9);
-                directions[4] = rnd.randomNumber(9);
+                directions[0] = this.rnd.randomNumber(9);
+                directions[1] = this.rnd.randomNumber(9);
+                directions[2] = this.rnd.randomNumber(9);
+                directions[3] = this.rnd.randomNumber(9);
+                directions[4] = this.rnd.randomNumber(9);
             }
             else
             {
-                monsterGetMoveDirection(monster_id, directions);
+                this.monsterGetMoveDirection(monster_id, directions);
             }
 
             rcmove |= Config.monsters_move.CM_MOVE_NORMAL;
 
-            makeMove(monster_id, directions, ref rcmove);
+            this.makeMove(monster_id, directions, ref rcmove);
         }
 
-        private static void monsterAttackWithoutMoving(int monster_id, ref uint rcmove, uint distance_from_player)
+        private void monsterAttackWithoutMoving(int monster_id, ref uint rcmove, uint distance_from_player)
         {
             var directions = new int[9];
 
             if (distance_from_player < 2)
             {
-                monsterGetMoveDirection(monster_id, directions);
-                makeMove(monster_id, directions, ref rcmove);
+                this.monsterGetMoveDirection(monster_id, directions);
+                this.makeMove(monster_id, directions, ref rcmove);
             }
             else
             {
@@ -1579,7 +1589,7 @@ namespace Moria.Core.Methods
         }
 
         // Move the critters about the dungeon -RAK-
-        private static void monsterMove(int monster_id, ref uint rcmove)
+        private void monsterMove(int monster_id, ref uint rcmove)
         {
             var monsters = State.Instance.monsters;
             var creatures_list = Library.Instance.Creatures.creatures_list;
@@ -1592,58 +1602,58 @@ namespace Moria.Core.Methods
 
             // Does the critter multiply?
             // rest could be negative, to be safe, only use mod with positive values.
-            var abs_rest_period = (int)std.std_abs(std.std_intmax_t(py.flags.rest));
+            var abs_rest_period = (int)this.std.std_abs(this.std.std_intmax_t(py.flags.rest));
             if ((creature.movement & Config.monsters_move.CM_MULTIPLY) != 0u && Config.monsters.MON_MAX_MULTIPLY_PER_LEVEL >= State.Instance.monster_multiply_total &&
                 abs_rest_period % Config.monsters.MON_MULTIPLY_ADJUST == 0)
             {
-                monsterMultiplyCritter(monster, monster_id, ref rcmove);
+                this.monsterMultiplyCritter(monster, monster_id, ref rcmove);
             }
 
             // if in wall, must immediately escape to a clear area
             // then monster movement finished
             if ((creature.movement & Config.monsters_move.CM_PHASE) == 0u && dg.floor[monster.pos.y][monster.pos.x].feature_id >= MIN_CAVE_WALL)
             {
-                monsterMoveOutOfWall(monster, monster_id, ref rcmove);
+                this.monsterMoveOutOfWall(monster, monster_id, ref rcmove);
                 return;
             }
 
-            if (monsterDoMove(monster_id, ref rcmove, monster, creature))
+            if (this.monsterDoMove(monster_id, ref rcmove, monster, creature))
             {
                 return;
             }
 
             // 75% random movement
-            if ((creature.movement & Config.monsters_move.CM_75_RANDOM) != 0u && rnd.randomNumber(100) < 75)
+            if ((creature.movement & Config.monsters_move.CM_75_RANDOM) != 0u && this.rnd.randomNumber(100) < 75)
             {
-                monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_75_RANDOM);
+                this.monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_75_RANDOM);
                 return;
             }
 
             // 40% random movement
-            if ((creature.movement & Config.monsters_move.CM_40_RANDOM) != 0u && rnd.randomNumber(100) < 40)
+            if ((creature.movement & Config.monsters_move.CM_40_RANDOM) != 0u && this.rnd.randomNumber(100) < 40)
             {
-                monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_40_RANDOM);
+                this.monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_40_RANDOM);
                 return;
             }
 
             // 20% random movement
-            if ((creature.movement & Config.monsters_move.CM_20_RANDOM) != 0u && rnd.randomNumber(100) < 20)
+            if ((creature.movement & Config.monsters_move.CM_20_RANDOM) != 0u && this.rnd.randomNumber(100) < 20)
             {
-                monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_20_RANDOM);
+                this.monsterMoveRandomly(monster_id, ref rcmove, (int)Config.monsters_move.CM_20_RANDOM);
                 return;
             }
 
             // Normal movement
             if ((creature.movement & Config.monsters_move.CM_MOVE_NORMAL) != 0u)
             {
-                monsterMoveNormally(monster_id, ref rcmove);
+                this.monsterMoveNormally(monster_id, ref rcmove);
                 return;
             }
 
             // Attack, but don't move
             if ((creature.movement & Config.monsters_move.CM_ATTACK_ONLY) != 0u)
             {
-                monsterAttackWithoutMoving(monster_id, ref rcmove, monster.distance_from_player);
+                this.monsterAttackWithoutMoving(monster_id, ref rcmove, monster.distance_from_player);
                 return;
             }
 
@@ -1665,7 +1675,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private static void memoryUpdateRecall(Monster_t monster, bool wake, bool ignore, uint rcmove)
+        private void memoryUpdateRecall(Monster_t monster, bool wake, bool ignore, uint rcmove)
         {
             var creature_recall = State.Instance.creature_recall;
 
@@ -1694,7 +1704,7 @@ namespace Moria.Core.Methods
             memory.movement |= rcmove;
         }
 
-        private static void monsterAttackingUpdate(Monster_t monster, int monster_id, int moves)
+        private void monsterAttackingUpdate(Monster_t monster, int monster_id, int moves)
         {
             var creatures_list = Library.Instance.Creatures.creatures_list;
             var py = State.Instance.py;
@@ -1718,9 +1728,9 @@ namespace Moria.Core.Methods
                         {
                             monster.sleep_count = 0;
                         }
-                        else if (py.flags.rest == 0 && py.flags.paralysis < 1 || rnd.randomNumber(50) == 1)
+                        else if (py.flags.rest == 0 && py.flags.paralysis < 1 || this.rnd.randomNumber(50) == 1)
                         {
-                            var notice = rnd.randomNumber(1024);
+                            var notice = this.rnd.randomNumber(1024);
 
                             if (notice * notice * notice <= 1L << (29 - py.misc.stealth_factor))
                             {
@@ -1743,7 +1753,7 @@ namespace Moria.Core.Methods
                     if (monster.stunned_amount != 0)
                     {
                         // NOTE: Balrog = 100*100 = 10000, it always recovers instantly
-                        if (rnd.randomNumber(5000) < creatures_list[(int)monster.creature_id].level * creatures_list[(int)monster.creature_id].level)
+                        if (this.rnd.randomNumber(5000) < creatures_list[(int)monster.creature_id].level * creatures_list[(int)monster.creature_id].level)
                         {
                             monster.stunned_amount = 0;
                         }
@@ -1759,23 +1769,23 @@ namespace Moria.Core.Methods
                                 var msg = $"The {creatures_list[(int)monster.creature_id].name} ";
                                 //vtype_t msg = { '\0' };
                                 //(void)sprintf(msg, "The %s ", creatures_list[monster.creature_id].name);
-                                terminal.printMessage(msg + "recovers and glares at you.");
+                                this.terminal.printMessage(msg + "recovers and glares at you.");
                             }
                         }
                     }
                     if (monster.sleep_count == 0 && monster.stunned_amount == 0)
                     {
-                        monsterMove(monster_id, ref rcmove);
+                        this.monsterMove(monster_id, ref rcmove);
                     }
                 }
 
-                monsterUpdateVisibility(monster_id);
-                memoryUpdateRecall(monster, wake, ignore, rcmove);
+                this.monsterUpdateVisibility(monster_id);
+                this.memoryUpdateRecall(monster, wake, ignore, rcmove);
             }
         }
 
         // Creatures movement and attacking are done from here -RAK-
-        public static void updateMonsters(bool attack)
+        public void updateMonsters(bool attack)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -1791,29 +1801,29 @@ namespace Moria.Core.Methods
                 // monsters while scanning the monsters here.
                 if (monster.hp < 0)
                 {
-                    dungeon.dungeonDeleteMonsterFix2(id);
+                    this.dungeon.dungeonDeleteMonsterFix2(id);
                     continue;
                 }
 
-                monster.distance_from_player = (uint)dungeon.coordDistanceBetween(py.pos, new Coord_t(monster.pos.y, monster.pos.x));
+                monster.distance_from_player = (uint)this.dungeon.coordDistanceBetween(py.pos, new Coord_t(monster.pos.y, monster.pos.x));
 
                 // Attack is argument passed to CREATURE
                 if (attack)
                 {
-                    var moves = monsterMovementRate(monster.speed);
+                    var moves = this.monsterMovementRate(monster.speed);
 
                     if (moves <= 0)
                     {
-                        monsterUpdateVisibility(id);
+                        this.monsterUpdateVisibility(id);
                     }
                     else
                     {
-                        monsterAttackingUpdate(monster, id, moves);
+                        this.monsterAttackingUpdate(monster, id, moves);
                     }
                 }
                 else
                 {
-                    monsterUpdateVisibility(id);
+                    this.monsterUpdateVisibility(id);
                 }
 
                 // Get rid of an eaten/breathed on monster. This is necessary because
@@ -1821,13 +1831,13 @@ namespace Moria.Core.Methods
                 // This monster may have been killed during monsterMove().
                 if (monster.hp < 0)
                 {
-                    dungeon.dungeonDeleteMonsterFix2(id);
+                    this.dungeon.dungeonDeleteMonsterFix2(id);
                     continue;
                 }
             }
         }
 
-        private static int monsterDeathItemDropType(uint flags)
+        private int monsterDeathItemDropType(uint flags)
         {
             int obj;
 
@@ -1853,33 +1863,33 @@ namespace Moria.Core.Methods
             return obj;
         }
 
-        private static int monsterDeathItemDropCount(uint flags)
+        private int monsterDeathItemDropCount(uint flags)
         {
             var count = 0;
 
-            if ((flags & Config.monsters_move.CM_60_RANDOM) != 0u && rnd.randomNumber(100) < 60)
+            if ((flags & Config.monsters_move.CM_60_RANDOM) != 0u && this.rnd.randomNumber(100) < 60)
             {
                 count++;
             }
 
-            if ((flags & Config.monsters_move.CM_90_RANDOM) != 0u && rnd.randomNumber(100) < 90)
+            if ((flags & Config.monsters_move.CM_90_RANDOM) != 0u && this.rnd.randomNumber(100) < 90)
             {
                 count++;
             }
 
             if ((flags & Config.monsters_move.CM_1D2_OBJ) != 0u)
             {
-                count += rnd.randomNumber(2);
+                count += this.rnd.randomNumber(2);
             }
 
             if ((flags & Config.monsters_move.CM_2D2_OBJ) != 0u)
             {
-                count += dice.diceRoll(new Dice_t(2, 2));
+                count += this.dice.diceRoll(new Dice_t(2, 2));
             }
 
             if ((flags & Config.monsters_move.CM_4D2_OBJ) != 0u)
             {
-                count += dice.diceRoll(new Dice_t(4, 2));
+                count += this.dice.diceRoll(new Dice_t(4, 2));
             }
 
             return count;
@@ -1891,10 +1901,10 @@ namespace Moria.Core.Methods
         //
         // Returns a mask of bits from the given flags which indicates what the
         // monster is seen to have dropped.  This may be added to monster memory.
-        public static uint monsterDeath(Coord_t coord, uint flags)
+        public uint monsterDeath(Coord_t coord, uint flags)
         {
-            var item_type = monsterDeathItemDropType(flags);
-            var item_count = monsterDeathItemDropCount(flags);
+            var item_type = this.monsterDeathItemDropType(flags);
+            var item_count = this.monsterDeathItemDropCount(flags);
 
             uint dropped_item_id = 0;
 
@@ -1902,7 +1912,7 @@ namespace Moria.Core.Methods
 
             if (item_count > 0)
             {
-                dropped_item_id = (uint)dungeonPlacer.dungeonSummonObject(coord, item_count, item_type);
+                dropped_item_id = (uint)this.dungeonPlacer.dungeonSummonObject(coord, item_count, item_type);
             }
 
             // maybe the player died in mid-turn
@@ -1910,10 +1920,10 @@ namespace Moria.Core.Methods
             {
                 game.total_winner = true;
 
-                terminalEx.printCharacterWinner();
+                this.terminalEx.printCharacterWinner();
 
-                terminal.printMessage("*** CONGRATULATIONS *** You have won the game.");
-                terminal.printMessage("You cannot save this game, but you may retire when ready.");
+                this.terminal.printMessage("*** CONGRATULATIONS *** You have won the game.");
+                this.terminal.printMessage("You cannot save this game, but you may retire when ready.");
             }
 
             if (dropped_item_id == 0)
@@ -1944,12 +1954,12 @@ namespace Moria.Core.Methods
             return return_flags | (uint)number_of_items;
         }
 
-        public static void printMonsterActionText(string name, string action)
+        public void printMonsterActionText(string name, string action)
         {
-            terminal.printMessage(name + " " + action);
+            this.terminal.printMessage(name + " " + action);
         }
 
-        public static string monsterNameDescription(string real_name, bool is_lit)
+        public string monsterNameDescription(string real_name, bool is_lit)
         {
             if (is_lit)
             {
@@ -1959,8 +1969,8 @@ namespace Moria.Core.Methods
         }
 
         // Sleep creatures adjacent to player -RAK-
-        public static bool monsterSleep(Coord_t coord)
-        { 
+        public bool monsterSleep(Coord_t coord)
+        {
             var dg = State.Instance.dg;
             var monsters = State.Instance.monsters;
             var creatures_list = Library.Instance.Creatures.creatures_list;
@@ -1981,23 +1991,23 @@ namespace Moria.Core.Methods
                     var monster = monsters[monster_id];
                     var creature = creatures_list[(int)monster.creature_id];
 
-                    var name = monsterNameDescription(creature.name, monster.lit);
+                    var name = this.monsterNameDescription(creature.name, monster.lit);
 
-                    if (rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
+                    if (this.rnd.randomNumber(MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                     {
                         if (monster.lit && (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                         {
                             State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
                         }
 
-                        printMonsterActionText(name, "is unaffected.");
+                        this.printMonsterActionText(name, "is unaffected.");
                     }
                     else
                     {
                         monster.sleep_count = 500;
                         asleep = true;
 
-                        printMonsterActionText(name, "falls asleep.");
+                        this.printMonsterActionText(name, "falls asleep.");
                     }
                 }
             }
@@ -2005,7 +2015,7 @@ namespace Moria.Core.Methods
             return asleep;
         }
 
-        private static bool executeAttackOnPlayer(uint creature_level, ref int monster_hp, int monster_id, int attack_type, int damage, string death_description, bool noticed)
+        private bool executeAttackOnPlayer(uint creature_level, ref int monster_hp, int monster_id, int attack_type, int damage, string death_description, bool noticed)
         {
             var py = State.Instance.py;
             int gold;
@@ -2021,12 +2031,12 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_str)
                     {
-                        terminal.printMessage("You feel weaker for a moment, but it passes.");
+                        this.terminal.printMessage("You feel weaker for a moment, but it passes.");
                     }
-                    else if (rnd.randomNumber(2) == 1)
+                    else if (this.rnd.randomNumber(2) == 1)
                     {
-                        terminal.printMessage("You feel weaker.");
-                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+                        this.terminal.printMessage("You feel weaker.");
+                        this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
                         //playerStatRandomDecrease((int)PlayerAttr.STR);
                     }
                     else
@@ -2036,12 +2046,12 @@ namespace Moria.Core.Methods
                     break;
                 case 3: // Confusion attack
                     playerTakesHit(damage, death_description);
-                    if (rnd.randomNumber(2) == 1)
+                    if (this.rnd.randomNumber(2) == 1)
                     {
                         if (py.flags.confused < 1)
                         {
-                            terminal.printMessage("You feel confused.");
-                            py.flags.confused += rnd.randomNumber((int)creature_level);
+                            this.terminal.printMessage("You feel confused.");
+                            py.flags.confused += this.rnd.randomNumber((int)creature_level);
                         }
                         else
                         {
@@ -2058,12 +2068,12 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects!");
+                        this.terminal.printMessage("You resist the effects!");
                     }
                     else if (py.flags.afraid < 1)
                     {
-                        terminal.printMessage("You are suddenly afraid!");
-                        py.flags.afraid += 3 + rnd.randomNumber((int)creature_level);
+                        this.terminal.printMessage("You are suddenly afraid!");
+                        py.flags.afraid += 3 + this.rnd.randomNumber((int)creature_level);
                     }
                     else
                     {
@@ -2072,32 +2082,32 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 5: // Fire attack
-                    terminal.printMessage("You are enveloped in flames!");
-                    inventory.damageFire(damage, death_description);
+                    this.terminal.printMessage("You are enveloped in flames!");
+                    this.inventory.damageFire(damage, death_description);
                     break;
                 case 6: // Acid attack
-                    terminal.printMessage("You are covered in acid!");
-                    inventory.damageAcid(damage, death_description);
+                    this.terminal.printMessage("You are covered in acid!");
+                    this.inventory.damageAcid(damage, death_description);
                     break;
                 case 7: // Cold attack
-                    terminal.printMessage("You are covered with frost!");
-                    inventory.damageCold(damage, death_description);
+                    this.terminal.printMessage("You are covered with frost!");
+                    this.inventory.damageCold(damage, death_description);
                     break;
                 case 8: // Lightning attack
-                    terminal.printMessage("Lightning strikes you!");
-                    inventory.damageLightningBolt(damage, death_description);
+                    this.terminal.printMessage("Lightning strikes you!");
+                    this.inventory.damageLightningBolt(damage, death_description);
                     break;
                 case 9: // Corrosion attack
-                    terminal.printMessage("A stinging red gas swirls about you.");
-                    inventory.damageCorrodingGas(death_description);
+                    this.terminal.printMessage("A stinging red gas swirls about you.");
+                    this.inventory.damageCorrodingGas(death_description);
                     playerTakesHit(damage, death_description);
                     break;
                 case 10: // Blindness attack
                     playerTakesHit(damage, death_description);
                     if (py.flags.blind < 1)
                     {
-                        py.flags.blind += 10 + rnd.randomNumber((int)creature_level);
-                        terminal.printMessage("Your eyes begin to sting.");
+                        py.flags.blind += 10 + this.rnd.randomNumber((int)creature_level);
+                        this.terminal.printMessage("Your eyes begin to sting.");
                     }
                     else
                     {
@@ -2109,18 +2119,18 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (playerSavingThrow())
                     {
-                        terminal.printMessage("You resist the effects!");
+                        this.terminal.printMessage("You resist the effects!");
                     }
                     else if (py.flags.paralysis < 1)
                     {
                         if (py.flags.free_action)
                         {
-                            terminal.printMessage("You are unaffected.");
+                            this.terminal.printMessage("You are unaffected.");
                         }
                         else
                         {
-                            py.flags.paralysis = (int)(rnd.randomNumber((int)creature_level) + 3);
-                            terminal.printMessage("You are paralyzed.");
+                            py.flags.paralysis = (int)(this.rnd.randomNumber((int)creature_level) + 3);
+                            this.terminal.printMessage("You are paralyzed.");
                         }
                     }
                     else
@@ -2129,13 +2139,13 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 12: // Steal Money
-                    if (py.flags.paralysis < 1 && rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
+                    if (py.flags.paralysis < 1 && this.rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
                     {
-                        terminal.printMessage("You quickly protect your money pouch!");
+                        this.terminal.printMessage("You quickly protect your money pouch!");
                     }
                     else
                     {
-                        gold = py.misc.au / 10 + rnd.randomNumber(25);
+                        gold = py.misc.au / 10 + this.rnd.randomNumber(25);
                         if (gold > py.misc.au)
                         {
                             py.misc.au = 0;
@@ -2144,48 +2154,49 @@ namespace Moria.Core.Methods
                         {
                             py.misc.au -= gold;
                         }
-                        terminal.printMessage("Your purse feels lighter.");
-                        terminalEx.printCharacterGoldValue();
+
+                        this.terminal.printMessage("Your purse feels lighter.");
+                        this.terminalEx.printCharacterGoldValue();
                     }
-                    if (rnd.randomNumber(2) == 1)
+                    if (this.rnd.randomNumber(2) == 1)
                     {
-                        terminal.printMessage("There is a puff of smoke!");
-                        eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
+                        this.terminal.printMessage("There is a puff of smoke!");
+                        this.eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
                         //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 13: // Steal Object
-                    if (py.flags.paralysis < 1 && rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
+                    if (py.flags.paralysis < 1 && this.rnd.randomNumber(124) < py.stats.used[(int)PlayerAttr.DEX])
                     {
-                        terminal.printMessage("You grab hold of your backpack!");
+                        this.terminal.printMessage("You grab hold of your backpack!");
                     }
                     else
                     {
-                        inventoryManager.inventoryDestroyItem(rnd.randomNumber(py.pack.unique_items) - 1);
-                        terminal.printMessage("Your backpack feels lighter.");
+                        this.inventoryManager.inventoryDestroyItem(this.rnd.randomNumber(py.pack.unique_items) - 1);
+                        this.terminal.printMessage("Your backpack feels lighter.");
                     }
-                    if (rnd.randomNumber(2) == 1)
+                    if (this.rnd.randomNumber(2) == 1)
                     {
-                        terminal.printMessage("There is a puff of smoke!");
-                        eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
+                        this.terminal.printMessage("There is a puff of smoke!");
+                        this.eventPublisher.Publish(new TeleportAwayMonsterCommand(monster_id, (int)Config.monsters.MON_MAX_SIGHT));
                         //spellTeleportAwayMonster(monster_id, (int)Config.monsters.MON_MAX_SIGHT);
                     }
                     break;
                 case 14: // Poison
                     playerTakesHit(damage, death_description);
-                    terminal.printMessage("You feel very sick.");
-                    py.flags.poisoned += rnd.randomNumber((int)creature_level) + 5;
+                    this.terminal.printMessage("You feel very sick.");
+                    py.flags.poisoned += this.rnd.randomNumber((int)creature_level) + 5;
                     break;
                 case 15: // Lose dexterity
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_dex)
                     {
-                        terminal.printMessage("You feel clumsy for a moment, but it passes.");
+                        this.terminal.printMessage("You feel clumsy for a moment, but it passes.");
                     }
                     else
                     {
-                        terminal.printMessage("You feel more clumsy.");
-                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.DEX));
+                        this.terminal.printMessage("You feel more clumsy.");
+                        this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.DEX));
                         //playerStatRandomDecrease((int)PlayerAttr.DEX);
                     }
                     break;
@@ -2193,25 +2204,25 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_con)
                     {
-                        terminal.printMessage("Your body resists the effects of the disease.");
+                        this.terminal.printMessage("Your body resists the effects of the disease.");
                     }
                     else
                     {
-                        terminal.printMessage("Your health is damaged!");
-                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.CON));
+                        this.terminal.printMessage("Your health is damaged!");
+                        this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.CON));
                         //playerStatRandomDecrease((int)PlayerAttr.CON);
                     }
                     break;
                 case 17: // Lose intelligence
                     playerTakesHit(damage, death_description);
-                    terminal.printMessage("You have trouble thinking clearly.");
+                    this.terminal.printMessage("You have trouble thinking clearly.");
                     if (py.flags.sustain_int)
                     {
-                        terminal.printMessage("But your mind quickly clears.");
+                        this.terminal.printMessage("But your mind quickly clears.");
                     }
                     else
                     {
-                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
+                        this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.STR));
                         //playerStatRandomDecrease((int)PlayerAttr.INT);
                     }
                     break;
@@ -2219,30 +2230,30 @@ namespace Moria.Core.Methods
                     playerTakesHit(damage, death_description);
                     if (py.flags.sustain_wis)
                     {
-                        terminal.printMessage("Your wisdom is sustained.");
+                        this.terminal.printMessage("Your wisdom is sustained.");
                     }
                     else
                     {
-                        terminal.printMessage("Your wisdom is drained.");
-                        eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.WIS));
+                        this.terminal.printMessage("Your wisdom is drained.");
+                        this.eventPublisher.Publish(new StatRandomDecreaseCommand((int)PlayerAttr.WIS));
                         //playerStatRandomDecrease((int)PlayerAttr.WIS);
                     }
                     break;
                 case 19: // Lose experience
-                    terminal.printMessage("You feel your life draining away!");
-                    eventPublisher.Publish(new LoseExpCommand(
+                    this.terminal.printMessage("You feel your life draining away!");
+                    this.eventPublisher.Publish(new LoseExpCommand(
                         damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT
                     ));
                     //spellLoseEXP(damage + py.misc.exp / 100 * (int)Config.monsters.MON_PLAYER_EXP_DRAINED_PER_HIT);
                     break;
                 case 20: // Aggravate monster
-                    eventPublisher.Publish(new AggravateMonstersCommand(20));
+                    this.eventPublisher.Publish(new AggravateMonstersCommand(20));
                     //spellAggravateMonsters(20);
                     break;
                 case 21: // Disenchant
-                    if (inventoryManager.executeDisenchantAttack())
+                    if (this.inventoryManager.executeDisenchantAttack())
                     {
-                        terminal.printMessage("There is a static feeling in the air.");
+                        this.terminal.printMessage("There is a feeling in the air.");
                         playerRecalculateBonuses();
                     }
                     else
@@ -2251,10 +2262,10 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 22: // Eat food
-                    if (inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out var item_pos_start, out _))
+                    if (this.inventoryManager.inventoryFindRange((int)TV_FOOD, TV_NEVER, out var item_pos_start, out _))
                     {
-                        inventoryManager.inventoryDestroyItem(item_pos_start);
-                        terminal.printMessage("It got at your rations!");
+                        this.inventoryManager.inventoryDestroyItem(item_pos_start);
+                        this.terminal.printMessage("It got at your rations!");
                     }
                     else
                     {
@@ -2262,10 +2273,10 @@ namespace Moria.Core.Methods
                     }
                     break;
                 case 23: // Eat light
-                    noticed = inventory.inventoryDiminishLightAttack(noticed);
+                    noticed = this.inventory.inventoryDiminishLightAttack(noticed);
                     break;
                 case 24: // Eat charges
-                    noticed = inventory.inventoryDiminishChargesAttack(creature_level, ref monster_hp, noticed);
+                    noticed = this.inventory.inventoryDiminishChargesAttack(creature_level, ref monster_hp, noticed);
                     break;
                 // NOTE: default handles this case
                 // case 99:

@@ -13,6 +13,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         private readonly IDungeonLos dungeonLos;
         private readonly IEventPublisher eventPublisher;
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly ISpells spells;
         private readonly ITerminal terminal;
         private readonly ITerminalEx terminalEx;
@@ -22,6 +23,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             IDungeonLos dungeonLos,
             IEventPublisher eventPublisher,
             IHelpers helpers,
+            IMonster monster,
             ISpells spells,
             ITerminal terminal,
             ITerminalEx terminalEx
@@ -31,6 +33,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
             this.dungeonLos = dungeonLos;
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
+            this.monster = monster;
             this.spells = spells;
             this.terminal = terminal;
             this.terminalEx = terminalEx;
@@ -123,7 +126,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                                         // lite up creature if visible, temp set permanent_light so that monsterUpdateVisibility works
                                         var saved_lit_status = tile.permanent_light;
                                         tile.permanent_light = true;
-                                        Monster_m.monsterUpdateVisibility((int)tile.creature_id);
+                                        this.monster.monsterUpdateVisibility((int)tile.creature_id);
 
                                         total_hits++;
                                         var damage = damage_hp;

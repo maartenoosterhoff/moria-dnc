@@ -10,7 +10,6 @@ using Moria.Core.States;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
 using static Moria.Core.Constants.Treasure_c;
-using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
@@ -27,6 +26,7 @@ namespace Moria.Core.Methods
         private readonly IGame game;
         private readonly IHelpers helpers;
         private readonly IInventoryManager inventoryManager;
+        private readonly IMonster monster;
         private readonly IPlayerMagic playerMagic;
         private readonly IRnd rnd;
         private readonly ISpells spells;
@@ -40,6 +40,7 @@ namespace Moria.Core.Methods
             IGame game,
             IHelpers helpers,
             IInventoryManager inventoryManager,
+            IMonster monster,
             IPlayerMagic playerMagic,
             IRnd rnd,
             ISpells spells,
@@ -53,6 +54,7 @@ namespace Moria.Core.Methods
             this.game = game;
             this.helpers = helpers;
             this.inventoryManager = inventoryManager;
+            this.monster = monster;
             this.playerMagic = playerMagic;
             this.rnd = rnd;
             this.spells = spells;
@@ -167,7 +169,7 @@ namespace Moria.Core.Methods
                     this.playerMagic.playerBless(this.rnd.randomNumber(24) + 24);
                     break;
                 case PriestSpellTypes.Sanctuary:
-                    monsterSleep(py.pos);
+                    this.monster.monsterSleep(py.pos);
                     break;
                 case PriestSpellTypes.CreateFood:
                     this.eventPublisher.Publish(new CreateFoodCommand());

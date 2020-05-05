@@ -11,14 +11,17 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
         ICommandHandler<SleepMonsterCommand, bool>
     {
         private readonly IHelpers helpers;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
 
         public SleepMonsterCommandHandler(
             IHelpers helpers,
+            IMonster monster,
             IRnd rnd
         )
         {
             this.helpers = helpers;
+            this.monster = monster;
             this.rnd = rnd;
         }
 
@@ -66,7 +69,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                     var monster = State.Instance.monsters[tile.creature_id];
                     var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
-                    var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+                    var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
                     if (this.rnd.randomNumber(Monster_c.MON_MAX_LEVELS) < creature.level || (creature.defenses & Config.monsters_defense.CD_NO_SLEEP) != 0)
                     {
@@ -75,7 +78,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
                             State.Instance.creature_recall[monster.creature_id].defenses |= Config.monsters_defense.CD_NO_SLEEP;
                         }
 
-                        Monster_m.printMonsterActionText(name, "is unaffected.");
+                        this.monster.printMonsterActionText(name, "is unaffected.");
                     }
                     else
                     {
@@ -83,7 +86,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Attacking
 
                         asleep = true;
 
-                        Monster_m.printMonsterActionText(name, "falls asleep.");
+                        this.monster.printMonsterActionText(name, "falls asleep.");
                     }
                 }
             }

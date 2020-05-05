@@ -9,6 +9,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
 {
     public class LightLineCommandHandler : ICommandHandler<LightLineCommand>
     {
+        private readonly IMonster monster;
         private readonly IDice dice;
         private readonly IDungeon dungeon;
         private readonly IEventPublisher eventPublisher;
@@ -20,6 +21,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
             IDungeon dungeon,
             IEventPublisher eventPublisher,
             IHelpers helpers,
+            IMonster monster,
             ITerminalEx terminalEx
         )
         {
@@ -27,6 +29,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
             this.dungeon = dungeon;
             this.eventPublisher = eventPublisher;
             this.helpers = helpers;
+            this.monster = monster;
             this.terminalEx = terminalEx;
         }
 
@@ -101,9 +104,9 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
             var creature = Library.Instance.Creatures.creatures_list[(int)monster.creature_id];
 
             // light up and draw monster
-            Monster_m.monsterUpdateVisibility(monster_id);
+            this.monster.monsterUpdateVisibility(monster_id);
 
-            var name = Monster_m.monsterNameDescription(creature.name, monster.lit);
+            var name = this.monster.monsterNameDescription(creature.name, monster.lit);
 
             if ((creature.defenses & Config.monsters_defense.CD_LIGHT) != 0)
             {
@@ -118,12 +121,12 @@ namespace Moria.Core.Methods.Commands.SpellCasting.Lighting
                 if (creature_id >= 0)
                 //if (Monster_m.monsterTakeHit(monster_id, this.dice.diceRoll(new Dice_t(2, 8))) >= 0)
                 {
-                    Monster_m.printMonsterActionText(name, "shrivels away in the light!");
+                    this.monster.printMonsterActionText(name, "shrivels away in the light!");
                     this.terminalEx.displayCharacterExperience();
                 }
                 else
                 {
-                    Monster_m.printMonsterActionText(name, "cringes from the light!");
+                    this.monster.printMonsterActionText(name, "cringes from the light!");
                 }
             }
         }

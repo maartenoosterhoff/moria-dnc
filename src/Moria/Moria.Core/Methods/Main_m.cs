@@ -169,6 +169,7 @@ Options:
             container.RegisterSingleton<IInventory, Inventory_m>();
             container.RegisterSingleton<IInventoryManager, Inventory_manager_m>();
             container.RegisterSingleton<IMageSpells, Mage_spells_m>();
+            container.RegisterSingleton<IMonster, Monster_m>();
             container.RegisterSingleton<IMonsterManager, Monster_manager_m>();
             container.RegisterSingleton<IPlayerEat, Player_eat_m>();
             container.RegisterSingleton<IPlayerMagic, Player_magic_m>();
@@ -215,6 +216,7 @@ Options:
                 container.GetInstance<IInventory>(),
                 container.GetInstance<IInventoryManager>(),
                 container.GetInstance<IMageSpells>(),
+                container.GetInstance<IMonster>(),
                 container.GetInstance<IMonsterManager>(),
                 container.GetInstance<IPlayerEat>(),
                 container.GetInstance<IPlayerPray>(),
@@ -236,22 +238,6 @@ Options:
                 container.GetInstance<IEventPublisher>()
             );
 
-            Monster_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IDungeon>(),
-                container.GetInstance<IDungeonLos>(),
-                container.GetInstance<IDungeonPlacer>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IInventory>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IMonsterManager>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<IStd>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<ITerminalEx>(),
-                container.GetInstance<IEventPublisher>()
-            );
-
             Player_m.SetDependencies(
                 container.GetInstance<IDice>(),
                 container.GetInstance<IDungeon>(),
@@ -259,6 +245,7 @@ Options:
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IIdentification>(),
                 container.GetInstance<IInventoryManager>(),
+                container.GetInstance<IMonster>(),
                 container.GetInstance<IPlayerMagic>(),
                 container.GetInstance<IPlayerTraps>(),
                 container.GetInstance<IRnd>(),

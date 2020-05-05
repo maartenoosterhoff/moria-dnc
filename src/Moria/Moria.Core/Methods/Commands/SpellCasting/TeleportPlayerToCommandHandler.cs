@@ -7,16 +7,19 @@ namespace Moria.Core.Methods.Commands.SpellCasting
     public class TeleportPlayerToCommandHandler : ICommandHandler<TeleportPlayerToCommand>
     {
         private readonly IDungeon dungeon;
+        private readonly IMonster monster;
         private readonly IRnd rnd;
         private readonly ITerminalEx terminalEx;
 
         public TeleportPlayerToCommandHandler(
             IDungeon dungeon,
+            IMonster monster,
             IRnd rnd,
             ITerminalEx terminalEx
         )
         {
             this.dungeon = dungeon;
+            this.monster = monster;
             this.rnd = rnd;
             this.terminalEx = terminalEx;
         }
@@ -69,7 +72,7 @@ namespace Moria.Core.Methods.Commands.SpellCasting
             this.terminalEx.dungeonResetView();
 
             // light creatures
-            Monster_m.updateMonsters(false);
+            this.monster.updateMonsters(false);
         }
     }
 }
