@@ -31,7 +31,6 @@ using static Moria.Core.Methods.Player_throw_m;
 using static Moria.Core.Methods.Player_traps_m;
 using static Moria.Core.Methods.Scores_m;
 using static Moria.Core.Methods.Scrolls_m;
-using static Moria.Core.Methods.Staffs_m;
 using static Moria.Core.Methods.Store_m;
 
 namespace Moria.Core.Methods
@@ -57,6 +56,7 @@ namespace Moria.Core.Methods
             IPlayerTunnel playerTunnel,
             IRnd rnd,
             ISpells spells,
+            IStaffs staffs,
             IStoreInventory storeInventory,
             ITerminal terminal,
             ITerminalEx terminalEx,
@@ -83,6 +83,7 @@ namespace Moria.Core.Methods
             Game_run_m.playerQuaff = playerQuaff;
             Game_run_m.playerTunnel = playerTunnel;
             Game_run_m.rnd = rnd;
+            Game_run_m.staffs = staffs;
             Game_run_m.spells = spells;
             Game_run_m.storeInventory = storeInventory;
             Game_run_m.terminal = terminal;
@@ -112,6 +113,7 @@ namespace Moria.Core.Methods
         private static IPlayerTunnel playerTunnel;
         private static IRnd rnd;
         private static ISpells spells;
+        private static IStaffs staffs;
         private static IStoreInventory storeInventory;
         private static ITerminal terminal;
         private static ITerminalEx terminalEx;
@@ -2352,7 +2354,7 @@ namespace Moria.Core.Methods
                     playerTunnel.playerTunnel(9);
                     break;
                 case 'z': // (z)ap a wand    (a)im a wand
-                    wandAim();
+                    staffs.wandAim();
                     break;
                 case 'M':
                     dungeon.dungeonDisplayMap();
@@ -2406,7 +2408,7 @@ namespace Moria.Core.Methods
                     uiInventory.inventoryExecuteCommand('t');
                     break;
                 case 'Z': // (Z)ap a staff  (u)se a staff
-                    staffUse();
+                    staffs.staffUse();
                     break;
                 case 'v': // (v)ersion of game
                     gameFiles.displayTextHelpFile(DataFilesResource.versions);

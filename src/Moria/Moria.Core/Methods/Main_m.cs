@@ -176,6 +176,7 @@ Options:
             container.RegisterSingleton<IRecall, Recall_m>();
             container.RegisterSingleton<IRnd, Rnd_m>();
             container.RegisterSingleton<IRng, Rng_m>();
+            container.RegisterSingleton<IStaffs, Staffs_m>();
             container.RegisterSingleton<IStd, Std_m>();
             container.RegisterSingleton<ISpells, Spells_m>();
             container.RegisterSingleton<IStoreInventory, Store_inventory_m>();
@@ -214,6 +215,7 @@ Options:
                 container.GetInstance<IPlayerTunnel>(),
                 container.GetInstance<IRnd>(),
                 container.GetInstance<ISpells>(),
+                container.GetInstance<IStaffs>(),
                 container.GetInstance<IStoreInventory>(),
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<ITerminalEx>(),
@@ -342,22 +344,6 @@ Options:
 
             Scrolls_m.SetDependencies(
                 container.GetInstance<IDice>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IIdentification>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<IMonsterManager>(),
-                container.GetInstance<IPlayerMagic>(),
-                container.GetInstance<IRnd>(),
-                container.GetInstance<ITerminal>(),
-                container.GetInstance<ITerminalEx>(),
-                container.GetInstance<IUiInventory>(),
-
-                container.GetInstance<IEventPublisher>()
-            );
-
-            Staffs_m.SetDependencies(
-                container.GetInstance<IDice>(),
-                container.GetInstance<IGame>(),
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IIdentification>(),
                 container.GetInstance<IInventoryManager>(),

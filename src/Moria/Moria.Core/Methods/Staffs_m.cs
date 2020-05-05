@@ -14,10 +14,30 @@ using static Moria.Core.Methods.Player_stats_m;
 
 namespace Moria.Core.Methods
 {
-    public static class Staffs_m
+    public interface IStaffs
     {
-        public static void SetDependencies(
+        void staffUse();
+        void wandAim();
+    }
+
+    public class Staffs_m : IStaffs
+    {
+        private readonly IDice dice;
+        private readonly IEventPublisher eventPublisher;
+        private readonly IGame game;
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IInventoryManager inventoryManager;
+        private readonly IMonsterManager monsterManager;
+        private readonly IPlayerMagic playerMagic;
+        private readonly IRnd rnd;
+        private readonly ITerminal terminal;
+        private readonly ITerminalEx terminalEx;
+        private readonly IUiInventory uiInventory;
+
+        public Staffs_m(
             IDice dice,
+            IEventPublisher eventPublisher,
             IGame game,
             IHelpers helpers,
             IIdentification identification,
@@ -27,61 +47,44 @@ namespace Moria.Core.Methods
             IRnd rnd,
             ITerminal terminal,
             ITerminalEx terminalEx,
-            IUiInventory uiInventory,
-
-            IEventPublisher eventPublisher
+            IUiInventory uiInventory
         )
         {
-            Staffs_m.dice = dice;
-            Staffs_m.game = game;
-            Staffs_m.helpers = helpers;
-            Staffs_m.identification = identification;
-            Staffs_m.inventoryManager = inventoryManager;
-            Staffs_m.monsterManager = monsterManager;
-            Staffs_m.playerMagic = playerMagic;
-            Staffs_m.rnd = rnd;
-            Staffs_m.terminal = terminal;
-            Staffs_m.terminalEx = terminalEx;
-            Staffs_m.uiInventory = uiInventory;
-
-            Staffs_m.eventPublisher = eventPublisher;
+            this.dice = dice;
+            this.eventPublisher = eventPublisher;
+            this.game = game;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.inventoryManager = inventoryManager;
+            this.monsterManager = monsterManager;
+            this.playerMagic = playerMagic;
+            this.rnd = rnd;
+            this.terminal = terminal;
+            this.terminalEx = terminalEx;
+            this.uiInventory = uiInventory;
         }
-
-        private static IDice dice;
-        private static IGame game;
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IInventoryManager inventoryManager;
-        private static IMonsterManager monsterManager;
-        private static IPlayerMagic playerMagic;
-        private static IRnd rnd;
-        private static ITerminal terminal;
-        private static ITerminalEx terminalEx;
-        private static IUiInventory uiInventory;
-
-        private static IEventPublisher eventPublisher;
-
-        private static bool staffPlayerIsCarrying(out int item_pos_start, out int item_pos_end)
+       
+        private bool staffPlayerIsCarrying(out int item_pos_start, out int item_pos_end)
         {
             var py = State.Instance.py;
             item_pos_start = -1;
             item_pos_end = -1;
             if (py.pack.unique_items == 0)
             {
-                terminal.printMessage("But you are not carrying anything.");
+                this.terminal.printMessage("But you are not carrying anything.");
                 return false;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, out item_pos_start, out item_pos_end))
+            if (!this.inventoryManager.inventoryFindRange((int)TV_STAFF, (int)TV_NEVER, out item_pos_start, out item_pos_end))
             {
-                terminal.printMessage("You are not carrying any staffs.");
+                this.terminal.printMessage("You are not carrying any staffs.");
                 return false;
             }
 
             return true;
         }
 
-        private static bool staffPlayerCanUse(Inventory_t item)
+        private bool staffPlayerCanUse(Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -96,7 +99,7 @@ namespace Moria.Core.Methods
             }
 
             // Give everyone a slight chance
-            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && rnd.randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
+            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && this.rnd.randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
             {
                 chance = (int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY;
             }
@@ -106,18 +109,18 @@ namespace Moria.Core.Methods
                 chance = 1;
             }
 
-            if (rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
+            if (this.rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
             {
-                terminal.printMessage("You failed to use the staff properly.");
+                this.terminal.printMessage("You failed to use the staff properly.");
                 return false;
             }
 
             if (item.misc_use < 1)
             {
-                terminal.printMessage("The staff has no charges left.");
-                if (!identification.spellItemIdentified(item))
+                this.terminal.printMessage("The staff has no charges left.");
+                if (!this.identification.spellItemIdentified(item))
                 {
-                    identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
+                    this.identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
                 }
                 return false;
             }
@@ -125,7 +128,7 @@ namespace Moria.Core.Methods
             return true;
         }
 
-        private static bool staffDischarge(Inventory_t item)
+        private bool staffDischarge(Inventory_t item)
         {
             var py = State.Instance.py;
 
@@ -136,81 +139,80 @@ namespace Moria.Core.Methods
             var flags = item.flags;
             while (flags != 0)
             {
-                switch ((StaffSpellTypes)(helpers.getAndClearFirstBit(ref flags) + 1))
+                switch ((StaffSpellTypes)(this.helpers.getAndClearFirstBit(ref flags) + 1))
                 {
                     case StaffSpellTypes.StaffLight:
-                        identified = eventPublisher.PublishWithOutputBool(new LightAreaCommand(py.pos));
+                        identified = this.eventPublisher.PublishWithOutputBool(new LightAreaCommand(py.pos));
                         //identified = spellLightArea(py.pos);
                         break;
                     case StaffSpellTypes.DetectDoorsStairs:
-                        identified = eventPublisher.PublishWithOutputBool(new DetectSecretDoorsWithinVicinityCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new DetectSecretDoorsWithinVicinityCommand());
                         //identified = spellDetectSecretDoorssWithinVicinity();
                         break;
                     case StaffSpellTypes.TrapLocation:
-                        identified = eventPublisher.PublishWithOutputBool(new DetectTrapsWithinVicinityCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new DetectTrapsWithinVicinityCommand());
                         //identified = spellDetectTrapsWithinVicinity();
                         break;
                     case StaffSpellTypes.TreasureLocation:
-                        identified = eventPublisher.PublishWithOutputBool(new DetectTreasureWithinVicinityCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new DetectTreasureWithinVicinityCommand());
                         //identified = spellDetectTreasureWithinVicinity();
                         break;
                     case StaffSpellTypes.ObjectLocation:
-                        identified = eventPublisher.PublishWithOutputBool(new DetectObjectsWithinVicinityCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new DetectObjectsWithinVicinityCommand());
                         //identified = spellDetectObjectsWithinVicinity();
                         break;
                     case StaffSpellTypes.Teleportation:
-                        eventPublisher.Publish(new TeleportCommand(100));
+                        this.eventPublisher.Publish(new TeleportCommand(100));
                         //playerTeleport(100);
                         identified = true;
                         break;
                     case StaffSpellTypes.Earthquakes:
                         identified = true;
-                        eventPublisher.Publish(new EarthquakeCommand());
+                        this.eventPublisher.Publish(new EarthquakeCommand());
                         //spellEarthquake();
                         break;
                     case StaffSpellTypes.Summoning:
                         identified = false;
 
-                        for (var i = 0; i < rnd.randomNumber(4); i++)
+                        for (var i = 0; i < this.rnd.randomNumber(4); i++)
                         {
                             var coord = py.pos;
-                            identified |= monsterManager.monsterSummon(coord, false);
+                            identified |= this.monsterManager.monsterSummon(coord, false);
                         }
                         break;
                     case StaffSpellTypes.Destruction:
                         identified = true;
-                        eventPublisher.Publish(new DestroyAreaCommand(py.pos));
+                        this.eventPublisher.Publish(new DestroyAreaCommand(py.pos));
                         //spellDestroyArea(py.pos);
                         break;
                     case StaffSpellTypes.Starlight:
                         identified = true;
-                        eventPublisher.Publish(new StarlightCommand(py.pos));
+                        this.eventPublisher.Publish(new StarlightCommand(py.pos));
                         //spellStarlite(py.pos);
                         break;
                     case StaffSpellTypes.HasteMonsters:
-                        identified = eventPublisher.PublishWithOutputBool(new SpeedAllMonstersCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new SpeedAllMonstersCommand(
                             1
                         ));
                         //identified = spellSpeedAllMonsters(1);
                         break;
                     case StaffSpellTypes.SlowMonsters:
-                        identified = eventPublisher.PublishWithOutputBool(new SpeedAllMonstersCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new SpeedAllMonstersCommand(
                             -1
                         ));
                         //identified = spellSpeedAllMonsters(-1);
                         break;
                     case StaffSpellTypes.SleepMonsters:
-                        identified = eventPublisher.PublishWithOutputBool(new SleepAllMonstersCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new SleepAllMonstersCommand());
                         //identified = spellSleepAllMonsters();
                         break;
                     case StaffSpellTypes.CureLightWounds:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(
-                            rnd.randomNumber(8)
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangePlayerHitPointsCommand(this.rnd.randomNumber(8)
                         ));
                         //identified = spellChangePlayerHitPoints(rnd.randomNumber(8));
                         break;
                     case StaffSpellTypes.DetectInvisible:
-                        identified = eventPublisher.PublishWithOutputBool(new DetectInvisibleCreaturesWithinVicinityCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new DetectInvisibleCreaturesWithinVicinityCommand());
                         //identified = spellDetectInvisibleCreaturesWithinVicinity();
                         break;
                     case StaffSpellTypes.Speed:
@@ -218,50 +220,48 @@ namespace Moria.Core.Methods
                         {
                             identified = true;
                         }
-                        py.flags.fast += rnd.randomNumber(30) + 15;
+                        py.flags.fast += this.rnd.randomNumber(30) + 15;
                         break;
                     case StaffSpellTypes.Slowness:
                         if (py.flags.slow == 0)
                         {
                             identified = true;
                         }
-                        py.flags.slow += rnd.randomNumber(30) + 15;
+                        py.flags.slow += this.rnd.randomNumber(30) + 15;
                         break;
                     case StaffSpellTypes.MassPolymorph:
-                        identified = eventPublisher.PublishWithOutputBool(new MassPolymorphCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new MassPolymorphCommand());
                         //identified = spellMassPolymorph();
                         break;
                     case StaffSpellTypes.RemoveCurse:
-                        if (eventPublisher.PublishWithOutputBool(new RemoveCurseFromAllItemsCommand()))
+                        if (this.eventPublisher.PublishWithOutputBool(new RemoveCurseFromAllItemsCommand()))
                         //if (spellRemoveCurseFromAllItems())
                         {
                             if (py.flags.blind < 1)
                             {
-                                terminal.printMessage("The staff glows blue for a moment..");
+                                this.terminal.printMessage("The staff glows blue for a moment..");
                             }
                             identified = true;
                         }
                         break;
                     case StaffSpellTypes.DetectEvil:
-                        identified = eventPublisher.PublishWithOutputBool(new DetectEvilCommand());
+                        identified = this.eventPublisher.PublishWithOutputBool(new DetectEvilCommand());
                         //identified = spellDetectEvil();
                         break;
                     case StaffSpellTypes.Curing:
-                        if (playerMagic.playerCureBlindness() ||
-                            playerMagic.playerCurePoison() ||
-                            playerMagic.playerCureConfusion())
+                        if (this.playerMagic.playerCureBlindness() || this.playerMagic.playerCurePoison() || this.playerMagic.playerCureConfusion())
                         {
                             identified = true;
                         }
                         break;
                     case StaffSpellTypes.DispelEvil:
-                        identified = eventPublisher.PublishWithOutputBool(new DispelCreatureCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new DispelCreatureCommand(
                             (int)Config.monsters_defense.CD_EVIL, 60
                         ));
                         //identified = spellDispelCreature((int)Config.monsters_defense.CD_EVIL, 60);
                         break;
                     case StaffSpellTypes.Darkness:
-                        identified = eventPublisher.PublishWithOutputBool(new DarkenAreaCommand(py.pos)); 
+                        identified = this.eventPublisher.PublishWithOutputBool(new DarkenAreaCommand(py.pos)); 
                         //identified = spellDarkenArea(py.pos);
                         break;
                     case StaffSpellTypes.StoreBoughtFlag:
@@ -269,7 +269,7 @@ namespace Moria.Core.Methods
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
-                        terminal.printMessage("Internal error in staffs()");
+                        this.terminal.printMessage("Internal error in staffs()");
                         break;
                 }
             }
@@ -278,19 +278,19 @@ namespace Moria.Core.Methods
         }
 
         // Use a staff. -RAK-
-        public static void staffUse()
+        public void staffUse()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
 
             game.player_free_turn = true;
 
-            if (!staffPlayerIsCarrying(out var item_pos_start, out var item_pos_end))
+            if (!this.staffPlayerIsCarrying(out var item_pos_start, out var item_pos_end))
             {
                 return;
             }
 
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
+            if (!this.uiInventory.inventoryGetInputForItemId(out var item_id, "Use which staff?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/ null))
             {
                 return;
             }
@@ -300,34 +300,34 @@ namespace Moria.Core.Methods
 
             var item = py.inventory[item_id];
 
-            if (!staffPlayerCanUse(item))
+            if (!this.staffPlayerCanUse(item))
             {
                 return;
             }
 
-            var identified = staffDischarge(item);
+            var identified = this.staffDischarge(item);
 
             if (identified)
             {
-                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
 
-                    terminalEx.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
 
-                    identification.itemIdentify(py.inventory[item_id], ref item_id);
+                    this.identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }
             }
-            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                identification.itemSetAsTried(item);
+                this.identification.itemSetAsTried(item);
             }
 
-            identification.itemChargesRemainingDescription(item_id);
+            this.identification.itemChargesRemainingDescription(item_id);
         }
 
-        private static bool wandDischarge(Inventory_t item, int direction)
+        private bool wandDischarge(Inventory_t item, int direction)
         {
             var py = State.Instance.py;
             var spell_names = Library.Instance.Player.spell_names;
@@ -346,22 +346,21 @@ namespace Moria.Core.Methods
                 coord.x = py.pos.x;
 
                 // Wand types
-                switch ((WandSpellTypes)(helpers.getAndClearFirstBit(ref flags) + 1))
+                switch ((WandSpellTypes)(this.helpers.getAndClearFirstBit(ref flags) + 1))
                 {
                     case WandSpellTypes.WandLight:
-                        terminal.printMessage("A line of blue shimmering light appears.");
-                        eventPublisher.Publish(new LightLineCommand(
+                        this.terminal.printMessage("A line of blue shimmering light appears.");
+                        this.eventPublisher.Publish(new LightLineCommand(
                             py.pos, direction
                         ));
                         //spellLightLine(py.pos, direction);
                         identified = true;
                         break;
                     case WandSpellTypes.LightningBolt:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBoltCommand(
                                 coord,
-                                direction,
-                                dice.diceRoll(new Dice_t(4, 8)),
+                                direction, this.dice.diceRoll(new Dice_t(4, 8)),
                                 (int)MagicSpellFlags.Lightning,
                                 spell_names[8]
                             )
@@ -370,11 +369,10 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.FrostBolt:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBoltCommand(
                                 coord,
-                                direction,
-                                dice.diceRoll(new Dice_t(6, 8)),
+                                direction, this.dice.diceRoll(new Dice_t(6, 8)),
                                 (int)MagicSpellFlags.Frost,
                                 spell_names[14]
                             )
@@ -383,11 +381,10 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.FireBolt:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBoltCommand(
                                 coord,
-                                direction,
-                                dice.diceRoll(new Dice_t(9, 8)),
+                                direction, this.dice.diceRoll(new Dice_t(9, 8)),
                                 (int)MagicSpellFlags.Fire,
                                 spell_names[22]
                             )
@@ -396,66 +393,65 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.StoneToMud:
-                        identified = eventPublisher.PublishWithOutputBool(new WallToMudCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new WallToMudCommand(
                             coord, direction
                         ));
                         //identified = spellWallToMud(coord, direction);
                         break;
                     case WandSpellTypes.Polymorph:
-                        identified = eventPublisher.PublishWithOutputBool(new PolymorphMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new PolymorphMonsterCommand(
                             coord, direction
                         ));
                         //identified = spellPolymorphMonster(coord, direction);
                         break;
                     case WandSpellTypes.HealMonster:
-                        identified = eventPublisher.PublishWithOutputBool(new ChangeMonsterHitPointsCommand(
-                            coord, direction, -dice.diceRoll(new Dice_t(4, 6))
+                        identified = this.eventPublisher.PublishWithOutputBool(new ChangeMonsterHitPointsCommand(
+                            coord, direction, -this.dice.diceRoll(new Dice_t(4, 6))
                         ));
                         //identified = spellChangeMonsterHitPoints(coord, direction, -dice.diceRoll(new Dice_t(4, 6)));
                         break;
                     case WandSpellTypes.HasteMonster:
-                        identified = eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
                             coord, direction, 1
                         ));
                         //identified = spellSpeedMonster(coord, direction, 1);
                         break;
                     case WandSpellTypes.SlowMonster:
-                        identified = eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new SpeedMonsterCommand(
                             py.pos, direction, -1
                         ));
                         //identified = spellSpeedMonster(coord, direction, -1);
                         break;
                     case WandSpellTypes.ConfuseMonster:
-                        identified = eventPublisher.PublishWithOutputBool(new ConfuseMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new ConfuseMonsterCommand(
                             coord,
                             direction
                         ));
                         //identified = spellConfuseMonster(coord, direction);
                         break;
                     case WandSpellTypes.SleepMonster:
-                        identified = eventPublisher.PublishWithOutputBool(new SleepMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new SleepMonsterCommand(
                             coord, direction
                         ));
                         //identified = spellSleepMonster(coord, direction);
                         break;
                     case WandSpellTypes.DrainLife:
-                        identified = eventPublisher.PublishWithOutputBool(new DrainLifeFromMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new DrainLifeFromMonsterCommand(
                             coord, direction
                         ));
                         //identified = spellDrainLifeFromMonster(coord, direction);
                         break;
                     case WandSpellTypes.TrapDoorDestruction:
-                        identified = eventPublisher.PublishWithOutputBool(new DestroyDoorsTrapsInDirectionCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new DestroyDoorsTrapsInDirectionCommand(
                             coord, direction
                         ));
                         //identified = spellDestroyDoorsTrapsInDirection(coord, direction);
                         break;
                     case WandSpellTypes.WandMagicMissile:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBoltCommand(
                                 coord,
-                                direction,
-                                dice.diceRoll(new Dice_t(2, 6)),
+                                direction, this.dice.diceRoll(new Dice_t(2, 6)),
                                 (int)MagicSpellFlags.MagicMissile,
                                 spell_names[0]
                             )
@@ -464,31 +460,31 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.WallBuilding:
-                        identified = eventPublisher.PublishWithOutputBool(new BuildWallCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new BuildWallCommand(
                             coord, direction
                         ));
                         //identified = spellBuildWall(coord, direction);
                         break;
                     case WandSpellTypes.CloneMonster:
-                        identified = eventPublisher.PublishWithOutputBool(new CloneMonsterCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new CloneMonsterCommand(
                             coord, direction
                         ));
                         //identified = spellCloneMonster(coord, direction);
                         break;
                     case WandSpellTypes.TeleportAway:
-                        identified = eventPublisher.PublishWithOutputBool(new TeleportAwayMonsterInDirectionCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new TeleportAwayMonsterInDirectionCommand(
                             coord, direction
                         ));
                         //identified = spellTeleportAwayMonsterInDirection(coord, direction);
                         break;
                     case WandSpellTypes.Disarming:
-                        identified = eventPublisher.PublishWithOutputBool(new DisarmAllInDirectionCommand(
+                        identified = this.eventPublisher.PublishWithOutputBool(new DisarmAllInDirectionCommand(
                             coord, direction
                         ));
                         //identified = spellDisarmAllInDirection(coord, direction);
                         break;
                     case WandSpellTypes.LightningBall:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBallCommand(
                                 coord, direction, 32, (int)MagicSpellFlags.Lightning, "Lightning Ball"
                             )
@@ -497,7 +493,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.ColdBall:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBallCommand(
                                 coord, direction, 48, (int)MagicSpellFlags.Frost, "Cold Ball"
                             )
@@ -506,7 +502,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.FireBall:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBallCommand(
                                 coord, direction, 72, (int)MagicSpellFlags.Fire, spell_names[28]
                             )
@@ -515,7 +511,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.StinkingCloud:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBallCommand(
                                 coord, direction, 12, (int)MagicSpellFlags.PoisonGas, spell_names[6]
                             )
@@ -524,7 +520,7 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.AcidBall:
-                        eventPublisher.Publish(
+                        this.eventPublisher.Publish(
                             new FireBallCommand(
                                 coord, direction, 60, (int)MagicSpellFlags.Acid, "Acid Ball"
                             )
@@ -533,11 +529,11 @@ namespace Moria.Core.Methods
                         identified = true;
                         break;
                     case WandSpellTypes.Wonder:
-                        flags = (uint)(1L << (rnd.randomNumber(23) - 1));
+                        flags = (uint)(1L << (this.rnd.randomNumber(23) - 1));
                         break;
                     default:
                         // All cases are handled, so this should never be reached!
-                        terminal.printMessage("Internal error in wands()");
+                        this.terminal.printMessage("Internal error in wands()");
                         break;
                 }
             }
@@ -546,7 +542,7 @@ namespace Moria.Core.Methods
         }
 
         // Wands for the aiming.
-        public static void wandAim()
+        public void wandAim()
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -555,17 +551,17 @@ namespace Moria.Core.Methods
 
             if (py.pack.unique_items == 0)
             {
-                terminal.printMessage("But you are not carrying anything.");
+                this.terminal.printMessage("But you are not carrying anything.");
                 return;
             }
 
-            if (!inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, out var item_pos_start, out var item_pos_end))
+            if (!this.inventoryManager.inventoryFindRange((int)TV_WAND, TV_NEVER, out var item_pos_start, out var item_pos_end))
             {
-                terminal.printMessage("You are not carrying any wands.");
+                this.terminal.printMessage("You are not carrying any wands.");
                 return;
             }
 
-            if (!uiInventory.inventoryGetInputForItemId(out var item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
+            if (!this.uiInventory.inventoryGetInputForItemId(out var item_id, "Aim which wand?", item_pos_start, item_pos_end, /*CNIL*/ null, /*CNIL*/null))
             {
                 return;
             }
@@ -573,15 +569,15 @@ namespace Moria.Core.Methods
             game.player_free_turn = false;
 
             var direction = 0;
-            if (!Staffs_m.game.getDirectionWithMemory(/*CNIL*/null, ref direction))
+            if (!this.game.getDirectionWithMemory(/*CNIL*/null, ref direction))
             {
                 return;
             }
 
             if (py.flags.confused > 0)
             {
-                terminal.printMessage("You are confused.");
-                direction = rnd.getRandomDirection();
+                this.terminal.printMessage("You are confused.");
+                direction = this.rnd.getRandomDirection();
             }
 
             var item = py.inventory[item_id];
@@ -594,7 +590,7 @@ namespace Moria.Core.Methods
                 chance = chance / 2;
             }
 
-            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && rnd.randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
+            if (chance < Config.player.PLAYER_USE_DEVICE_DIFFICULTY && this.rnd.randomNumber((int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY - chance + 1) == 1)
             {
                 chance = (int)Config.player.PLAYER_USE_DEVICE_DIFFICULTY; // Give everyone a slight chance
             }
@@ -604,41 +600,41 @@ namespace Moria.Core.Methods
                 chance = 1;
             }
 
-            if (rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
+            if (this.rnd.randomNumber(chance) < Config.player.PLAYER_USE_DEVICE_DIFFICULTY)
             {
-                terminal.printMessage("You failed to use the wand properly.");
+                this.terminal.printMessage("You failed to use the wand properly.");
                 return;
             }
 
             if (item.misc_use < 1)
             {
-                terminal.printMessage("The wand has no charges left.");
-                if (!identification.spellItemIdentified(item))
+                this.terminal.printMessage("The wand has no charges left.");
+                if (!this.identification.spellItemIdentified(item))
                 {
-                    identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
+                    this.identification.itemAppendToInscription(item, Config.identification.ID_EMPTY);
                 }
                 return;
             }
 
-            var identified = wandDischarge(item, direction);
+            var identified = this.wandDischarge(item, direction);
 
             if (identified)
             {
-                if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+                if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
                 {
                     // round half-way case up
                     py.misc.exp += (int)((item.depth_first_found + (py.misc.level >> 1)) / py.misc.level);
-                    terminalEx.displayCharacterExperience();
+                    this.terminalEx.displayCharacterExperience();
 
-                    identification.itemIdentify(py.inventory[item_id], ref item_id);
+                    this.identification.itemIdentify(py.inventory[item_id], ref item_id);
                 }
             }
-            else if (!identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
+            else if (!this.identification.itemSetColorlessAsIdentified((int)item.category_id, (int)item.sub_category_id, (int)item.identification))
             {
-                identification.itemSetAsTried(item);
+                this.identification.itemSetAsTried(item);
             }
 
-            identification.itemChargesRemainingDescription(item_id);
+            this.identification.itemChargesRemainingDescription(item_id);
         }
     }
 }
