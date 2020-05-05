@@ -9,9 +9,30 @@ using static Moria.Core.Constants.Ui_c;
 
 namespace Moria.Core.Methods
 {
-    public static class Game_files_m
+    public interface IGameFiles
     {
-        public static void SetDependencies(
+        bool outputPlayerCharacterToFile(string filename);
+
+        void displayTextHelpFile(string helpText);
+
+        void outputRandomLevelObjectsToFile();
+
+        void displaySplashScreen();
+
+        void displayDeathFile(string resourceName);
+    }
+
+    public class Game_files_m : IGameFiles
+    {
+        private readonly IGameObjects gameObjects;
+        private readonly IGameObjectsPush gameObjectsPush;
+        private readonly IHelpers helpers;
+        private readonly IIdentification identification;
+        private readonly IInventoryManager inventoryManager;
+        private readonly ITerminal terminal;
+        private readonly ITreasure treasure;
+
+        public Game_files_m(
             IGameObjects gameObjects,
             IGameObjectsPush gameObjectsPush,
             IHelpers helpers,
@@ -21,29 +42,21 @@ namespace Moria.Core.Methods
             ITreasure treasure
         )
         {
-            Game_files_m.gameObjects = gameObjects;
-            Game_files_m.gameObjectsPush = gameObjectsPush;
-            Game_files_m.helpers = helpers;
-            Game_files_m.identification = identification;
-            Game_files_m.inventoryManager = inventoryManager;
-            Game_files_m.terminal = terminal;
-            Game_files_m.treasure = treasure;
+            this.gameObjects = gameObjects;
+            this.gameObjectsPush = gameObjectsPush;
+            this.helpers = helpers;
+            this.identification = identification;
+            this.inventoryManager = inventoryManager;
+            this.terminal = terminal;
+            this.treasure = treasure;
         }
-
-        private static IGameObjects gameObjects;
-        private static IGameObjectsPush gameObjectsPush;
-        private static IHelpers helpers;
-        private static IIdentification identification;
-        private static IInventoryManager inventoryManager;
-        private static ITerminal terminal;
-        private static ITreasure treasure;
 
         ////  initializeScoreFile
         ////  Open the score file while we still have the setuid privileges.  Later
         ////  when the score is being written out, you must be sure to flock the file
         ////  so we don't have multiple people trying to write to it at the same time.
         ////  Craig Norborg (doc)    Mon Aug 10 16:41:59 EST 1987
-        //public static bool initializeScoreFile()
+        //public bool initializeScoreFile()
         //{
 
         //    highscore_fp = fopen(Config.files.scores.c_str(), (char*)"rb+");
@@ -52,18 +65,18 @@ namespace Moria.Core.Methods
         //}
 
         // Attempt to open and print the file containing the intro splash screen text -RAK-
-        public static void displaySplashScreen()
+        public void displaySplashScreen()
         {
-            terminal.clearScreen();
+            this.terminal.clearScreen();
             var lines = DataFilesResource.splash.Split(new[] { Environment.NewLine, "\r", "\n" }, StringSplitOptions.None);
             var i = 0;
             foreach (var line in lines)
             {
-                terminal.putString(line, new Coord_t(i, 0));
+                this.terminal.putString(line, new Coord_t(i, 0));
                 i++;
             }
 
-            terminal.waitForContinueKey(23);
+            this.terminal.waitForContinueKey(23);
 
             /*
             vtype_t in_line = { '\0' };
@@ -85,7 +98,7 @@ namespace Moria.Core.Methods
 
         // Open and display a text help file
         // File perusal, primitive, but portable -CJS-
-        public static void displayTextHelpFile(string helpText)
+        public void displayTextHelpFile(string helpText)
         {
             //FILE* file = fopen(filename.c_str(), "r");
             //if (file == nullptr)
@@ -94,24 +107,24 @@ namespace Moria.Core.Methods
             //    return;
             //}
 
-            terminal.terminalSaveScreen();
+            this.terminal.terminalSaveScreen();
 
             var lines = helpText.Split(new[] {Environment.NewLine, "\r", "\n"}, StringSplitOptions.None)
                 .ToList();
 
             while (lines.Any())
             {
-                terminal.clearScreen();
+                this.terminal.clearScreen();
                 for (var i = 0; i < 23 && lines.Count > 0; i++)
                 {
                     var line = lines[0];
                     lines.RemoveAt(0);
-                    terminal.putString(line, new Coord_t(i, 0));
+                    this.terminal.putString(line, new Coord_t(i, 0));
                 }
 
 
-                terminal.putStringClearToEOL("[ press any key to continue ]", new Coord_t(23, 23));
-                var input = terminal.getKeyInput();
+                this.terminal.putStringClearToEOL("[ press any key to continue ]", new Coord_t(23, 23));
+                var input = this.terminal.getKeyInput();
                 if (input == ESCAPE)
                 {
                     break;
@@ -147,11 +160,11 @@ namespace Moria.Core.Methods
 
                         */
 
-            terminal.terminalRestoreScreen();
+            this.terminal.terminalRestoreScreen();
         }
 
         // Open and display a "death" text file
-        public static void displayDeathFile(string resourceName)
+        public void displayDeathFile(string resourceName)
         {
             var dataFile = string.Empty;
             if (resourceName == nameof(DataFilesResource.death_tomb))
@@ -169,7 +182,7 @@ namespace Moria.Core.Methods
 
             for (var i = 0; i < 23 && i < lines.Length; i++)
             {
-                terminal.putString(lines[i], new Coord_t(i, 0));
+                this.terminal.putString(lines[i], new Coord_t(i, 0));
             }
 
 
@@ -203,36 +216,36 @@ namespace Moria.Core.Methods
         // Prints a list of random objects to a file. -RAK-
         // Note that the objects produced is a sampling of objects
         // which be expected to appear on that level.
-        public static void outputRandomLevelObjectsToFile()
+        public void outputRandomLevelObjectsToFile()
         {
             var input = string.Empty;
             //obj_desc_t input = { 0 };
 
-            terminal.putStringClearToEOL("Produce objects on what level?: ", new Coord_t(0, 0));
-            if (!terminal.getStringInput(out input, new Coord_t(0, 32), 10))
+            this.terminal.putStringClearToEOL("Produce objects on what level?: ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 32), 10))
             {
                 return;
             }
 
-            if (!helpers.stringToNumber(input, out var level))
+            if (!this.helpers.stringToNumber(input, out var level))
             {
                 return;
             }
 
-            terminal.putStringClearToEOL("Produce how many objects?: ", new Coord_t(0, 0));
-            if (!terminal.getStringInput(out input, new Coord_t(0, 27), 10))
+            this.terminal.putStringClearToEOL("Produce how many objects?: ", new Coord_t(0, 0));
+            if (!this.terminal.getStringInput(out input, new Coord_t(0, 27), 10))
             {
                 return;
             }
 
-            if (!helpers.stringToNumber(input, out var count))
+            if (!this.helpers.stringToNumber(input, out var count))
             {
                 return;
             }
 
             if (count < 1 || level < 0 || level > 1200)
             {
-                terminal.putStringClearToEOL("Parameters no good.", new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL("Parameters no good.", new Coord_t(0, 0));
                 return;
             }
 
@@ -241,14 +254,14 @@ namespace Moria.Core.Methods
                 count = 10000;
             }
 
-            var small_objects = terminal.getInputConfirmation("Small objects only?");
+            var small_objects = this.terminal.getInputConfirmation("Small objects only?");
 
-            terminal.putStringClearToEOL("File name: ", new Coord_t(0, 0));
+            this.terminal.putStringClearToEOL("File name: ", new Coord_t(0, 0));
 
             var filename = string.Empty;
             //vtype_t filename = { 0 };
 
-            if (!terminal.getStringInput(out filename, new Coord_t(0, 11), 64))
+            if (!this.terminal.getStringInput(out filename, new Coord_t(0, 11), 64))
             {
                 return;
             }
@@ -266,9 +279,9 @@ namespace Moria.Core.Methods
 
             input = $"{count:d}";
             //(void)sprintf(input, "%d", count);
-            terminal.putStringClearToEOL(input +  " random objects being produced...", new Coord_t(0, 0));
+            this.terminal.putStringClearToEOL(input +  " random objects being produced...", new Coord_t(0, 0));
 
-            terminal.putQIO();
+            this.terminal.putQIO();
 
             //(void)fprintf(file_ptr, "*** Random Object Sampling:\n");
             //(void)fprintf(file_ptr, "*** %d objects\n", count);
@@ -276,37 +289,37 @@ namespace Moria.Core.Methods
             //(void)fprintf(file_ptr, "\n");
             //(void)fprintf(file_ptr, "\n");
 
-            var treasure_id = gameObjects.popt();
+            var treasure_id = this.gameObjects.popt();
             var game = State.Instance.game;
 
             for (var i = 0; i < count; i++)
             {
-                var object_id = gameObjects.itemGetRandomObjectId(level, small_objects);
-                inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
+                var object_id = this.gameObjects.itemGetRandomObjectId(level, small_objects);
+                this.inventoryManager.inventoryItemCopyTo(State.Instance.sorted_objects[object_id], game.treasure.list[treasure_id]);
 
-                treasure.magicTreasureMagicalAbility(treasure_id, level);
+                this.treasure.magicTreasureMagicalAbility(treasure_id, level);
 
-                var item = game.treasure.list[treasure_id]; 
-                identification.itemIdentifyAsStoreBought(item);
+                var item = game.treasure.list[treasure_id];
+                this.identification.itemIdentifyAsStoreBought(item);
 
                 if ((item.flags & Config.treasure_flags.TR_CURSED) != 0u)
                 {
-                    identification.itemAppendToInscription(item, Config.identification.ID_DAMD);
+                    this.identification.itemAppendToInscription(item, Config.identification.ID_DAMD);
                 }
 
-                identification.itemDescription(out input, item, true);
+                this.identification.itemDescription(out input, item, true);
                 //(void)fprintf(file_ptr, "%d %s\n", item.depth_first_found, input);
             }
 
-            gameObjectsPush.pusht((uint)treasure_id);
+            this.gameObjectsPush.pusht((uint)treasure_id);
 
             //(void)fclose(file_ptr);
 
-            terminal.putStringClearToEOL("Completed.", new Coord_t(0, 0));
+            this.terminal.putStringClearToEOL("Completed.", new Coord_t(0, 0));
         }
 
         //// Write character sheet to the file
-        //public static void writeCharacterSheetToFile(FILE* char_file)
+        //public void writeCharacterSheetToFile(FILE* char_file)
         //{
         //    putStringClearToEOL("Writing character sheet...", new Coord_t(0, 0));
         //    putQIO();
@@ -408,7 +421,7 @@ namespace Moria.Core.Methods
         //    }
         //}
 
-        public static string equipmentPlacementDescription(int item_id)
+        public string equipmentPlacementDescription(int item_id)
         {
             switch ((PlayerEquipment)item_id)
             {
@@ -442,7 +455,7 @@ namespace Moria.Core.Methods
         }
 
         //// Write out the equipment list.
-        //public static void writeEquipmentListToFile(/*FILE**/string equip_file)
+        //public void writeEquipmentListToFile(/*FILE**/string equip_file)
         //{
         //    (void)fprintf(equip_file, "\n  [Character's Equipment List]\n\n");
 
@@ -472,7 +485,7 @@ namespace Moria.Core.Methods
         //}
 
         //// Write out the character's inventory.
-        //public static void writeInventoryToFile(/*FILE* */string inv_file)
+        //public void writeInventoryToFile(/*FILE* */string inv_file)
         //{
         //    (void)fprintf(inv_file, "  [General Inventory List]\n\n");
 
@@ -494,7 +507,7 @@ namespace Moria.Core.Methods
         //}
 
         //// Print the character to a file or device -RAK-
-        public static bool outputPlayerCharacterToFile(string filename)
+        public bool outputPlayerCharacterToFile(string filename)
         {
         //    int fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0644);
         //    if (fd < 0 && errno == EEXIST)

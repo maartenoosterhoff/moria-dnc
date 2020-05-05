@@ -159,6 +159,7 @@ Options:
             container.RegisterSingleton<IDungeonLos, Dungeon_los_m>();
             container.RegisterSingleton<IDungeonPlacer, Dungeon_placer_m>();
             container.RegisterSingleton<IGame, Game_m>();
+            container.RegisterSingleton<IGameFiles, Game_files_m>();
             container.RegisterSingleton<IGameSave, Game_save_m>();
             container.RegisterSingleton<IGameObjects, Game_objects_m>();
             container.RegisterSingleton<IGameObjectsPush, Game_objects_push_m>();
@@ -195,6 +196,7 @@ Options:
                 container.GetInstance<IDungeonLos>(),
                 container.GetInstance<IDungeonGenerator>(),
                 container.GetInstance<IGame>(),
+                container.GetInstance<IGameFiles>(),
                 container.GetInstance<IGameSave>(),
                 container.GetInstance<IHelpers>(),
                 container.GetInstance<IIdentification>(),
@@ -209,17 +211,6 @@ Options:
                 container.GetInstance<IWizard>(),
 
                 container.GetInstance<IEventPublisher>()
-            );
-
-            Game_files_m.SetDependencies(
-                container.GetInstance<IGameObjects>(),
-                container.GetInstance<IGameObjectsPush>(),
-                container.GetInstance<IHelpers>(),
-                container.GetInstance<IIdentification>(),
-                container.GetInstance<IInventoryManager>(),
-                container.GetInstance<ITerminal>(),
-
-                container.GetInstance<ITreasure>()
             );
 
             Mage_spells_m.SetDependencies(
@@ -424,6 +415,7 @@ Options:
 
             Ui_m.SetDependencies(
                 container.GetInstance<IDungeon>(),
+                container.GetInstance<IGameFiles>(),
                 container.GetInstance<ITerminal>(),
                 container.GetInstance<IEventPublisher>()
             );

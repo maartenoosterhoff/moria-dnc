@@ -8,7 +8,6 @@ using static Moria.Core.Constants.Dungeon_c;
 using static Moria.Core.Constants.Dungeon_tile_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Constants.Player_c;
-using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Player_m;
 using static Moria.Core.Methods.Player_stats_m;
 
@@ -18,18 +17,21 @@ namespace Moria.Core.Methods
     {
         public static void SetDependencies(
             IDungeon dungeon,
+            IGameFiles gameFiles,
             ITerminal terminal,
 
             IEventPublisher eventPublisher
         )
         {
             Ui_m.dungeon = dungeon;
+            Ui_m.gameFiles = gameFiles;
             Ui_m.terminal = terminal;
 
             Ui_m.eventPublisher = eventPublisher;
         }
 
         private static IDungeon dungeon;
+        private static IGameFiles gameFiles;
         private static ITerminal terminal;
 
         private static IEventPublisher eventPublisher;
@@ -882,7 +884,7 @@ namespace Moria.Core.Methods
                         string temp;
                         if (terminal.getStringInput(out temp, new Coord_t(0, 10), 60) && temp[0] != 0)
                         {
-                            if (outputPlayerCharacterToFile(temp))
+                            if (gameFiles.outputPlayerCharacterToFile(temp))
                             {
                                 flag = true;
                             }

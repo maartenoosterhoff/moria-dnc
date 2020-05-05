@@ -10,6 +10,7 @@ namespace Moria.Core.Methods.Commands
     public class EndGameCommandHandler : ICommandHandler<EndGameCommand>
     {
         private readonly IGame game;
+        private readonly IGameFiles gameFiles;
         private readonly IGameSave gameSave;
         private readonly IHelpers helpers;
         private readonly IIdentification identification;
@@ -19,6 +20,7 @@ namespace Moria.Core.Methods.Commands
 
         public EndGameCommandHandler(
             IGame game,
+            IGameFiles gameFiles,
             IGameSave gameSave,
             IHelpers helpers,
             IIdentification identification,
@@ -29,6 +31,7 @@ namespace Moria.Core.Methods.Commands
         )
         {
             this.game = game;
+            this.gameFiles = gameFiles;
             this.gameSave = gameSave;
             this.helpers = helpers;
             this.identification = identification;
@@ -111,7 +114,7 @@ namespace Moria.Core.Methods.Commands
         // Let the player know they did good.
         private void printCrown()
         {
-            Game_files_m.displayDeathFile(nameof(DataFilesResource.death_royal));
+            this.gameFiles.displayDeathFile(nameof(DataFilesResource.death_royal));
             if (Player_m.playerIsMale())
             {
                 this.terminal.putString("King!", new Coord_t(17, 45));
@@ -130,7 +133,7 @@ namespace Moria.Core.Methods.Commands
             var py = State.Instance.py;
             var game = State.Instance.game;
 
-            Game_files_m.displayDeathFile(nameof(DataFilesResource.death_tomb));
+            this.gameFiles.displayDeathFile(nameof(DataFilesResource.death_tomb));
 
             var text = py.misc.name;
             this.terminal.putString(text, new Coord_t(6, (int)(26 - text.Length / 2)));
@@ -197,7 +200,7 @@ namespace Moria.Core.Methods.Commands
 
                 if (str[0] != 0)
                 {
-                    if (!Game_files_m.outputPlayerCharacterToFile(str))
+                    if (!this.gameFiles.outputPlayerCharacterToFile(str))
                     {
                         goto retry;
                     }

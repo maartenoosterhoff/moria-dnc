@@ -7,7 +7,6 @@ using static Moria.Core.Constants.Player_c;
 using static Moria.Core.Constants.Ui_c;
 using static Moria.Core.Methods.Player_stats_m;
 using static Moria.Core.Methods.Player_m;
-using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Ui_m;
 
 namespace Moria.Core.Methods
@@ -20,16 +19,19 @@ namespace Moria.Core.Methods
     public class Character_m : ICharacter
     {
         private readonly IGame game;
+        private readonly IGameFiles gameFiles;
         private readonly IRnd rnd;
         private readonly ITerminal terminal;
 
         public Character_m(
             IGame game,
+            IGameFiles gameFiles,
             IRnd rnd,
             ITerminal terminal
         )
         {
             this.game = game;
+            this.gameFiles = gameFiles;
             this.rnd = rnd;
             this.terminal = terminal;
         }
@@ -206,7 +208,7 @@ namespace Moria.Core.Methods
 
                 if (input == '?')
                 {
-                    displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
+                    this.gameFiles.displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
                 }
                 else
                 {
@@ -388,7 +390,7 @@ namespace Moria.Core.Methods
                 }
                 else if (input == '?')
                 {
-                    displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
+                    this.gameFiles.displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
                 }
                 else
                 {
@@ -557,7 +559,7 @@ namespace Moria.Core.Methods
                 }
                 else if (input == '?')
                 {
-                    displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
+                    this.gameFiles.displayTextHelpFile(DataFilesResource.welcome /*Config.files.welcome_screen*/);
                 }
                 else
                 {

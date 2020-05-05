@@ -19,7 +19,6 @@ using static Moria.Core.Constants.Inventory_c;
 using static Moria.Core.Constants.Monster_c;
 using static Moria.Core.Constants.Treasure_c;
 using static Moria.Core.Constants.Ui_c;
-using static Moria.Core.Methods.Game_files_m;
 using static Moria.Core.Methods.Mage_spells_m;
 using static Moria.Core.Methods.Monster_m;
 using static Moria.Core.Methods.Player_bash_m;
@@ -49,6 +48,7 @@ namespace Moria.Core.Methods
             IDungeonLos dungeonLos,
             IDungeonGenerator dungeonGenerator,
             IGame game,
+            IGameFiles gameFiles,
             IGameSave gameSave,
             IHelpers helpers,
             IIdentification identification,
@@ -70,6 +70,7 @@ namespace Moria.Core.Methods
             Game_run_m.dungeonLos = dungeonLos;
             Game_run_m.dungeonGenerator = dungeonGenerator;
             Game_run_m.game = game;
+            Game_run_m.gameFiles = gameFiles;
             Game_run_m.gameSave = gameSave;
             Game_run_m.helpers = helpers;
             Game_run_m.identification = identification;
@@ -92,6 +93,7 @@ namespace Moria.Core.Methods
         private static IDungeonLos dungeonLos;
         private static IDungeonGenerator dungeonGenerator;
         private static IGame game;
+        private static IGameFiles gameFiles;
         private static IGameSave gameSave;
         private static IHelpers helpers;
         private static IIdentification identification;
@@ -115,7 +117,7 @@ namespace Moria.Core.Methods
             priceAdjust();
 
             // Show the game splash screen
-            displaySplashScreen();
+            gameFiles.displaySplashScreen();
 
             // Grab a random seed from the clock
             rnd.seedsInitialize((uint)seed);
@@ -2078,18 +2080,18 @@ namespace Moria.Core.Methods
                     break;
                 case CTRL_KEY_O:
                     // Print random level object to a file
-                    outputRandomLevelObjectsToFile();
+                    gameFiles.outputRandomLevelObjectsToFile();
                     break;
                 case '\\':
                     // Display wizard help
                     if (Config.options.use_roguelike_keys)
                     {
-                        displayTextHelpFile(DataFilesResource.rl_help_wizard);
+                        gameFiles.displayTextHelpFile(DataFilesResource.rl_help_wizard);
                         //displayTextHelpFile(Config.files.help_roguelike_wizard);
                     }
                     else
                     {
-                        displayTextHelpFile(DataFilesResource.help_wizard);
+                        gameFiles.displayTextHelpFile(DataFilesResource.help_wizard);
                         //displayTextHelpFile(Config.files.help_wizard);
                     }
                     break;
@@ -2164,7 +2166,7 @@ namespace Moria.Core.Methods
                     game.player_free_turn = true;
                     break;
                 case CTRL_KEY_V: // (^V)iew license
-                    displayTextHelpFile(DataFilesResource.license);
+                    gameFiles.displayTextHelpFile(DataFilesResource.license);
                     //displayTextHelpFile(Config.files.license);
                     game.player_free_turn = true;
                     break;
@@ -2263,12 +2265,12 @@ namespace Moria.Core.Methods
                 case '?': // (?) help with commands
                     if (Config.options.use_roguelike_keys)
                     {
-                        displayTextHelpFile(DataFilesResource.rl_help);
+                        gameFiles.displayTextHelpFile(DataFilesResource.rl_help);
                         //displayTextHelpFile(Config.files.help_roguelike);
                     }
                     else
                     {
-                        displayTextHelpFile(DataFilesResource.help);
+                        gameFiles.displayTextHelpFile(DataFilesResource.help);
                         //displayTextHelpFile(Config.files.help);
                     }
                     game.player_free_turn = true;
@@ -2395,7 +2397,7 @@ namespace Moria.Core.Methods
                     staffUse();
                     break;
                 case 'v': // (v)ersion of game
-                    displayTextHelpFile(DataFilesResource.versions);
+                    gameFiles.displayTextHelpFile(DataFilesResource.versions);
                     //displayTextHelpFile(Config.files.versions_history);
                     game.player_free_turn = true;
                     break;
