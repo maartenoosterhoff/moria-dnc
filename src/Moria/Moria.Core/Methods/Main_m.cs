@@ -1,8 +1,8 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.States;
 using System;
+using System.IO.Abstractions;
 using System.Linq;
-using System.Net.Mime;
 using Moria.Core.Methods.Commands;
 using Moria.Core.Utils;
 using SimpleInjector;
@@ -199,6 +199,8 @@ Options:
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
             container.Register(typeof(ICommandHandler<,>), typeof(ICommandHandler<,>).Assembly);
+
+            container.RegisterSingleton<IFileSystem, FileSystem>();
 
             container.Verify();
 

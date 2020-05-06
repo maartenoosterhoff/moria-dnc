@@ -23,6 +23,10 @@ namespace Moria.Core.Methods
         bool coordInsidePanel(Coord_t coord);
 
         bool coordOutsidePanel(Coord_t coord, bool force);
+
+        string statRating(int y, int x);
+
+        void statsAsString(uint stat, out string stat_string);
     }
 
     public class Helpers_m : IHelpers
@@ -265,6 +269,57 @@ namespace Moria.Core.Methods
             }
 
             return false;
+        }
+
+        // Returns a rating of x depending on y -JWT-
+        public string statRating(int y, int x)
+        {
+            switch (x / y)
+            {
+                case -3:
+                case -2:
+                case -1:
+                    return "Very Bad";
+                case 0:
+                case 1:
+                    return "Bad";
+                case 2:
+                    return "Poor";
+                case 3:
+                case 4:
+                    return "Fair";
+                case 5:
+                    return "Good";
+                case 6:
+                    return "Very Good";
+                case 7:
+                case 8:
+                    return "Excellent";
+                default:
+                    return "Superb";
+            }
+        }
+
+        // Converts stat num into string
+        public void statsAsString(uint stat, out string stat_string)
+        {
+            var percentile = (int)stat - 18;
+
+            if (stat <= 18)
+            {
+                stat_string = $"{stat,6:d}";
+                //(void)sprintf(stat_string, "%6d", stat);
+            }
+            else if (percentile == 100)
+            {
+                stat_string = "18/100";
+                //(void)strcpy(stat_string, "18/100");
+            }
+            else
+            {
+                stat_string = $" 18/{percentile,2:d}";
+                //(void)sprintf(stat_string, " 18/%02d", percentile);
+            }
         }
     }
 }

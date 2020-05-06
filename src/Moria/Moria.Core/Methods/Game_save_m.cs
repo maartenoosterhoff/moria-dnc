@@ -1,6 +1,7 @@
 ﻿using Moria.Core.Configs;
 using Moria.Core.States;
 using System.IO;
+using System.IO.Abstractions;
 using Newtonsoft.Json;
 
 namespace Moria.Core.Methods
@@ -14,9 +15,18 @@ namespace Moria.Core.Methods
 
     public class Game_save_m : IGameSave
     {
+        private readonly IFileSystem fileSystem;
+
+        public Game_save_m(
+            IFileSystem fileSystem
+        )
+        {
+            this.fileSystem = fileSystem;
+        }
+
         public bool loadGame(ref bool generate)
         {
-            var saveGameContents = File.ReadAllText(Config.files.save_game);
+            var saveGameContents = this.fileSystem.File.ReadAllText(Config.files.save_game);
             var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
             State.Instance = instance;
             return true;

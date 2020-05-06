@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO.Abstractions;
 using System.Text;
 using Moria.Core.Configs;
 using Moria.Core.States;
@@ -8,6 +9,7 @@ namespace Moria.Core.Methods.Commands.Output
 {
     public class RandomLevelObjectsToFileCommandHandler : ICommandHandler<RandomLevelObjectsToFileCommand>
     {
+        private readonly IFileSystem fileSystem;
         private readonly IGameObjects gameObjects;
         private readonly IGameObjectsPush gameObjectsPush;
         private readonly IHelpers helpers;
@@ -17,6 +19,7 @@ namespace Moria.Core.Methods.Commands.Output
         private readonly ITreasure treasure;
 
         public RandomLevelObjectsToFileCommandHandler(
+            IFileSystem fileSystem,
             IGameObjects gameObjects,
             IGameObjectsPush gameObjectsPush,
             IHelpers helpers,
@@ -26,6 +29,7 @@ namespace Moria.Core.Methods.Commands.Output
             ITreasure treasure
         )
         {
+            this.fileSystem = fileSystem;
             this.gameObjects = gameObjects;
             this.gameObjectsPush = gameObjectsPush;
             this.helpers = helpers;
@@ -150,7 +154,7 @@ namespace Moria.Core.Methods.Commands.Output
 
             this.gameObjectsPush.pusht((uint)treasure_id);
 
-            File.WriteAllText(filename, fileContents.ToString());
+            this.fileSystem.File.WriteAllText(filename, fileContents.ToString());
             //(void)fclose(file_ptr);
 
             this.terminal.putStringClearToEOL("Completed.", new Coord_t(0, 0));

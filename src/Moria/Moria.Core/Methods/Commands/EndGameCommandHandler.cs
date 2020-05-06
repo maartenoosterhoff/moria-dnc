@@ -201,7 +201,8 @@ namespace Moria.Core.Methods.Commands
 
                 Player_m.playerRecalculateBonuses();
 
-                if (str[0] != 0)
+                if (!string.IsNullOrWhiteSpace(str))
+                //if (str[0] != 0)
                 {
                     if (!this.gameFiles.outputPlayerCharacterToFile(str))
                     {

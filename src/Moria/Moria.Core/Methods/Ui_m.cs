@@ -49,21 +49,18 @@ namespace Moria.Core.Methods
     public class Ui_m : ITerminalEx
     {
         private readonly IDungeon dungeon;
-        private readonly IEventPublisher eventPublisher;
         private readonly IGameFiles gameFiles;
         private readonly IHelpers helpers;
         private readonly ITerminal terminal;
 
         public Ui_m(
             IDungeon dungeon,
-            IEventPublisher eventPublisher,
             IGameFiles gameFiles,
             IHelpers helpers,
             ITerminal terminal
         )
         {
             this.dungeon = dungeon;
-            this.eventPublisher = eventPublisher;
             this.gameFiles = gameFiles;
             this.helpers = helpers;
             this.terminal = terminal;
@@ -160,33 +157,11 @@ namespace Moria.Core.Methods
             }
         }
 
-        // Converts stat num into string
-        private void statsAsString(uint stat, out string stat_string)
-        {
-            var percentile = (int)stat - 18;
-
-            if (stat <= 18)
-            {
-                stat_string = $"{stat,6:d}";
-                //(void)sprintf(stat_string, "%6d", stat);
-            }
-            else if (percentile == 100)
-            {
-                stat_string = "18/100";
-                //(void)strcpy(stat_string, "18/100");
-            }
-            else
-            {
-                stat_string = $" 18/{percentile,2:d}";
-                //(void)sprintf(stat_string, " 18/%02d", percentile);
-            }
-        }
-
         // Print character stat in given row, column -RAK-
         public void displayCharacterStats(int stat)
         {
             var py = State.Instance.py;
-            this.statsAsString(py.stats.used[stat], out var text);
+            this.helpers.statsAsString(py.stats.used[stat], out var text);
             this.terminal.putString(this.stat_names[stat], new Coord_t(6 + stat, (int)STAT_COLUMN));
             this.terminal.putString(text, new Coord_t(6 + stat, (int)STAT_COLUMN + 6));
         }
@@ -652,13 +627,13 @@ namespace Moria.Core.Methods
             var py = State.Instance.py;
             for (var i = 0; i < 6; i++)
             {
-                this.statsAsString(py.stats.used[i], out var buf);
+                this.helpers.statsAsString(py.stats.used[i], out var buf);
                 this.terminal.putString(this.stat_names[i], new Coord_t(2 + i, 61));
                 this.terminal.putString(buf, new Coord_t(2 + i, 66));
 
                 if (py.stats.max[i] > py.stats.current[i])
                 {
-                    this.statsAsString(py.stats.max[i], out buf);
+                    this.helpers.statsAsString(py.stats.max[i], out buf);
                     this.terminal.putString(buf, new Coord_t(2 + i, 73));
                 }
             }
@@ -667,35 +642,6 @@ namespace Moria.Core.Methods
             this.printHeaderNumber("+ To Damage ", py.misc.display_to_damage, new Coord_t(10, 1));
             this.printHeaderNumber("+ To AC     ", py.misc.display_to_ac, new Coord_t(11, 1));
             this.printHeaderNumber("  Total AC  ", py.misc.display_ac, new Coord_t(12, 1));
-        }
-
-        // Returns a rating of x depending on y -JWT-
-        private string statRating(int y, int x)
-        {
-            switch (x / y)
-            {
-                case -3:
-                case -2:
-                case -1:
-                    return "Very Bad";
-                case 0:
-                case 1:
-                    return "Bad";
-                case 2:
-                    return "Poor";
-                case 3:
-                case 4:
-                    return "Fair";
-                case 5:
-                    return "Good";
-                case 6:
-                    return "Very Good";
-                case 7:
-                case 8:
-                    return "Excellent";
-                default:
-                    return "Superb";
-            }
         }
 
         // Prints age, height, weight, and SC -JWT-
@@ -766,23 +712,23 @@ namespace Moria.Core.Methods
 
             this.terminal.putString("(Miscellaneous Abilities)", new Coord_t(15, 25));
             this.terminal.putString("Fighting    :", new Coord_t(16, 1));
-            this.terminal.putString(this.statRating(12, xbth), new Coord_t(16, 15));
+            this.terminal.putString(this.helpers.statRating(12, xbth), new Coord_t(16, 15));
             this.terminal.putString("Bows/Throw  :", new Coord_t(17, 1));
-            this.terminal.putString(this.statRating(12, xbthb), new Coord_t(17, 15));
+            this.terminal.putString(this.helpers.statRating(12, xbthb), new Coord_t(17, 15));
             this.terminal.putString("Saving Throw:", new Coord_t(18, 1));
-            this.terminal.putString(this.statRating(6, xsave), new Coord_t(18, 15));
+            this.terminal.putString(this.helpers.statRating(6, xsave), new Coord_t(18, 15));
 
             this.terminal.putString("Stealth     :", new Coord_t(16, 28));
-            this.terminal.putString(this.statRating(1, xstl), new Coord_t(16, 42));
+            this.terminal.putString(this.helpers.statRating(1, xstl), new Coord_t(16, 42));
             this.terminal.putString("Disarming   :", new Coord_t(17, 28));
-            this.terminal.putString(this.statRating(8, xdis), new Coord_t(17, 42));
+            this.terminal.putString(this.helpers.statRating(8, xdis), new Coord_t(17, 42));
             this.terminal.putString("Magic Device:", new Coord_t(18, 28));
-            this.terminal.putString(this.statRating(6, xdev), new Coord_t(18, 42));
+            this.terminal.putString(this.helpers.statRating(6, xdev), new Coord_t(18, 42));
 
             this.terminal.putString("Perception  :", new Coord_t(16, 55));
-            this.terminal.putString(this.statRating(3, xfos), new Coord_t(16, 69));
+            this.terminal.putString(this.helpers.statRating(3, xfos), new Coord_t(16, 69));
             this.terminal.putString("Searching   :", new Coord_t(17, 55));
-            this.terminal.putString(this.statRating(6, xsrh), new Coord_t(17, 69));
+            this.terminal.putString(this.helpers.statRating(6, xsrh), new Coord_t(17, 69));
             this.terminal.putString("Infra-Vision:", new Coord_t(18, 55));
             this.terminal.putString(xinfra, new Coord_t(18, 69));
         }
