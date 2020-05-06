@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Moria.Core.Structures
+﻿namespace Moria.Core.Structures
 {
     public class MonsterAttack_t
     {

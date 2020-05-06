@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Moria.Core.Structures
+﻿namespace Moria.Core.Structures
 {
     public class Coord_t
     {

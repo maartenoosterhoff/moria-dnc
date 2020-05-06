@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Moria.Core.Structures
+﻿namespace Moria.Core.Structures
 {
     public class DungeonObject_t
     {
