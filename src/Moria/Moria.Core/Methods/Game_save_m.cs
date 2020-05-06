@@ -1,7 +1,14 @@
-﻿using Moria.Core.Configs;
+﻿using System;
+using System.Collections.Generic;
+using Moria.Core.Configs;
 using Moria.Core.States;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
+using Moria.Core.Constants;
+using Moria.Core.Structures;
 using Newtonsoft.Json;
 
 namespace Moria.Core.Methods
@@ -1069,331 +1076,369 @@ namespace Moria.Core.Methods
             return false; // not reached
         }
 
-        static void wrBool(bool value)
+            */
+
+        private void wrBool(BinaryWriter writer, ref uint xor_byte, bool value)
         {
-            wrByte((uint)(value ? 1u : 0));
+            this.wrByte(writer, ref xor_byte, (uint)(value ? 1u : 0));
         }
 
-        static void wrByte(uint value)
+        private void wrByte(BinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= value;
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)xor_byte, (int)value));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)xor_byte, (int)value));
         }
 
-        static void wrShort(uint value)
+        private void wrShort(BinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= (value & 0xFF);
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, "SHORT: %02X", (int)xor_byte));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, "SHORT: %02X", (int)xor_byte));
             xor_byte ^= ((value >> 8) & 0xFF);
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, " %02X = %d\n", (int)xor_byte, (int)value));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, " %02X = %d\n", (int)xor_byte, (int)value));
         }
 
-        static void wrLong(uint value)
+        private void wrLong(BinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= (value & 0xFF);
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, "LONG:  %02X", (int)xor_byte));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, "LONG:  %02X", (int)xor_byte));
             xor_byte ^= ((value >> 8) & 0xFF);
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             xor_byte ^= ((value >> 16) & 0xFF);
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             xor_byte ^= ((value >> 24) & 0xFF);
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, " %02X = %ld\n", (int)xor_byte, (int32_t)value));
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, " %02X = %ld\n", (int)xor_byte, (int32_t)value));
         }
 
-        static void wrBytes(uint8_t* value, int count)
+        private void wrBytes(BinaryWriter writer, ref uint xor_byte, uint[] values, int count)
         {
-            uint8_t* ptr;
+            //uint8_t* ptr;
 
-            DEBUG(fprintf(logfile, "%d BYTES:", count));
-            ptr = value;
+            //DEBUG(fprintf(logfile, "%d BYTES:", count));
+            //ptr = value;
             for (int i = 0; i < count; i++)
             {
-                xor_byte ^= *ptr++;
-                (void)putc((int)xor_byte, fileptr);
-                DEBUG(fprintf(logfile, "  %02X = %d", (int)xor_byte, (int)(ptr[-1])));
+                xor_byte ^= values[i];
+                //xor_byte ^= *ptr++;
+                //(void)putc((int)xor_byte, fileptr);
+                writer.Write((int)xor_byte);
+                //DEBUG(fprintf(logfile, "  %02X = %d", (int)xor_byte, (int)(ptr[-1])));
             }
 
-            DEBUG(fprintf(logfile, "\n"));
+            //DEBUG(fprintf(logfile, "\n"));
         }
 
-        static void wrString(string str)
+        private void wrString(BinaryWriter writer, ref uint xor_byte, string str)
         {
-            DEBUG(char * s = str);
-            DEBUG(fprintf(logfile, "STRING:"));
-            while (*str != '\0')
+            //DEBUG(char * s = str);
+            //DEBUG(fprintf(logfile, "STRING:"));
+            //while (*str != '\0')
+            foreach (var c in str)
             {
-                xor_byte ^= *str++;
-                (void)putc((int)xor_byte, fileptr);
-                DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
+                //xor_byte ^= *str++;
+                xor_byte = c;
+                writer.Write((int)xor_byte);
+                //(void)putc((int)xor_byte, fileptr);
+                //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             }
-            xor_byte ^= *str;
-            (void)putc((int)xor_byte, fileptr);
-            DEBUG(fprintf(logfile, " %02X = \"%s\"\n", (int)xor_byte, s));
+            xor_byte ^= '\0';
+            writer.Write((int)xor_byte);
+            //(void)putc((int)xor_byte, fileptr);
+            //DEBUG(fprintf(logfile, " %02X = \"%s\"\n", (int)xor_byte, s));
         }
 
-        static void wrShorts(uint16_t* value, int count)
+        private void wrShorts(BinaryWriter writer, ref uint xor_byte, uint[] values, int count)
         {
-            DEBUG(fprintf(logfile, "%d SHORTS:", count));
+            //DEBUG(fprintf(logfile, "%d SHORTS:", count));
 
-            uint16_t* sptr = value;
+            //uint16_t* sptr = value;
 
             for (int i = 0; i < count; i++)
             {
-                xor_byte ^= (*sptr & 0xFF);
-                (void)putc((int)xor_byte, fileptr);
-                DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
-                xor_byte ^= ((*sptr++ >> 8) & 0xFF);
-                (void)putc((int)xor_byte, fileptr);
-                DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
+                //xor_byte ^= (*sptr & 0xFF);
+                xor_byte ^= (values[i] & 0xFF);
+                writer.Write((int)xor_byte);
+                //(void)putc((int)xor_byte, fileptr);
+                //DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
+                xor_byte ^= ((values[i] >> 8) & 0xFF);
+                //xor_byte ^= ((*sptr++ >> 8) & 0xFF);
+                writer.Write((int)xor_byte);
+                //(void)putc((int)xor_byte, fileptr);
+                //DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
             }
 
-            DEBUG(fprintf(logfile, "\n"));
+            //DEBUG(fprintf(logfile, "\n"));
         }
 
-        static void wrItem(Inventory_t item)
+        private void wrItem(BinaryWriter writer, ref uint xor_byte, Inventory_t item)
         {
-            DEBUG(fprintf(logfile, "ITEM:\n"));
-            wrShort(item.id);
-            wrByte(item.special_name_id);
-            wrString(item.inscription);
-            wrLong(item.flags);
-            wrByte(item.category_id);
-            wrByte(item.sprite);
-            wrShort((uint)item.misc_use);
-            wrLong((uint)item.cost);
-            wrByte(item.sub_category_id);
-            wrByte(item.items_count);
-            wrShort(item.weight);
-            wrShort((uint)item.to_hit);
-            wrShort((uint)item.to_damage);
-            wrShort((uint)item.ac);
-            wrShort((uint)item.to_ac);
-            wrByte(item.damage.dice);
-            wrByte(item.damage.sides);
-            wrByte(item.depth_first_found);
-            wrByte(item.identification);
+            //DEBUG(fprintf(logfile, "ITEM:\n"));
+            this.wrShort(writer, ref xor_byte, item.id);
+            this.wrByte(writer, ref xor_byte, item.special_name_id);
+            this.wrString(writer, ref xor_byte, item.inscription);
+            this.wrLong(writer, ref xor_byte, item.flags);
+            this.wrByte(writer, ref xor_byte, item.category_id);
+            this.wrByte(writer, ref xor_byte, item.sprite);
+            this.wrShort(writer, ref xor_byte, (uint)item.misc_use);
+            this.wrLong(writer, ref xor_byte, (uint)item.cost);
+            this.wrByte(writer, ref xor_byte, item.sub_category_id);
+            this.wrByte(writer, ref xor_byte, item.items_count);
+            this.wrShort(writer, ref xor_byte, item.weight);
+            this.wrShort(writer, ref xor_byte, (uint)item.to_hit);
+            this.wrShort(writer, ref xor_byte, (uint)item.to_damage);
+            this.wrShort(writer, ref xor_byte, (uint)item.ac);
+            this.wrShort(writer, ref xor_byte, (uint)item.to_ac);
+            this.wrByte(writer, ref xor_byte, item.damage.dice);
+            this.wrByte(writer, ref xor_byte, item.damage.sides);
+            this.wrByte(writer, ref xor_byte, item.depth_first_found);
+            this.wrByte(writer, ref xor_byte, item.identification);
         }
 
-        static void wrMonster(Monster_t monster)
+        private void wrMonster(BinaryWriter writer, ref uint xor_byte, Monster_t monster)
         {
-            DEBUG(fprintf(logfile, "MONSTER:\n"));
-            wrShort((uint)monster.hp);
-            wrShort((uint)monster.sleep_count);
-            wrShort((uint)monster.speed);
-            wrShort(monster.creature_id);
-            wrByte((uint)monster.pos.y);
-            wrByte((uint)monster.pos.x);
-            wrByte(monster.distance_from_player);
-            wrBool(monster.lit);
-            wrByte(monster.stunned_amount);
-            wrByte(monster.confused_amount);
+            //DEBUG(fprintf(logfile, "MONSTER:\n"));
+            this.wrShort(writer, ref xor_byte, (uint)monster.hp);
+            this.wrShort(writer, ref xor_byte, (uint)monster.sleep_count);
+            this.wrShort(writer, ref xor_byte, (uint)monster.speed);
+            this.wrShort(writer, ref xor_byte, monster.creature_id);
+            this.wrByte(writer, ref xor_byte, (uint)monster.pos.y);
+            this.wrByte(writer, ref xor_byte, (uint)monster.pos.x);
+            this.wrByte(writer, ref xor_byte, monster.distance_from_player);
+            this.wrBool(writer, ref xor_byte, monster.lit);
+            this.wrByte(writer, ref xor_byte, monster.stunned_amount);
+            this.wrByte(writer, ref xor_byte, monster.confused_amount);
         }
 
         // get_byte reads a single byte from a file, without any xor_byte encryption
-        static uint getByte()
+        private uint getByte(BinaryReader reader)
         {
-            return (uint)(getc(fileptr) & 0xFF);
+            return (uint)(reader.ReadChar() & 0xFF);
+            //return (uint)(getc(fileptr) & 0xFF);
         }
 
-        static bool rdBool()
+        private bool rdBool(BinaryReader reader, ref uint xor_byte)
         {
-            return (bool)(rdByte() != 0);
+            return this.rdByte(reader, ref xor_byte) != 0;
+            //return (bool)(rdByte() != 0);
         }
 
-        static uint rdByte()
+        private uint rdByte(BinaryReader reader, ref uint xor_byte)
         {
-            var c = getByte();
+            var c = this.getByte(reader);
             uint decoded_byte = c ^ xor_byte;
             xor_byte = c;
 
-            DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)c, decoded_byte));
+            //DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)c, decoded_byte));
 
             return decoded_byte;
         }
 
-        static uint rdShort()
+        private uint rdShort(BinaryReader reader, ref uint xor_byte)
         {
-            var c = getByte();
+            var c = this.getByte(reader);
             uint decoded_int = c ^ xor_byte;
 
-            xor_byte = getByte();
+            xor_byte = this.getByte(reader);
             decoded_int |= (uint)(c ^ xor_byte) << 8;
 
-            DEBUG(fprintf(logfile, "SHORT: %02X %02X = %d\n", (int)c, (int)xor_byte, decoded_int));
+            //DEBUG(fprintf(logfile, "SHORT: %02X %02X = %d\n", (int)c, (int)xor_byte, decoded_int));
 
             return decoded_int;
         }
 
-        static uint rdLong()
+        private uint rdLong(BinaryReader reader, ref uint xor_byte)
         {
-            var c = getByte();
-            uint32_t decoded_long = c ^ xor_byte;
+            var c = this.getByte(reader);
+            uint decoded_long = c ^ xor_byte;
 
-            xor_byte = getByte();
-            decoded_long |= (uint32_t)(c ^ xor_byte) << 8;
-            DEBUG(fprintf(logfile, "LONG:  %02X %02X ", (int)c, (int)xor_byte));
+            xor_byte = this.getByte(reader);
+            decoded_long |= (uint)(c ^ xor_byte) << 8;
+            //DEBUG(fprintf(logfile, "LONG:  %02X %02X ", (int)c, (int)xor_byte));
 
 
 
-            c = getByte();
-            decoded_long |= (uint32_t)(c ^ xor_byte) << 16;
+            c = this.getByte(reader);
+            decoded_long |= (uint)(c ^ xor_byte) << 16;
 
-            xor_byte = getByte();
-            decoded_long |= (uint32_t)(c ^ xor_byte) << 24;
-            DEBUG(fprintf(logfile, "%02X %02X = %ld\n", (int)c, (int)xor_byte, decoded_long));
+            xor_byte = this.getByte(reader);
+            decoded_long |= (uint)(c ^ xor_byte) << 24;
+            //DEBUG(fprintf(logfile, "%02X %02X = %ld\n", (int)c, (int)xor_byte, decoded_long));
 
             return decoded_long;
         }
 
-        static void rdBytes(uint[] value, int count)
+        private void rdBytes(BinaryReader reader, ref uint xor_byte, uint[] value, int count)
         {
-            DEBUG(fprintf(logfile, "%d BYTES:", count));
-            uint8_t* ptr = value;
+            //DEBUG(fprintf(logfile, "%d BYTES:", count));
+            //uint8_t* ptr = value;
             for (int i = 0; i < count; i++)
             {
-                auto c = getByte();
-                *ptr++ = c ^ xor_byte;
+                var c = this.getByte(reader);
+                value[i] = c ^ xor_byte;
+                //*ptr++ = c ^ xor_byte;
                 xor_byte = c;
-                DEBUG(fprintf(logfile, "  %02X = %d", (int)c, (int)ptr[-1]));
+                //DEBUG(fprintf(logfile, "  %02X = %d", (int)c, (int)ptr[-1]));
             }
 
-            DEBUG(fprintf(logfile, "\n"));
+            //DEBUG(fprintf(logfile, "\n"));
         }
 
-        static void rdString(char* str)
+        private void rdString(BinaryReader reader, ref uint xor_byte, out string str)
         {
-            DEBUG(char * s = str);
-            DEBUG(fprintf(logfile, "STRING: "));
+            //DEBUG(char * s = str);
+            //DEBUG(fprintf(logfile, "STRING: "));
+
+            var chars = new List<char>();
             do
             {
-                auto c = getByte();
-                *str = c ^ xor_byte;
+                var c = this.getByte(reader);
+                chars.Add((char)(c ^ xor_byte));
+                //*str = c ^ xor_byte;
                 xor_byte = c;
-                DEBUG(fprintf(logfile, "%02X ", (int)c));
-            } while (*str++ != '\0');
+                //DEBUG(fprintf(logfile, "%02X ", (int)c));
+                //} while (*str++ != '\0');
+            } while (chars.Last() != '\0');
 
-            DEBUG(fprintf(logfile, "= \"%s\"\n", s));
+            // remove '\0'
+            chars.RemoveAt(chars.Count - 1);
+
+            str = new string(chars.ToArray());
+
+            //DEBUG(fprintf(logfile, "= \"%s\"\n", s));
         }
 
-        static void rdShorts(uint16_t* value, int count)
+        private void rdShorts(BinaryReader reader, ref uint xor_byte, uint[] values, int count)
         {
-            DEBUG(fprintf(logfile, "%d SHORTS:", count));
-            uint16_t* sptr = value;
+            //DEBUG(fprintf(logfile, "%d SHORTS:", count));
+            //uint16_t* sptr = value;
 
             for (int i = 0; i < count; i++)
             {
-                auto c = getByte();
-                uint16_t s = c ^ xor_byte;
-                xor_byte = getByte();
-                s |= (uint16_t)(c ^ xor_byte) << 8;
-                *sptr++ = s;
-                DEBUG(fprintf(logfile, "  %02X %02X = %d", (int)c, (int)xor_byte, (int)s));
+                var c = this.getByte(reader);
+                uint s = c ^ xor_byte;
+                xor_byte = this.getByte(reader);
+                s |= (uint)(c ^ xor_byte) << 8;
+                values[i] = s;
+                //*sptr++ = s;
+                //DEBUG(fprintf(logfile, "  %02X %02X = %d", (int)c, (int)xor_byte, (int)s));
             }
 
-            DEBUG(fprintf(logfile, "\n"));
+            //DEBUG(fprintf(logfile, "\n"));
         }
 
-        static void rdItem(Inventory_t item)
+        private void rdItem(BinaryReader reader, ref uint xor_byte, Inventory_t item)
         {
-            DEBUG(fprintf(logfile, "ITEM:\n"));
-            item.id = rdShort();
-            item.special_name_id = rdByte();
-            rdString(item.inscription);
-            item.flags = rdLong();
-            item.category_id = rdByte();
-            item.sprite = rdByte();
-            item.misc_use = rdShort();
-            item.cost = rdLong();
-            item.sub_category_id = rdByte();
-            item.items_count = rdByte();
-            item.weight = rdShort();
-            item.to_hit = rdShort();
-            item.to_damage = rdShort();
-            item.ac = rdShort();
-            item.to_ac = rdShort();
-            item.damage.dice = rdByte();
-            item.damage.sides = rdByte();
-            item.depth_first_found = rdByte();
-            item.identification = rdByte();
+            //DEBUG(fprintf(logfile, "ITEM:\n"));
+            item.id = this.rdShort(reader, ref xor_byte);
+            item.special_name_id = this.rdByte(reader, ref xor_byte);
+            this.rdString(reader, ref xor_byte, out var inscription);
+            item.inscription = inscription;
+            item.flags = this.rdLong(reader, ref xor_byte);
+            item.category_id = this.rdByte(reader, ref xor_byte);
+            item.sprite = this.rdByte(reader, ref xor_byte);
+            item.misc_use = (int)this.rdShort(reader, ref xor_byte);
+            item.cost = (int)this.rdLong(reader, ref xor_byte);
+            item.sub_category_id = this.rdByte(reader, ref xor_byte);
+            item.items_count = this.rdByte(reader, ref xor_byte);
+            item.weight = this.rdShort(reader, ref xor_byte);
+            item.to_hit = (int)this.rdShort(reader, ref xor_byte);
+            item.to_damage = (int)this.rdShort(reader, ref xor_byte);
+            item.ac = (int)this.rdShort(reader, ref xor_byte);
+            item.to_ac = (int)this.rdShort(reader, ref xor_byte);
+            item.damage = new Dice_t(
+                this.rdByte(reader, ref xor_byte),
+                this.rdByte(reader, ref xor_byte)
+            );
+            item.depth_first_found = this.rdByte(reader, ref xor_byte);
+            item.identification = this.rdByte(reader, ref xor_byte);
         }
 
-        static void rdMonster(Monster_t monster)
+        private void rdMonster(BinaryReader reader, ref uint xor_byte, Monster_t monster)
         {
-            DEBUG(fprintf(logfile, "MONSTER:\n"));
-            monster.hp = rdShort();
-            monster.sleep_count = rdShort();
-            monster.speed = rdShort();
-            monster.creature_id = rdShort();
-            monster.pos.y = rdByte();
-            monster.pos.x = rdByte();
-            monster.distance_from_player = rdByte();
-            monster.lit = rdBool();
-            monster.stunned_amount = rdByte();
-            monster.confused_amount = rdByte();
+            //DEBUG(fprintf(logfile, "MONSTER:\n"));
+            monster.hp = (int)this.rdShort(reader, ref xor_byte);
+            monster.sleep_count = (int)this.rdShort(reader, ref xor_byte);
+            monster.speed = (int)this.rdShort(reader, ref xor_byte);
+            monster.creature_id = this.rdShort(reader, ref xor_byte);
+            monster.pos.y = (int)this.rdByte(reader, ref xor_byte);
+            monster.pos.x = (int)this.rdByte(reader, ref xor_byte);
+            monster.distance_from_player = this.rdByte(reader, ref xor_byte);
+            monster.lit = this.rdBool(reader, ref xor_byte);
+            monster.stunned_amount = this.rdByte(reader, ref xor_byte);
+            monster.confused_amount = this.rdByte(reader, ref xor_byte);
         }
 
         // functions called from death.c to implement the score file
 
         // set the local fileptr to the score file fileptr
-        void setFileptr(FILE* file)
-        {
-            fileptr = file;
-        }
+        //void setFileptr(FILE* file)
+        //{
+        //    fileptr = file;
+        //}
 
-        void saveHighScore(HighScore_t score)
+        private void saveHighScore(BinaryWriter writer, ref uint xor_byte, HighScore_t score)
         {
-            DEBUG(logfile = fopen("IO_LOG", "a"));
-            DEBUG(fprintf(logfile, "Saving score:\n"));
+            //DEBUG(logfile = fopen("IO_LOG", "a"));
+            //DEBUG(fprintf(logfile, "Saving score:\n"));
 
             // Save the encryption byte for robustness.
-            wrByte(xor_byte);
+            this.wrByte(writer, ref xor_byte, xor_byte);
 
-            wrLong((uint32_t)score.points);
-            wrLong((uint32_t)score.birth_date);
-            wrShort((uint16_t)score.uid);
-            wrShort((uint16_t)score.mhp);
-            wrShort((uint16_t)score.chp);
-            wrByte(score.dungeon_depth);
-            wrByte(score.level);
-            wrByte(score.deepest_dungeon_depth);
-            wrByte(score.gender);
-            wrByte(score.race);
-            wrByte(score.character_class);
-            wrBytes((uint8_t*)score.name, PLAYER_NAME_SIZE);
-            wrBytes((uint8_t*)score.died_from, 25);
-            DEBUG(fclose(logfile))
-    }
+            this.wrLong(writer, ref xor_byte, (uint)score.points);
+            this.wrLong(writer, ref xor_byte, (uint)score.birth_date.Ticks);
+            this.wrShort(writer, ref xor_byte, (uint)score.uid);
+            this.wrShort(writer, ref xor_byte, (uint)score.mhp);
+            this.wrShort(writer, ref xor_byte, (uint)score.chp);
+            this.wrByte(writer, ref xor_byte, score.dungeon_depth);
+            this.wrByte(writer, ref xor_byte, score.level);
+            this.wrByte(writer, ref xor_byte, score.deepest_dungeon_depth);
+            this.wrByte(writer, ref xor_byte, score.gender);
+            this.wrByte(writer, ref xor_byte, score.race);
+            this.wrByte(writer, ref xor_byte, score.character_class);
+            // TOFIX: 2 lines below
+            this.wrBytes(writer, ref xor_byte, score.name.Select(x => (uint)x).ToArray(), (int)Player_c.PLAYER_NAME_SIZE);
+            this.wrBytes(writer, ref xor_byte, score.died_from.Select(x => (uint)x).ToArray(), 25);
+            //DEBUG(fclose(logfile))
+        }
 
-        static void readHighScore(HighScore_t score)
+        private void readHighScore(BinaryReader reader, HighScore_t score)
         {
-            DEBUG(logfile = fopen("IO_LOG", "a"));
-            DEBUG(fprintf(logfile, "Reading score:\n"));
+            //DEBUG(logfile = fopen("IO_LOG", "a"));
+            //DEBUG(fprintf(logfile, "Reading score:\n"));
 
             // Read the encryption byte.
-            xor_byte = getByte();
+            var xor_byte = this.getByte(reader);
+            //xor_byte = getByte();
 
-            score.points = rdLong();
-            score.birth_date = rdLong();
-            score.uid = rdShort();
-            score.mhp = rdShort();
-            score.chp = rdShort();
-            score.dungeon_depth = rdByte();
-            score.level = rdByte();
-            score.deepest_dungeon_depth = rdByte();
-            score.gender = rdByte();
-            score.race = rdByte();
-            score.character_class = rdByte();
-            rdBytes((uint8_t*)score.name, PLAYER_NAME_SIZE);
-            rdBytes((uint8_t*)score.died_from, 25);
-            DEBUG(fclose(logfile));
+            score.points = (int)this.rdLong(reader, ref xor_byte);
+            var ticks = (long)this.rdLong(reader, ref xor_byte);
+            score.birth_date = new DateTime(ticks);
+            score.uid = (int)this.rdShort(reader, ref xor_byte);
+            score.mhp = (int)this.rdShort(reader, ref xor_byte);
+            score.chp = (int)this.rdShort(reader, ref xor_byte);
+            score.dungeon_depth = this.rdByte(reader, ref xor_byte);
+            score.level = this.rdByte(reader, ref xor_byte);
+            score.deepest_dungeon_depth = this.rdByte(reader, ref xor_byte);
+            score.gender = this.rdByte(reader, ref xor_byte);
+            score.race = this.rdByte(reader, ref xor_byte);
+            score.character_class = this.rdByte(reader, ref xor_byte);
+            // TOFIX: 2 lines below
+            this.rdBytes(reader, ref xor_byte, score.name.Select(x => (uint)x).ToArray(), (int)Player_c.PLAYER_NAME_SIZE);
+            this.rdBytes(reader, ref xor_byte, score.died_from.Select(x => (uint)x).ToArray(), 25);
+            //DEBUG(fclose(logfile));
         }
-        */
     }
 }
