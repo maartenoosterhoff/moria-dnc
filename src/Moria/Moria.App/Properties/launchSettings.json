@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Moria.App": {
-      "commandName": "Project",
-      "commandLineArgs": "-n"
+      "commandName": "Project"
     }
   }
 }

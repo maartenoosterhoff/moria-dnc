@@ -5,10 +5,10 @@ using Moria.Core.States;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using Moria.Core.Constants;
+using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Structures;
+using Moria.Core.Structures.Enumerations;
 using Newtonsoft.Json;
 
 namespace Moria.Core.Methods
@@ -22,29 +22,46 @@ namespace Moria.Core.Methods
 
     public class Game_save_m : IGameSave
     {
+        private readonly IEventPublisher eventPublisher;
         private readonly IFileSystem fileSystem;
+        private readonly IGame game;
+        private readonly IRnd rnd;
+        private readonly IStoreInventory storeInventory;
+        private readonly ITerminal terminal;
 
         public Game_save_m(
-            IFileSystem fileSystem
+            IEventPublisher eventPublisher,
+            IFileSystem fileSystem,
+            IGame game,
+            IRnd rnd,
+            IStoreInventory storeInventory,
+            ITerminal terminal
         )
         {
+            this.eventPublisher = eventPublisher;
             this.fileSystem = fileSystem;
+            this.game = game;
+            this.rnd = rnd;
+            this.storeInventory = storeInventory;
+            this.terminal = terminal;
         }
 
         public bool loadGame(ref bool generate)
         {
-            var saveGameContents = this.fileSystem.File.ReadAllText(Config.files.save_game);
-            var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
-            State.Instance = instance;
-            return true;
+            return this.loadGame_old(ref generate);
+            //var saveGameContents = this.fileSystem.File.ReadAllText(Config.files.save_game);
+            //var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
+            //State.Instance = instance;
+            //return true;
         }
 
         public bool saveGame()
         {
-            var instance = State.Instance;
-            var saveGameContents = JsonConvert.SerializeObject(instance, Formatting.Indented);
-            File.WriteAllText(Config.files.save_game, saveGameContents);
-            return true;
+            return this.saveGame_old();
+            //var instance = State.Instance;
+            //var saveGameContents = JsonConvert.SerializeObject(instance, Formatting.Indented);
+            //File.WriteAllText(Config.files.save_game, saveGameContents);
+            //return true;
         }
 
         /*
@@ -56,44 +73,45 @@ namespace Moria.Core.Methods
         // and completely rewritten again! for portability by -JEW-
 
         // Set up prior to actual save, do the save, then clean up
-        public static bool saveGame()
+
+        */
+        private bool saveGame_old()
         {
             var input = string.Empty;
             //vtype_t input = { '\0' };
             string output;
 
-            while (!saveChar(Config.files.save_game))
+            while (!this.saveChar(Config.files.save_game))
             {
                 output = "Save file '" + Config.files.save_game + "' fails.";
-                printMessage(output);
+                this.terminal.printMessage(output);
 
-                int i = 0;
-                if (access(Config.files.save_game.c_str(), 0) < 0 || !getInputConfirmation("File exists. Delete old save file?") || (i = unlink(Config.files.save_game)) < 0)
-                {
-                    if (i < 0)
-                    {
-                        output = "Can't delete '" + Config.files.save_game + "'";
-                        printMessage(output);
-                    }
-                    putStringClearToEOL("New Save file [ESC to give up]:", new Coord_t(0, 0));
-                    if (!getStringInput(out input, new Coord_t(0, 31), 45))
-                    {
-                        return false;
-                    }
-                    if (input[0] != 0)
-                    {
-                        // (void) strcpy(Config.files.save_game, input);
-                        Config.files.save_game = input;
-                    }
-                }
+                //if (access(Config.files.save_game.c_str(), 0) < 0 || !this.terminal.getInputConfirmation("File exists. Delete old save file?") || (i = unlink(Config.files.save_game)) < 0)
+                //{
+                //    if (i < 0)
+                //    {
+                //        output = "Can't delete '" + Config.files.save_game + "'";
+                //        this.terminal.printMessage(output);
+                //    }
+                //    this.terminal.putStringClearToEOL("New Save file [ESC to give up]:", new Coord_t(0, 0));
+                //    if (!this.terminal.getStringInput(out input, new Coord_t(0, 31), 45))
+                //    {
+                //        return false;
+                //    }
+                //    if (input[0] != 0)
+                //    {
+                //        // (void) strcpy(Config.files.save_game, input);
+                //        Config.files.save_game = input;
+                //    }
+                //}
                 output = "Saving with '" + Config.files.save_game + "'...";
-                putStringClearToEOL(output, new Coord_t(0, 0));
+                this.terminal.putStringClearToEOL(output, new Coord_t(0, 0));
             }
 
             return true;
         }
 
-        static bool svWrite()
+        private bool svWrite(BinaryWriter writer, ref uint xor_byte)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -161,7 +179,7 @@ namespace Moria.Core.Methods
                 l |= 0x40000000;
             }
 
-            for (int i = 0; i < MON_MAX_CREATURES; i++)
+            for (int i = 0; i < Monster_c.MON_MAX_CREATURES; i++)
             {
                 Recall_t r = State.Instance.creature_recall[i];
                 if (r.movement != 0 ||
@@ -175,231 +193,235 @@ namespace Moria.Core.Methods
                     r.attacks[3] != 0
                 )
                 {
-                    wrShort((uint)i);
-                    wrLong(r.movement);
-                    wrLong(r.spells);
-                    wrShort(r.kills);
-                    wrShort(r.deaths);
-                    wrShort(r.defenses);
-                    wrByte(r.wake);
-                    wrByte(r.ignore);
-                    wrBytes(r.attacks, MON_MAX_ATTACKS);
+                    this.wrShort(writer, ref xor_byte, (uint)i);
+                    this.wrLong(writer, ref xor_byte, r.movement);
+                    this.wrLong(writer, ref xor_byte, r.spells);
+                    this.wrShort(writer, ref xor_byte, r.kills);
+                    this.wrShort(writer, ref xor_byte, r.deaths);
+                    this.wrShort(writer, ref xor_byte, r.defenses);
+                    this.wrByte(writer, ref xor_byte, r.wake);
+                    this.wrByte(writer, ref xor_byte, r.ignore);
+                    this.wrBytes(writer, ref xor_byte, r.attacks, (int)Monster_c.MON_MAX_ATTACKS);
                 }
             }
 
             // sentinel to indicate no more monster info
-            wrShort((uint)0xFFFF);
+            this.wrShort(writer, ref xor_byte, (uint)0xFFFF);
 
-            wrLong(l);
+            this.wrLong(writer, ref xor_byte, l);
 
-            wrString(py.misc.name);
-            wrBool(py.misc.gender);
-            wrLong((uint)py.misc.au);
-            wrLong((uint)py.misc.max_exp);
-            wrLong((uint)py.misc.exp);
-            wrShort(py.misc.exp_fraction);
-            wrShort(py.misc.age);
-            wrShort(py.misc.height);
-            wrShort(py.misc.weight);
-            wrShort(py.misc.level);
-            wrShort(py.misc.max_dungeon_depth);
-            wrShort((uint)py.misc.chance_in_search);
-            wrShort((uint)py.misc.fos);
-            wrShort((uint)py.misc.bth);
-            wrShort((uint)py.misc.bth_with_bows);
-            wrShort((uint)py.misc.mana);
-            wrShort((uint)py.misc.max_hp);
-            wrShort((uint)py.misc.plusses_to_hit);
-            wrShort((uint)py.misc.plusses_to_damage);
-            wrShort((uint)py.misc.ac);
-            wrShort((uint)py.misc.magical_ac);
-            wrShort((uint)py.misc.display_to_hit);
-            wrShort((uint)py.misc.display_to_damage);
-            wrShort((uint)py.misc.display_ac);
-            wrShort((uint)py.misc.display_to_ac);
-            wrShort((uint)py.misc.disarm);
-            wrShort((uint)py.misc.saving_throw);
-            wrShort((uint)py.misc.social_class);
-            wrShort((uint)py.misc.stealth_factor);
-            wrByte(py.misc.class_id);
-            wrByte(py.misc.race_id);
-            wrByte(py.misc.hit_die);
-            wrByte(py.misc.experience_factor);
-            wrShort((uint)py.misc.current_mana);
-            wrShort(py.misc.current_mana_fraction);
-            wrShort((uint)py.misc.current_hp);
-            wrShort(py.misc.current_hp_fraction);
+            this.wrString(writer, ref xor_byte, py.misc.name);
+            this.wrBool(writer, ref xor_byte, py.misc.gender);
+            this.wrLong(writer, ref xor_byte, (uint)py.misc.au);
+            this.wrLong(writer, ref xor_byte, (uint)py.misc.max_exp);
+            this.wrLong(writer, ref xor_byte, (uint)py.misc.exp);
+            this.wrShort(writer, ref xor_byte, py.misc.exp_fraction);
+            this.wrShort(writer, ref xor_byte, py.misc.age);
+            this.wrShort(writer, ref xor_byte, py.misc.height);
+            this.wrShort(writer, ref xor_byte, py.misc.weight);
+            this.wrShort(writer, ref xor_byte, py.misc.level);
+            this.wrShort(writer, ref xor_byte, py.misc.max_dungeon_depth);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.chance_in_search);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.fos);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.bth);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.bth_with_bows);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.mana);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.max_hp);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.plusses_to_hit);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.plusses_to_damage);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.ac);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.magical_ac);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.display_to_hit);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.display_to_damage);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.display_ac);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.display_to_ac);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.disarm);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.saving_throw);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.social_class);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.stealth_factor);
+            this.wrByte(writer, ref xor_byte, py.misc.class_id);
+            this.wrByte(writer, ref xor_byte, py.misc.race_id);
+            this.wrByte(writer, ref xor_byte, py.misc.hit_die);
+            this.wrByte(writer, ref xor_byte, py.misc.experience_factor);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.current_mana);
+            this.wrShort(writer, ref xor_byte, py.misc.current_mana_fraction);
+            this.wrShort(writer, ref xor_byte, (uint)py.misc.current_hp);
+            this.wrShort(writer, ref xor_byte, py.misc.current_hp_fraction);
             foreach (var entry in py.misc.history)
             {
-                wrString(entry);
+                this.wrString(writer, ref xor_byte, entry);
             }
 
-            wrBytes(py.stats.max, 6);
-            wrBytes(py.stats.current, 6);
-            wrShorts((uint[])py.stats.modified, 6);
-            wrBytes(py.stats.used, 6);
+            this.wrBytes(writer, ref xor_byte, py.stats.max, 6);
+            this.wrBytes(writer, ref xor_byte, py.stats.current, 6);
+            this.wrShorts(writer, ref xor_byte, py.stats.modified, 6);
+            this.wrBytes(writer, ref xor_byte, py.stats.used, 6);
 
-            wrLong(py.flags.status);
-            wrShort((uint)py.flags.rest);
-            wrShort((uint)py.flags.blind);
-            wrShort((uint)py.flags.paralysis);
-            wrShort((uint)py.flags.confused);
-            wrShort((uint)py.flags.food);
-            wrShort((uint)py.flags.food_digested);
-            wrShort((uint)py.flags.protection);
-            wrShort((uint)py.flags.speed);
-            wrShort((uint)py.flags.fast);
-            wrShort((uint)py.flags.slow);
-            wrShort((uint)py.flags.afraid);
-            wrShort((uint)py.flags.poisoned);
-            wrShort((uint)py.flags.image);
-            wrShort((uint)py.flags.protect_evil);
-            wrShort((uint)py.flags.invulnerability);
-            wrShort((uint)py.flags.heroism);
-            wrShort((uint)py.flags.super_heroism);
-            wrShort((uint)py.flags.blessed);
-            wrShort((uint)py.flags.heat_resistance);
-            wrShort((uint)py.flags.cold_resistance);
-            wrShort((uint)py.flags.detect_invisible);
-            wrShort((uint)py.flags.word_of_recall);
-            wrShort((uint)py.flags.see_infra);
-            wrShort((uint)py.flags.timed_infra);
-            wrBool(py.flags.see_invisible);
-            wrBool(py.flags.teleport);
-            wrBool(py.flags.free_action);
-            wrBool(py.flags.slow_digest);
-            wrBool(py.flags.aggravate);
-            wrBool(py.flags.resistant_to_fire);
-            wrBool(py.flags.resistant_to_cold);
-            wrBool(py.flags.resistant_to_acid);
-            wrBool(py.flags.regenerate_hp);
-            wrBool(py.flags.resistant_to_light);
-            wrBool(py.flags.free_fall);
-            wrBool(py.flags.sustain_str);
-            wrBool(py.flags.sustain_int);
-            wrBool(py.flags.sustain_wis);
-            wrBool(py.flags.sustain_con);
-            wrBool(py.flags.sustain_dex);
-            wrBool(py.flags.sustain_chr);
-            wrBool(py.flags.confuse_monster);
-            wrByte(py.flags.new_spells_to_learn);
+            this.wrLong(writer, ref xor_byte, py.flags.status);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.rest);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.blind);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.paralysis);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.confused);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.food);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.food_digested);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.protection);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.speed);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.fast);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.slow);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.afraid);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.poisoned);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.image);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.protect_evil);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.invulnerability);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.heroism);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.super_heroism);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.blessed);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.heat_resistance);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.cold_resistance);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.detect_invisible);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.word_of_recall);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.see_infra);
+            this.wrShort(writer, ref xor_byte, (uint)py.flags.timed_infra);
+            this.wrBool(writer, ref xor_byte, py.flags.see_invisible);
+            this.wrBool(writer, ref xor_byte, py.flags.teleport);
+            this.wrBool(writer, ref xor_byte, py.flags.free_action);
+            this.wrBool(writer, ref xor_byte, py.flags.slow_digest);
+            this.wrBool(writer, ref xor_byte, py.flags.aggravate);
+            this.wrBool(writer, ref xor_byte, py.flags.resistant_to_fire);
+            this.wrBool(writer, ref xor_byte, py.flags.resistant_to_cold);
+            this.wrBool(writer, ref xor_byte, py.flags.resistant_to_acid);
+            this.wrBool(writer, ref xor_byte, py.flags.regenerate_hp);
+            this.wrBool(writer, ref xor_byte, py.flags.resistant_to_light);
+            this.wrBool(writer, ref xor_byte, py.flags.free_fall);
+            this.wrBool(writer, ref xor_byte, py.flags.sustain_str);
+            this.wrBool(writer, ref xor_byte, py.flags.sustain_int);
+            this.wrBool(writer, ref xor_byte, py.flags.sustain_wis);
+            this.wrBool(writer, ref xor_byte, py.flags.sustain_con);
+            this.wrBool(writer, ref xor_byte, py.flags.sustain_dex);
+            this.wrBool(writer, ref xor_byte, py.flags.sustain_chr);
+            this.wrBool(writer, ref xor_byte, py.flags.confuse_monster);
+            this.wrByte(writer, ref xor_byte, py.flags.new_spells_to_learn);
 
-            wrShort((uint)State.Instance.missiles_counter);
-            wrLong((uint)State.Instance.dg.game_turn);
-            wrShort((uint)py.pack.unique_items);
+            this.wrShort(writer, ref xor_byte, (uint)State.Instance.missiles_counter);
+            this.wrLong(writer, ref xor_byte, (uint)State.Instance.dg.game_turn);
+            this.wrShort(writer, ref xor_byte, (uint)py.pack.unique_items);
             for (int i = 0; i < py.pack.unique_items; i++)
             {
-                wrItem(py.inventory[i]);
+                this.wrItem(writer, ref xor_byte, py.inventory[i]);
             }
-            for (int i = PlayerEquipment.Wield; i < PLAYER_INVENTORY_SIZE; i++)
+            for (int i = (int)PlayerEquipment.Wield; i < Inventory_c.PLAYER_INVENTORY_SIZE; i++)
             {
-                wrItem(py.inventory[i]);
+                this.wrItem(writer, ref xor_byte, py.inventory[i]);
             }
-            wrShort((uint)py.pack.weight);
-            wrShort((uint)py.equipment_count);
-            wrLong(py.flags.spells_learnt);
-            wrLong(py.flags.spells_worked);
-            wrLong(py.flags.spells_forgotten);
-            wrBytes(py.flags.spells_learned_order, 32);
-            wrBytes(State.Instance.objects_identified, OBJECT_IDENT_SIZE);
-            wrLong(game.magic_seed);
-            wrLong(game.town_seed);
-            wrShort((uint)State.Instance.last_message_id);
-            foreach (var message in messages)
+
+            this.wrShort(writer, ref xor_byte, (uint)py.pack.weight);
+            this.wrShort(writer, ref xor_byte, (uint)py.equipment_count);
+            this.wrLong(writer, ref xor_byte, py.flags.spells_learnt);
+            this.wrLong(writer, ref xor_byte, py.flags.spells_worked);
+            this.wrLong(writer, ref xor_byte, py.flags.spells_forgotten);
+            this.wrBytes(writer, ref xor_byte, py.flags.spells_learned_order, 32);
+            this.wrBytes(writer, ref xor_byte, State.Instance.objects_identified, (int)Game_c.OBJECT_IDENT_SIZE);
+            this.wrLong(writer, ref xor_byte, game.magic_seed);
+            this.wrLong(writer, ref xor_byte, game.town_seed);
+            this.wrShort(writer, ref xor_byte, (uint)State.Instance.last_message_id);
+            foreach (var message in State.Instance.messages)
             {
-                wrString(message);
+                this.wrString(writer, ref xor_byte, message);
             }
 
             // this indicates 'cheating' if it is a one
-            wrShort((uint)(State.Instance.panic_save ? 1 : 0));
-            wrShort((uint)(game.total_winner ? 1 : 0));
-            wrShort((uint)game.noscore);
-            wrShorts(py.base_hp_levels, PLAYER_MAX_LEVEL);
+            this.wrShort(writer, ref xor_byte, (uint)(State.Instance.panic_save ? 1 : 0));
+            this.wrShort(writer, ref xor_byte, (uint)(game.total_winner ? 1 : 0));
+            this.wrShort(writer, ref xor_byte, (uint)game.noscore);
+            this.wrShorts(writer, ref xor_byte, py.base_hp_levels, (int)Player_c.PLAYER_MAX_LEVEL);
 
-            foreach (var store in stores)
+            foreach (var store in State.Instance.stores)
             {
-                wrLong((uint)store.turns_left_before_closing);
-                wrShort((uint)store.insults_counter);
-                wrByte(store.owner_id);
-                wrByte(store.unique_items_counter);
-                wrShort(store.good_purchases);
-                wrShort(store.bad_purchases);
+                this.wrLong(writer, ref xor_byte, (uint)store.turns_left_before_closing);
+                this.wrShort(writer, ref xor_byte, (uint)store.insults_counter);
+                this.wrByte(writer, ref xor_byte, store.owner_id);
+                this.wrByte(writer, ref xor_byte, store.unique_items_counter);
+                this.wrShort(writer, ref xor_byte, store.good_purchases);
+                this.wrShort(writer, ref xor_byte, store.bad_purchases);
                 for (int j = 0; j < store.unique_items_counter; j++)
                 {
-                    wrLong((uint)store.inventory[j].cost);
-                    wrItem(store.inventory[j].item);
+                    this.wrLong(writer, ref xor_byte, (uint)store.inventory[j].cost);
+                    this.wrItem(writer, ref xor_byte, store.inventory[j].item);
                 }
             }
 
             // save the current time in the save file
-            l = DateTime.Now;
+            l = (uint)DateTime.Now.Ticks;
 
-            if (l < start_time)
+            if (l < State.Instance.start_time.Ticks)
             {
                 // someone is messing with the clock!,
                 // assume that we have been playing for 1 day
-                l = (uint)(start_time + 86400L);
+                l = (uint)State.Instance.start_time.AddDays(1).Ticks;
+                //l = (uint)(start_time + 86400L);
             }
-            wrLong(l);
+
+            this.wrLong(writer, ref xor_byte, l);
 
             // put game.character_died_from string in save file
-            wrString(game.character_died_from);
+            this.wrString(writer, ref xor_byte, game.character_died_from);
 
             // put the max_score in the save file
-            l = (uint)(playerCalculateTotalPoints());
-            wrLong(l);
+            l = (uint)(Scores_m.playerCalculateTotalPoints());
+            this.wrLong(writer, ref xor_byte, l);
 
             // put the date_of_birth in the save file
-            wrLong((uint)py.misc.date_of_birth);
+            this.wrLong(writer, ref xor_byte, (uint)py.misc.date_of_birth.Ticks);
 
             // only level specific info follows, this allows characters to be
             // resurrected, the dungeon level info is not needed for a resurrection
             if (game.character_is_dead)
             {
-                return !((ferror(fileptr) != 0) || fflush(fileptr) == EOF);
+                return true;
+                //return !((ferror(fileptr) != 0) || fflush(fileptr) == EOF);
             }
 
             var dg = State.Instance.dg;
-            wrShort((uint)dg.current_level);
-            wrShort((uint)py.pos.y);
-            wrShort((uint)py.pos.x);
-            wrShort((uint)State.Instance.monster_multiply_total);
-            wrShort((uint)dg.height);
-            wrShort((uint)dg.width);
-            wrShort((uint)dg.panel.max_rows);
-            wrShort((uint)dg.panel.max_cols);
+            this.wrShort(writer, ref xor_byte, (uint)dg.current_level);
+            this.wrShort(writer, ref xor_byte, (uint)py.pos.y);
+            this.wrShort(writer, ref xor_byte, (uint)py.pos.x);
+            this.wrShort(writer, ref xor_byte, (uint)State.Instance.monster_multiply_total);
+            this.wrShort(writer, ref xor_byte, (uint)dg.height);
+            this.wrShort(writer, ref xor_byte, (uint)dg.width);
+            this.wrShort(writer, ref xor_byte, (uint)dg.panel.max_rows);
+            this.wrShort(writer, ref xor_byte, (uint)dg.panel.max_cols);
 
-            for (int i = 0; i < MAX_HEIGHT; i++)
+            for (int i = 0; i < Dungeon_c.MAX_HEIGHT; i++)
             {
-                for (int j = 0; j < MAX_WIDTH; j++)
+                for (int j = 0; j < Dungeon_c.MAX_WIDTH; j++)
                 {
                     if (dg.floor[i][j].creature_id != 0)
                     {
-                        wrByte((uint)i);
-                        wrByte((uint)j);
-                        wrByte(dg.floor[i][j].creature_id);
+                        this.wrByte(writer, ref xor_byte, (uint)i);
+                        this.wrByte(writer, ref xor_byte, (uint)j);
+                        this.wrByte(writer, ref xor_byte, dg.floor[i][j].creature_id);
                     }
                 }
             }
 
             // marks end of creature_id info
-            wrByte((uint)0xFF);
+            this.wrByte(writer, ref xor_byte, (uint)0xFF);
 
-            for (int i = 0; i < MAX_HEIGHT; i++)
+            for (int i = 0; i < Dungeon_c.MAX_HEIGHT; i++)
             {
-                for (int j = 0; j < MAX_WIDTH; j++)
+                for (int j = 0; j < Dungeon_c.MAX_WIDTH; j++)
                 {
                     if (dg.floor[i][j].treasure_id != 0)
                     {
-                        wrByte((uint)i);
-                        wrByte((uint)j);
-                        wrByte(dg.floor[i][j].treasure_id);
+                        this.wrByte(writer, ref xor_byte, (uint)i);
+                        this.wrByte(writer, ref xor_byte, (uint)j);
+                        this.wrByte(writer, ref xor_byte, dg.floor[i][j].treasure_id);
                     }
                 }
             }
 
             // marks end of treasure_id info
-            wrByte((uint)0xFF);
+            this.wrByte(writer, ref xor_byte, (uint)0xFF);
 
             // must set counter to zero, note that code may write out two bytes unnecessarily
             int count = 0;
@@ -416,10 +438,10 @@ namespace Moria.Core.Methods
                                           ((tile.temporary_light ? 1u : 0) << 7)
                                         );
 
-                    if (char_tmp != prev_char || count == UCHAR_MAX)
+                    if (char_tmp != prev_char || count == Monster_m.UCHAR_MAX)
                     {
-                        wrByte((uint)count);
-                        wrByte(prev_char);
+                        this.wrByte(writer, ref xor_byte, (uint)count);
+                        this.wrByte(writer, ref xor_byte, prev_char);
                         prev_char = char_tmp;
                         count = 1;
                     }
@@ -431,24 +453,26 @@ namespace Moria.Core.Methods
             }
 
             // save last entry
-            wrByte((uint)count);
-            wrByte(prev_char);
+            this.wrByte(writer, ref xor_byte, (uint)count);
+            this.wrByte(writer, ref xor_byte, prev_char);
 
-            wrShort((uint)game.treasure.current_id);
+            this.wrShort(writer, ref xor_byte, (uint)game.treasure.current_id);
             for (int i = (int)Config.treasure.MIN_TREASURE_LIST_ID; i < game.treasure.current_id; i++)
             {
-                wrItem(game.treasure.list[i]);
+                this.wrItem(writer, ref xor_byte, game.treasure.list[i]);
             }
-            wrShort((uint)State.Instance.next_free_monster_id);
+
+            this.wrShort(writer, ref xor_byte, (uint)State.Instance.next_free_monster_id);
             for (int i = (int)Config.monsters.MON_MIN_INDEX_ID; i < State.Instance.next_free_monster_id; i++)
             {
-                wrMonster(State.Instance.monsters[i]);
+                this.wrMonster(writer, ref xor_byte, State.Instance.monsters[i]);
             }
 
-            return !((ferror(fileptr) != 0) || fflush(fileptr) == EOF);
+            return true;
+            //return !((ferror(fileptr) != 0) || fflush(fileptr) == EOF);
         }
 
-        static bool saveChar(string filename)
+        private bool saveChar(string filename)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -458,181 +482,206 @@ namespace Moria.Core.Methods
                 return true; // Nothing to save.
             }
 
-            putQIO();
-            playerDisturb(1, 0);                   // Turn off resting and searching.
-            playerChangeSpeed(-py.pack.heaviness); // Fix the speed
+            this.terminal.putQIO();
+            this.eventPublisher.Publish(new DisturbCommand(true, false));
+            //playerDisturb(1, 0);                   // Turn off resting and searching.
+            Player_m.playerChangeSpeed(-py.pack.heaviness); // Fix the speed
             py.pack.heaviness = 0;
-            bool ok = false;
-
-            fileptr = nullptr; // Do not assume it has been init'ed
-
-            int fd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0600);
-
-            if (fd < 0 && access(filename, 0) >= 0 && ((from_save_file != 0) || (game.wizard_mode && getInputConfirmation("Can't make new save file. Overwrite old?"))))
+            bool ok;
+            try
             {
-                (void)chmod(filename.c_str(), 0600);
-                fd = open(filename.c_str(), O_RDWR | O_TRUNC, 0600);
-            }
+                var writeStream = new FileStream(filename, FileMode.Create);
+                var writer = new BinaryWriter(writeStream);
+                //fileptr = nullptr; // Do not assume it has been init'ed
 
-            if (fd >= 0)
-            {
-                (void)close(fd);
-                fileptr = fopen(Config.files.save_game, "wb");
-            }
+                //int fd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0600);
 
-            DEBUG(logfile = fopen("IO_LOG", "a"));
-            DEBUG(fprintf(logfile, "Saving data to %s\n", Config.files.save_game));
+                //if (fd < 0 && access(filename, 0) >= 0 && ((from_save_file != 0) || (game.wizard_mode && getInputConfirmation("Can't make new save file. Overwrite old?"))))
+                //{
+                //    (void)chmod(filename.c_str(), 0600);
+                //    fd = open(filename.c_str(), O_RDWR | O_TRUNC, 0600);
+                //}
 
-            if (fileptr != nullptr)
-            {
+                //if (fd >= 0)
+                //{
+                //    (void)close(fd);
+                //    fileptr = fopen(Config.files.save_game, "wb");
+                //}
+
+                //DEBUG(logfile = fopen("IO_LOG", "a"));
+                //DEBUG(fprintf(logfile, "Saving data to %s\n", Config.files.save_game));
+
+                //if (fileptr != nullptr)
+                //{
+                var xor_byte = 0u;
+                this.wrByte(writer, ref xor_byte, Version_c.CURRENT_VERSION_MAJOR);
                 xor_byte = 0;
-                wrByte(CURRENT_VERSION_MAJOR);
+                this.wrByte(writer, ref xor_byte, Version_c.CURRENT_VERSION_MINOR);
                 xor_byte = 0;
-                wrByte(CURRENT_VERSION_MINOR);
-                xor_byte = 0;
-                wrByte(CURRENT_VERSION_PATCH);
+                this.wrByte(writer, ref xor_byte, Version_c.CURRENT_VERSION_PATCH);
                 xor_byte = 0;
 
-                auto char_tmp = (uint8_t)(randomNumber(256) - 1);
-                wrByte(char_tmp);
+                var char_tmp = (uint)(this.rnd.randomNumber(256) - 1);
+                this.wrByte(writer, ref xor_byte, char_tmp);
                 // Note that xor_byte is now equal to char_tmp
 
-                ok = svWrite();
+                this.svWrite(writer, ref xor_byte);
 
-                DEBUG(fclose(logfile));
+                //DEBUG(fclose(logfile));
 
-                if (fclose(fileptr) == EOF)
-                {
-                    ok = false;
-                }
+                //if (fclose(fileptr) == EOF)
+                //{
+                //    ok = false;
+                //}
+                //}
+
+                //if (!ok)
+                //{
+                //    if (fd >= 0)
+                //    {
+                //        (void)unlink(filename.c_str());
+                //    }
+                //
+                //    std::string output;
+                //    if (fd >= 0)
+                //    {
+                //        output = "Error writing to file '" + filename + "'";
+                //    }
+                //    else
+                //    {
+                //        output = "Can't create new file '" + filename + "'";
+                //    }
+                //    printMessage(output.c_str());
+                //
+                //    return false;
+                //}
+
             }
-
-            if (!ok)
+            catch
             {
-                if (fd >= 0)
-                {
-                    (void)unlink(filename.c_str());
-                }
-
-                std::string output;
-                if (fd >= 0)
-                {
-                    output = "Error writing to file '" + filename + "'";
-                }
-                else
-                {
-                    output = "Can't create new file '" + filename + "'";
-                }
-                printMessage(output.c_str());
-
                 return false;
             }
 
             game.character_saved = true;
-            dg.game_turn = -1;
+            State.Instance.dg.game_turn = -1;
 
             return true;
         }
 
         // Certain checks are omitted for the wizard. -CJS-
-        public static bool loadGame(ref bool generate)
+        private bool loadGame_old(ref bool generate)
         {
-            Tile_t* tile = nullptr;
-            int c;
-            uint32_t time_saved = 0;
-            uint8_t version_maj = 0;
-            uint8_t version_min = 0;
-            uint8_t patch_level = 0;
+            Tile_t tile;
+            //Tile_t* tile = nullptr;
+            uint time_saved = 0;
+            uint version_maj;
+            uint version_min;
+            uint patch_level;
 
             generate = true;
-            int fd = -1;
-            int total_count = 0;
+            int total_count;
 
-            // Not required for Mac, because the file name is obtained through a dialog.
-            // There is no way for a nonexistent file to be specified. -BS-
-            if (access(Config.files.save_game.c_str(), 0) != 0)
+            if (!this.fileSystem.File.Exists(Config.files.save_game))
             {
-                printMessage("Save file does not exist.");
-                return false; // Don't bother with messages here. File absent.
+                this.terminal.printMessage("Save file does not exist.");
+                return false;
             }
+            //// Not required for Mac, because the file name is obtained through a dialog.
+            //// There is no way for a nonexistent file to be specified. -BS-
+            //if (access(Config.files.save_game.c_str(), 0) != 0)
+            //{
+            //    printMessage("Save file does not exist.");
+            //    return false; // Don't bother with messages here. File absent.
+            //}
 
-            clearScreen();
+            this.terminal.clearScreen();
+            //clearScreen();
 
-            std::string filename = "Save file '" + Config.files.save_game + "' present. Attempting restore.";
-            putString(filename.c_str(), new Coord_t(23, 0));
+            var filename = $"Save file '{Config.files.save_game}' present. Attempting restore.";
+            //std::string filename = "Save file '" + Config.files.save_game + "' present. Attempting restore.";
+            this.terminal.putString(filename, new Coord_t(23, 0));
+            //putString(filename.c_str(), new Coord_t(23, 0));
 
+            var dg = State.Instance.dg;
+            var py = State.Instance.py;
             // FIXME: check this if/else logic! -- MRC
             if (dg.game_turn >= 0)
             {
-                printMessage("IMPOSSIBLE! Attempt to restore while still alive!");
+                this.terminal.printMessage("IMPOSSIBLE! Attempt to restore while still alive!");
+                //printMessage("IMPOSSIBLE! Attempt to restore while still alive!");
             }
-            else if ((fd = open(Config.files.save_game.c_str(), O_RDONLY, 0)) < 0 &&
-                     (chmod(Config.files.save_game.c_str(), 0400) < 0 || (fd = open(Config.files.save_game.c_str(), O_RDONLY, 0)) < 0))
-            {
-                // Allow restoring a file belonging to someone else, if we can delete it.
-                // Hence first try to read without doing a chmod.
+            //else if ((fd = open(Config.files.save_game.c_str(), O_RDONLY, 0)) < 0 &&
+            //         (chmod(Config.files.save_game.c_str(), 0400) < 0 || (fd = open(Config.files.save_game.c_str(), O_RDONLY, 0)) < 0))
+            //{
+            //    // Allow restoring a file belonging to someone else, if we can delete it.
+            //    // Hence first try to read without doing a chmod.
 
-                printMessage("Can't open file for reading.");
-            }
+            //    printMessage("Can't open file for reading.");
+            //}
             else
             {
                 dg.game_turn = -1;
                 bool ok = true;
 
-                (void)close(fd);
-                fd = -1; // Make sure it isn't closed again
-                fileptr = fopen(Config.files.save_game.c_str(), "rb");
+                //(void)close(fd);
+                //fd = -1; // Make sure it isn't closed again
+                var readerStream = this.fileSystem.File.Open(Config.files.save_game, FileMode.Open);
+                var reader = new BinaryReader(readerStream);
+                //fileptr = fopen(Config.files.save_game.c_str(), "rb");
+                //
+                //if (fileptr == nullptr)
+                //{
+                //    goto error;
+                //}
 
-                if (fileptr == nullptr)
-                {
-                    goto error;
-                }
+                this.terminal.putStringClearToEOL("Restoring Memory...", new Coord_t(0, 0));
+                //putStringClearToEOL("Restoring Memory...", new Coord_t(0, 0));
+                this.terminal.putQIO();
 
-                putStringClearToEOL("Restoring Memory...", new Coord_t(0, 0));
-                putQIO();
-
-                DEBUG(logfile = fopen("IO_LOG", "a"));
-                DEBUG(fprintf(logfile, "Reading data from %s\n", Config.files.save_game));
+                //DEBUG(logfile = fopen("IO_LOG", "a"));
+                //DEBUG(fprintf(logfile, "Reading data from %s\n", Config.files.save_game));
+                uint xor_byte;
 
                 // Note: setting these xor_byte is correct!
                 xor_byte = 0;
-                version_maj = rdByte();
+                version_maj = this.rdByte(reader, ref xor_byte);
                 xor_byte = 0;
-                version_min = rdByte();
+                version_min = this.rdByte(reader, ref xor_byte);
                 xor_byte = 0;
-                patch_level = rdByte();
+                patch_level = this.rdByte(reader, ref xor_byte);
 
-                xor_byte = getByte();
+                xor_byte = this.getByte(reader);
 
-                if (!validGameVersion(version_maj, version_min, patch_level))
+                if (!this.validGameVersion(version_maj, version_min, patch_level))
                 {
-                    putStringClearToEOL("Sorry. This save file is from a different version of umoria.", new Coord_t(2, 0));
+                    this.terminal.putStringClearToEOL("Sorry. This save file is from a different version of umoria.", new Coord_t(2, 0));
                     goto error;
                 }
 
-                uint16_t uint_16_t_tmp;
-                uint32_t l;
+                uint uint_16_t_tmp;
+                uint l;
+                string str;
 
-                uint_16_t_tmp = rdShort();
+                uint_16_t_tmp = this.rdShort(reader, ref xor_byte);
                 while (uint_16_t_tmp != 0xFFFF)
                 {
-                    if (uint_16_t_tmp >= MON_MAX_CREATURES)
+                    if (uint_16_t_tmp >= Monster_c.MON_MAX_CREATURES)
                     {
                         goto error;
                     }
-                    Recall_t & memory = creature_recall[uint_16_t_tmp];
-                    memory.movement = rdLong();
-                    memory.spells = rdLong();
-                    memory.kills = rdShort();
-                    memory.deaths = rdShort();
-                    memory.defenses = rdShort();
-                    memory.wake = rdByte();
-                    memory.ignore = rdByte();
-                    rdBytes(memory.attacks, MON_MAX_ATTACKS);
-                    uint_16_t_tmp = rdShort();
+                    Recall_t memory = State.Instance.creature_recall[uint_16_t_tmp];
+                    memory.movement = this.rdLong(reader, ref xor_byte);
+                    memory.spells = this.rdLong(reader, ref xor_byte);
+                    memory.kills = this.rdShort(reader, ref xor_byte);
+                    memory.deaths = this.rdShort(reader, ref xor_byte);
+                    memory.defenses = this.rdShort(reader, ref xor_byte);
+                    memory.wake = this.rdByte(reader, ref xor_byte);
+                    memory.ignore = this.rdByte(reader, ref xor_byte);
+                    this.rdBytes(reader, ref xor_byte, memory.attacks, (int)Monster_c.MON_MAX_ATTACKS);
+                    uint_16_t_tmp = this.rdShort(reader, ref xor_byte);
                 }
 
-                l = rdLong();
+                l = this.rdLong(reader, ref xor_byte);
 
                 Config.options.run_cut_corners = (l & 0x1) != 0;
                 Config.options.run_examine_corners = (l & 0x2) != 0;
@@ -648,185 +697,197 @@ namespace Moria.Core.Methods
 
                 // Don't allow resurrection of game.total_winner characters.  It causes
                 // problems because the character level is out of the allowed range.
-                if (game.to_be_wizard && ((l & 0x40000000L) != 0))
+                if (State.Instance.game.to_be_wizard && ((l & 0x40000000L) != 0))
                 {
-                    printMessage("Sorry, this character is retired from moria.");
-                    printMessage("You can not resurrect a retired character.");
+                    this.terminal.printMessage("Sorry, this character is retired from moria.");
+                    this.terminal.printMessage("You can not resurrect a retired character.");
                 }
-                else if (game.to_be_wizard && ((l & 0x80000000L) != 0) && getInputConfirmation("Resurrect a dead character?"))
+                else if (State.Instance.game.to_be_wizard && ((l & 0x80000000L) != 0) && this.terminal.getInputConfirmation("Resurrect a dead character?"))
                 {
-                    l &= ~0x80000000L;
+                    l &= ~0x80000000;
                 }
 
-                if ((l & 0x80000000L) == 0)
+                if ((l & 0x80000000u) == 0)
                 {
-                    rdString(py.misc.name);
-                    py.misc.gender = rdBool();
-                    py.misc.au = rdLong();
-                    py.misc.max_exp = rdLong();
-                    py.misc.exp = rdLong();
-                    py.misc.exp_fraction = rdShort();
-                    py.misc.age = rdShort();
-                    py.misc.height = rdShort();
-                    py.misc.weight = rdShort();
-                    py.misc.level = rdShort();
-                    py.misc.max_dungeon_depth = rdShort();
-                    py.misc.chance_in_search = rdShort();
-                    py.misc.fos = rdShort();
-                    py.misc.bth = rdShort();
-                    py.misc.bth_with_bows = rdShort();
-                    py.misc.mana = rdShort();
-                    py.misc.max_hp = rdShort();
-                    py.misc.plusses_to_hit = rdShort();
-                    py.misc.plusses_to_damage = rdShort();
-                    py.misc.ac = rdShort();
-                    py.misc.magical_ac = rdShort();
-                    py.misc.display_to_hit = rdShort();
-                    py.misc.display_to_damage = rdShort();
-                    py.misc.display_ac = rdShort();
-                    py.misc.display_to_ac = rdShort();
-                    py.misc.disarm = rdShort();
-                    py.misc.saving_throw = rdShort();
-                    py.misc.social_class = rdShort();
-                    py.misc.stealth_factor = rdShort();
-                    py.misc.class_id = rdByte();
-                    py.misc.race_id = rdByte();
-                    py.misc.hit_die = rdByte();
-                    py.misc.experience_factor = rdByte();
-                    py.misc.current_mana = rdShort();
-                    py.misc.current_mana_fraction = rdShort();
-                    py.misc.current_hp = rdShort();
-                    py.misc.current_hp_fraction = rdShort();
-                    for (auto & entry : py.misc.history)
+                    this.rdString(reader, ref xor_byte, out str);
+                    py.misc.name = str;
+                    py.misc.gender = this.rdBool(reader, ref xor_byte);
+                    py.misc.au = (int)this.rdLong(reader, ref xor_byte);
+                    py.misc.max_exp = (int)this.rdLong(reader, ref xor_byte);
+                    py.misc.exp = (int)this.rdLong(reader, ref xor_byte);
+                    py.misc.exp_fraction = this.rdShort(reader, ref xor_byte);
+                    py.misc.age = this.rdShort(reader, ref xor_byte);
+                    py.misc.height = this.rdShort(reader, ref xor_byte);
+                    py.misc.weight = this.rdShort(reader, ref xor_byte);
+                    py.misc.level = this.rdShort(reader, ref xor_byte);
+                    py.misc.max_dungeon_depth = this.rdShort(reader, ref xor_byte);
+                    py.misc.chance_in_search = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.fos = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.bth = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.bth_with_bows = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.mana = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.max_hp = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.plusses_to_hit = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.plusses_to_damage = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.ac = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.magical_ac = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.display_to_hit = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.display_to_damage = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.display_ac = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.display_to_ac = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.disarm = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.saving_throw = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.social_class = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.stealth_factor = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.class_id = this.rdByte(reader, ref xor_byte);
+                    py.misc.race_id = this.rdByte(reader, ref xor_byte);
+                    py.misc.hit_die = this.rdByte(reader, ref xor_byte);
+                    py.misc.experience_factor = this.rdByte(reader, ref xor_byte);
+                    py.misc.current_mana = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.current_mana_fraction = this.rdShort(reader, ref xor_byte);
+                    py.misc.current_hp = (int)this.rdShort(reader, ref xor_byte);
+                    py.misc.current_hp_fraction = this.rdShort(reader, ref xor_byte);
+                    for (int i = 0; i < py.misc.history.Length; i++)
                     {
-                        rdString(entry);
+                        this.rdString(reader, ref xor_byte, out str);
+                        py.misc.history[i] = str;
                     }
+                    //for (auto & entry : py.misc.history)
+                    //{
+                    //    rdString(entry);
+                    //}
 
-                    rdBytes(py.stats.max, 6);
-                    rdBytes(py.stats.current, 6);
-                    rdShorts((uint16_t*)py.stats.modified, 6);
-                    rdBytes(py.stats.used, 6);
+                    this.rdBytes(reader, ref xor_byte, py.stats.max, 6);
+                    this.rdBytes(reader, ref xor_byte, py.stats.current, 6);
+                    this.rdShorts(reader, ref xor_byte, py.stats.modified, 6);
+                    this.rdBytes(reader, ref xor_byte, py.stats.used, 6);
 
-                    py.flags.status = rdLong();
-                    py.flags.rest = rdShort();
-                    py.flags.blind = rdShort();
-                    py.flags.paralysis = rdShort();
-                    py.flags.confused = rdShort();
-                    py.flags.food = rdShort();
-                    py.flags.food_digested = rdShort();
-                    py.flags.protection = rdShort();
-                    py.flags.speed = rdShort();
-                    py.flags.fast = rdShort();
-                    py.flags.slow = rdShort();
-                    py.flags.afraid = rdShort();
-                    py.flags.poisoned = rdShort();
-                    py.flags.image = rdShort();
-                    py.flags.protect_evil = rdShort();
-                    py.flags.invulnerability = rdShort();
-                    py.flags.heroism = rdShort();
-                    py.flags.super_heroism = rdShort();
-                    py.flags.blessed = rdShort();
-                    py.flags.heat_resistance = rdShort();
-                    py.flags.cold_resistance = rdShort();
-                    py.flags.detect_invisible = rdShort();
-                    py.flags.word_of_recall = rdShort();
-                    py.flags.see_infra = rdShort();
-                    py.flags.timed_infra = rdShort();
-                    py.flags.see_invisible = rdBool();
-                    py.flags.teleport = rdBool();
-                    py.flags.free_action = rdBool();
-                    py.flags.slow_digest = rdBool();
-                    py.flags.aggravate = rdBool();
-                    py.flags.resistant_to_fire = rdBool();
-                    py.flags.resistant_to_cold = rdBool();
-                    py.flags.resistant_to_acid = rdBool();
-                    py.flags.regenerate_hp = rdBool();
-                    py.flags.resistant_to_light = rdBool();
-                    py.flags.free_fall = rdBool();
-                    py.flags.sustain_str = rdBool();
-                    py.flags.sustain_int = rdBool();
-                    py.flags.sustain_wis = rdBool();
-                    py.flags.sustain_con = rdBool();
-                    py.flags.sustain_dex = rdBool();
-                    py.flags.sustain_chr = rdBool();
-                    py.flags.confuse_monster = rdBool();
-                    py.flags.new_spells_to_learn = rdByte();
+                    py.flags.status = this.rdLong(reader, ref xor_byte);
+                    py.flags.rest = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.blind = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.paralysis = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.confused = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.food = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.food_digested = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.protection = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.speed = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.fast = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.slow = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.afraid = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.poisoned = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.image = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.protect_evil = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.invulnerability = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.heroism = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.super_heroism = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.blessed = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.heat_resistance = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.cold_resistance = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.detect_invisible = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.word_of_recall = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.see_infra = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.timed_infra = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.see_invisible = this.rdBool(reader, ref xor_byte);
+                    py.flags.teleport = this.rdBool(reader, ref xor_byte);
+                    py.flags.free_action = this.rdBool(reader, ref xor_byte);
+                    py.flags.slow_digest = this.rdBool(reader, ref xor_byte);
+                    py.flags.aggravate = this.rdBool(reader, ref xor_byte);
+                    py.flags.resistant_to_fire = this.rdBool(reader, ref xor_byte);
+                    py.flags.resistant_to_cold = this.rdBool(reader, ref xor_byte);
+                    py.flags.resistant_to_acid = this.rdBool(reader, ref xor_byte);
+                    py.flags.regenerate_hp = this.rdBool(reader, ref xor_byte);
+                    py.flags.resistant_to_light = this.rdBool(reader, ref xor_byte);
+                    py.flags.free_fall = this.rdBool(reader, ref xor_byte);
+                    py.flags.sustain_str = this.rdBool(reader, ref xor_byte);
+                    py.flags.sustain_int = this.rdBool(reader, ref xor_byte);
+                    py.flags.sustain_wis = this.rdBool(reader, ref xor_byte);
+                    py.flags.sustain_con = this.rdBool(reader, ref xor_byte);
+                    py.flags.sustain_dex = this.rdBool(reader, ref xor_byte);
+                    py.flags.sustain_chr = this.rdBool(reader, ref xor_byte);
+                    py.flags.confuse_monster = this.rdBool(reader, ref xor_byte);
+                    py.flags.new_spells_to_learn = this.rdByte(reader, ref xor_byte);
 
-                    missiles_counter = rdShort();
-                    dg.game_turn = rdLong();
-                    py.pack.unique_items = rdShort();
-                    if (py.pack.unique_items > PlayerEquipment::Wield)
+                    State.Instance.missiles_counter = (int)this.rdShort(reader, ref xor_byte);
+                    dg.game_turn = (int)this.rdLong(reader, ref xor_byte);
+                    py.pack.unique_items = (int)this.rdShort(reader, ref xor_byte);
+                    if (py.pack.unique_items > (int)PlayerEquipment.Wield)
                     {
                         goto error;
                     }
                     for (int i = 0; i < py.pack.unique_items; i++)
                     {
-                        rdItem(py.inventory[i]);
+                        this.rdItem(reader, ref xor_byte, py.inventory[i]);
                     }
-                    for (int i = PlayerEquipment::Wield; i < PLAYER_INVENTORY_SIZE; i++)
+                    for (int i = (int)PlayerEquipment.Wield; i < Inventory_c.PLAYER_INVENTORY_SIZE; i++)
                     {
-                        rdItem(py.inventory[i]);
+                        this.rdItem(reader, ref xor_byte, py.inventory[i]);
                     }
-                    py.pack.weight = rdShort();
-                    py.equipment_count = rdShort();
-                    py.flags.spells_learnt = rdLong();
-                    py.flags.spells_worked = rdLong();
-                    py.flags.spells_forgotten = rdLong();
-                    rdBytes(py.flags.spells_learned_order, 32);
-                    rdBytes(objects_identified, OBJECT_IDENT_SIZE);
-                    game.magic_seed = rdLong();
-                    game.town_seed = rdLong();
-                    last_message_id = rdShort();
-                    for (auto & message : messages)
+                    py.pack.weight = (int)this.rdShort(reader, ref xor_byte);
+                    py.equipment_count = (int)this.rdShort(reader, ref xor_byte);
+                    py.flags.spells_learnt = this.rdLong(reader, ref xor_byte);
+                    py.flags.spells_worked = this.rdLong(reader, ref xor_byte);
+                    py.flags.spells_forgotten = this.rdLong(reader, ref xor_byte);
+                    this.rdBytes(reader, ref xor_byte, py.flags.spells_learned_order, 32);
+                    this.rdBytes(reader, ref xor_byte, State.Instance.objects_identified, (int)Game_c.OBJECT_IDENT_SIZE);
+                    State.Instance.game.magic_seed = this.rdLong(reader, ref xor_byte);
+                    State.Instance.game.town_seed = this.rdLong(reader, ref xor_byte);
+                    State.Instance.last_message_id = (int)this.rdShort(reader, ref xor_byte);
+                    for (int i = 0; i < State.Instance.messages.Length; i++)
                     {
-                        rdString(message);
+                        this.rdString(reader, ref xor_byte, out str);
+                        State.Instance.messages[i] = str;
                     }
 
-                    uint16_t panic_save_short;
-                    uint16_t total_winner_short;
-                    panic_save_short = rdShort();
-                    total_winner_short = rdShort();
-                    panic_save = panic_save_short != 0;
-                    game.total_winner = total_winner_short != 0;
+                    uint panic_save_short;
+                    uint total_winner_short;
+                    panic_save_short = this.rdShort(reader, ref xor_byte);
+                    total_winner_short = this.rdShort(reader, ref xor_byte);
+                    State.Instance.panic_save = panic_save_short != 0;
+                    State.Instance.game.total_winner = total_winner_short != 0;
 
-                    game.noscore = rdShort();
-                    rdShorts(py.base_hp_levels, PLAYER_MAX_LEVEL);
+                    State.Instance.game.noscore = (int)this.rdShort(reader, ref xor_byte);
+                    this.rdShorts(reader, ref xor_byte, py.base_hp_levels, (int)Player_c.PLAYER_MAX_LEVEL);
 
-                    for (auto & store : stores)
+                    foreach (var store in State.Instance.stores)
+                    //for (auto & store : stores)
                     {
-                        store.turns_left_before_closing = rdLong();
-                        store.insults_counter = rdShort();
-                        store.owner_id = rdByte();
-                        store.unique_items_counter = rdByte();
-                        store.good_purchases = rdShort();
-                        store.bad_purchases = rdShort();
-                        if (store.unique_items_counter > STORE_MAX_DISCRETE_ITEMS)
+                        store.turns_left_before_closing = (int)this.rdLong(reader, ref xor_byte);
+                        store.insults_counter = (int)this.rdShort(reader, ref xor_byte);
+                        store.owner_id = this.rdByte(reader, ref xor_byte);
+                        store.unique_items_counter = this.rdByte(reader, ref xor_byte);
+                        store.good_purchases = this.rdShort(reader, ref xor_byte);
+                        store.bad_purchases = this.rdShort(reader, ref xor_byte);
+                        if (store.unique_items_counter > Store_c.STORE_MAX_DISCRETE_ITEMS)
                         {
                             goto error;
                         }
                         for (int j = 0; j < store.unique_items_counter; j++)
                         {
-                            store.inventory[j].cost = rdLong();
-                            rdItem(store.inventory[j].item);
+                            store.inventory[j].cost = (int)this.rdLong(reader, ref xor_byte);
+                            this.rdItem(reader, ref xor_byte, store.inventory[j].item);
                         }
                     }
 
-                    time_saved = rdLong();
-                    rdString(game.character_died_from);
-                    py.max_score = rdLong();
-                    py.misc.date_of_birth = rdLong();
+                    time_saved = this.rdLong(reader, ref xor_byte);
+                    this.rdString(reader, ref xor_byte, out str);
+                    State.Instance.game.character_died_from = str;
+                    py.max_score = (int)this.rdLong(reader, ref xor_byte);
+                    py.misc.date_of_birth = new DateTime(this.rdLong(reader, ref xor_byte));
                 }
 
-                c = getc(fileptr);
-                if (c == EOF || ((l & 0x80000000L) != 0))
+                var isEof = reader.BaseStream.Position != reader.BaseStream.Length;
+                //c = reader.ReadChar();
+                //c = getc(fileptr);
+                if (isEof || ((l & 0x80000000L) != 0))
+                //if (c == EOF || ((l & 0x80000000L) != 0))
                 {
                     if ((l & 0x80000000L) == 0)
                     {
-                        if (!game.to_be_wizard || dg.game_turn < 0)
+                        if (!State.Instance.game.to_be_wizard || dg.game_turn < 0)
                         {
                             goto error;
                         }
-                        putStringClearToEOL("Attempting a resurrection!", new Coord_t(0, 0));
+                        this.terminal.putStringClearToEOL("Attempting a resurrection!", new Coord_t(0, 0));
                         if (py.misc.current_hp < 0)
                         {
                             py.misc.current_hp = 0;
@@ -846,122 +907,133 @@ namespace Moria.Core.Methods
                         }
 
                         dg.current_level = 0; // Resurrect on the town level.
-                        game.character_generated = true;
+                        State.Instance.game.character_generated = true;
 
                         // set `noscore` to indicate a resurrection, and don't enter wizard mode
-                        game.to_be_wizard = false;
-                        game.noscore |= 0x1;
+                        State.Instance.game.to_be_wizard = false;
+                        State.Instance.game.noscore |= 0x1;
                     }
                     else
                     {
                         // Make sure that this message is seen, since it is a bit
                         // more interesting than the other messages.
-                        printMessage("Restoring Memory of a departed spirit...");
+                        this.terminal.printMessage("Restoring Memory of a departed spirit...");
                         dg.game_turn = -1;
                     }
-                    putQIO();
+                    this.terminal.putQIO();
                     goto closefiles;
                 }
-                if (ungetc(c, fileptr) == EOF)
-                {
-                    goto error;
-                }
+                //if (ungetc(c, fileptr) == EOF)
+                //{
+                //    goto error;
+                //}
 
-                putStringClearToEOL("Restoring Character...", new Coord_t(0, 0));
-                putQIO();
+                this.terminal.putStringClearToEOL("Restoring Character...", new Coord_t(0, 0));
+                this.terminal.putQIO();
 
                 // only level specific info should follow,
                 // not present for dead characters
 
-                dg.current_level = rdShort();
-                py.pos.y = rdShort();
-                py.pos.x = rdShort();
-                monster_multiply_total = rdShort();
-                dg.height = rdShort();
-                dg.width = rdShort();
-                dg.panel.max_rows = rdShort();
-                dg.panel.max_cols = rdShort();
+                dg.current_level = (int)this.rdShort(reader, ref xor_byte);
+                py.pos.y = (int)this.rdShort(reader, ref xor_byte);
+                py.pos.x = (int)this.rdShort(reader, ref xor_byte);
+                State.Instance.monster_multiply_total = (int)this.rdShort(reader, ref xor_byte);
+                dg.height = (int)this.rdShort(reader, ref xor_byte);
+                dg.width = (int)this.rdShort(reader, ref xor_byte);
+                dg.panel.max_rows = (int)this.rdShort(reader, ref xor_byte);
+                dg.panel.max_cols = (int)this.rdShort(reader, ref xor_byte);
 
-                uint8_t char_tmp, ychar, xchar, count;
+                uint char_tmp, ychar, xchar, count;
 
                 // read in the creature ptr info
-                char_tmp = rdByte();
+                char_tmp = this.rdByte(reader, ref xor_byte);
                 while (char_tmp != 0xFF)
                 {
                     ychar = char_tmp;
-                    xchar = rdByte();
-                    char_tmp = rdByte();
-                    if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT)
+                    xchar = this.rdByte(reader, ref xor_byte);
+                    char_tmp = this.rdByte(reader, ref xor_byte);
+                    if (xchar > Dungeon_c.MAX_WIDTH || ychar > Dungeon_c.MAX_HEIGHT)
                     {
                         goto error;
                     }
                     dg.floor[ychar][xchar].creature_id = char_tmp;
-                    char_tmp = rdByte();
+                    char_tmp = this.rdByte(reader, ref xor_byte);
                 }
 
                 // read in the treasure ptr info
-                char_tmp = rdByte();
+                char_tmp = this.rdByte(reader, ref xor_byte);
                 while (char_tmp != 0xFF)
                 {
                     ychar = char_tmp;
-                    xchar = rdByte();
-                    char_tmp = rdByte();
-                    if (xchar > MAX_WIDTH || ychar > MAX_HEIGHT)
+                    xchar = this.rdByte(reader, ref xor_byte);
+                    char_tmp = this.rdByte(reader, ref xor_byte);
+                    if (xchar > Dungeon_c.MAX_WIDTH || ychar > Dungeon_c.MAX_HEIGHT)
                     {
                         goto error;
                     }
                     dg.floor[ychar][xchar].treasure_id = char_tmp;
-                    char_tmp = rdByte();
+                    char_tmp = this.rdByte(reader, ref xor_byte);
                 }
 
                 // read in the rest of the cave info
-                tile = &dg.floor[0][0];
+                var col = 0;
+                var row = 0;
+                //tile = &dg.floor[0][0];
                 total_count = 0;
-                while (total_count != MAX_HEIGHT * MAX_WIDTH)
+                while (total_count != Dungeon_c.MAX_HEIGHT * Dungeon_c.MAX_WIDTH)
                 {
-                    count = rdByte();
-                    char_tmp = rdByte();
-                    for (int i = count; i > 0; i--)
+                    count = this.rdByte(reader, ref xor_byte);
+                    char_tmp = this.rdByte(reader, ref xor_byte);
+                    for (int i = (int)count; i > 0; i--)
                     {
-                        if (tile >= &dg.floor[MAX_HEIGHT][0])
+                        //if (tile >= &dg.floor[Dungeon_c.MAX_HEIGHT][0])
+                        if (row >= Dungeon_c.MAX_HEIGHT)
                         {
                             goto error;
                         }
-                        tile->feature_id = (uint8_t)(char_tmp & 0xF);
-                        tile->perma_lit_room = (bool)((char_tmp >> 4) & 0x1);
-                        tile->field_mark = (bool)((char_tmp >> 5) & 0x1);
-                        tile->permanent_light = (bool)((char_tmp >> 6) & 0x1);
-                        tile->temporary_light = (bool)((char_tmp >> 7) & 0x1);
-                        tile++;
+
+                        tile = State.Instance.dg.floor[row][col];
+                        tile.feature_id = (uint)(char_tmp & 0xF);
+                        tile.perma_lit_room = ((char_tmp >> 4) & 0x1) != 0;
+                        tile.field_mark = ((char_tmp >> 5) & 0x1) != 0;
+                        tile.permanent_light = ((char_tmp >> 6) & 0x1) != 0;
+                        tile.temporary_light = ((char_tmp >> 7) & 0x1) != 0;
+                        
+                        col++;
+                        if (col >= Dungeon_c.MAX_WIDTH)
+                        {
+                            col = 0;
+                            row++;
+                        }
                     }
-                    total_count += count;
+                    total_count += (int)count;
                 }
 
-                game.treasure.current_id = rdShort();
-                if (game.treasure.current_id > LEVEL_MAX_OBJECTS)
+                State.Instance.game.treasure.current_id = (int) this.rdShort(reader, ref xor_byte);
+                if (State.Instance.game.treasure.current_id > Game_c.LEVEL_MAX_OBJECTS)
                 {
                     goto error;
                 }
-                for (int i = config::treasure::MIN_TREASURE_LIST_ID; i < game.treasure.current_id; i++)
+                for (int i = (int)Config.treasure.MIN_TREASURE_LIST_ID; i < State.Instance.game.treasure.current_id; i++)
                 {
-                    rdItem(game.treasure.list[i]);
+                    this.rdItem(reader, ref xor_byte, State.Instance.game.treasure.list[i]);
                 }
-                next_free_monster_id = rdShort();
-                if (next_free_monster_id > MON_TOTAL_ALLOCATIONS)
+                State.Instance.next_free_monster_id = (int) this.rdShort(reader, ref xor_byte);
+                if (State.Instance.next_free_monster_id > Monster_c.MON_TOTAL_ALLOCATIONS)
                 {
                     goto error;
                 }
-                for (int i = config::monsters::MON_MIN_INDEX_ID; i < next_free_monster_id; i++)
+                for (int i = (int)Config.monsters.MON_MIN_INDEX_ID; i < State.Instance.next_free_monster_id; i++)
                 {
-                    rdMonster(monsters[i]);
+                    this.rdMonster(reader, ref xor_byte, State.Instance.monsters[i]);
                 }
 
                 generate = false; // We have restored a cave - no need to generate.
 
-                if (ferror(fileptr) != 0)
-                {
-                    goto error;
-                }
+                //if (ferror(fileptr) != 0)
+                //{
+                //    goto error;
+                //}
 
                 if (dg.game_turn < 0)
                 {
@@ -973,70 +1045,79 @@ namespace Moria.Core.Methods
                     // don't overwrite the killed by string if character is dead
                     if (py.misc.current_hp >= 0)
                     {
-                        (void)strcpy(game.character_died_from, "(alive and well)");
+                        State.Instance.game.character_died_from = "(alive and well)";
+                        //(void)strcpy(this.game.character_died_from, "(alive and well)");
                     }
-                    game.character_generated = true;
+
+                    State.Instance.game.character_generated = true;
                 }
 
-                //closefiles:
+                goto closefiles;
 
-                DEBUG(fclose(logfile));
+            error:
+                ok = false; // Assume bad data.
 
-                if (fileptr != nullptr)
-                {
-                    if (fclose(fileptr) < 0)
-                    {
-                        ok = false;
-                    }
-                }
-                if (fd >= 0)
-                {
-                    (void)close(fd);
-                }
+            closefiles:
+
+            //DEBUG(fclose(logfile));
+
+            //if (fileptr != nullptr)
+            //{
+            //    if (fclose(fileptr) < 0)
+            //    {
+            //        ok = false;
+            //    }
+            //}
+                reader.Close();
+                //if (fd >= 0)
+                //{
+                //    (void)close(fd);
+                //}
 
                 if (!ok)
                 {
-                    printMessage("Error during reading of file.");
+                    this.terminal.printMessage("Error during reading of file.");
                 }
                 else
                 {
                     // let the user overwrite the old save file when save/quit
-                    from_save_file = 1;
+                    State.Instance.from_save_file = 1;
 
-                    if (panic_save)
+                    if (State.Instance.panic_save)
                     {
-                        printMessage("This game is from a panic save.  Score will not be added to scoreboard.");
+                        this.terminal.printMessage("This game is from a panic save.  Score will not be added to scoreboard.");
                     }
-                    else if ((!game.noscore) & 0x04)
-                    {
-                        printMessage("This character is already on the scoreboard; it will not be scored again.");
-                        game.noscore |= 0x4;
-                    }
+                    //else if ((!State.Instance.game.noscore) & 0x04)
+                    //{
+                    //    this.terminal.printMessage("This character is already on the scoreboard; it will not be scored again.");
+                    //    State.Instance.game.noscore |= 0x4;
+                    //}
 
                     if (dg.game_turn >= 0)
                     { // Only if a full restoration.
                         py.weapon_is_heavy = false;
                         py.pack.heaviness = 0;
-                        playerStrength();
+                        Player_m.playerStrength();
 
                         // rotate store inventory, depending on how old the save file
                         // is foreach day old (rounded up), call storeMaintenance
                         // calculate age in seconds
-                        start_time = getCurrentUnixTime();
+                        State.Instance.start_time = DateTime.Now;
+                        //start_time = getCurrentUnixTime();
 
-                        uint32_t age;
+                        uint age;
 
                         // check for reasonable values of time here ...
-                        if (start_time < time_saved)
+                        if (State.Instance.start_time.Ticks < time_saved)
                         {
                             age = 0;
                         }
                         else
                         {
-                            age = start_time - time_saved;
+                            age = (uint)(State.Instance.start_time - new DateTime(time_saved)).Days;
                         }
 
-                        age = (uint32_t)((age + 43200L) / 86400L); // age in days
+                        //age = (uint32_t)((age + 43200L) / 86400L); // age in days
                         if (age > 10)
                         {
                             age = 10; // in case save file is very old
@@ -1044,21 +1125,23 @@ namespace Moria.Core.Methods
 
                         for (int i = 0; i < (int)age; i++)
                         {
-                            storeMaintenance();
+                            this.storeInventory.storeMaintenance();
                         }
                     }
 
-                    if (game.noscore != 0)
+                    if (State.Instance.game.noscore != 0)
                     {
-                        printMessage("This save file cannot be used to get on the score board.");
+                        this.terminal.printMessage("This save file cannot be used to get on the score board.");
                     }
-                    if (validGameVersion(version_maj, version_min, patch_level) && !isCurrentGameVersion(version_maj, version_min, patch_level))
+                    if (this.validGameVersion(version_maj, version_min, patch_level) && !this.isCurrentGameVersion(version_maj, version_min, patch_level))
                     {
-                        std::string msg = "Save file version ";
-                        msg += std::to_string(version_maj) + "." + std::to_string(version_min);
-                        msg += " accepted on game version ";
-                        msg += std::to_string(CURRENT_VERSION_MAJOR) + "." + std::to_string(CURRENT_VERSION_MINOR) + ".";
-                        printMessage(msg.c_str());
+                        var msg =
+                            $"Save file version {version_maj}.{version_min} accepted on game version {Version_c.CURRENT_VERSION_MAJOR}.{Version_c.CURRENT_VERSION_MINOR}.";
+                        //var msg = "Save file version ";
+                        //msg += version_maj + "." + version_min;
+                        //msg += " accepted on game version ";
+                        //msg += std::to_string(Version_c.CURRENT_VERSION_MAJOR) + "." + std::to_string(Version_c.CURRENT_VERSION_MINOR) + ".";
+                        this.terminal.printMessage(msg);
                     }
 
                     // if false: only restored options and monster memory.
@@ -1066,17 +1149,15 @@ namespace Moria.Core.Methods
                 }
             }
             dg.game_turn = -1;
-            putStringClearToEOL("Please try again without that save file.", new Coord_t(1, 0));
+            this.terminal.putStringClearToEOL("Please try again without that save file.", new Coord_t(1, 0));
 
             // We have messages for the player to read, this will ask for a keypress
-            printMessage(CNIL);
+            this.terminal.printMessage(/*CNIL*/null);
 
-            exitProgram();
+            this.game.exitProgram();
 
             return false; // not reached
         }
-
-            */
 
         private void wrBool(BinaryWriter writer, ref uint xor_byte, bool value)
         {
@@ -1086,7 +1167,7 @@ namespace Moria.Core.Methods
         private void wrByte(BinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= value;
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)xor_byte, (int)value));
         }
@@ -1094,11 +1175,11 @@ namespace Moria.Core.Methods
         private void wrShort(BinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= (value & 0xFF);
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, "SHORT: %02X", (int)xor_byte));
             xor_byte ^= ((value >> 8) & 0xFF);
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X = %d\n", (int)xor_byte, (int)value));
         }
@@ -1106,19 +1187,19 @@ namespace Moria.Core.Methods
         private void wrLong(BinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= (value & 0xFF);
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, "LONG:  %02X", (int)xor_byte));
             xor_byte ^= ((value >> 8) & 0xFF);
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             xor_byte ^= ((value >> 16) & 0xFF);
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             xor_byte ^= ((value >> 24) & 0xFF);
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X = %ld\n", (int)xor_byte, (int32_t)value));
         }
@@ -1134,7 +1215,7 @@ namespace Moria.Core.Methods
                 xor_byte ^= values[i];
                 //xor_byte ^= *ptr++;
                 //(void)putc((int)xor_byte, fileptr);
-                writer.Write((int)xor_byte);
+                writer.Write((byte)xor_byte);
                 //DEBUG(fprintf(logfile, "  %02X = %d", (int)xor_byte, (int)(ptr[-1])));
             }
 
@@ -1143,6 +1224,8 @@ namespace Moria.Core.Methods
 
         private void wrString(BinaryWriter writer, ref uint xor_byte, string str)
         {
+            str = str ?? string.Empty;
+
             //DEBUG(char * s = str);
             //DEBUG(fprintf(logfile, "STRING:"));
             //while (*str != '\0')
@@ -1150,14 +1233,31 @@ namespace Moria.Core.Methods
             {
                 //xor_byte ^= *str++;
                 xor_byte = c;
-                writer.Write((int)xor_byte);
+                writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             }
             xor_byte ^= '\0';
-            writer.Write((int)xor_byte);
+            writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X = \"%s\"\n", (int)xor_byte, s));
+        }
+
+        private void wrShorts(BinaryWriter writer, ref uint xor_byte, int[] values, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                //xor_byte ^= (*sptr & 0xFF);
+                xor_byte ^= (uint)values[i] & 0xFF;
+                writer.Write((byte)xor_byte);
+                //(void)putc((int)xor_byte, fileptr);
+                //DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
+                xor_byte ^= ((uint)values[i] >> 8) & 0xFF;
+                //xor_byte ^= ((*sptr++ >> 8) & 0xFF);
+                writer.Write((byte)xor_byte);
+                //(void)putc((int)xor_byte, fileptr);
+                //DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
+            }
         }
 
         private void wrShorts(BinaryWriter writer, ref uint xor_byte, uint[] values, int count)
@@ -1170,12 +1270,12 @@ namespace Moria.Core.Methods
             {
                 //xor_byte ^= (*sptr & 0xFF);
                 xor_byte ^= (values[i] & 0xFF);
-                writer.Write((int)xor_byte);
+                writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
                 xor_byte ^= ((values[i] >> 8) & 0xFF);
                 //xor_byte ^= ((*sptr++ >> 8) & 0xFF);
-                writer.Write((int)xor_byte);
+                writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
             }
@@ -1320,6 +1420,20 @@ namespace Moria.Core.Methods
             //DEBUG(fprintf(logfile, "= \"%s\"\n", s));
         }
 
+        private void rdShorts(BinaryReader reader, ref uint xor_byte, int[] values, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var c = this.getByte(reader);
+                uint s = c ^ xor_byte;
+                xor_byte = this.getByte(reader);
+                s |= (uint)(c ^ xor_byte) << 8;
+                values[i] = (int)s;
+                //*sptr++ = s;
+                //DEBUG(fprintf(logfile, "  %02X %02X = %d", (int)c, (int)xor_byte, (int)s));
+            }
+        }
+
         private void rdShorts(BinaryReader reader, ref uint xor_byte, uint[] values, int count)
         {
             //DEBUG(fprintf(logfile, "%d SHORTS:", count));
@@ -1439,6 +1553,34 @@ namespace Moria.Core.Methods
             this.rdBytes(reader, ref xor_byte, score.name.Select(x => (uint)x).ToArray(), (int)Player_c.PLAYER_NAME_SIZE);
             this.rdBytes(reader, ref xor_byte, score.died_from.Select(x => (uint)x).ToArray(), 25);
             //DEBUG(fclose(logfile));
+        }
+
+
+        // Support for Umoria 5.2.2 up to 5.7.x.
+        // The save file format was frozen as of version 5.2.2.
+        bool validGameVersion(uint major, uint minor, uint patch)
+        {
+            if (major != 5)
+            {
+                return false;
+            }
+
+            if (minor < 2)
+            {
+                return false;
+            }
+
+            if (minor == 2 && patch < 2)
+            {
+                return false;
+            }
+
+            return minor <= 7;
+        }
+
+        bool isCurrentGameVersion(uint major, uint minor, uint patch)
+        {
+            return major == Version_c.CURRENT_VERSION_MAJOR && minor == Version_c.CURRENT_VERSION_MINOR && patch == Version_c.CURRENT_VERSION_PATCH;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Moria.Core.Structures
         public uint running_tracker { get; set; }
         public bool temporary_light_only { get; set; }
 
-        public int max_score { get; } = 0;
+        public int max_score { get; set; }
 
         public Player_pack_t pack { get; } = new Player_pack_t();
 

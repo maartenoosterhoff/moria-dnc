@@ -70,17 +70,14 @@ namespace Moria.Core.Methods
     {
         private readonly IConsoleWrapper console;
         private readonly IEventPublisher eventPublisher;
-        private readonly IGameSave gameSave;
 
         public Ui_io_m(
             IConsoleWrapper console,
-            IEventPublisher eventPublisher,
-            IGameSave gameSave
+            IEventPublisher eventPublisher
         )
         {
             this.console = console;
             this.eventPublisher = eventPublisher;
-            this.gameSave = gameSave;
         }
 
         //private readonly IConsoleWrapper console = new StateSavingDecorator(new ConsoleWrapper());
@@ -625,20 +622,21 @@ namespace Moria.Core.Methods
 
                     if (State.Instance.eof_flag > 100)
                     {
-                        // just in case, to make sure that the process eventually dies
-                        State.Instance.panic_save = true;
+                        this.eventPublisher.Publish(new PanicSaveCommand());
+                        //// just in case, to make sure that the process eventually dies
+                        //State.Instance.panic_save = true;
 
-                        State.Instance.game.character_died_from = "(end of input: panic saved)";
-                        //(void)strcpy(game.character_died_from, "(end of input: panic saved)");
-                        if (!this.gameSave.saveGame())
-                        {
-                            State.Instance.game.character_died_from = "panic: unexpected eof";
-                            //(void)strcpy(game.character_died_from, "panic: unexpected eof");
-                            State.Instance.game.character_is_dead = true;
-                        }
+                        //State.Instance.game.character_died_from = "(end of input: panic saved)";
+                        ////(void)strcpy(game.character_died_from, "(end of input: panic saved)");
+                        //if (!this.gameSave.saveGame())
+                        //{
+                        //    State.Instance.game.character_died_from = "panic: unexpected eof";
+                        //    //(void)strcpy(game.character_died_from, "panic: unexpected eof");
+                        //    State.Instance.game.character_is_dead = true;
+                        //}
 
-                        this.eventPublisher.Publish(new EndGameCommand());
-                        //endGame();
+                        //this.eventPublisher.Publish(new EndGameCommand());
+                        ////endGame();
                     }
                     return ESCAPE;
                 }
