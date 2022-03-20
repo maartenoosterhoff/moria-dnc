@@ -174,7 +174,7 @@ namespace Moria.Core.Methods
 
             if (!start_new_game &&
                 //(access(Config.files.save_game, 0) == 0) && 
-                gameSave.loadGame(ref generate))
+                gameSave.loadGame(out generate))
             {
                 result = true;
             }
@@ -244,6 +244,7 @@ namespace Moria.Core.Methods
                 // point, all info needed for save file is now valid.
                 game.character_generated = true;
                 generate = true;
+                State.Instance.dg.game_turn = 0;
             }
 
             identification.magicInitializeItemNames();

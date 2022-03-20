@@ -9,13 +9,13 @@ using Moria.Core.Constants;
 using Moria.Core.Methods.Commands.Player;
 using Moria.Core.Structures;
 using Moria.Core.Structures.Enumerations;
-using Newtonsoft.Json;
+using Moria.Core.Utils;
 
 namespace Moria.Core.Methods
 {
     public interface IGameSave
     {
-        bool loadGame(ref bool generate);
+        bool loadGame(out bool generate);
 
         bool saveGame();
     }
@@ -28,6 +28,7 @@ namespace Moria.Core.Methods
         private readonly IRnd rnd;
         private readonly IStoreInventory storeInventory;
         private readonly ITerminal terminal;
+        private readonly IBinaryReaderWriterFactory binaryReaderWriterFactory;
 
         public Game_save_m(
             IEventPublisher eventPublisher,
@@ -35,7 +36,8 @@ namespace Moria.Core.Methods
             IGame game,
             IRnd rnd,
             IStoreInventory storeInventory,
-            ITerminal terminal
+            ITerminal terminal,
+            IBinaryReaderWriterFactory binaryReaderWriterFactory
         )
         {
             this.eventPublisher = eventPublisher;
@@ -44,11 +46,12 @@ namespace Moria.Core.Methods
             this.rnd = rnd;
             this.storeInventory = storeInventory;
             this.terminal = terminal;
+            this.binaryReaderWriterFactory = binaryReaderWriterFactory;
         }
 
-        public bool loadGame(ref bool generate)
+        public bool loadGame(out bool generate)
         {
-            return this.loadGame_old(ref generate);
+            return this.loadGame_old(out generate);
             //var saveGameContents = this.fileSystem.File.ReadAllText(Config.files.save_game);
             //var instance = JsonConvert.DeserializeObject<State>(saveGameContents);
             //State.Instance = instance;
@@ -106,12 +109,14 @@ namespace Moria.Core.Methods
                 //}
                 output = "Saving with '" + Config.files.save_game + "'...";
                 this.terminal.putStringClearToEOL(output, new Coord_t(0, 0));
+
+                return false;
             }
 
             return true;
         }
 
-        private bool svWrite(BinaryWriter writer, ref uint xor_byte)
+        private bool svWrite(IBinaryWriter writer, ref uint xor_byte)
         {
             var game = State.Instance.game;
             var py = State.Instance.py;
@@ -351,13 +356,16 @@ namespace Moria.Core.Methods
             }
 
             // save the current time in the save file
-            l = (uint)DateTime.Now.Ticks;
+            l = (uint)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
+            //l = (uint)DateTime.Now.Ticks;
 
-            if (l < State.Instance.start_time.Ticks)
+
+            if (l < (uint)(State.Instance.start_time - new DateTime(1970, 1, 1)).TotalSeconds)
             {
                 // someone is messing with the clock!,
                 // assume that we have been playing for 1 day
-                l = (uint)State.Instance.start_time.AddDays(1).Ticks;
+                l = (uint) (State.Instance.start_time.AddDays(1) - new DateTime(1970, 1, 1)).TotalSeconds;
+                //l = (uint)State.Instance.start_time.AddDays(1).Ticks;
                 //l = (uint)(start_time + 86400L);
             }
 
@@ -491,7 +499,7 @@ namespace Moria.Core.Methods
             try
             {
                 var writeStream = new FileStream(filename, FileMode.Create);
-                var writer = new BinaryWriter(writeStream);
+                var writer = this.binaryReaderWriterFactory.CreateBinaryWriter(writeStream);// new BinaryWriter(writeStream);
                 //fileptr = nullptr; // Do not assume it has been init'ed
 
                 //int fd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0600);
@@ -569,7 +577,7 @@ namespace Moria.Core.Methods
         }
 
         // Certain checks are omitted for the wizard. -CJS-
-        private bool loadGame_old(ref bool generate)
+        private bool loadGame_old(out bool generate)
         {
             Tile_t tile;
             //Tile_t* tile = nullptr;
@@ -605,6 +613,7 @@ namespace Moria.Core.Methods
             var dg = State.Instance.dg;
             var py = State.Instance.py;
             // FIXME: check this if/else logic! -- MRC
+                dg.game_turn = -1;
             if (dg.game_turn >= 0)
             {
                 this.terminal.printMessage("IMPOSSIBLE! Attempt to restore while still alive!");
@@ -626,7 +635,7 @@ namespace Moria.Core.Methods
                 //(void)close(fd);
                 //fd = -1; // Make sure it isn't closed again
                 var readerStream = this.fileSystem.File.Open(Config.files.save_game, FileMode.Open);
-                var reader = new BinaryReader(readerStream);
+                var reader = this.binaryReaderWriterFactory.CreateBinaryReader(readerStream);// new BinaryReader(readerStream);
                 //fileptr = fopen(Config.files.save_game.c_str(), "rb");
                 //
                 //if (fileptr == nullptr)
@@ -875,7 +884,8 @@ namespace Moria.Core.Methods
                     py.misc.date_of_birth = new DateTime(this.rdLong(reader, ref xor_byte));
                 }
 
-                var isEof = reader.BaseStream.Position != reader.BaseStream.Length;
+                var isEof = reader.IsEof();
+                //var isEof = reader.BaseStream.Position == reader.BaseStream.Length;
                 //c = reader.ReadChar();
                 //c = getc(fileptr);
                 if (isEof || ((l & 0x80000000L) != 0))
@@ -1107,14 +1117,17 @@ namespace Moria.Core.Methods
 
                         uint age;
 
+                        var timeSavedDateTime = new DateTime(1970, 1, 1).AddSeconds(time_saved);
+
                         // check for reasonable values of time here ...
-                        if (State.Instance.start_time.Ticks < time_saved)
+                        if (State.Instance.start_time < timeSavedDateTime)
+                        //if (State.Instance.start_time.Ticks < time_saved)
                         {
                             age = 0;
                         }
                         else
                         {
-                            age = (uint)(State.Instance.start_time - new DateTime(time_saved)).Days;
+                            age = (uint)(State.Instance.start_time - timeSavedDateTime).Days;
                         }
 
                         //age = (uint32_t)((age + 43200L) / 86400L); // age in days
@@ -1159,52 +1172,64 @@ namespace Moria.Core.Methods
             return false; // not reached
         }
 
-        private void wrBool(BinaryWriter writer, ref uint xor_byte, bool value)
+        private void putByte(IBinaryWriter writer, uint value)
+        {
+            writer.Write((byte) value);
+        }
+
+        private void wrBool(IBinaryWriter writer, ref uint xor_byte, bool value)
         {
             this.wrByte(writer, ref xor_byte, (uint)(value ? 1u : 0));
         }
 
-        private void wrByte(BinaryWriter writer, ref uint xor_byte, uint value)
+        private void wrByte(IBinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= value;
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, "BYTE:  %02X = %d\n", (int)xor_byte, (int)value));
         }
 
-        private void wrShort(BinaryWriter writer, ref uint xor_byte, uint value)
+        private void wrShort(IBinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= (value & 0xFF);
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, "SHORT: %02X", (int)xor_byte));
-            xor_byte ^= ((value >> 8) & 0xFF);
-            writer.Write((byte)xor_byte);
+            xor_byte ^= (value >> 8) & 0xFF;
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X = %d\n", (int)xor_byte, (int)value));
         }
 
-        private void wrLong(BinaryWriter writer, ref uint xor_byte, uint value)
+        private void wrLong(IBinaryWriter writer, ref uint xor_byte, uint value)
         {
             xor_byte ^= (value & 0xFF);
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, "LONG:  %02X", (int)xor_byte));
             xor_byte ^= ((value >> 8) & 0xFF);
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             xor_byte ^= ((value >> 16) & 0xFF);
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             xor_byte ^= ((value >> 24) & 0xFF);
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X = %ld\n", (int)xor_byte, (int32_t)value));
         }
 
-        private void wrBytes(BinaryWriter writer, ref uint xor_byte, uint[] values, int count)
+        private void wrBytes(IBinaryWriter writer, ref uint xor_byte, uint[] values, int count)
         {
             //uint8_t* ptr;
 
@@ -1215,14 +1240,15 @@ namespace Moria.Core.Methods
                 xor_byte ^= values[i];
                 //xor_byte ^= *ptr++;
                 //(void)putc((int)xor_byte, fileptr);
-                writer.Write((byte)xor_byte);
+                this.putByte(writer, xor_byte);
+                //writer.Write((byte)xor_byte);
                 //DEBUG(fprintf(logfile, "  %02X = %d", (int)xor_byte, (int)(ptr[-1])));
             }
 
             //DEBUG(fprintf(logfile, "\n"));
         }
 
-        private void wrString(BinaryWriter writer, ref uint xor_byte, string str)
+        private void wrString(IBinaryWriter writer, ref uint xor_byte, string str)
         {
             str = str ?? string.Empty;
 
@@ -1232,35 +1258,39 @@ namespace Moria.Core.Methods
             foreach (var c in str)
             {
                 //xor_byte ^= *str++;
-                xor_byte = c;
-                writer.Write((byte)xor_byte);
+                xor_byte ^= c;
+                this.putByte(writer, xor_byte);
+                //writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, " %02X", (int)xor_byte));
             }
             xor_byte ^= '\0';
-            writer.Write((byte)xor_byte);
+            this.putByte(writer, xor_byte);
+            //writer.Write((byte)xor_byte);
             //(void)putc((int)xor_byte, fileptr);
             //DEBUG(fprintf(logfile, " %02X = \"%s\"\n", (int)xor_byte, s));
         }
 
-        private void wrShorts(BinaryWriter writer, ref uint xor_byte, int[] values, int count)
+        private void wrShorts(IBinaryWriter writer, ref uint xor_byte, int[] values, int count)
         {
             for (int i = 0; i < count; i++)
             {
                 //xor_byte ^= (*sptr & 0xFF);
                 xor_byte ^= (uint)values[i] & 0xFF;
-                writer.Write((byte)xor_byte);
+                this.putByte(writer, xor_byte);
+                //writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
                 xor_byte ^= ((uint)values[i] >> 8) & 0xFF;
                 //xor_byte ^= ((*sptr++ >> 8) & 0xFF);
-                writer.Write((byte)xor_byte);
+                this.putByte(writer, xor_byte);
+                //writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
             }
         }
 
-        private void wrShorts(BinaryWriter writer, ref uint xor_byte, uint[] values, int count)
+        private void wrShorts(IBinaryWriter writer, ref uint xor_byte, uint[] values, int count)
         {
             //DEBUG(fprintf(logfile, "%d SHORTS:", count));
 
@@ -1270,12 +1300,14 @@ namespace Moria.Core.Methods
             {
                 //xor_byte ^= (*sptr & 0xFF);
                 xor_byte ^= (values[i] & 0xFF);
-                writer.Write((byte)xor_byte);
+                this.putByte(writer, xor_byte);
+                //writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, "  %02X", (int)xor_byte));
                 xor_byte ^= ((values[i] >> 8) & 0xFF);
                 //xor_byte ^= ((*sptr++ >> 8) & 0xFF);
-                writer.Write((byte)xor_byte);
+                this.putByte(writer, xor_byte);
+                //writer.Write((byte)xor_byte);
                 //(void)putc((int)xor_byte, fileptr);
                 //DEBUG(fprintf(logfile, " %02X = %d", (int)xor_byte, (int)sptr[-1]));
             }
@@ -1283,7 +1315,7 @@ namespace Moria.Core.Methods
             //DEBUG(fprintf(logfile, "\n"));
         }
 
-        private void wrItem(BinaryWriter writer, ref uint xor_byte, Inventory_t item)
+        private void wrItem(IBinaryWriter writer, ref uint xor_byte, Inventory_t item)
         {
             //DEBUG(fprintf(logfile, "ITEM:\n"));
             this.wrShort(writer, ref xor_byte, item.id);
@@ -1307,7 +1339,7 @@ namespace Moria.Core.Methods
             this.wrByte(writer, ref xor_byte, item.identification);
         }
 
-        private void wrMonster(BinaryWriter writer, ref uint xor_byte, Monster_t monster)
+        private void wrMonster(IBinaryWriter writer, ref uint xor_byte, Monster_t monster)
         {
             //DEBUG(fprintf(logfile, "MONSTER:\n"));
             this.wrShort(writer, ref xor_byte, (uint)monster.hp);
@@ -1323,19 +1355,20 @@ namespace Moria.Core.Methods
         }
 
         // get_byte reads a single byte from a file, without any xor_byte encryption
-        private uint getByte(BinaryReader reader)
+        private uint getByte(IBinaryReader reader)
         {
-            return (uint)(reader.ReadChar() & 0xFF);
+            //return (uint)(reader.ReadChar() & 0xFF);
+            return (uint)(reader.ReadByte() & 0xFF);
             //return (uint)(getc(fileptr) & 0xFF);
         }
 
-        private bool rdBool(BinaryReader reader, ref uint xor_byte)
+        private bool rdBool(IBinaryReader reader, ref uint xor_byte)
         {
             return this.rdByte(reader, ref xor_byte) != 0;
             //return (bool)(rdByte() != 0);
         }
 
-        private uint rdByte(BinaryReader reader, ref uint xor_byte)
+        private uint rdByte(IBinaryReader reader, ref uint xor_byte)
         {
             var c = this.getByte(reader);
             uint decoded_byte = c ^ xor_byte;
@@ -1346,7 +1379,7 @@ namespace Moria.Core.Methods
             return decoded_byte;
         }
 
-        private uint rdShort(BinaryReader reader, ref uint xor_byte)
+        private uint rdShort(IBinaryReader reader, ref uint xor_byte)
         {
             var c = this.getByte(reader);
             uint decoded_int = c ^ xor_byte;
@@ -1359,7 +1392,7 @@ namespace Moria.Core.Methods
             return decoded_int;
         }
 
-        private uint rdLong(BinaryReader reader, ref uint xor_byte)
+        private uint rdLong(IBinaryReader reader, ref uint xor_byte)
         {
             var c = this.getByte(reader);
             uint decoded_long = c ^ xor_byte;
@@ -1367,8 +1400,6 @@ namespace Moria.Core.Methods
             xor_byte = this.getByte(reader);
             decoded_long |= (uint)(c ^ xor_byte) << 8;
             //DEBUG(fprintf(logfile, "LONG:  %02X %02X ", (int)c, (int)xor_byte));
-
-
 
             c = this.getByte(reader);
             decoded_long |= (uint)(c ^ xor_byte) << 16;
@@ -1380,7 +1411,7 @@ namespace Moria.Core.Methods
             return decoded_long;
         }
 
-        private void rdBytes(BinaryReader reader, ref uint xor_byte, uint[] value, int count)
+        private void rdBytes(IBinaryReader reader, ref uint xor_byte, uint[] value, int count)
         {
             //DEBUG(fprintf(logfile, "%d BYTES:", count));
             //uint8_t* ptr = value;
@@ -1396,7 +1427,7 @@ namespace Moria.Core.Methods
             //DEBUG(fprintf(logfile, "\n"));
         }
 
-        private void rdString(BinaryReader reader, ref uint xor_byte, out string str)
+        private void rdString(IBinaryReader reader, ref uint xor_byte, out string str)
         {
             //DEBUG(char * s = str);
             //DEBUG(fprintf(logfile, "STRING: "));
@@ -1420,7 +1451,7 @@ namespace Moria.Core.Methods
             //DEBUG(fprintf(logfile, "= \"%s\"\n", s));
         }
 
-        private void rdShorts(BinaryReader reader, ref uint xor_byte, int[] values, int count)
+        private void rdShorts(IBinaryReader reader, ref uint xor_byte, int[] values, int count)
         {
             for (int i = 0; i < count; i++)
             {
@@ -1434,7 +1465,7 @@ namespace Moria.Core.Methods
             }
         }
 
-        private void rdShorts(BinaryReader reader, ref uint xor_byte, uint[] values, int count)
+        private void rdShorts(IBinaryReader reader, ref uint xor_byte, uint[] values, int count)
         {
             //DEBUG(fprintf(logfile, "%d SHORTS:", count));
             //uint16_t* sptr = value;
@@ -1453,7 +1484,7 @@ namespace Moria.Core.Methods
             //DEBUG(fprintf(logfile, "\n"));
         }
 
-        private void rdItem(BinaryReader reader, ref uint xor_byte, Inventory_t item)
+        private void rdItem(IBinaryReader reader, ref uint xor_byte, Inventory_t item)
         {
             //DEBUG(fprintf(logfile, "ITEM:\n"));
             item.id = this.rdShort(reader, ref xor_byte);
@@ -1480,7 +1511,7 @@ namespace Moria.Core.Methods
             item.identification = this.rdByte(reader, ref xor_byte);
         }
 
-        private void rdMonster(BinaryReader reader, ref uint xor_byte, Monster_t monster)
+        private void rdMonster(IBinaryReader reader, ref uint xor_byte, Monster_t monster)
         {
             //DEBUG(fprintf(logfile, "MONSTER:\n"));
             monster.hp = (int)this.rdShort(reader, ref xor_byte);
@@ -1503,7 +1534,7 @@ namespace Moria.Core.Methods
         //    fileptr = file;
         //}
 
-        private void saveHighScore(BinaryWriter writer, ref uint xor_byte, HighScore_t score)
+        private void saveHighScore(IBinaryWriter writer, ref uint xor_byte, HighScore_t score)
         {
             //DEBUG(logfile = fopen("IO_LOG", "a"));
             //DEBUG(fprintf(logfile, "Saving score:\n"));
@@ -1528,7 +1559,7 @@ namespace Moria.Core.Methods
             //DEBUG(fclose(logfile))
         }
 
-        private void readHighScore(BinaryReader reader, HighScore_t score)
+        private void readHighScore(IBinaryReader reader, HighScore_t score)
         {
             //DEBUG(logfile = fopen("IO_LOG", "a"));
             //DEBUG(fprintf(logfile, "Reading score:\n"));

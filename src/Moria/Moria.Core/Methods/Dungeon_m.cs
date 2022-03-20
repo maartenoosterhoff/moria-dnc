@@ -68,7 +68,7 @@ namespace Moria.Core.Methods
             var panel_width = (int)(MAX_WIDTH / RATIO);
             var panel_height = (int)(MAX_HEIGHT / RATIO);
 
-            var map = ArrayInitializer.InitializeWithDefault(MAX_WIDTH / RATIO + 1, '\0');
+            var map = ArrayInitializer.InitializeWithDefault(MAX_WIDTH / RATIO, ' ');
             string line_buffer;
             //char line_buffer[80];
 

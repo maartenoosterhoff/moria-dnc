@@ -202,6 +202,8 @@ Options:
 
             container.RegisterSingleton<IFileSystem, FileSystem>();
 
+            container.RegisterSingleton<IBinaryReaderWriterFactory, BinaryReaderWriterFactory>();
+
             container.Verify();
 
             // Set static dependencies (goal is to have none)
@@ -302,36 +304,36 @@ Options:
 
             return container;
         }
+    }
 
-        private class SimpleInjectorEventPublisher : IEventPublisher
+    public class SimpleInjectorEventPublisher : IEventPublisher
+    {
+        private readonly Container container;
+
+        public SimpleInjectorEventPublisher(Container container)
         {
-            private readonly Container container;
+            this.container = container;
+        }
 
-            public SimpleInjectorEventPublisher(Container container)
-            {
-                this.container = container;
-            }
+        public void Publish<TCommand>(TCommand command) where TCommand : ICommand
+        {
+            var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
+            var handler = (ICommandHandler<TCommand>)this.container.GetInstance(handlerType);
+            handler.Handle(command);
+        }
 
-            public void Publish<TCommand>(TCommand command) where TCommand : ICommand
-            {
-                var handlerType = typeof(ICommandHandler<>).MakeGenericType(typeof(TCommand));
-                var handler = (ICommandHandler<TCommand>)this.container.GetInstance(handlerType);
-                handler.Handle(command);
-            }
+        public bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand
+        {
+            var handlerType = typeof(ICommandHandler<,>).MakeGenericType(typeof(TCommand), typeof(bool));
+            var handler = (ICommandHandler<TCommand, bool>)this.container.GetInstance(handlerType);
+            return handler.Handle(command);
+        }
 
-            public bool PublishWithOutputBool<TCommand>(TCommand command) where TCommand : ICommand
-            {
-                var handlerType = typeof(ICommandHandler<,>).MakeGenericType(typeof(TCommand), typeof(bool));
-                var handler = (ICommandHandler<TCommand, bool>)this.container.GetInstance(handlerType);
-                return handler.Handle(command);
-            }
-
-            public int PublishWithOutputInt<TCommand>(TCommand command) where TCommand : ICommand
-            {
-                var handlerType = typeof(ICommandHandler<,>).MakeGenericType(typeof(TCommand), typeof(int));
-                var handler = (ICommandHandler<TCommand, int>)this.container.GetInstance(handlerType);
-                return handler.Handle(command);
-            }
+        public int PublishWithOutputInt<TCommand>(TCommand command) where TCommand : ICommand
+        {
+            var handlerType = typeof(ICommandHandler<,>).MakeGenericType(typeof(TCommand), typeof(int));
+            var handler = (ICommandHandler<TCommand, int>)this.container.GetInstance(handlerType);
+            return handler.Handle(command);
         }
     }
 
